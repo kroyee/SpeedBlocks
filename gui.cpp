@@ -743,7 +743,7 @@ bool UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 		net->packet.clear();
 		sf::Uint8 packetid = 2; //2-Packet
 		sf::Uint16 port = net->localUdpPort;
-		net->packet << packetid << port << guest << name << pass;
+		net->packet << packetid << clientVersion << port << guest << name << pass;
 		net->sendTCP();
 		playonline=true;
 		gui.get("Login")->hide();
@@ -1787,7 +1787,10 @@ void GameFieldDrawer::handlePacket() {
 			else {
 				net->disconnect();
 				playonline=false;
-				quickMsg("Authentication failed");
+				if (success == 3)
+					quickMsg("You have the wrong client version");
+				else
+					quickMsg("Authentication failed");
 				gui.get("Connecting")->hide();
 				gui.get("MainMenu")->show();
 				gui.get("Login")->show();

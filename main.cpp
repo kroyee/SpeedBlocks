@@ -10,6 +10,8 @@
 #include <sstream>
 using namespace std;
 
+#define CLIENT_VERSION 1
+
 void resizeWindow(sf::View& view, sf::Event& event) {
     float ratio;
     if ((float)event.size.width/event.size.height > 960.0/600) {
@@ -62,6 +64,7 @@ int main()
     window.setFramerateLimit(100);
 
     GameFieldDrawer gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
+    gui.clientVersion = CLIENT_VERSION;
 
     gui.gui.setView(view);
 

@@ -71,6 +71,8 @@ public:
 
 	sf::Uint16 linesSent, garbageCleared, linesBlocked;
 
+	sf::Uint16 clientVersion;
+
 
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
 	void putKey(sf::Event& event);
