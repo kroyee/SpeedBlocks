@@ -23,6 +23,7 @@ public:
     bool ghostpiece;
     bool fullscreen;
     bool sound;
+    bool vSync;
 
     short MusicVolume;
     short EffectVolume;
@@ -33,6 +34,9 @@ public:
 
     sf::Time repeatDelayDown;
     sf::Time repeatSpeedDown;
+
+    sf::Time frameDelay;
+    sf::Time inputDelay;
 
     short piecerotation[7];
     basePieces basepiece[7];

@@ -61,14 +61,14 @@ int main()
     }
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
-    window.setFramerateLimit(100);
 
     GameFieldDrawer gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
     gui.clientVersion = CLIENT_VERSION;
 
     gui.gui.setView(view);
 
-    //Gör det svarta runt playfields transparant och lägg till en svart låda runt Nextpiece
+    sf::Clock frameClock;
+    sf::Time current=sf::seconds(0), nextDraw=sf::seconds(0);
 
     while (window.isOpen())
     {
@@ -340,16 +340,24 @@ int main()
             break;
         }
 
-        window.draw(textureBase.background);
-        if (gamestate == CountDown || gamestate == Game || gamestate == GameOver) {
-            window.draw( game.field.sprite );
-            gui.drawFields();
+        current = frameClock.getElapsedTime();
+        if (current > nextDraw || game.options.vSync) {
+            nextDraw+=game.options.frameDelay;
+            window.draw(textureBase.background);
+            if (gamestate == CountDown || gamestate == Game || gamestate == GameOver) {
+                window.draw( game.field.sprite );
+                gui.drawFields();
+            }
+            gui.gui.draw();
+            if (gui.adjPieces)
+                for (int i=0; i<7; i++)
+                    window.draw(gui.piece[i]);
+            window.display();
         }
-        gui.gui.draw();
-        if (gui.adjPieces)
-            for (int i=0; i<7; i++)
-                window.draw(gui.piece[i]);
-        window.display();
+        else if (!game.options.vSync)
+            sf::sleep(game.options.inputDelay);
+        if (nextDraw < current)
+            nextDraw=current;
     }
 
     game.options.saveOptions();

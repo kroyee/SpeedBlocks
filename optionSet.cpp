@@ -45,6 +45,9 @@ short optionSet::loadOptions() {
 				case 26: sound = stoi(line); break;
 				case 27: repeatDelayDown = sf::milliseconds(stoi(line)); break;
 				case 28: repeatSpeedDown = sf::milliseconds(stoi(line)); break;
+				case 29: frameDelay = sf::milliseconds(stoi(line)); break;
+				case 30: inputDelay = sf::microseconds(stoi(line)); break;
+				case 31: vSync = stoi(line); break;
 			}
 			countset++;
 		}
@@ -53,7 +56,7 @@ short optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=29)
+	if (countset!=32)
 		success = 0;
 
 	if (!success) {
@@ -71,12 +74,16 @@ short optionSet::loadOptions() {
 
 		ghostpiece = true;
 		fullscreen = false;
+		vSync = false;
 
 		repeatDelay = sf::milliseconds(150);
 		repeatSpeed = sf::milliseconds(0);
 
 		repeatDelayDown = sf::milliseconds(20);
 		repeatSpeedDown = sf::milliseconds(20);
+
+		frameDelay = sf::milliseconds(10);
+		inputDelay = sf::milliseconds(5);
 
 		for (int x=0; x<7; x++)
 			piecerotation[x] = 0;
@@ -119,7 +126,10 @@ short optionSet::saveOptions() {
 		file << ChatVolume << endl;
 		file << sound << endl;
 		file << repeatDelayDown.asMilliseconds() << endl;
-		file << repeatSpeedDown.asMilliseconds();
+		file << repeatSpeedDown.asMilliseconds() << endl;
+		file << frameDelay.asMilliseconds() << endl;
+		file << inputDelay.asMicroseconds() << endl;
+		file << vSync;
 	}
 	else
 		cout << "Failed" << endl;
@@ -208,4 +218,9 @@ void optionSet::setDelay(short i, sf::String string) {
 		repeatDelayDown = sf::milliseconds(value);
 	else if (i == 4)
 		repeatSpeedDown = sf::milliseconds(value);
+	else if (i == 5)
+		if (value)
+			frameDelay = sf::milliseconds(1000/value);
+	else if (i == 6)
+		inputDelay = sf::microseconds(value);
 }

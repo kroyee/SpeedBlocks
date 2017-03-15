@@ -376,7 +376,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	GenOpt->add(Re4);
 
 	tgui::Panel::Ptr VidOpt = tgui::Panel::create(); // Video Options
-	VidOpt->setSize(800, 500);
+	VidOpt->setSize(960, 500);
 	VidOpt->setPosition(0, 100);
 	VidOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	VidOpt->hide();
@@ -416,12 +416,48 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	FsC->connect("Checked Unchecked", &UI::fsChecked, this);
 	VidOpt->add(FsC, "Fullscreen");
 
+	tgui::CheckBox::Ptr VsC = themeTG->load("CheckBox");
+	VsC->setPosition(380, 130);
+	VsC->setText("VSync");
+	if (options->vSync)
+		VsC->check();
+	VidOpt->add(VsC, "vSync");
+
+	tgui::Label::Ptr FdL = themeTG->load("Label");
+	FdL->setPosition(150, 200);
+	FdL->setText("Frame Rate");
+	VidOpt->add(FdL);
+
+	tgui::EditBox::Ptr FdE = themeTG->load("EditBox");
+	FdE->setPosition(170, 230);
+	FdE->setSize(70, 30);
+	FdE->setInputValidator(tgui::EditBox::Validator::UInt);
+	FdE->setText(to_string(1000/options->frameDelay.asMilliseconds()));
+	VidOpt->add(FdE, "FrameDelay");
+
+	tgui::Label::Ptr IdL = themeTG->load("Label");
+	IdL->setPosition(400, 200);
+	IdL->setText("Frame Time [microseconds]");
+	VidOpt->add(IdL);
+
+	tgui::EditBox::Ptr IdE = themeTG->load("EditBox");
+	IdE->setPosition(460, 230);
+	IdE->setSize(110, 30);
+	IdE->setInputValidator(tgui::EditBox::Validator::UInt);
+	IdE->setText(to_string(options->inputDelay.asMicroseconds()));
+	VidOpt->add(IdE, "InputDelay");
+
 	tgui::Button::Ptr AvB = themeBB->load("Button");
 	AvB->setText("Apply");
-	AvB->setPosition(340, 200);
+	AvB->setPosition(340, 300);
 	AvB->setOpacity(0.7);
 	AvB->connect("pressed", &UI::applyVideo, this);
 	VidOpt->add(AvB);
+
+	tgui::Label::Ptr InL = themeTG->load("Label");
+	InL->setPosition(10, 390);
+	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensetive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000");
+	VidOpt->add(InL);
 
 	tgui::Panel::Ptr SndOpt = tgui::Panel::create(); // Sound Options
 	SndOpt->setSize(800, 500);
@@ -980,6 +1016,12 @@ void UI::otabSelect(std::string tab) {
 			gui.get<tgui::CheckBox>("Fullscreen", 1)->check();
 		else
 			gui.get<tgui::CheckBox>("Fullscreen", 1)->uncheck();
+		if (options->vSync)
+			gui.get<tgui::CheckBox>("vSync", 1)->check();
+		else
+			gui.get<tgui::CheckBox>("vSync", 1)->uncheck();
+		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000/options->frameDelay.asMilliseconds()));
+		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options->inputDelay.asMicroseconds()));
 	}
 	else if (tab == "Sound") {
 		gui.get("VidOpt")->hide();
@@ -1043,6 +1085,28 @@ void UI::applyVideo() {
 		window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
 		options->fullscreen=false;
 	}
+
+	if (gui.get<tgui::CheckBox>("vSync", 1)->isChecked()) {
+		options->vSync = true;
+		window->setVerticalSyncEnabled(true);
+	}
+	else {
+		options->vSync = false;
+		window->setVerticalSyncEnabled(false);
+	}
+
+	std::string fd = gui.get<tgui::EditBox>("FrameDelay", 1)->getText();
+	short value=0;
+	if (fd.size())
+		value = stoi(fd);
+	if (value)
+		options->frameDelay = sf::milliseconds(1000/value);
+	value=0;
+	fd = gui.get<tgui::EditBox>("InputDelay", 1)->getText();
+	if (fd.size())
+		value = stoi(fd);
+	if (value)
+		options->inputDelay = sf::microseconds(value);
 }
 
 void UI::vidSlide(short i) {
