@@ -405,18 +405,24 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	comboCount++;
 	comboTime+=sf::seconds((2.0/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
 
-	if (comboCount==5)
-		if (options.sound)
+	if (options.sound) {
+		if (comboCount==5)
 			sounds->combo5();
-	else if (comboCount==10)
-		if (options.sound)
-			sounds->combo10();
-	else if (comboCount==15)
-		if (options.sound)
+		else if (comboCount==8)
+			sounds->combo8();
+		else if (comboCount==11)
+			sounds->combo11();
+		else if (comboCount==13)
+			sounds->combo13();
+		else if (comboCount==15)
 			sounds->combo15();
-	else if (comboCount==20)
-		if (options.sound)
-			sounds->combo20();
+		else if (comboCount==17)
+			sounds->combo17();
+		else if (comboCount==19)
+			sounds->combo19();
+		else if (comboCount==21)
+			sounds->combo21();
+	}
 
 	setComboTimer();
 	comboText.setString(to_string(comboCount));
