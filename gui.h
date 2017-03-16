@@ -145,7 +145,7 @@ public:
 	sf::Uint16 myId;
 
 	void addField(obsField& field);
-	void removeField(short id);
+	void removeField(sf::Uint16 id);
 	void updateField(obsField& field);
 	void calFieldPos();
 

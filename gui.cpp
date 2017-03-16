@@ -1373,7 +1373,7 @@ void GameFieldDrawer::addField(obsField& field) {
 	drawOppField(fields.back());
 }
 
-void GameFieldDrawer::removeField(short id) {
+void GameFieldDrawer::removeField(sf::Uint16 id) {
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
 			it = fields.erase(it);
