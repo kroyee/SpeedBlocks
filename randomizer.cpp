@@ -5,7 +5,7 @@
 
 short randomizer::getPiece() {
 	short returnpiece=0;
-	float piece = rand()%1000;
+	float piece = piece_dist(piece_gen);
 	for (int i=0; i<7; i++) {
 		piece-=cogP[i];
 		if (piece < 0) {
@@ -16,9 +16,9 @@ short randomizer::getPiece() {
 	noP[returnpiece]++;
 	total++;
 
-	float adjust=cogP[returnpiece]/2;
+	float adjust=(cogP[returnpiece]/4)*3;
 	cogP[returnpiece]-=adjust;
-	adjust/=6;
+	adjust/=6.0;
 
 	for (int i=0; i<7; i++)
 		if (i!=returnpiece)
@@ -27,12 +27,16 @@ short randomizer::getPiece() {
 	return returnpiece;
 }
 
+void randomizer::seedPiece(short seedNr) {
+	piece_gen.seed(seedNr);
+}
+
 short randomizer::getHole() {
-	return dist(gen);
+	return hole_dist(hole_gen);
 }
 
 void randomizer::seedHole(short seedNr) {
-	gen.seed(seedNr);
+	hole_gen.seed(seedNr);
 }
 
 void randomizer::reset() {

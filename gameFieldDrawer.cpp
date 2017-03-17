@@ -377,7 +377,7 @@ void GameFieldDrawer::handlePacket() {
 			sf::Uint8 countdown;
 			sf::Uint16 seed1, seed2;
 			net->packet >> countdown >> seed1 >> seed2;
-			srand(seed1);
+			game->rander.seedPiece(seed1);
 			game->rander.seedHole(seed2);
 			game->rander.reset();
 			game->startCountdown();
