@@ -1,7 +1,7 @@
 default: sfml
 
-sfml: main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o
-	g++ -std=c++11 main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o -o sfml -ltgui -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network -lsfml-system
+sfml: main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o gameFieldDrawer.o
+	g++ -std=c++11 main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o gameFieldDrawer.o -o sfml -ltgui -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network -lsfml-system
 
 main.o: main.cpp pieces.h gameField.h gamePlay.h textures.h optionSet.h randomizer.h sounds.h gui.h network.h packetcompress.h
 	g++ -std=c++11 -c main.cpp -o main.o
@@ -27,8 +27,11 @@ textures.o: textures.cpp textures.h
 sounds.o: sounds.cpp sounds.h
 	g++ -std=c++11 -c sounds.cpp -o sounds.o
 
-gui.o: gui.cpp gui.h optionSet.h sounds.h gamePlay.h gameField.h network.h textures.h
+gui.o: gui.cpp gui.h sounds.h gamePlay.h network.h
 	g++ -std=c++11 -c gui.cpp -o gui.o
+
+gameFieldDrawer.o: gameFieldDrawer.cpp gui.h optionSet.h gamePlay.h network.h
+	g++ -std=c++11 -c gameFieldDrawer.cpp -o gameFieldDrawer.o
 
 network.o: network.cpp network.h
 	g++ -std=c++11 -c network.cpp -o network.o
