@@ -8,7 +8,7 @@
 #endif
 
 void textures::loadTextures() {
-    tileTexture.loadFromFile(resourcePath() + "tile.png");
+    tileTexture.loadFromFile(resourcePath() + "media/tile.png");
     tileTexture.setSmooth(true);
 
     tile[0].setTexture(tileTexture); tile[0].setColor(sf::Color(255,0,0));
@@ -29,11 +29,11 @@ void textures::loadTextures() {
     tile[14].setTexture(tileTexture); tile[14].setColor(sf::Color(255,255,255,120));
     tile[15].setTexture(tileTexture); tile[15].setColor(sf::Color(70,70,70,120));
 
-    fieldBackgroundTexture.loadFromFile(resourcePath() + "fieldback.png");
+    fieldBackgroundTexture.loadFromFile(resourcePath() + "media/fieldback.png");
     fieldBackgroundTexture.setSmooth(true);
 
     fieldBackground.setTexture(fieldBackgroundTexture);
 
-    backgroundTexture.loadFromFile(resourcePath() + "background.png");
+    backgroundTexture.loadFromFile(resourcePath() + "media/background.png");
     background.setTexture(backgroundTexture);
 }

@@ -1,9 +1,4 @@
 *.o
-*.png
-*.wav
-*.ttf
 *.cfg
 *.sublime*
-*.xcf
 /sfml
-sounds/

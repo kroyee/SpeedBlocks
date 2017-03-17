@@ -34,8 +34,8 @@ void resizeWindow(sf::View& view, sf::Event& event) {
 int main()
 {
     sf::Font typewriter, printFont;
-    typewriter.loadFromFile(resourcePath() + "Kingthings Trypewriter 2.ttf");
-    printFont.loadFromFile(resourcePath() + "F25_Bank_Printer.ttf");
+    typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf");
+    printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf");
 
     enum gamestates { MainMenu, CountDown, Game, GameOver };
     gamestates gamestate = MainMenu;

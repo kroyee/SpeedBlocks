@@ -32,8 +32,8 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	net=&_net;
 	textureBase=&_tex;
 
-	themeTG = tgui::Theme::create(resourcePath() + "TransparentGrey.txt");
-	themeBB = tgui::Theme::create(resourcePath() + "BabyBlue.txt");
+	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
+	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
 
 	initSprites();
 
@@ -1210,7 +1210,7 @@ sf::Color pColor(short i) {
 void UI::initSprites() {
 	sf::Texture tileT;
 	sf::Sprite tile;
-	tileT.loadFromFile(resourcePath() + "tile.png");
+	tileT.loadFromFile(resourcePath() + "media/tile.png");
 	tile.setTexture(tileT);
 
 	sf::RenderTexture rendtex;
