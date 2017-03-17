@@ -3,7 +3,14 @@
 #include "gamePlay.h"
 #include "network.h"
 #include <iostream>
+#include "MingwConvert.h"
 using namespace std;
+
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#else
+#include "EmptyResourcePath.h"
+#endif
 
 UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : gui(rwindow), typewriter(font1), printFont(&font2), printFont2(font2) {
 	training=false;
@@ -25,8 +32,8 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	net=&_net;
 	textureBase=&_tex;
 
-	themeTG = tgui::Theme::create("TransparentGrey.txt");
-	themeBB = tgui::Theme::create("BabyBlue.txt");
+	themeTG = tgui::Theme::create(resourcePath() + "TransparentGrey.txt");
+	themeBB = tgui::Theme::create(resourcePath() + "BabyBlue.txt");
 
 	initSprites();
 
@@ -1203,7 +1210,7 @@ sf::Color pColor(short i) {
 void UI::initSprites() {
 	sf::Texture tileT;
 	sf::Sprite tile;
-	tileT.loadFromFile("tile.png");
+	tileT.loadFromFile(resourcePath() + "tile.png");
 	tile.setTexture(tileT);
 
 	sf::RenderTexture rendtex;

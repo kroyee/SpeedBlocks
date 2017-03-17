@@ -8,6 +8,7 @@
 #include <iostream>
 #include <deque>
 #include <string>
+#include "MingwConvert.h"
 using namespace std;
 
 #define PI 3.14159265

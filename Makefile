@@ -1,7 +1,7 @@
 default: sfml
 
-sfml: main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o gameFieldDrawer.o
-	g++ -std=c++11 main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o gameFieldDrawer.o -o sfml -ltgui -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network -lsfml-system
+sfml: main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o gameFieldDrawer.o EmptyResourcePath.o
+	g++ -std=c++11 main.o gameField.o optionSet.o pieces.o gamePlay.o randomizer.o textures.o sounds.o gui.o network.o packetcompress.o gameFieldDrawer.o EmptyResourcePath.o -o sfml -ltgui -lsfml-graphics -lsfml-window -lsfml-audio -lsfml-network -lsfml-system
 
 main.o: main.cpp pieces.h gameField.h gamePlay.h textures.h optionSet.h randomizer.h sounds.h gui.h network.h packetcompress.h
 	g++ -std=c++11 -c main.cpp -o main.o
@@ -38,6 +38,9 @@ network.o: network.cpp network.h
 
 packetcompress.o: packetcompress.cpp packetcompress.h gamePlay.h
 	g++ -std=c++11 -c packetcompress.cpp -o packetcompress.o
+
+EmptyResourcePath.o: EmptyResourcePath.cpp EmptyResourcePath.h
+	g++ -std=c++11 -c EmptyResourcePath.cpp -o EmptyResourcePath.o
 
 run: sfml
 	./sfml

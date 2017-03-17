@@ -1,8 +1,14 @@
 #include "textures.h"
 #include <SFML/Graphics.hpp>
 
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#else
+#include "EmptyResourcePath.h"
+#endif
+
 void textures::loadTextures() {
-    tileTexture.loadFromFile("tile.png");
+    tileTexture.loadFromFile(resourcePath() + "tile.png");
     tileTexture.setSmooth(true);
 
     tile[0].setTexture(tileTexture); tile[0].setColor(sf::Color(255,0,0));
@@ -23,11 +29,11 @@ void textures::loadTextures() {
     tile[14].setTexture(tileTexture); tile[14].setColor(sf::Color(255,255,255,120));
     tile[15].setTexture(tileTexture); tile[15].setColor(sf::Color(70,70,70,120));
 
-    fieldBackgroundTexture.loadFromFile("fieldback.png");
+    fieldBackgroundTexture.loadFromFile(resourcePath() + "fieldback.png");
     fieldBackgroundTexture.setSmooth(true);
 
     fieldBackground.setTexture(fieldBackgroundTexture);
 
-    backgroundTexture.loadFromFile("background.png");
+    backgroundTexture.loadFromFile(resourcePath() + "background.png");
     background.setTexture(backgroundTexture);
 }

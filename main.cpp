@@ -8,6 +8,13 @@
 #include <iostream> // just here for quick and simple error testing, remove if you want
 #include <TGUI/TGUI.hpp>
 #include <sstream>
+
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#else
+#include "EmptyResourcePath.h"
+#endif
+
 using namespace std;
 
 #define CLIENT_VERSION 1
@@ -27,8 +34,8 @@ void resizeWindow(sf::View& view, sf::Event& event) {
 int main()
 {
     sf::Font typewriter, printFont;
-    typewriter.loadFromFile("Kingthings Trypewriter 2.ttf");
-    printFont.loadFromFile("F25_Bank_Printer.ttf");
+    typewriter.loadFromFile(resourcePath() + "Kingthings Trypewriter 2.ttf");
+    printFont.loadFromFile(resourcePath() + "F25_Bank_Printer.ttf");
 
     enum gamestates { MainMenu, CountDown, Game, GameOver };
     gamestates gamestate = MainMenu;

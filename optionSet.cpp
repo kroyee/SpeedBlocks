@@ -3,11 +3,18 @@
 #include <fstream>
 #include <string>
 #include <SFML/Graphics.hpp>
+#include "MingwConvert.h"
 using namespace std;
+
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#else
+#include "EmptyResourcePath.h"
+#endif
 
 short optionSet::loadOptions() {
 	string line;
-	ifstream file ("options.cfg");
+	ifstream file (resourcePath() + "options.cfg");
 
 	int countset = 0;
 
@@ -98,7 +105,7 @@ short optionSet::loadOptions() {
 }
 
 short optionSet::saveOptions() {
-	ofstream file("options.cfg", ios::trunc);
+	ofstream file(resourcePath() + "options.cfg", ios::trunc);
 
 	cout << "Saving options..." << endl;
 
