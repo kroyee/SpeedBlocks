@@ -22,6 +22,7 @@ standard functions to_string() and stoi(). It's replaced with boost/lexical_cast
 if you want to compile with MingW32 you need that too.
 This is again included in the source to make it compile as-is.
 
+Please see the Wiki for additional instructions.
 
 If you want to contribute, please make a fork where you can push until your code
 is stable. I will integrate from there.
