@@ -92,8 +92,15 @@ short optionSet::loadOptions() {
 		frameDelay = sf::milliseconds(10);
 		inputDelay = sf::milliseconds(5);
 
-		for (int x=0; x<7; x++)
-			piecerotation[x] = 0;
+		piecerotation[0] = 3;
+		piecerotation[1] = 1;
+		piecerotation[2] = 3;
+		piecerotation[3] = 1;
+		piecerotation[4] = 1;
+		piecerotation[5] = 2;
+		piecerotation[6] = 0;
+
+
 
 		name="Player";
 		currentmode=-1;

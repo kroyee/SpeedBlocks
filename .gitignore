@@ -2,3 +2,6 @@
 *.cfg
 *.sublime*
 /sfml
+
+# default Code::Blocks output folder
+/SpeedBlocks
