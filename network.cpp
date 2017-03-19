@@ -6,8 +6,6 @@ void network::sendTCP() { while (tcpSock.send(packet) == sf::Socket::Partial) {}
 void network::sendUDP() { udpSock.send(packet, serverAdd, udpPort); }
 
 sf::Socket::Status network::connect() {
-	udpSock.bind(sf::Socket::AnyPort);
-	localUdpPort = udpSock.getLocalPort();
 	tcpSock.setBlocking(true);
 	sf::Socket::Status status = tcpSock.connect(serverAdd, tcpPort);
 	tcpSock.setBlocking(false);

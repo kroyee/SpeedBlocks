@@ -119,6 +119,8 @@ public:
 
 	void quickMsg(const sf::String& msg);
 
+	void changeServerAdd(sf::String);
+
 	bool login(const sf::String&, const sf::String&, sf::Uint8);
 	void closeLogin();
 };
