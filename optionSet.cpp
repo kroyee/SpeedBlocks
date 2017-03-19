@@ -52,7 +52,7 @@ short optionSet::loadOptions() {
 				case 26: sound = stoi(line); break;
 				case 27: repeatDelayDown = sf::milliseconds(stoi(line)); break;
 				case 28: repeatSpeedDown = sf::milliseconds(stoi(line)); break;
-				case 29: frameDelay = sf::milliseconds(stoi(line)); break;
+				case 29: frameDelay = sf::microseconds(stoi(line)); break;
 				case 30: inputDelay = sf::microseconds(stoi(line)); break;
 				case 31: vSync = stoi(line); break;
 			}
@@ -141,7 +141,7 @@ short optionSet::saveOptions() {
 		file << sound << endl;
 		file << repeatDelayDown.asMilliseconds() << endl;
 		file << repeatSpeedDown.asMilliseconds() << endl;
-		file << frameDelay.asMilliseconds() << endl;
+		file << frameDelay.asMicroseconds() << endl;
 		file << inputDelay.asMicroseconds() << endl;
 		file << vSync;
 	}

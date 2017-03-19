@@ -436,7 +436,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	FdE->setPosition(170, 230);
 	FdE->setSize(70, 30);
 	FdE->setInputValidator(tgui::EditBox::Validator::UInt);
-	FdE->setText(to_string(1000/options->frameDelay.asMilliseconds()));
+	FdE->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
 	VidOpt->add(FdE, "FrameDelay");
 
 	tgui::Label::Ptr IdL = themeTG->load("Label");
@@ -1024,7 +1024,7 @@ void UI::otabSelect(std::string tab) {
 			gui.get<tgui::CheckBox>("vSync", 1)->check();
 		else
 			gui.get<tgui::CheckBox>("vSync", 1)->uncheck();
-		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000/options->frameDelay.asMilliseconds()));
+		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
 		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options->inputDelay.asMicroseconds()));
 	}
 	else if (tab == "Sound") {
@@ -1104,7 +1104,7 @@ void UI::applyVideo() {
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		options->frameDelay = sf::milliseconds(1000/value);
+		options->frameDelay = sf::microseconds(1000000/value);
 	value=0;
 	fd = gui.get<tgui::EditBox>("InputDelay", 1)->getText();
 	if (fd.size())
