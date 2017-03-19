@@ -9,6 +9,8 @@ using namespace std;
 #endif
 
 soundBank::soundBank() {
+    pieceDropBuff.loadFromFile(resourcePath() + "sounds/block.wav");
+    lineClearBuff.loadFromFile(resourcePath() + "sounds/clear.wav");
 	garbAddBuff.loadFromFile(resourcePath() + "sounds/173958__fins__failure.wav");
 	lineBlockBuff.loadFromFile(resourcePath() + "sounds/350905__cabled-mess__jump-c-05.wav");
 	menuSelBuff.loadFromFile(resourcePath() + "sounds/191593__fins__menu-button.wav");
@@ -23,6 +25,8 @@ soundBank::soundBank() {
 	combo21Buff.loadFromFile(resourcePath() + "sounds/171640__fins__scale-c7.wav");
 	startBeepBuff.loadFromFile(resourcePath() + "sounds/13119__looppool__bell-blip.wav");
 
+	pieceDropSound.setBuffer(pieceDropBuff);
+	lineClearSound.setBuffer(lineClearBuff);
 	garbAddSound.setBuffer(garbAddBuff);
 	lineBlockSound.setBuffer(lineBlockBuff);
 	menuSelSound.setBuffer(menuSelBuff);
@@ -42,6 +46,8 @@ soundBank::soundBank() {
 }
 
 void soundBank::setEffectVolume(short vol) {
+    pieceDropSound.setVolume(vol);
+    lineClearSound.setVolume(vol);
 	garbAddSound.setVolume(vol);
 	lineBlockSound.setVolume(vol);
 	menuSelSound.setVolume(vol);
@@ -63,5 +69,5 @@ void soundBank::setMusicVolume(short vol) {
 }
 
 void soundBank::setChatVolume(short vol) {
-	
+
 }

@@ -181,6 +181,9 @@ void gamePlay::addPiece() {
         for (int y=0; y<4; y++)
             if (piece.grid[y][x])
                 field.square[piece.posY+y][piece.posX+x]=piece.grid[y][x];
+    if (options.sound) {
+        sounds->pieceDrop();
+    }
 }
 
 void gamePlay::makeNewPiece() {
@@ -398,7 +401,9 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
 			}
 	}
-
+    if (options.sound) {
+        sounds->lineClear();
+    }
 	linesSent+=lines.x;
 
 	if (comboCount==0)
