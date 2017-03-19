@@ -2,3 +2,5 @@
 *.cfg
 *.sublime*
 /sfml
+*.tar.*
+*.zip
