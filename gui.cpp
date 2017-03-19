@@ -78,6 +78,13 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	Quit->connect("pressed", &UI::setBool, this, std::ref(quit));
 	MainMenu->add(Quit);
 
+	tgui::EditBox::Ptr IPAddr = themeTG->load("EditBox");
+	IPAddr->setPosition(50, 30);
+	IPAddr->setSize(250, 40);
+	IPAddr->setText(net->serverAdd.toString());
+	IPAddr->connect("TextChanged", &UI::changeServerAdd, this);
+	MainMenu->add(IPAddr);
+
 	tgui::Panel::Ptr LiP = tgui::Panel::create(); // Login panel
 	LiP->setSize(400, 300);
 	LiP->setPosition(280, 150);
@@ -460,7 +467,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Label::Ptr InL = themeTG->load("Label");
 	InL->setPosition(10, 390);
-	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensetive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000");
+	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensitive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000 ");
 	VidOpt->add(InL);
 
 	tgui::Panel::Ptr SndOpt = tgui::Panel::create(); // Sound Options
@@ -690,6 +697,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	gui.add(QmL, "QuickMsg");
 }
 
+void UI::changeServerAdd(sf::String addr) {
+	net->serverAdd = addr.toAnsiString();
+}
+
 void UI::addRoom(const sf::String& name, short curr, short max, short id) {
 	playRoom newroom;
 	playRooms.push_back(newroom);
@@ -780,6 +791,9 @@ bool UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 	gui.get("MainMenu")->hide();
 	gui.get("Connecting")->show();
 	if (net->connect() == sf::Socket::Done) {
+		net->udpSock.unbind();
+		net->udpSock.bind(sf::Socket::AnyPort);
+		net->localUdpPort = net->udpSock.getLocalPort();
 		net->packet.clear();
 		sf::Uint8 packetid = 2; //2-Packet
 		sf::Uint16 port = net->localUdpPort;
@@ -1364,7 +1378,7 @@ void SFKeyToString(unsigned int keycode, char *keyStr) {
     case sf::Keyboard::Key::F14: sprintf(keyStr, "F14"); break;
     case sf::Keyboard::Key::F15: sprintf(keyStr, "F15"); break;
     case sf::Keyboard::Key::Pause: sprintf(keyStr, "Pause"); break;
-        
+
     default:
     if (keycode >= 0 && keycode < 26)
         sprintf(keyStr, "%c", keycode+65);

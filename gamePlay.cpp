@@ -194,6 +194,7 @@ void gamePlay::makeNewPiece() {
 	piece.posX = 3;
 	piece.posY = 2;
 	if (!possible()) {
+		addPiece();
 		gameover=true;
 		sendgameover=true;
 	}
@@ -388,6 +389,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	else if (lines.x==1) {
 		if (garbage.size())
 			garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+		lines.x--;
 	}
 	else {
 		lines.x--;
@@ -507,6 +509,10 @@ void gamePlay::startCountdown() {
 	countdownText.setString("3");
 	field.clear();
 	makeNewPiece();
+	while (nextpiece == 2 || nextpiece == 3) {
+		rander.reset();
+		makeNewPiece();
+	}
 	comboText.setString("0");
 	pendingText.setString("0");
 	bpmText.setString("0");
