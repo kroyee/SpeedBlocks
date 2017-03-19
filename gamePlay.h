@@ -1,6 +1,9 @@
 #ifndef GAMEPLAY_H
 #define GAMEPLAY_H
 
+//fixes deprecation problems
+#pragma warning(disable: 4996)
+
 #include <SFML/Graphics.hpp>
 #include <deque>
 #include "pieces.h"
