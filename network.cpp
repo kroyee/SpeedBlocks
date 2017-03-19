@@ -33,7 +33,7 @@ bool network::receiveData() {
 	packet.clear();
 	status = udpSock.receive(packet, receiveAdd, receivePort);
 	if (status == sf::Socket::Done) {
-		packetid = 254;
+		packet >> packetid;
 		return true;
 	}
 	else if (status != sf::Socket::NotReady)

@@ -268,7 +268,8 @@ void GameFieldDrawer::sendGameData() { //UDP-Packet
 		gamedata=tmp+sf::milliseconds(100);
 		compressor.compress();
 		net->packet.clear();
-		net->packet << myId << gamedatacount;
+		sf::Uint8 packetid = 100;
+		net->packet << packetid << myId << gamedatacount;
 		gamedatacount++;
 		for (int i=0; i<compressor.tmpcount; i++)
 			net->packet << compressor.tmp[i];
@@ -336,7 +337,7 @@ void GameFieldDrawer::handlePacket() {
 			disconnect=true;
 			playonline=false;
 		break;
-		case 254: //UDP packet
+		case 100: //Game data
 		{
 			sf::Uint16 clientid;
 			sf::Uint8 datacount;
@@ -346,9 +347,12 @@ void GameFieldDrawer::handlePacket() {
 					if (datacount>field.datacount || (datacount<50 && field.datacount>200)) {
 						field.datacount=datacount;
 						for (int c=0; net->packet >> compressor.tmp[c]; c++) {}
-						compressor.field = &field;
 						compressor.extract();
-						drawOppField(field);
+						if (compressor.validate()) {
+							compressor.field = &field;
+							compressor.copy();
+							drawOppField(field);
+						}
 					}
 					break;
 				}
