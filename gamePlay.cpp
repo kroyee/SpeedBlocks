@@ -498,6 +498,8 @@ void gamePlay::startCountdown() {
 	countDownTime = sf::seconds(0);
 	countDowncount = 0;
 
+	gameover=false;
+	countdownText.setString("3");
 	field.clear();
 	makeNewPiece();
 	comboText.setString("0");
