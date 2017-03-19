@@ -93,7 +93,7 @@ void PacketCompress::compress() {
 			addBits(game->piece.grid[y][x], 3);
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
-	addBits(game->basepiece[game->nextpiece].rotation, 3);
+	addBits(game->options.piecerotation[game->nextpiece], 3);
 }
 
 void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {

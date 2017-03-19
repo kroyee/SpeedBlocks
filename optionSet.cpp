@@ -132,7 +132,7 @@ short optionSet::saveOptions() {
 		file << repeatDelay.asMilliseconds() << endl;
 		file << repeatSpeed.asMilliseconds() << endl;
 		for (int x=0; x<7; x++)
-			file << piecerotation[x] << endl;
+			file << (int)piecerotation[x] << endl;
 		file << name.toAnsiString() << endl;
 		file << currentmode << endl;
 		file << MusicVolume << endl;
