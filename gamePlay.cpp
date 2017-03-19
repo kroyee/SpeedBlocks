@@ -389,6 +389,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	else if (lines.x==1) {
 		if (garbage.size())
 			garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+		lines.x--;
 	}
 	else {
 		lines.x--;
