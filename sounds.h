@@ -6,7 +6,9 @@
 class soundBank {
 public:
 	soundBank();
-	
+
+	sf::SoundBuffer pieceDropBuff;
+	sf::SoundBuffer lineClearBuff;
 	sf::SoundBuffer garbAddBuff;
 	sf::SoundBuffer lineBlockBuff;
 	sf::SoundBuffer menuSelBuff;
@@ -21,6 +23,8 @@ public:
 	sf::SoundBuffer combo21Buff;
 	sf::SoundBuffer startBeepBuff;
 
+	sf::Sound pieceDropSound;
+	sf::Sound lineClearSound;
 	sf::Sound garbAddSound;
 	sf::Sound lineBlockSound;
 	sf::Sound menuSelSound;
@@ -36,6 +40,8 @@ public:
 	sf::Sound startBeep1Sound;
 	sf::Sound startBeep2Sound;
 
+	void pieceDrop() { pieceDropSound.play(); }
+	void lineClear() { lineClearSound.play(); }
 	void garbAdd() { garbAddSound.play(); }
 	void lineBlock() { lineBlockSound.play(); }
 	void menuSel() { menuSelSound.play(); }

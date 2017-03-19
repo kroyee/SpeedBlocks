@@ -381,6 +381,9 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	short tmplines=lines.x;
 	if (lines.x==0) {
 		comboTime-=sf::milliseconds(200);
+		if (options.sound) {
+			sounds->pieceDrop();
+		}
 		return;
 	}
 	else if (lines.x==1) {
@@ -399,7 +402,9 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
 			}
 	}
-
+	if (options.sound) {
+		sounds->lineClear();
+	}
 	linesSent+=lines.x;
 
 	if (comboCount==0)
