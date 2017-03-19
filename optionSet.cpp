@@ -91,7 +91,7 @@ short optionSet::loadOptions() {
 
 		//frame delay multiplicator 10 = 100 FPS
 		frameDelay = sf::milliseconds(10);
-        //om[it delay multiplicator 1000 = 1000ms
+        //input delay multiplicator 1000 = 1000 microseconds - 1ms
 		inputDelay = sf::milliseconds(1);
 
 		piecerotation[0] = 3;
