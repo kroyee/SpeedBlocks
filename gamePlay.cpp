@@ -393,7 +393,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	else {
 		lines.x--;
-		for (int i=0; i<tmplines; i++)
+		for (int i=0; i<tmplines-1; i++)
 			if (garbage.size()) {
 				garbage.front().count--;
 				if (garbage.front().count == 0)
