@@ -460,7 +460,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Label::Ptr InL = themeTG->load("Label");
 	InL->setPosition(10, 390);
-	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensitive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000");
+	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensitive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000 ");
 	VidOpt->add(InL);
 
 	tgui::Panel::Ptr SndOpt = tgui::Panel::create(); // Sound Options
