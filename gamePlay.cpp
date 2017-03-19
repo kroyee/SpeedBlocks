@@ -194,6 +194,7 @@ void gamePlay::makeNewPiece() {
 	piece.posX = 3;
 	piece.posY = 2;
 	if (!possible()) {
+		addPiece();
 		gameover=true;
 		sendgameover=true;
 	}
