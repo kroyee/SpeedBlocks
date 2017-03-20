@@ -1,6 +1,7 @@
 *.o
 *.cfg
 *.sublime*
+SpeedBlocks.props
 /sfml
 
 # default Code::Blocks output folder
