@@ -1,6 +1,7 @@
 #ifndef SOUNDS_H
 #define SOUNDS_H
 
+#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Audio.hpp>
 
 class soundBank {

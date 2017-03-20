@@ -64,6 +64,7 @@ void soundBank::setEffectVolume(short vol) {
 	startBeep2Sound.setVolume(vol);
 }
 
+
 void soundBank::setMusicVolume(short vol) {
 
 }

@@ -1,6 +1,7 @@
 #ifndef OPTIONSET_H
 #define OPTIONSET_H
 
+#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Graphics.hpp>
 #include "pieces.h"
 
@@ -48,8 +49,8 @@ public:
 
     void getVideoModes();
     void initBasePieces();
-    short loadOptions();
-    short saveOptions();
+    void loadOptions();
+    void saveOptions();
 
     void setDelay(short, sf::String);
 };

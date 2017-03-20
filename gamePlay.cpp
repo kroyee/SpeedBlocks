@@ -443,7 +443,7 @@ void gamePlay::addGarbage(short add) {
 	linesRecieved+=add;
 
 	short total=0;
-	for (int x=0; x<garbage.size(); x++)
+	for (unsigned int x=0; x<garbage.size(); x++)
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
@@ -461,7 +461,7 @@ void gamePlay::pushGarbage() {
 	}
 
 	short total=0;
-	for (int x=0; x<garbage.size(); x++)
+	for (unsigned int x=0; x<garbage.size(); x++)
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
@@ -490,7 +490,7 @@ bool gamePlay::setComboTimer() {
 	if (count<0)
 		count=0;
 
-	if (comboTimer.getPointCount() == count+2)
+	if (comboTimer.getPointCount() == static_cast<unsigned int>(count+2))
 		return false;
 	comboTimer.setPointCount(count+2);
 
@@ -549,6 +549,7 @@ bool gamePlay::countDown() {
 			return true;
 		}
 	}
+	return false;
 }
 
 void gamePlay::countDown(short c) {

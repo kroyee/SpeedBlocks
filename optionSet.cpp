@@ -12,7 +12,7 @@ using namespace std;
 #include "EmptyResourcePath.h"
 #endif
 
-short optionSet::loadOptions() {
+void optionSet::loadOptions() {
 	string line;
 	ifstream file (resourcePath() + "options.cfg");
 
@@ -113,7 +113,7 @@ short optionSet::loadOptions() {
 	}
 }
 
-short optionSet::saveOptions() {
+void optionSet::saveOptions() {
 	ofstream file(resourcePath() + "options.cfg", ios::trunc);
 
 	cout << "Saving options..." << endl;
@@ -234,9 +234,10 @@ void optionSet::setDelay(short i, sf::String string) {
 		repeatDelayDown = sf::milliseconds(value);
 	else if (i == 4)
 		repeatSpeedDown = sf::milliseconds(value);
-	else if (i == 5)
+	else if (i == 5) {
 		if (value)
 			frameDelay = sf::milliseconds(1000/value);
+	}
 	else if (i == 6)
 		inputDelay = sf::microseconds(value);
 }

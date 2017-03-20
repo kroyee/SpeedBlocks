@@ -12,7 +12,7 @@ using namespace std;
 #include "EmptyResourcePath.h"
 #endif
 
-UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : gui(rwindow), typewriter(font1), printFont(&font2), printFont2(font2) {
+UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : typewriter(font1), printFont2(font2), printFont(&font2), gui(rwindow) {
 	training=false;
 	playonline=false;
 	quit=false;
@@ -787,7 +787,7 @@ void UI::roomScrolled(int c) {
 	}
 }
 
-bool UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
+void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
 	gui.get("MainMenu")->hide();
 	gui.get("Connecting")->show();
 	if (net->connect() == sf::Socket::Done) {
@@ -951,17 +951,17 @@ void UI::clearScoreBox() {
 }
 void UI::printScoreBox(sf::String&& name, sf::Uint16 score, sf::Uint8 rank, sf::Uint16 bpm, sf::Uint8 combo, sf::Uint16 sen, sf::Uint16 spm, sf::Uint16 received, sf::Uint16 blocked) {
 	sf::String line, append;
-	line = name; append = to_string(score); appendLine(line, append, 36);
-	append = to_string(rank); appendLine(line, append, 40);
-	append = to_string(bpm); appendLine(line, append, 46);
-	append = to_string(combo); appendLine(line, append, 56);
-	append = to_string(sen); appendLine(line, append, 66);
-	append = to_string(spm); appendLine(line, append, 76);
-	append = to_string(blocked) + "/" + to_string(received); appendLine(line, append, 96);
+	line = name; append = to_string(score); appendLine(line, append);
+	append = to_string(rank); appendLine(line, append);
+	append = to_string(bpm); appendLine(line, append);
+	append = to_string(combo); appendLine(line, append);
+	append = to_string(sen); appendLine(line, append);
+	append = to_string(spm); appendLine(line, append);
+	append = to_string(blocked) + "/" + to_string(received); appendLine(line, append);
 	gui.get<tgui::ListBox>("ScoreBox", 1)->addItem(line);
 }
 
-void UI::appendLine(sf::String& line, sf::String append, short to) {
+void UI::appendLine(sf::String& line, sf::String append) {
 	if (line.getSize() < 5)
 		line+="\t";
 	if (line.getSize() < 10)
@@ -1380,7 +1380,7 @@ void SFKeyToString(unsigned int keycode, char *keyStr) {
     case sf::Keyboard::Key::Pause: sprintf(keyStr, "Pause"); break;
 
     default:
-    if (keycode >= 0 && keycode < 26)
+    if (keycode < 26)
         sprintf(keyStr, "%c", keycode+65);
     }
 }
