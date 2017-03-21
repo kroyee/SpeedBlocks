@@ -9,6 +9,7 @@ using namespace std;
 #endif
 
 soundBank::soundBank() {
+	comboTimeBuff.loadFromFile(resourcePath() + "sounds/ticktock.wav");
     pieceDropBuff.loadFromFile(resourcePath() + "sounds/block.wav");
     lineClearBuff.loadFromFile(resourcePath() + "sounds/clear.wav");
 	garbAddBuff.loadFromFile(resourcePath() + "sounds/173958__fins__failure.wav");
@@ -25,6 +26,7 @@ soundBank::soundBank() {
 	combo21Buff.loadFromFile(resourcePath() + "sounds/171640__fins__scale-c7.wav");
 	startBeepBuff.loadFromFile(resourcePath() + "sounds/13119__looppool__bell-blip.wav");
 
+	comboTimeSound.setBuffer(comboTimeBuff);
 	pieceDropSound.setBuffer(pieceDropBuff);
 	lineClearSound.setBuffer(lineClearBuff);
 	garbAddSound.setBuffer(garbAddBuff);
@@ -43,6 +45,7 @@ soundBank::soundBank() {
 	startBeep2Sound.setBuffer(startBeepBuff);
 
 	startBeep2Sound.setPitch(1.5);
+	comboTimeSound.setLoop(true);
 }
 
 void soundBank::setEffectVolume(short vol) {

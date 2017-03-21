@@ -8,6 +8,7 @@ class soundBank {
 public:
 	soundBank();
 
+	sf::SoundBuffer comboTimeBuff;
 	sf::SoundBuffer pieceDropBuff;
 	sf::SoundBuffer lineClearBuff;
 	sf::SoundBuffer garbAddBuff;
@@ -24,6 +25,7 @@ public:
 	sf::SoundBuffer combo21Buff;
 	sf::SoundBuffer startBeepBuff;
 
+	sf::Sound comboTimeSound;
 	sf::Sound pieceDropSound;
 	sf::Sound lineClearSound;
 	sf::Sound garbAddSound;
@@ -41,6 +43,8 @@ public:
 	sf::Sound startBeep1Sound;
 	sf::Sound startBeep2Sound;
 
+	void comboTimeStart() { comboTimeSound.play(); }
+	void comboTimeStop() { comboTimeSound.stop(); }
 	void pieceDrop() { pieceDropSound.play(); }
 	void lineClear() { lineClearSound.play(); }
 	void garbAdd() { garbAddSound.play(); }

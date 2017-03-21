@@ -313,6 +313,8 @@ void gamePlay::delayCheck() {
 		comboTime = sf::seconds(0);
 		comboText.setString(to_string(comboCount));
 		draw();
+
+		sounds->comboTimeStop();
 	}
 
 	if (keyclock.getElapsedTime() > bpmMeasureTiming) {
@@ -408,8 +410,11 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	linesSent+=lines.x;
 
-	if (comboCount==0)
+	if (comboCount==0) {
 		comboStart=keyclock.getElapsedTime();
+		if (options.sound)
+			sounds->comboTimeStart();
+	}
 	comboCount++;
 	comboTime+=sf::seconds((2.0/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
 
@@ -483,6 +488,7 @@ void gamePlay::pushGarbage() {
 
 bool gamePlay::setComboTimer() {
 	sf::Time timeleft = comboStart + comboTime - keyclock.getElapsedTime();
+
 	short count = (timeleft.asMilliseconds()/5.0) / 10.0;
 	if (count>100)
 		count=100;
@@ -497,6 +503,8 @@ bool gamePlay::setComboTimer() {
     comboTimer.setPoint(0, sf::Vector2f(60, 60));
     for (int x=1; x<(count+2); x++)
         comboTimer.setPoint(x, sf::Vector2f(60 + 60*cos((PI*2)/100 * (x-26)), 60 + 60*sin((PI*2)/100 * (x-26) )));
+
+    sounds->comboTimeSound.setPitch(3-(float)count/50.0);
 
     return true;
 }
