@@ -959,6 +959,8 @@ void UI::chatFocus(bool i) {
 }
 
 void UI::sendMsg(const sf::String& to, const sf::String& msg) {
+	if (!msg.getSize())
+		return;
 	sf::Uint8 packetid = 10;
 	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 		short until = msg.find(' ', 3);
