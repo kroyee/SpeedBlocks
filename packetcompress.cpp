@@ -13,28 +13,28 @@ void PacketCompress::extract() {
 	getBits(endy, 5);
 	for (int c=0; c<endy; c++) {
 		for (int x=0; x<10; x++)
-			field->square[21-c][x]=8;
+			square[21-c][x]=8;
 		getBits(temp, 4);
-		field->square[21-c][temp]=0;
+		square[21-c][temp]=0;
 	}
 	for (int x=0; x<10; x++) {
 		counter=0;
 		getBits(counter, 5);
 		for (y=0; y<counter; y++)
-			field->square[y][x]=0;
+			square[y][x]=0;
 		for (; y<22-endy; y++)
-			getBits(field->square[y][x], 3);
+			getBits(square[y][x], 3);
 	}
-	temp=0; getBits(temp, 4); field->posX = temp-2;
-	temp=0; getBits(temp, 5); field->posY = temp;
+	temp=0; getBits(temp, 4); posX = temp-2;
+	temp=0; getBits(temp, 5); posY = temp;
 	for (int x=0; x<4; x++)
 		for (y=0; y<4; y++) {
 			temp=0; getBits(temp, 3);
-			field->grid[y][x] = temp;
+			grid[y][x] = temp;
 		}
-	temp=0; getBits(temp, 3); field->nextpiece=temp;
-	temp=0; getBits(temp, 3); field->npcol=temp;
-	temp=0; getBits(temp, 3); field->nprot=temp;
+	temp=0; getBits(temp, 3); nextpiece=temp;
+	temp=0; getBits(temp, 3); npcol=temp;
+	temp=0; getBits(temp, 3); nprot=temp;
 }
 
 void PacketCompress::getBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -93,7 +93,7 @@ void PacketCompress::compress() {
 			addBits(game->piece.grid[y][x], 3);
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
-	addBits(game->basepiece[game->nextpiece].rotation, 3);
+	addBits(game->options.piecerotation[game->nextpiece], 3);
 }
 
 void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -110,4 +110,41 @@ void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {
 void PacketCompress::clear() {
 	for (int x=0; x<100; x++)
 			tmp[x]=0;
+}
+
+void PacketCompress::copy() {
+	for (int y=0; y<22; y++)
+		for (int x=0; x<10; x++)
+			field->square[y][x] = square[y][x];
+	for (int y=0; y<4; y++)
+		for (int x=0; x<4; x++)
+			field->grid[y][x] = grid[y][x];
+	field->posX = posX;
+	field->posY = posY;
+	field->nextpiece = nextpiece;
+	field->npcol = npcol;
+	field->nprot = nprot;
+}
+
+bool PacketCompress::validate() {
+	for (int y=0; y<22; y++)
+		for (int x=0; x<10; x++)
+			if (square[y][x] > 8)
+				return false;
+	for (int y=0; y<4; y++)
+		for (int x=0; x<4; x++)
+			if (grid[y][x] > 8)
+				return false;
+	if (posX > 8)
+		return false;
+	if (posY > 20)
+		return false;
+	if (nextpiece > 7)
+		return false;
+	if (npcol == 0 || npcol > 7)
+		return false;
+	if (nprot > 3)
+		return false;
+
+	return true;
 }

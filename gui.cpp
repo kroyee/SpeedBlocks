@@ -12,7 +12,7 @@ using namespace std;
 #include "EmptyResourcePath.h"
 #endif
 
-UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : gui(rwindow), typewriter(font1), printFont(&font2), printFont2(font2) {
+UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : typewriter(font1), printFont2(font2), printFont(&font2), gui(rwindow) {
 	training=false;
 	playonline=false;
 	quit=false;
@@ -77,6 +77,13 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	Quit->setFont(typewriter);
 	Quit->connect("pressed", &UI::setBool, this, std::ref(quit));
 	MainMenu->add(Quit);
+
+	tgui::EditBox::Ptr IPAddr = themeTG->load("EditBox");
+	IPAddr->setPosition(50, 30);
+	IPAddr->setSize(250, 40);
+	IPAddr->setText(net->serverAdd.toString());
+	IPAddr->connect("TextChanged", &UI::changeServerAdd, this);
+	MainMenu->add(IPAddr);
 
 	tgui::Panel::Ptr LiP = tgui::Panel::create(); // Login panel
 	LiP->setSize(400, 300);
@@ -436,7 +443,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	FdE->setPosition(170, 230);
 	FdE->setSize(70, 30);
 	FdE->setInputValidator(tgui::EditBox::Validator::UInt);
-	FdE->setText(to_string(1000/options->frameDelay.asMilliseconds()));
+	FdE->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
 	VidOpt->add(FdE, "FrameDelay");
 
 	tgui::Label::Ptr IdL = themeTG->load("Label");
@@ -460,7 +467,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Label::Ptr InL = themeTG->load("Label");
 	InL->setPosition(10, 390);
-	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensetive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000");
+	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensitive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000 ");
 	VidOpt->add(InL);
 
 	tgui::Panel::Ptr SndOpt = tgui::Panel::create(); // Sound Options
@@ -690,6 +697,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	gui.add(QmL, "QuickMsg");
 }
 
+void UI::changeServerAdd(sf::String addr) {
+	net->serverAdd = addr.toAnsiString();
+}
+
 void UI::addRoom(const sf::String& name, short curr, short max, short id) {
 	playRoom newroom;
 	playRooms.push_back(newroom);
@@ -776,10 +787,16 @@ void UI::roomScrolled(int c) {
 	}
 }
 
-bool UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
+void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
 	gui.get("MainMenu")->hide();
 	gui.get("Connecting")->show();
+	window->draw(textureBase->background); //Update the screen so a block on connect will show the connecting screen
+	gui.draw();
+	window->display();
 	if (net->connect() == sf::Socket::Done) {
+		net->udpSock.unbind();
+		net->udpSock.bind(sf::Socket::AnyPort);
+		net->localUdpPort = net->udpSock.getLocalPort();
 		net->packet.clear();
 		sf::Uint8 packetid = 2; //2-Packet
 		sf::Uint16 port = net->localUdpPort;
@@ -937,17 +954,17 @@ void UI::clearScoreBox() {
 }
 void UI::printScoreBox(sf::String&& name, sf::Uint16 score, sf::Uint8 rank, sf::Uint16 bpm, sf::Uint8 combo, sf::Uint16 sen, sf::Uint16 spm, sf::Uint16 received, sf::Uint16 blocked) {
 	sf::String line, append;
-	line = name; append = to_string(score); appendLine(line, append, 36);
-	append = to_string(rank); appendLine(line, append, 40);
-	append = to_string(bpm); appendLine(line, append, 46);
-	append = to_string(combo); appendLine(line, append, 56);
-	append = to_string(sen); appendLine(line, append, 66);
-	append = to_string(spm); appendLine(line, append, 76);
-	append = to_string(blocked) + "/" + to_string(received); appendLine(line, append, 96);
+	line = name; append = to_string(score); appendLine(line, append);
+	append = to_string(rank); appendLine(line, append);
+	append = to_string(bpm); appendLine(line, append);
+	append = to_string(combo); appendLine(line, append);
+	append = to_string(sen); appendLine(line, append);
+	append = to_string(spm); appendLine(line, append);
+	append = to_string(blocked) + "/" + to_string(received); appendLine(line, append);
 	gui.get<tgui::ListBox>("ScoreBox", 1)->addItem(line);
 }
 
-void UI::appendLine(sf::String& line, sf::String append, short to) {
+void UI::appendLine(sf::String& line, sf::String append) {
 	if (line.getSize() < 5)
 		line+="\t";
 	if (line.getSize() < 10)
@@ -1024,7 +1041,7 @@ void UI::otabSelect(std::string tab) {
 			gui.get<tgui::CheckBox>("vSync", 1)->check();
 		else
 			gui.get<tgui::CheckBox>("vSync", 1)->uncheck();
-		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000/options->frameDelay.asMilliseconds()));
+		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
 		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options->inputDelay.asMicroseconds()));
 	}
 	else if (tab == "Sound") {
@@ -1104,7 +1121,7 @@ void UI::applyVideo() {
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		options->frameDelay = sf::milliseconds(1000/value);
+		options->frameDelay = sf::microseconds(1000000/value);
 	value=0;
 	fd = gui.get<tgui::EditBox>("InputDelay", 1)->getText();
 	if (fd.size())
@@ -1364,9 +1381,9 @@ void SFKeyToString(unsigned int keycode, char *keyStr) {
     case sf::Keyboard::Key::F14: sprintf(keyStr, "F14"); break;
     case sf::Keyboard::Key::F15: sprintf(keyStr, "F15"); break;
     case sf::Keyboard::Key::Pause: sprintf(keyStr, "Pause"); break;
-        
+
     default:
-    if (keycode >= 0 && keycode < 26)
+    if (keycode < 26)
         sprintf(keyStr, "%c", keycode+65);
     }
 }

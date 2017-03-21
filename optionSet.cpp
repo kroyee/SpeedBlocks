@@ -12,7 +12,7 @@ using namespace std;
 #include "EmptyResourcePath.h"
 #endif
 
-short optionSet::loadOptions() {
+void optionSet::loadOptions() {
 	string line;
 	ifstream file (resourcePath() + "options.cfg");
 
@@ -52,7 +52,7 @@ short optionSet::loadOptions() {
 				case 26: sound = stoi(line); break;
 				case 27: repeatDelayDown = sf::milliseconds(stoi(line)); break;
 				case 28: repeatSpeedDown = sf::milliseconds(stoi(line)); break;
-				case 29: frameDelay = sf::milliseconds(stoi(line)); break;
+				case 29: frameDelay = sf::microseconds(stoi(line)); break;
 				case 30: inputDelay = sf::microseconds(stoi(line)); break;
 				case 31: vSync = stoi(line); break;
 			}
@@ -89,11 +89,20 @@ short optionSet::loadOptions() {
 		repeatDelayDown = sf::milliseconds(20);
 		repeatSpeedDown = sf::milliseconds(20);
 
+		//frame delay multiplicator 10 = 100 FPS
 		frameDelay = sf::milliseconds(10);
-		inputDelay = sf::milliseconds(5);
+        //input delay multiplicator 1000 = 1000 microseconds - 1ms
+		inputDelay = sf::milliseconds(1);
 
-		for (int x=0; x<7; x++)
-			piecerotation[x] = 0;
+		piecerotation[0] = 3;
+		piecerotation[1] = 1;
+		piecerotation[2] = 3;
+		piecerotation[3] = 1;
+		piecerotation[4] = 1;
+		piecerotation[5] = 2;
+		piecerotation[6] = 0;
+
+
 
 		name="Player";
 		currentmode=-1;
@@ -104,7 +113,7 @@ short optionSet::loadOptions() {
 	}
 }
 
-short optionSet::saveOptions() {
+void optionSet::saveOptions() {
 	ofstream file(resourcePath() + "options.cfg", ios::trunc);
 
 	cout << "Saving options..." << endl;
@@ -125,7 +134,7 @@ short optionSet::saveOptions() {
 		file << repeatDelay.asMilliseconds() << endl;
 		file << repeatSpeed.asMilliseconds() << endl;
 		for (int x=0; x<7; x++)
-			file << piecerotation[x] << endl;
+			file << (int)piecerotation[x] << endl;
 		file << name.toAnsiString() << endl;
 		file << currentmode << endl;
 		file << MusicVolume << endl;
@@ -134,7 +143,7 @@ short optionSet::saveOptions() {
 		file << sound << endl;
 		file << repeatDelayDown.asMilliseconds() << endl;
 		file << repeatSpeedDown.asMilliseconds() << endl;
-		file << frameDelay.asMilliseconds() << endl;
+		file << frameDelay.asMicroseconds() << endl;
 		file << inputDelay.asMicroseconds() << endl;
 		file << vSync;
 	}
@@ -225,9 +234,10 @@ void optionSet::setDelay(short i, sf::String string) {
 		repeatDelayDown = sf::milliseconds(value);
 	else if (i == 4)
 		repeatSpeedDown = sf::milliseconds(value);
-	else if (i == 5)
+	else if (i == 5) {
 		if (value)
 			frameDelay = sf::milliseconds(1000/value);
+	}
 	else if (i == 6)
 		inputDelay = sf::microseconds(value);
 }

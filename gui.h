@@ -1,5 +1,6 @@
 #ifndef GUI_H
 #define GUI_H
+#define SFML_NO_DEPRECATED_WARNINGS
 
 #include <TGUI/TGUI.hpp>
 #include "packetcompress.h"
@@ -112,14 +113,16 @@ public:
 
 	void clearScoreBox();
 	void printScoreBox(sf::String&&, sf::Uint16, sf::Uint8, sf::Uint16, sf::Uint8, sf::Uint16, sf::Uint16, sf::Uint16, sf::Uint16);
-	void appendLine(sf::String& line, sf::String append, short to);
+	void appendLine(sf::String& line, sf::String append);
 
 	void ausY();
 	void ausN();
 
 	void quickMsg(const sf::String& msg);
 
-	bool login(const sf::String&, const sf::String&, sf::Uint8);
+	void changeServerAdd(sf::String);
+
+	void login(const sf::String&, const sf::String&, sf::Uint8);
 	void closeLogin();
 };
 

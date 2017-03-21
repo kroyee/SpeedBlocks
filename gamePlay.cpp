@@ -194,6 +194,7 @@ void gamePlay::makeNewPiece() {
 	piece.posX = 3;
 	piece.posY = 2;
 	if (!possible()) {
+		addPiece();
 		gameover=true;
 		sendgameover=true;
 	}
@@ -380,15 +381,19 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	short tmplines=lines.x;
 	if (lines.x==0) {
 		comboTime-=sf::milliseconds(200);
+		if (options.sound) {
+			sounds->pieceDrop();
+		}
 		return;
 	}
 	else if (lines.x==1) {
 		if (garbage.size())
 			garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+		lines.x--;
 	}
 	else {
 		lines.x--;
-		for (int i=0; i<tmplines; i++)
+		for (int i=0; i<tmplines-1; i++)
 			if (garbage.size()) {
 				garbage.front().count--;
 				if (garbage.front().count == 0)
@@ -398,7 +403,9 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
 			}
 	}
-
+	if (options.sound) {
+		sounds->lineClear();
+	}
 	linesSent+=lines.x;
 
 	if (comboCount==0)
@@ -436,7 +443,7 @@ void gamePlay::addGarbage(short add) {
 	linesRecieved+=add;
 
 	short total=0;
-	for (int x=0; x<garbage.size(); x++)
+	for (unsigned int x=0; x<garbage.size(); x++)
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
@@ -454,7 +461,7 @@ void gamePlay::pushGarbage() {
 	}
 
 	short total=0;
-	for (int x=0; x<garbage.size(); x++)
+	for (unsigned int x=0; x<garbage.size(); x++)
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
@@ -483,7 +490,7 @@ bool gamePlay::setComboTimer() {
 	if (count<0)
 		count=0;
 
-	if (comboTimer.getPointCount() == count+2)
+	if (comboTimer.getPointCount() == static_cast<unsigned int>(count+2))
 		return false;
 	comboTimer.setPointCount(count+2);
 
@@ -498,8 +505,14 @@ void gamePlay::startCountdown() {
 	countDownTime = sf::seconds(0);
 	countDowncount = 0;
 
+	gameover=false;
+	countdownText.setString("3");
 	field.clear();
 	makeNewPiece();
+	while (nextpiece == 2 || nextpiece == 3) {
+		rander.reset();
+		makeNewPiece();
+	}
 	comboText.setString("0");
 	pendingText.setString("0");
 	bpmText.setString("0");
@@ -536,6 +549,7 @@ bool gamePlay::countDown() {
 			return true;
 		}
 	}
+	return false;
 }
 
 void gamePlay::countDown(short c) {
