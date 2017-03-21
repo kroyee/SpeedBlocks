@@ -461,11 +461,12 @@ void GameFieldDrawer::handlePacket() {
 		{
 			sf::Uint8 count, maxcombo, rank, position;
 			sf::Uint16 id, linesSent, linesRecieved, linesBlocked, bpm, spm, score;
+			float linesAdjusted;
 			net->packet >> count;
-			clearScoreBox();
+			clearScore();
 			for (int i=0; i<count; i++) {
-				net->packet >> id >> maxcombo >> linesSent >> linesRecieved >> linesBlocked >> bpm >> spm >> rank >> position >> score;
-				printScoreBox(getName(id), score, rank, bpm, maxcombo, linesSent, spm, linesRecieved, linesBlocked);
+				net->packet >> id >> maxcombo >> linesSent >> linesRecieved >> linesBlocked >> bpm >> spm >> rank >> position >> score >> linesAdjusted;
+				scoreRow(getName(id), score, rank, bpm, maxcombo, linesSent, linesAdjusted, spm, linesRecieved, linesBlocked);
 			}
 		}
 		break;

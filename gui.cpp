@@ -25,6 +25,8 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	disconnect=false;
 	away=false;
 
+	scoreRows=0;
+
 	window=&rwindow;
 	sounds=&soundy;
 	options=&opt;
@@ -551,14 +553,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ScP->setBackgroundColor(sf::Color(200,200,200, 50));
 	gui.add(ScP, "Score");
 
-	tgui::ListBox::Ptr ScT = themeBB->load("ListBox");
-	ScT->setPosition(5, 35);
-	ScT->setSize(480, 475);
-	ScP->add(ScT, "ScoreBox");
-
 	tgui::Label::Ptr SbL = themeTG->load("Label");
 	SbL->setPosition(5, 5);
-	SbL->setText("Name                 Score  BPM  Cmb Sent  SPM   Blocked");
+	SbL->setText("Name                  Score  Rank  BPM  Cmb  Sent  Adj  SPM  Blocked");
+	SbL->setTextSize(16);
 	ScP->add(SbL, "ScoreBoxLab");
 
 	tgui::Panel::Ptr ChP = tgui::Panel::create(); // Chat panel
@@ -788,6 +786,8 @@ void UI::roomScrolled(int c) {
 }
 
 void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
+	if (guest && !name.getSize())
+		return;
 	gui.get("MainMenu")->hide();
 	gui.get("Connecting")->show();
 	window->draw(textureBase->background); //Update the screen so a block on connect will show the connecting screen
@@ -949,30 +949,93 @@ void UI::privMsg(const sf::String& name, const sf::String& msg) {
 	privChats[create].chatBox->addLine(name + ": " + msg);
 }
 
-void UI::clearScoreBox() {
-	gui.get<tgui::ListBox>("ScoreBox", 1)->removeAllItems();
-}
-void UI::printScoreBox(sf::String&& name, sf::Uint16 score, sf::Uint8 rank, sf::Uint16 bpm, sf::Uint8 combo, sf::Uint16 sen, sf::Uint16 spm, sf::Uint16 received, sf::Uint16 blocked) {
-	sf::String line, append;
-	line = name; append = to_string(score); appendLine(line, append);
-	append = to_string(rank); appendLine(line, append);
-	append = to_string(bpm); appendLine(line, append);
-	append = to_string(combo); appendLine(line, append);
-	append = to_string(sen); appendLine(line, append);
-	append = to_string(spm); appendLine(line, append);
-	append = to_string(blocked) + "/" + to_string(received); appendLine(line, append);
-	gui.get<tgui::ListBox>("ScoreBox", 1)->addItem(line);
+void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short combo, short sent, float adj, short spm, short received, short blocked) {
+	sf::String rounding = to_string((int)adj); //A bit messy-looking way of rounding float to 1 decimal
+	rounding += "." + to_string((int)((adj - (int)adj)*10));
+
+	tgui::Label::Ptr label = themeTG->load("Label");
+	label->setText(name);
+	label->setPosition(5, scoreRows*30+5);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(score));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(65, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(rank));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(110, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(bpm));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(155, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(combo));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(200, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(sent));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(240, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(rounding);
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(275, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(spm));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(315, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	label = themeTG->load("Label");
+	label->setText(to_string(blocked) + "/" + to_string(received));
+	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	label->setPosition(380, scoreRows*30+5);
+	label->setSize(100, 35);
+	label->setTextSize(14);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	scoreRows++;
 }
 
-void UI::appendLine(sf::String& line, sf::String append) {
-	if (line.getSize() < 5)
-		line+="\t";
-	if (line.getSize() < 10)
-		line+="\t";
-	if (line.getSize() < 15)
-		line+="\t";
-	line+="\t";
-	line+=append;
+void UI::clearScore() {
+	gui.get<tgui::Panel>("Score")->removeAllWidgets();
+
+	tgui::Label::Ptr label = themeTG->load("Label");
+	label->setPosition(5, 5);
+	label->setText("Name                  Score  Rank  BPM  Cmb  Sent  Adj  SPM  Blocked");
+	label->setTextSize(16);
+	gui.get<tgui::Panel>("Score")->add(label);
+
+	scoreRows=1;
 }
 
 void UI::igtabSelect(const std::string& tab) {

@@ -74,6 +74,7 @@ public:
 
 	sf::Uint16 clientVersion;
 
+	short scoreRows;
 
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
 	void putKey(sf::Event& event);
@@ -111,9 +112,8 @@ public:
 	void sendMsg(const sf::String& to, const sf::String& msg);
 	void chatFocus(bool i);
 
-	void clearScoreBox();
-	void printScoreBox(sf::String&&, sf::Uint16, sf::Uint8, sf::Uint16, sf::Uint8, sf::Uint16, sf::Uint16, sf::Uint16, sf::Uint16);
-	void appendLine(sf::String& line, sf::String append);
+	void scoreRow(sf::String&&, short, short, short, short, short, float, short, short, short);
+	void clearScore();
 
 	void ausY();
 	void ausN();
