@@ -790,6 +790,9 @@ void UI::roomScrolled(int c) {
 void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
 	gui.get("MainMenu")->hide();
 	gui.get("Connecting")->show();
+	window->draw(textureBase->background); //Update the screen so a block on connect will show the connecting screen
+	gui.draw();
+	window->display();
 	if (net->connect() == sf::Socket::Done) {
 		net->udpSock.unbind();
 		net->udpSock.bind(sf::Socket::AnyPort);

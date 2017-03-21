@@ -7,7 +7,7 @@ void network::sendUDP() { udpSock.send(packet, serverAdd, udpPort); }
 
 sf::Socket::Status network::connect() {
 	tcpSock.setBlocking(true);
-	sf::Socket::Status status = tcpSock.connect(serverAdd, tcpPort);
+	sf::Socket::Status status = tcpSock.connect(serverAdd, tcpPort, sf::seconds(5));
 	tcpSock.setBlocking(false);
 	return status;
 }
