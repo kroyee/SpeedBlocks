@@ -693,6 +693,94 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	QmL->setTextColor(sf::Color::Red);
 	QmL->hide();
 	gui.add(QmL, "QuickMsg");
+
+	tgui::Button::Ptr DbG = themeBB->load("Button");
+	DbG->setPosition(320, 565);
+	DbG->setSize(120, 32);
+	DbG->setText("Bug Report");
+	DbG->connect("Pressed", &UI::bugReport, this);
+	gui.add(DbG);
+}
+
+void UI::sendReport(sf::String happened, sf::String expected, sf::String reproduce, sf::String contact, tgui::ChildWindow::Ptr win) {
+	if (!playonline) {
+		quickMsg("You must connect to the server to send a bug-report");
+		return;
+	}
+	net->packet.clear();
+	sf::Uint8 packetid = 99;
+	net->packet << packetid << happened << expected << reproduce << contact;
+	net->sendTCP();
+	win->destroy();
+}
+
+void UI::bugReport() {
+	tgui::ChildWindow::Ptr ChW = themeBB->load("ChildWindow");
+	ChW->setTitleButtons(static_cast<tgui::ChildWindow::TitleButtons>(3));
+	ChW->connect("Minimized", &UI::minimize, this);
+	ChW->connect("Closed", &UI::close, this);
+	ChW->setOpacity(0.95);
+	ChW->setPosition(500, 40);
+	ChW->setSize(400, 475);
+	gui.add(ChW);
+
+	tgui::Label::Ptr WhL = themeBB->load("Label");
+	WhL->setPosition(10, 5);
+	WhL->setText("What happened?");
+	ChW->add(WhL);
+
+	tgui::TextBox::Ptr WhT = themeBB->load("TextBox");
+	WhT->setPosition(5, 40);
+	WhT->setSize(390, 80);
+	ChW->add(WhT);
+
+	tgui::Label::Ptr WhL2 = themeBB->load("Label");
+	WhL2->setPosition(10, 125);
+	WhL2->setText("What did you expect to happen?");
+	ChW->add(WhL2);
+
+	tgui::TextBox::Ptr WhT2 = themeBB->load("TextBox");
+	WhT2->setPosition(5, 160);
+	WhT2->setSize(390, 80);
+	ChW->add(WhT2);
+
+	tgui::Label::Ptr WhL3 = themeBB->load("Label");
+	WhL3->setPosition(10, 245);
+	WhL3->setText("What do we need to do to see what you are seeing?");
+	ChW->add(WhL3);
+
+	tgui::TextBox::Ptr WhT3 = themeBB->load("TextBox");
+	WhT3->setPosition(5, 280);
+	WhT3->setSize(390, 80);
+	ChW->add(WhT3);
+
+	tgui::Label::Ptr WhL4 = themeBB->load("Label");
+	WhL4->setPosition(10, 365);
+	WhL4->setText("How can we contact you if we have questions?");
+	ChW->add(WhL4);
+
+	tgui::TextBox::Ptr WhT4 = themeBB->load("TextBox");
+	WhT4->setPosition(5, 400);
+	WhT4->setSize(390, 40);
+	ChW->add(WhT4);
+
+	tgui::Button::Ptr send = themeBB->load("Button");
+	send->setPosition(170, 445);
+	send->setSize(60, 30);
+	send->setText("Send");
+	send->connect("Pressed", &UI::sendReport, this, std::bind(&tgui::TextBox::getText, WhT), std::bind(&tgui::TextBox::getText, WhT2), std::bind(&tgui::TextBox::getText, WhT3), std::bind(&tgui::TextBox::getText, WhT4), ChW);
+	ChW->add(send);
+}
+
+void UI::close(tgui::ChildWindow::Ptr win) {
+	win->destroy();
+}
+
+void UI::minimize(tgui::ChildWindow::Ptr win) {
+	if (win->getSize().y == 0)
+		win->setSize(win->getSize().x, 300);
+	else
+		win->setSize(win->getSize().x, 0);
 }
 
 void UI::changeServerAdd(sf::String addr) {
@@ -857,7 +945,7 @@ void UI::ausN() {
 void UI::quickMsg(const sf::String& msg) {
 	gui.get<tgui::Label>("QuickMsg")->setText(msg);
 	gui.get<tgui::Label>("QuickMsg")->show();
-	gui.get<tgui::Label>("QuickMsg")->hideWithEffect(tgui::ShowAnimationType::Fade, sf::seconds(2));
+	quickMsgClock.restart();
 }
 
 void UI::chatFocus(bool i) {

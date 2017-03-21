@@ -260,6 +260,10 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 						cur=0;
 					gui.get<tgui::Scrollbar>("RoomScroll", 1)->setValue(cur);
 				}
+
+	if (gui.get("QuickMsg")->isVisible())
+		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
+			gui.get("QuickMsg")->hide();
 }
 
 void GameFieldDrawer::sendGameData() { //UDP-Packet

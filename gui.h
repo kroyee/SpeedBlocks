@@ -76,6 +76,8 @@ public:
 
 	short scoreRows;
 
+	sf::Clock quickMsgClock;
+
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
 	void putKey(sf::Event& event);
 	void changeName(const sf::String& name);
@@ -124,6 +126,11 @@ public:
 
 	void login(const sf::String&, const sf::String&, sf::Uint8);
 	void closeLogin();
+
+	void bugReport();
+	void minimize(tgui::ChildWindow::Ptr);
+	void close(tgui::ChildWindow::Ptr);
+	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
 };
 
 void SFKeyToString(unsigned int keycode, char *keyStr);
