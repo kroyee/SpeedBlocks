@@ -785,7 +785,7 @@ void UI::minimize(tgui::ChildWindow::Ptr win) {
 
 void UI::changeServerAdd(sf::String addr) { //Quickfix for issue #33
 	std::string serveraddr = addr.toAnsiString();
-	if (serveraddr.back() != '.')
+	if (serveraddr.back() != '.' || serveraddr.size() != 0)
 		net->serverAdd = addr.toAnsiString();
 }
 
