@@ -171,6 +171,7 @@ void GameFieldDrawer::goAway() {
 
 void GameFieldDrawer::unAway() {
 	away=false;
+	game->autoaway=false;
 	net->packet.clear();
 	sf::Uint8 packetid = 9; //9-Packet
 	net->packet << packetid;
@@ -460,6 +461,7 @@ void GameFieldDrawer::handlePacket() {
 		case 7: //Round ended and you where the winner
 			game->gameover=true;
 			game->winner=true;
+			game->autoaway=false;
 		break;
 		case 8: // Round score data
 		{

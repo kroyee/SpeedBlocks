@@ -310,7 +310,6 @@ void gamePlay::delayCheck() {
 			maxCombo=comboCount;
 
 		comboCount = 0;
-		comboTime = sf::seconds(0);
 		comboText.setString(to_string(comboCount));
 		draw();
 	}
@@ -408,16 +407,18 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		short total=0;
 		for (unsigned int x=0; x<garbage.size(); x++)
 			total+=garbage[x].count;
-
-		pendingText.setString(to_string(total));
+		if (blocked)
+			pendingText.setString(to_string(total));
 	}
 	if (options.sound) {
 		sounds->lineClear();
 	}
 	linesSent+=lines.x;
 
-	if (comboCount==0)
+	if (comboCount==0) {
 		comboStart=keyclock.getElapsedTime();
+		comboTime=sf::seconds(0);
+	}
 	comboCount++;
 	comboTime+=sf::seconds((2.0/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
 
@@ -561,6 +562,7 @@ bool gamePlay::countDown() {
 }
 
 void gamePlay::countDown(short c) {
+	gameover=false;
 	countdownText.setPosition(130,210);
 	countdownText.setCharacterSize(96);
 	countdownText.setString(to_string(c));
