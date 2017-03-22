@@ -1,8 +1,25 @@
-*.o
+#game configuration
 *.cfg
-*.sublime*
+
+#possible lib archives
+*.tar.*
+*.zip
+
+#editorproject files
+.idea/
+*.sublime
 SpeedBlocks.props
+
+
+#cmake and build artifacts
+*.o
+SpeedBlocks
+Makefile*
+CMakeCache.txt
+CMakeFiles/
+build/
+/SpeedBlocks
 /sfml
 
-# default Code::Blocks output folder
-/SpeedBlocks
+#mac shit
+.DS_Store
