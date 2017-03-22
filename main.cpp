@@ -216,8 +216,8 @@ int main()
                     gamestate = GameOver;
                     gui.startgame=false;
                     gui.startcount=false;
-                    //if (game.autoaway)
-                    //    gui.goAway();
+                    if (game.autoaway)
+                        gui.goAway();
                     if (game.sendgameover)
                         gui.sendGameOver();
                     if (game.winner)
@@ -297,8 +297,8 @@ int main()
                 if (game.gameOver()) {
                     gamestate = GameOver;
                     gui.startgame=false;
-                    //if (game.autoaway)
-                    //    gui.goAway();
+                    if (game.autoaway)
+                        gui.goAway();
                     if (game.sendgameover)
                         gui.sendGameOver();
                     if (game.winner)

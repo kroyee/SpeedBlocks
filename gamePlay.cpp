@@ -561,6 +561,7 @@ bool gamePlay::countDown() {
 }
 
 void gamePlay::countDown(short c) {
+	gameover=false;
 	countdownText.setPosition(130,210);
 	countdownText.setCharacterSize(96);
 	countdownText.setString(to_string(c));
