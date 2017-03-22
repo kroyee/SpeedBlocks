@@ -1,0 +1,250 @@
+﻿  textures.cpp
+  sounds.cpp
+  randomizer.cpp
+c:\users\def\source\repos\speedblocks\randomizer.cpp(8): warning C4244: "Initialisierung": Konvertierung von "int" in "float", möglicher Datenverlust
+  pieces.cpp
+c:\users\def\source\repos\speedblocks\pieces.cpp(11): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\pieces.cpp(20): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\pieces.cpp(32): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\pieces.cpp(41): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+  packetcompress.cpp
+c:\users\def\source\repos\speedblocks\gamefield.h(28): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\packetcompress.cpp(88): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+  optionSet.cpp
+c:\users\def\source\repos\speedblocks\optionset.cpp(36): warning C4800: "int": Variable wird auf booleschen Wert ("True" oder "False") gesetzt (Auswirkungen auf Leistungsverhalten möglich)
+c:\users\def\source\repos\speedblocks\optionset.cpp(37): warning C4800: "int": Variable wird auf booleschen Wert ("True" oder "False") gesetzt (Auswirkungen auf Leistungsverhalten möglich)
+c:\users\def\source\repos\speedblocks\optionset.cpp(52): warning C4800: "int": Variable wird auf booleschen Wert ("True" oder "False") gesetzt (Auswirkungen auf Leistungsverhalten möglich)
+c:\users\def\source\repos\speedblocks\optionset.cpp(57): warning C4800: "int": Variable wird auf booleschen Wert ("True" oder "False") gesetzt (Auswirkungen auf Leistungsverhalten möglich)
+c:\users\def\source\repos\speedblocks\optionset.cpp(199): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\optionset.cpp(201): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+  network.cpp
+  MingwConvert.cpp
+  main.cpp
+c:\users\def\source\repos\speedblocks\gamefield.h(28): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\main.cpp(26): warning C4244: "=": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\main.cpp(27): warning C4244: "Argument": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\main.cpp(30): warning C4244: "=": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\main.cpp(31): warning C4244: "Argument": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\main.cpp(85): warning C4244: "Argument": Konvertierung von "time_t" in "unsigned int", möglicher Datenverlust
+  gui.cpp
+c:\users\def\source\repos\speedblocks\gamefield.h(28): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(122): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(130): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(149): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(164): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(346): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(416): warning C4267: "Argument": Konvertierung von "size_t" nach "int", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gui.cpp(476): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(549): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(585): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(631): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(686): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(694): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(732): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(865): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "short", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gui.cpp(876): warning C4244: "Initialisierung": Konvertierung von "__int64" in "int", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(883): warning C4244: "Initialisierung": Konvertierung von "__int64" in "int", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(976): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "short", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gui.cpp(1034): warning C4267: "=": Konvertierung von "size_t" nach "short", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gui.cpp(1040): warning C4267: "=": Konvertierung von "size_t" nach "short", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gui.cpp(1417): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(1498): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(1504): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(1505): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(1508): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(1514): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(1520): warning C4305: "Argument": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gui.cpp(1521): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gui.cpp(1524): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1341): warning C4800: "const int": Variable wird auf booleschen Wert ("True" oder "False") gesetzt (Auswirkungen auf Leistungsverhalten möglich)
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1444): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Invoker_pmf_pointer::_Call<_Fx,_Cv_TiD&,const Type&>(_Decayed,_Ty1,const Type &)".
+          with
+          [
+              _Fx=void (__cdecl UI::* )(bool),
+              _Cv_TiD=UI *,
+              Type=int,
+              _Decayed=void (__cdecl UI::* )(bool),
+              _Ty1=UI *&
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1475): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::invoke<_Fx&,_Cv_TiD&,const Type&>(_Callable,_Cv_TiD &,const Type &)".
+          with
+          [
+              _Fx=void (__cdecl UI::* )(bool),
+              _Cv_TiD=UI *,
+              Type=int,
+              _Callable=void (__cdecl UI::* &)(bool)
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(826): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Invoke_ret<_Cv_FD&,_Cv_TiD&,const Type&>(std::_Forced<std::_Unforced,false>,_Cv_FD &,_Cv_TiD &,const Type &)".
+          with
+          [
+              _Cv_FD=void (__cdecl UI::* )(bool),
+              _Cv_TiD=UI *,
+              Type=int
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(881): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Call_binder<std::_Unforced,0,1,_Ty1,_Ty2,std::tuple<>>(std::_Forced<std::_Unforced,false>,std::integer_sequence<std::_Ty,0,1>,_Cv_FD &,_Cv_tuple_TiD &,_Untuple &&)".
+          with
+          [
+              _Ty1=void (__cdecl UI::* )(bool),
+              _Ty2=std::tuple<UI *,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Ty=std::size_t,
+              _Cv_FD=void (__cdecl UI::* )(bool),
+              _Cv_tuple_TiD=std::tuple<UI *,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Untuple=std::tuple<>
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1376): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Binder<std::_Unforced,Func &,UI *&,std::_Binder<std::_Unforced,const Type &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>::operator ()<>(void)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool),
+              Type=int
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1375): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Binder<std::_Unforced,Func &,UI *&,std::_Binder<std::_Unforced,const Type &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>::operator ()<>(void)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool),
+              Type=int
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1444): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Invoker_functor::_Call<_Fx&,>(_Callable)".
+          with
+          [
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Callable=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>> &
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\type_traits(1461): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::invoke<_Fx&,>(_Callable)".
+          with
+          [
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Callable=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>> &
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(213): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Invoke_ret<_Rx,_Callable&>(std::_Forced<_Rx,true>,_Callable &)".
+          with
+          [
+              _Rx=void,
+              _Callable=_Decayed
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(211): note: Bei der Kompilierung der Klassen-template der "void std::_Func_impl<_Decayed,_Alloc,_Ret>::_Do_call(void)"-Memberfunktion
+          with
+          [
+              _Alloc=std::allocator<int>,
+              _Ret=void
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(137): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Klassen-template "std::_Func_impl<_Decayed,_Alloc,_Ret>".
+          with
+          [
+              _Alloc=std::allocator<int>,
+              _Ret=void
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(348): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Klassen-template "std::_Is_large<_Myimpl>".
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(327): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Func_class<_Ret>::_Reset_alloc<_Ty,std::allocator<int>>(_Fx &&,const _Alloc &)".
+          with
+          [
+              _Ret=void,
+              _Ty=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Alloc=std::allocator<int>
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(327): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Func_class<_Ret>::_Reset_alloc<_Ty,std::allocator<int>>(_Fx &&,const _Alloc &)".
+          with
+          [
+              _Ret=void,
+              _Ty=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,
+              _Alloc=std::allocator<int>
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(498): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Func_class<_Ret>::_Reset<std::_Binder<std::_Unforced,Func &,UI *&,std::_Binder<std::_Unforced,const Type &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>>(_Fx &&)".
+          with
+          [
+              _Ret=void,
+              Func=void (__cdecl UI::* )(bool),
+              Type=int,
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>
+          ]
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\functional(498): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void std::_Func_class<_Ret>::_Reset<std::_Binder<std::_Unforced,Func &,UI *&,std::_Binder<std::_Unforced,const Type &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>>(_Fx &&)".
+          with
+          [
+              _Ret=void,
+              Func=void (__cdecl UI::* )(bool),
+              Type=int,
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>
+          ]
+  d:\lib\visual studio\x64\tgui-0.7.3-vc14-64bit-for-sfml-2.4.2\tgui-0.7\include\tgui\signal.hpp(169): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "std::function<void (void)>::function<std::_Binder<std::_Unforced,Func &,UI *&,std::_Binder<std::_Unforced,const Type &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,void,void>(_Fx)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool),
+              Type=int,
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>
+          ]
+  d:\lib\visual studio\x64\tgui-0.7.3-vc14-64bit-for-sfml-2.4.2\tgui-0.7\include\tgui\signal.hpp(169): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "std::function<void (void)>::function<std::_Binder<std::_Unforced,Func &,UI *&,std::_Binder<std::_Unforced,const Type &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>,void,void>(_Fx)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool),
+              Type=int,
+              _Fx=std::_Binder<std::_Unforced,void (__cdecl UI::* &)(bool),UI *&,std::_Binder<std::_Unforced,const int &(__cdecl &)(const void *),std::reference_wrapper<const void *const >>>
+          ]
+  d:\lib\visual studio\x64\tgui-0.7.3-vc14-64bit-for-sfml-2.4.2\tgui-0.7\include\tgui\signal.hpp(168): note: Bei der Kompilierung der Klassen-template der "std::function<void (void)> tgui::priv::connector<type,Func,UI *>::connect(Func,std::size_t,UI *)"-Memberfunktion
+          with
+          [
+              Func=void (__cdecl UI::* )(bool)
+          ]
+  d:\lib\visual studio\x64\tgui-0.7.3-vc14-64bit-for-sfml-2.4.2\tgui-0.7\include\tgui\signal.hpp(251): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "std::function<void (void)> tgui::priv::connector<type,Func,UI *>::connect(Func,std::size_t,UI *)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool)
+          ]
+  d:\lib\visual studio\x64\tgui-0.7.3-vc14-64bit-for-sfml-2.4.2\tgui-0.7\include\tgui\signal.hpp(251): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Klassen-template "tgui::priv::connector<type,Func,UI *>".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool)
+          ]
+  d:\lib\visual studio\x64\tgui-0.7.3-vc14-64bit-for-sfml-2.4.2\tgui-0.7\include\tgui\signal.hpp(365): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "void tgui::Signal::connect<Func,UI*>(unsigned int,Func,UI *)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool)
+          ]
+  c:\users\def\source\repos\speedblocks\gui.cpp(439): note: Siehe Verweis auf die Instanziierung der gerade kompilierten Funktions-template "unsigned int tgui::SignalWidgetBase::connect<void(__cdecl UI::* )(bool),UI*>(const std::string &,Func,UI *)".
+          with
+          [
+              Func=void (__cdecl UI::* )(bool)
+          ]
+  gamePlay.cpp
+c:\users\def\source\repos\speedblocks\gamefield.h(28): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(193): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(212): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(225): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(235): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(253): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(305): warning C4244: "=": Konvertierung von "double" in "sf::Uint16", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(310): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(326): warning C4267: "=": Konvertierung von "size_t" nach "sf::Uint16", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gameplay.cpp(330): warning C4244: "=": Konvertierung von "float" in "sf::Uint16", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(423): warning C4244: "Argument": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(495): warning C4244: "Initialisierung": Konvertierung von "double" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(508): warning C4244: "Argument": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(581): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(582): warning C4244: "=": Konvertierung von "double" in "sf::Uint16", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(590): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gameplay.cpp(619): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+  gameFieldDrawer.cpp
+c:\users\def\source\repos\speedblocks\gamefield.h(28): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(42): warning C4305: "Initialisierung": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(44): warning C4267: "Initialisierung": Konvertierung von "size_t" nach "short", Datenverlust möglich
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(47): warning C4244: "Initialisierung": Konvertierung von "float" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(50): warning C4244: "=": Konvertierung von "float" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(68): warning C4244: "=": Konvertierung von "float" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(72): warning C4244: "Initialisierung": Konvertierung von "double" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(74): warning C4244: "=": Konvertierung von "double" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(92): warning C4244: "Initialisierung": Konvertierung von "float" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(93): warning C4244: "Initialisierung": Konvertierung von "float" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(96): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(126): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(142): warning C4305: "Initialisierung": Verkürzung von "double" in "float"
+c:\users\def\source\repos\speedblocks\gamefielddrawer.cpp(259): warning C4244: "-=": Konvertierung von "float" in "short", möglicher Datenverlust
+  gameField.cpp
+c:\users\def\source\repos\speedblocks\gamefield.h(28): warning C4244: "=": Konvertierung von "short" in "sf::Uint8", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefield.cpp(38): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefield.cpp(83): warning C4244: "Initialisierung": Konvertierung von "float" in "short", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefield.cpp(95): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+c:\users\def\source\repos\speedblocks\gamefield.cpp(103): warning C4244: "Argument": Konvertierung von "int" in "float", möglicher Datenverlust
+  EmptyResourcePath.cpp
+  Code wird generiert...
+  SpeedBlocks.vcxproj -> C:\Users\DEF\Source\Repos\SpeedBlocks\x64\Debug\SpeedBlocks.exe
+  SpeedBlocks.vcxproj -> C:\Users\DEF\Source\Repos\SpeedBlocks\x64\Debug\SpeedBlocks.pdb (Partial PDB)

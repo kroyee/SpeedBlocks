@@ -310,7 +310,6 @@ void gamePlay::delayCheck() {
 			maxCombo=comboCount;
 
 		comboCount = 0;
-		comboTime = sf::seconds(0);
 		comboText.setString(to_string(comboCount));
 		draw();
 	}
@@ -416,8 +415,10 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	linesSent+=lines.x;
 
-	if (comboCount==0)
+	if (comboCount==0) {
 		comboStart=keyclock.getElapsedTime();
+		comboTime=sf::seconds(0);
+	}
 	comboCount++;
 	comboTime+=sf::seconds((2.0/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
 

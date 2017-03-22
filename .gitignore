@@ -1,6 +1,8 @@
 *.o
 *.cfg
 *.sublime*
+*.VC.opendb 
+*.VC.db
 SpeedBlocks.props
 /sfml
 
