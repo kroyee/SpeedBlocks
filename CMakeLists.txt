@@ -37,10 +37,6 @@ set(SOURCE_FILES
         textures.cpp
         textures.h)
 
-include_directories(TGUI-0.7.3/include)
-
-include_directories(/usr/include/SFML/)
-
 add_executable(SpeedBlocks ${SOURCE_FILES})
 
 find_package(SFML 2 COMPONENTS audio network graphics window system REQUIRED)
