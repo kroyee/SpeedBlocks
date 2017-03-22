@@ -81,7 +81,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	MainMenu->add(Quit);
 
 	tgui::EditBox::Ptr IPAddr = themeTG->load("EditBox");
-	IPAddr->setPosition(50, 30);
+	IPAddr->setPosition(10, 230);
 	IPAddr->setSize(250, 40);
 	IPAddr->setText(net->serverAdd.toString());
 	IPAddr->connect("TextChanged", &UI::changeServerAdd, this);
@@ -783,8 +783,10 @@ void UI::minimize(tgui::ChildWindow::Ptr win) {
 		win->setSize(win->getSize().x, 0);
 }
 
-void UI::changeServerAdd(sf::String addr) {
-	net->serverAdd = addr.toAnsiString();
+void UI::changeServerAdd(sf::String addr) { //Quickfix for issue #33
+	std::string serveraddr = addr.toAnsiString();
+	if (serveraddr.back() != '.')
+		net->serverAdd = addr.toAnsiString();
 }
 
 void UI::addRoom(const sf::String& name, short curr, short max, short id) {
@@ -877,6 +879,7 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 	if (guest && !name.getSize())
 		return;
 	gui.get("MainMenu")->hide();
+	gui.get("Login")->hide();
 	gui.get("Connecting")->show();
 	window->draw(textureBase->background); //Update the screen so a block on connect will show the connecting screen
 	gui.draw();
@@ -891,13 +894,13 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 		net->packet << packetid << clientVersion << port << guest << name << pass;
 		net->sendTCP();
 		playonline=true;
-		gui.get("Login")->hide();
 		if (guest)
 			game->field.setName(name, *printFont);
 	}
 	else {
 		quickMsg("Could not connect to server");
 		gui.get("Connecting")->hide();
+		gui.get("Login")->show();
 		gui.get("MainMenu")->show();
 	}
 }
@@ -956,6 +959,8 @@ void UI::chatFocus(bool i) {
 }
 
 void UI::sendMsg(const sf::String& to, const sf::String& msg) {
+	if (!msg.getSize())
+		return;
 	sf::Uint8 packetid = 10;
 	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 		short until = msg.find(' ', 3);

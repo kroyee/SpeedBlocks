@@ -393,6 +393,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	else {
 		lines.x--;
+		bool blocked=false;
 		for (int i=0; i<tmplines-1; i++)
 			if (garbage.size()) {
 				garbage.front().count--;
@@ -401,7 +402,14 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				lines.x--;
 				linesBlocked++;
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+				short total=0;
+				blocked=true;
 			}
+		short total=0;
+		for (unsigned int x=0; x<garbage.size(); x++)
+			total+=garbage[x].count;
+
+		pendingText.setString(to_string(total));
 	}
 	if (options.sound) {
 		sounds->lineClear();
