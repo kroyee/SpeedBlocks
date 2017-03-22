@@ -10,3 +10,6 @@ SpeedBlocks.props
 
 # default Code::Blocks output folder
 /SpeedBlocks
+
+#jetbraint clion project files
+.idea/
