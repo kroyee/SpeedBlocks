@@ -15,7 +15,7 @@ public:
     sf::Texture backgroundTexture;
     sf::Sprite background;
 
-    void loadTextures();
+    sf::String loadTextures();
 };
 
 #endif

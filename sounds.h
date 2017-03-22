@@ -6,8 +6,6 @@
 
 class soundBank {
 public:
-	soundBank();
-
 	sf::SoundBuffer pieceDropBuff;
 	sf::SoundBuffer lineClearBuff;
 	sf::SoundBuffer garbAddBuff;
@@ -40,6 +38,8 @@ public:
 	sf::Sound combo21Sound;
 	sf::Sound startBeep1Sound;
 	sf::Sound startBeep2Sound;
+
+	sf::String loadSounds();
 
 	void pieceDrop() { pieceDropSound.play(); }
 	void lineClear() { lineClearSound.play(); }

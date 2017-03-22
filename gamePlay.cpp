@@ -408,8 +408,8 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		short total=0;
 		for (unsigned int x=0; x<garbage.size(); x++)
 			total+=garbage[x].count;
-
-		pendingText.setString(to_string(total));
+		if (blocked)
+			pendingText.setString(to_string(total));
 	}
 	if (options.sound) {
 		sounds->lineClear();
