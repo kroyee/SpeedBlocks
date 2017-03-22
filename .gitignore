@@ -14,7 +14,7 @@ SpeedBlocks.props
 #cmake and build artifacts
 *.o
 SpeedBlocks
-Makefile
+Makefile*
 CMakeCache.txt
 CMakeFiles/
 build/
