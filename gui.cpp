@@ -237,7 +237,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Label::Ptr CwL = themeTG->load("Label");
 	CwL->setPosition(0, 183);
 	CwL->setSize(90, 30);
-	CwL->setText("RotateRight");
+	CwL->setText("Rotate >");
 	CwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CwL);
 	tgui::Button::Ptr CwB = themeTG->load("Button");
@@ -250,7 +250,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Label::Ptr CcL = themeTG->load("Label");
 	CcL->setPosition(0, 223);
 	CcL->setSize(90, 30);
-	CcL->setText("RotateLeft");
+	CcL->setText("Rotate <");
 	CcL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CcL);
 	tgui::Button::Ptr CcB = themeTG->load("Button");
