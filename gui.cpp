@@ -206,7 +206,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options->left));
 	SFKeyToString(options->left, keyname);
 	LeB->setText(keyname);
-	GenOpt->add(LeB);
+	GenOpt->add(LeB,"BindLeft");
 
 	tgui::Label::Ptr RiL = themeTG->load("Label");
 	RiL->setPosition(0, 103);
@@ -219,7 +219,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	RiB->connect("pressed", &UI::setKey, this, RiB, std::ref(options->right));
 	SFKeyToString(options->right, keyname);
 	RiB->setText(keyname);
-	GenOpt->add(RiB);
+	GenOpt->add(RiB,"BindRight");
 
 	tgui::Label::Ptr DoL = themeTG->load("Label");
 	DoL->setPosition(0, 143);
@@ -232,12 +232,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	DoB->connect("pressed", &UI::setKey, this, DoB, std::ref(options->down));
 	SFKeyToString(options->down, keyname);
 	DoB->setText(keyname);
-	GenOpt->add(DoB);
+	GenOpt-> add(DoB,"BindDown");
 
 	tgui::Label::Ptr CwL = themeTG->load("Label");
 	CwL->setPosition(0, 183);
 	CwL->setSize(90, 30);
-	CwL->setText("Rotate >");
+	CwL->setText("RotateRight");
 	CwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CwL);
 	tgui::Button::Ptr CwB = themeTG->load("Button");
@@ -245,12 +245,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	CwB->connect("pressed", &UI::setKey, this, CwB, std::ref(options->rcw));
 	SFKeyToString(options->rcw, keyname);
 	CwB->setText(keyname);
-	GenOpt->add(CwB);
+	GenOpt->add(CwB,"BindRCW");
 
 	tgui::Label::Ptr CcL = themeTG->load("Label");
 	CcL->setPosition(0, 223);
 	CcL->setSize(90, 30);
-	CcL->setText("Rotate <");
+	CcL->setText("RotateLeft");
 	CcL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CcL);
 	tgui::Button::Ptr CcB = themeTG->load("Button");
@@ -258,12 +258,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	CcB->connect("pressed", &UI::setKey, this, CcB, std::ref(options->rccw));
 	SFKeyToString(options->rccw, keyname);
 	CcB->setText(keyname);
-	GenOpt->add(CcB);
+	GenOpt->add(CcB,"BindRCCW");
 
 	tgui::Label::Ptr R1L = themeTG->load("Label");
 	R1L->setPosition(350, 63);
 	R1L->setSize(140, 30);
-	R1L->setText("Rotate 180");
+	R1L->setText("Rotate180");
 	R1L->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(R1L);
 	tgui::Button::Ptr R1B = themeTG->load("Button");
@@ -271,12 +271,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	R1B->connect("pressed", &UI::setKey, this, R1B, std::ref(options->r180));
 	SFKeyToString(options->r180, keyname);
 	R1B->setText(keyname);
-	GenOpt->add(R1B);
+	GenOpt->add(R1B,"BindR180");
 
 	tgui::Label::Ptr HdL = themeTG->load("Label");
 	HdL->setPosition(350, 103);
 	HdL->setSize(140, 30);
-	HdL->setText("Hard Drop");
+	HdL->setText("HardDrop");
 	HdL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(HdL);
 	tgui::Button::Ptr HdB = themeTG->load("Button");
@@ -284,7 +284,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	HdB->connect("pressed", &UI::setKey, this, HdB, std::ref(options->hd));
 	SFKeyToString(options->hd, keyname);
 	HdB->setText(keyname);
-	GenOpt->add(HdB);
+	GenOpt->add(HdB,"BindHD");
 
 	tgui::Label::Ptr ChL = themeTG->load("Label");
 	ChL->setPosition(400, 143);
@@ -297,7 +297,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ChB->connect("pressed", &UI::setKey, this, ChB, std::ref(options->chat));
 	SFKeyToString(options->chat, keyname);
 	ChB->setText(keyname);
-	GenOpt->add(ChB);
+	GenOpt->add(ChB,"BindChat");
 
 	tgui::Label::Ptr ScL = themeTG->load("Label");
 	ScL->setPosition(400, 183);
@@ -310,7 +310,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ScB->connect("pressed", &UI::setKey, this, ScB, std::ref(options->score));
 	SFKeyToString(options->score, keyname);
 	ScB->setText(keyname);
-	GenOpt->add(ScB);
+	GenOpt->add(ScB,"BindScore");
 
 	tgui::Label::Ptr AwL = themeTG->load("Label");
 	AwL->setPosition(400, 223);
@@ -323,7 +323,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	AwB->connect("pressed", &UI::setKey, this, AwB, std::ref(options->away));
 	SFKeyToString(options->away, keyname);
 	AwB->setText(keyname);
-	GenOpt->add(AwB);
+	GenOpt->add(AwB,"BindAway");
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
 	tgui::Button::Ptr Cc[7];
@@ -1331,6 +1331,62 @@ void UI::putKey(sf::Event& event) {
         	gui.get("SelectKey", true)->hide();
         	gui.get("GenOpt", true)->enable();
         	setkey=false;
+
+		if (event.key.code == options->left) {
+			options->left = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindLeft", true)->setText("");
+		}
+
+		if (event.key.code == options->right) {
+			options->right = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRight", true)->setText("");
+		}
+
+		if (event.key.code == options->down) {
+			options->down = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindDown", true)->setText("");
+		}
+
+		if (event.key.code == options->rcw) {
+			options->rcw = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRCW", true)->setText("");
+		}
+
+		if (event.key.code == options->rccw) {
+			options->rccw = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRCCW", true)->setText("");
+		}
+
+		if (event.key.code == options->r180) {
+			options->r180 = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindR180", true)->setText("");
+		}
+
+		if (event.key.code == options->hd) {
+			options->hd = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindHD", true)->setText("");
+		}
+
+		if (event.key.code == options->chat) {
+			options->chat = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindChat", true)->setText("");
+		}
+
+		if (event.key.code == options->rcw) {
+			options->rcw = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRCW", true)->setText("");
+		}
+
+		if (event.key.code == options->score) {
+			options->score = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindScore", true)->setText("");
+		}
+
+		if (event.key.code == options->away) {
+			options->away = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindAway", true)->setText("");
+		}
+
         	*key = event.key.code;
         	char name[12];
         	SFKeyToString(event.key.code, name);
