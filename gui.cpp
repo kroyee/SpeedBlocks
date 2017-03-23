@@ -1386,7 +1386,7 @@ void UI::putKey(sf::Event& event) {
 			options->away = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindAway", true)->setText("");
 		}
-
+		//
         	*key = event.key.code;
         	char name[12];
         	SFKeyToString(event.key.code, name);
