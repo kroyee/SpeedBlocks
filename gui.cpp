@@ -24,7 +24,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	startcount=false;
 	disconnect=false;
 	away=false;
-
+	//
 	scoreRows=0;
 
 	window=&rwindow;
