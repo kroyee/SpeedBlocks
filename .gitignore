@@ -7,7 +7,7 @@
 
 #editorproject files
 .idea/
-*.sublime
+*.sublime*
 SpeedBlocks.props
 
 
