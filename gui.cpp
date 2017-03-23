@@ -181,7 +181,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	NTB->setSize(400, 30);
 	NTB->connect("TextChanged", &UI::changeName, this);
 	GenOpt->add(NTB);
-
+	
 	char keyname[12]; // "Press any key" box
 
 	tgui::Panel::Ptr CKP = themeTG->load("Panel");
@@ -1386,11 +1386,11 @@ void UI::putKey(sf::Event& event) {
 			options->away = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindAway", true)->setText("");
 		}
-<<<<<<< HEAD
-		//
-=======
 
->>>>>>> 182dff7d663bf8d461c020c29ceb46ee93213206
+		//
+
+
+
         	*key = event.key.code;
         	char name[12];
         	SFKeyToString(event.key.code, name);
