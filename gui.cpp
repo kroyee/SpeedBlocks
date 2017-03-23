@@ -11,7 +11,7 @@ using namespace std;
 #else
 #include "EmptyResourcePath.h"
 #endif
-
+//
 UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : typewriter(font1), printFont2(font2), printFont(&font2), gui(rwindow) {
 	training=false;
 	playonline=false;
