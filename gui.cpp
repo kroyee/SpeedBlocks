@@ -11,7 +11,7 @@ using namespace std;
 #else
 #include "EmptyResourcePath.h"
 #endif
-//
+
 UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : typewriter(font1), printFont2(font2), printFont(&font2), gui(rwindow) {
 	training=false;
 	playonline=false;
@@ -24,7 +24,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	startcount=false;
 	disconnect=false;
 	away=false;
-
+	//
 	scoreRows=0;
 
 	window=&rwindow;
@@ -181,7 +181,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	NTB->setSize(400, 30);
 	NTB->connect("TextChanged", &UI::changeName, this);
 	GenOpt->add(NTB);
-
+	
 	char keyname[12]; // "Press any key" box
 
 	tgui::Panel::Ptr CKP = themeTG->load("Panel");
@@ -1386,6 +1386,10 @@ void UI::putKey(sf::Event& event) {
 			options->away = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindAway", true)->setText("");
 		}
+
+		//
+
+
 
         	*key = event.key.code;
         	char name[12];
