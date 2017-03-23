@@ -13,26 +13,26 @@ using namespace std;
 #endif
 
 UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : typewriter(font1), printFont2(font2), printFont(&font2), gui(rwindow) {
-	training = false;
-	playonline = false;
-	quit = false;
-	adjPieces = false;
-	updPieces = false;
-	chatFocused = false;
-	inroom = false;
-	startgame = false;
-	startcount = false;
-	disconnect = false;
-	away = false;
+	training=false;
+	playonline=false;
+	quit=false;
+	adjPieces=false;
+	updPieces=false;
+	chatFocused=false;
+	inroom=false;
+	startgame=false;
+	startcount=false;
+	disconnect=false;
+	away=false;
 
-	scoreRows = 0;
+	scoreRows=0;
 
-	window = &rwindow;
-	sounds = &soundy;
-	options = &opt;
-	game = &gamey;
-	net = &_net;
-	textureBase = &_tex;
+	window=&rwindow;
+	sounds=&soundy;
+	options=&opt;
+	game=&gamey;
+	net=&_net;
+	textureBase=&_tex;
 
 	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
@@ -41,7 +41,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Panel::Ptr MainMenu = tgui::Panel::create();  // MAINMENU
 	MainMenu->setSize(800, 600);
-	MainMenu->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	MainMenu->setBackgroundColor(sf::Color(255,255,255,0));
 	gui.add(MainMenu, "MainMenu");
 
 	tgui::Button::Ptr PO = themeTG->load("Button");
@@ -90,7 +90,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Panel::Ptr LiP = tgui::Panel::create(); // Login panel
 	LiP->setSize(400, 300);
 	LiP->setPosition(280, 150);
-	LiP->setBackgroundColor(sf::Color(50, 50, 50, 200));
+	LiP->setBackgroundColor(sf::Color(50,50,50,200));
 	LiP->hide();
 	gui.add(LiP, "Login");
 
@@ -167,7 +167,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Panel::Ptr GenOpt = tgui::Panel::create();
 	GenOpt->setSize(960, 500);
 	GenOpt->setPosition(0, 100);
-	GenOpt->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	GenOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	GenOpt->hide();
 	gui.add(GenOpt, "GenOpt");
 
@@ -203,20 +203,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	GenOpt->add(LeL);
 	tgui::Button::Ptr LeB = themeTG->load("Button");
 	LeB->setPosition(100, 60);
-
-	if (options->left = (options->right))
-	{
-		LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options->left));
-		SFKeyToString(options->left, keyname);
-		LeB->setText(keyname);
-		GenOpt->add(LeB, "BindLeft");
-	}
-	else {
-		LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options->left));
-		SFKeyToString(options->left, keyname);
-		LeB->setText(keyname);
-		GenOpt->add(LeB, "BindLeft");
-	}
+	LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options->left));
+	SFKeyToString(options->left, keyname);
+	LeB->setText(keyname);
+	GenOpt->add(LeB,"BindLeft");
 
 	tgui::Label::Ptr RiL = themeTG->load("Label");
 	RiL->setPosition(0, 103);
@@ -229,7 +219,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	RiB->connect("pressed", &UI::setKey, this, RiB, std::ref(options->right));
 	SFKeyToString(options->right, keyname);
 	RiB->setText(keyname);
-	GenOpt->add(RiB, "BindRight");
+	GenOpt->add(RiB,"BindRight");
 
 	tgui::Label::Ptr DoL = themeTG->load("Label");
 	DoL->setPosition(0, 143);
@@ -242,12 +232,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	DoB->connect("pressed", &UI::setKey, this, DoB, std::ref(options->down));
 	SFKeyToString(options->down, keyname);
 	DoB->setText(keyname);
-	GenOpt->add(DoB, "BindDown");
+	GenOpt-> add(DoB,"BindDown");
 
 	tgui::Label::Ptr CwL = themeTG->load("Label");
 	CwL->setPosition(0, 183);
 	CwL->setSize(90, 30);
-	CwL->setText("Rotate >");
+	CwL->setText("RotateRight");
 	CwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CwL);
 	tgui::Button::Ptr CwB = themeTG->load("Button");
@@ -255,12 +245,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	CwB->connect("pressed", &UI::setKey, this, CwB, std::ref(options->rcw));
 	SFKeyToString(options->rcw, keyname);
 	CwB->setText(keyname);
-	GenOpt->add(CwB, "BindRCW");
+	GenOpt->add(CwB,"BindRCW");
 
 	tgui::Label::Ptr CcL = themeTG->load("Label");
 	CcL->setPosition(0, 223);
 	CcL->setSize(90, 30);
-	CcL->setText("Rotate <");
+	CcL->setText("RotateLeft");
 	CcL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CcL);
 	tgui::Button::Ptr CcB = themeTG->load("Button");
@@ -268,12 +258,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	CcB->connect("pressed", &UI::setKey, this, CcB, std::ref(options->rccw));
 	SFKeyToString(options->rccw, keyname);
 	CcB->setText(keyname);
-	GenOpt->add(CcB, "BindRCCW");
+	GenOpt->add(CcB,"BindRCCW");
 
 	tgui::Label::Ptr R1L = themeTG->load("Label");
 	R1L->setPosition(350, 63);
 	R1L->setSize(140, 30);
-	R1L->setText("Rotate 180");
+	R1L->setText("Rotate180");
 	R1L->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(R1L);
 	tgui::Button::Ptr R1B = themeTG->load("Button");
@@ -281,12 +271,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	R1B->connect("pressed", &UI::setKey, this, R1B, std::ref(options->r180));
 	SFKeyToString(options->r180, keyname);
 	R1B->setText(keyname);
-	GenOpt->add(R1B, "BindR180");
+	GenOpt->add(R1B,"BindR180");
 
 	tgui::Label::Ptr HdL = themeTG->load("Label");
 	HdL->setPosition(350, 103);
 	HdL->setSize(140, 30);
-	HdL->setText("Hard Drop");
+	HdL->setText("HardDrop");
 	HdL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(HdL);
 	tgui::Button::Ptr HdB = themeTG->load("Button");
@@ -294,7 +284,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	HdB->connect("pressed", &UI::setKey, this, HdB, std::ref(options->hd));
 	SFKeyToString(options->hd, keyname);
 	HdB->setText(keyname);
-	GenOpt->add(HdB, "BindHD");
+	GenOpt->add(HdB,"BindHD");
 
 	tgui::Label::Ptr ChL = themeTG->load("Label");
 	ChL->setPosition(400, 143);
@@ -307,7 +297,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ChB->connect("pressed", &UI::setKey, this, ChB, std::ref(options->chat));
 	SFKeyToString(options->chat, keyname);
 	ChB->setText(keyname);
-	GenOpt->add(ChB, "BindChat");
+	GenOpt->add(ChB,"BindChat");
 
 	tgui::Label::Ptr ScL = themeTG->load("Label");
 	ScL->setPosition(400, 183);
@@ -320,7 +310,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ScB->connect("pressed", &UI::setKey, this, ScB, std::ref(options->score));
 	SFKeyToString(options->score, keyname);
 	ScB->setText(keyname);
-	GenOpt->add(ScB, "BindScore");
+	GenOpt->add(ScB,"BindScore");
 
 	tgui::Label::Ptr AwL = themeTG->load("Label");
 	AwL->setPosition(400, 223);
@@ -333,21 +323,21 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	AwB->connect("pressed", &UI::setKey, this, AwB, std::ref(options->away));
 	SFKeyToString(options->away, keyname);
 	AwB->setText(keyname);
-	GenOpt->add(AwB, "BindAway");
+	GenOpt->add(AwB,"BindAway");
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
 	tgui::Button::Ptr Cc[7];
-	for (int i = 0; i<7; i++) {
+	for (int i=0; i<7; i++) {
 		Rp[i] = themeBB->load("Button");
 		Cc[i] = themeBB->load("Button");
 
-		Rp[i]->setPosition(i * 115 + 20, 365);
-		Rp[i]->setSize(30, 30);
+		Rp[i]->setPosition(i*115+20, 365);
+		Rp[i]->setSize(30,30);
 		Rp[i]->setOpacity(0.7);
 		Rp[i]->connect("pressed", &UI::rotPiece, this, i);
 
-		Cc[i]->setPosition(i * 115 + 60, 365);
-		Cc[i]->setSize(30, 30);
+		Cc[i]->setPosition(i*115+60, 365);
+		Cc[i]->setSize(30,30);
 		Cc[i]->connect("pressed", &UI::colPiece, this, i);
 
 		GenOpt->add(Rp[i]);
@@ -401,7 +391,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Panel::Ptr VidOpt = tgui::Panel::create(); // Video Options
 	VidOpt->setSize(960, 500);
 	VidOpt->setPosition(0, 100);
-	VidOpt->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	VidOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	VidOpt->hide();
 	gui.add(VidOpt, "VidOpt");
 
@@ -413,7 +403,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Slider::Ptr ViS = themeTG->load("Slider");
 	ViS->setPosition(50, 50);
 	ViS->setSize(700, 30);
-	ViS->setMaximum(options->modes.size() - 1);
+	ViS->setMaximum(options->modes.size()-1);
 	if (options->currentmode == -1)
 		ViS->setValue(0);
 	else
@@ -455,7 +445,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	FdE->setPosition(170, 230);
 	FdE->setSize(70, 30);
 	FdE->setInputValidator(tgui::EditBox::Validator::UInt);
-	FdE->setText(to_string(1000000 / options->frameDelay.asMicroseconds()));
+	FdE->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
 	VidOpt->add(FdE, "FrameDelay");
 
 	tgui::Label::Ptr IdL = themeTG->load("Label");
@@ -485,7 +475,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Panel::Ptr SndOpt = tgui::Panel::create(); // Sound Options
 	SndOpt->setSize(800, 500);
 	SndOpt->setPosition(0, 100);
-	SndOpt->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	SndOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	SndOpt->hide();
 	gui.add(SndOpt, "SndOpt");
 
@@ -499,7 +489,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Slider::Ptr MvS = themeTG->load("Slider");
 	MvS->setPosition(50, 100);
-	MvS->setSize(700, 30);
+	MvS->setSize(700,30);
 	MvS->setMaximum(100);
 	MvS->connect("ValueChanged", &UI::volSlide, this, 1);
 	MvS->setValue(options->MusicVolume);
@@ -512,7 +502,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Slider::Ptr EvS = themeTG->load("Slider");
 	EvS->setPosition(50, 200);
-	EvS->setSize(700, 30);
+	EvS->setSize(700,30);
 	EvS->setMaximum(100);
 	EvS->connect("ValueChanged", &UI::volSlide, this, 2);
 	EvS->setValue(options->EffectVolume);
@@ -525,7 +515,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 
 	tgui::Slider::Ptr CvS = themeTG->load("Slider");
 	CvS->setPosition(50, 300);
-	CvS->setSize(700, 30);
+	CvS->setSize(700,30);
 	CvS->setMaximum(100);
 	CvS->connect("ValueChanged", &UI::volSlide, this, 3);
 	CvS->setValue(options->ChatVolume);
@@ -553,14 +543,14 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	GfP->setPosition(465, 40);
 	GfP->setSize(490, 555);
 	GfP->hide();
-	GfP->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	GfP->setBackgroundColor(sf::Color(255,255,255,0));
 	gui.add(GfP, "GameFields");
 
 	tgui::Panel::Ptr ScP = tgui::Panel::create(); // Score panel
-	ScP->setPosition(465, 40);
+	ScP->setPosition(465,40);
 	ScP->setSize(490, 555);
 	ScP->hide();
-	ScP->setBackgroundColor(sf::Color(200, 200, 200, 50));
+	ScP->setBackgroundColor(sf::Color(200,200,200, 50));
 	gui.add(ScP, "Score");
 
 	tgui::Label::Ptr SbL = themeTG->load("Label");
@@ -570,10 +560,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ScP->add(SbL, "ScoreBoxLab");
 
 	tgui::Panel::Ptr ChP = tgui::Panel::create(); // Chat panel
-	ChP->setPosition(465, 40);
+	ChP->setPosition(465,40);
 	ChP->setSize(490, 555);
 	ChP->hide();
-	ChP->setBackgroundColor(sf::Color(200, 200, 200, 50));
+	ChP->setBackgroundColor(sf::Color(200,200,200, 50));
 	gui.add(ChP, "Chat");
 
 	tgui::Tab::Ptr ChT = themeBB->load("Tab");
@@ -604,10 +594,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	ChP->add(ChE, "ChatBox");
 
 	tgui::Panel::Ptr WcP = tgui::Panel::create(); // Connecting... Panel
-	WcP->setPosition(330, 250);
+	WcP->setPosition(330,250);
 	WcP->setSize(300, 100);
 	WcP->hide();
-	WcP->setBackgroundColor(sf::Color(50, 50, 50, 150));
+	WcP->setBackgroundColor(sf::Color(50,50,50,150));
 	gui.add(WcP, "Connecting");
 
 	tgui::Label::Ptr WcL = themeTG->load("Label");
@@ -632,10 +622,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	gui.add(LoT, "opTab");
 
 	tgui::Panel::Ptr RoP = tgui::Panel::create(); // Rooms Panel
-	RoP->setPosition(0, 100);
+	RoP->setPosition(0,100);
 	RoP->setSize(960, 500);
 	RoP->hide();
-	RoP->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	RoP->setBackgroundColor(sf::Color(255,255,255,0));
 	gui.add(RoP, "Rooms");
 
 	tgui::Scrollbar::Ptr RoS = themeTG->load("Scrollbar");
@@ -647,10 +637,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	RoP->add(RoS, "RoomScroll");
 
 	tgui::Panel::Ptr LoP = tgui::Panel::create(); // Lobby Panel
-	LoP->setPosition(0, 100);
+	LoP->setPosition(0,100);
 	LoP->setSize(960, 500);
 	LoP->hide();
-	LoP->setBackgroundColor(sf::Color(255, 255, 255, 0));
+	LoP->setBackgroundColor(sf::Color(255,255,255,0));
 	gui.add(LoP, "ServerLobby");
 
 	tgui::ChatBox::Ptr SlC = themeBB->load("ChatBox");
@@ -666,10 +656,10 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	LoP->add(SlE, "slChatBox");
 
 	tgui::Panel::Ptr AUS = tgui::Panel::create(); // Are you sure? Panel
-	AUS->setPosition(330, 250);
+	AUS->setPosition(330,250);
 	AUS->setSize(300, 100);
 	AUS->hide();
-	AUS->setBackgroundColor(sf::Color(50, 50, 50, 200));
+	AUS->setBackgroundColor(sf::Color(50,50,50, 200));
 	gui.add(AUS, "AUS");
 
 	tgui::Label::Ptr AUSL = themeTG->load("Label");
@@ -696,8 +686,8 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	AUS->add(AUSNB);
 
 	tgui::Label::Ptr QmL = themeTG->load("Label");
-	QmL->setPosition(0, 30);
-	QmL->setSize(960, 200);
+	QmL->setPosition(0,30);
+	QmL->setSize(960,200);
 	QmL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	QmL->setTextSize(32);
 	QmL->setTextColor(sf::Color::Red);
@@ -824,8 +814,8 @@ void UI::joinRoom(sf::Uint16 id) { //0-Packet
 	sf::Uint8 packetid = 0;
 	net->packet << packetid << id;
 	net->sendTCP();
-	away = false;
-	game->autoaway = false;
+	away=false;
+	game->autoaway=false;
 }
 
 void GameFieldDrawer::leaveRoom() { //1-Packet
@@ -833,8 +823,8 @@ void GameFieldDrawer::leaveRoom() { //1-Packet
 	sf::Uint8 packetid = 1;
 	net->packet << packetid;
 	net->sendTCP();
-	inroom = false;
-	quit = true;
+	inroom=false;
+	quit=true;
 	gui.get("opTab")->show();
 	gui.get("Rooms")->show();
 	gui.get<tgui::Tab>("opTab")->select(0);
@@ -864,8 +854,8 @@ void UI::removeAllRooms() {
 void UI::setRoomPos() {
 	short height = playRooms.size() * 120;
 	if (height > 500) {
-		height -= 500;
-		height /= 30;
+		height-=500;
+		height/=30;
 		height++;
 		gui.get<tgui::Scrollbar>("RoomScroll", 1)->setMaximum(height);
 	}
@@ -874,14 +864,14 @@ void UI::setRoomPos() {
 	short scrollpos = gui.get<tgui::Scrollbar>("RoomScroll", 1)->getValue();
 	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
 		int i = std::distance(playRooms.begin(), it);
-		it->button->setPosition(50, i * 120 - scrollpos * 30);
+		it->button->setPosition(50, i*120 - scrollpos*30);
 	}
 }
 
 void UI::roomScrolled(int c) {
 	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
 		int i = std::distance(playRooms.begin(), it);
-		it->button->setPosition(50, i * 120 - c * 30);
+		it->button->setPosition(50, i*120 - c*30);
 	}
 }
 
@@ -903,7 +893,7 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 		sf::Uint16 port = net->localUdpPort;
 		net->packet << packetid << clientVersion << port << guest << name << pass;
 		net->sendTCP();
-		playonline = true;
+		playonline=true;
 		if (guest)
 			game->field.setName(name, *printFont);
 	}
@@ -941,12 +931,12 @@ void UI::opTabSelect(const std::string& tab) {
 		gui.get("opTab")->hide();
 		gui.get("MainMenu")->show();
 		net->disconnect();
-		playonline = false;
+		playonline=false;
 	}
 }
 
 void UI::ausY() {
-	quit = true;
+	quit=true;
 	gui.get("AUS")->hide();
 }
 
@@ -963,18 +953,18 @@ void UI::quickMsg(const sf::String& msg) {
 
 void UI::chatFocus(bool i) {
 	if (i)
-		chatFocused = true;
+		chatFocused=true;
 	else
-		chatFocused = false;
+		chatFocused=false;
 }
 
 void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 	if (!msg.getSize())
 		return;
 	sf::Uint8 packetid = 10;
-	if (msg[0] == '/' && msg[1] == 'w' && msg[2] == ' ') {
+	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 		short until = msg.find(' ', 3);
-		sf::String privto = msg.substring(3, until - 3);
+		sf::String privto = msg.substring(3, until-3);
 		sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
 		net->packet.clear();
 		net->packet << packetid;
@@ -1028,16 +1018,16 @@ void UI::lobbyMsg(const sf::String& name, const sf::String& msg) {
 }
 
 void UI::privMsg(const sf::String& name, const sf::String& msg) {
-	short create = -1;
+	short create=-1;
 	for (size_t i = 0; i < privChats.size(); i++)
 		if (privChats[i].name == name) {
-			create = i;
+			create=i;
 		}
 	if (create == -1) {
 		privChat newchat;
-		newchat.name = name;
+		newchat.name=name;
 		privChats.push_back(move(newchat));
-		create = privChats.size() - 1;
+		create=privChats.size()-1;
 
 
 		privChats[create].chatBox = themeBB->load("ChatBox");
@@ -1054,18 +1044,18 @@ void UI::privMsg(const sf::String& name, const sf::String& msg) {
 
 void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short combo, short sent, float adj, short spm, short received, short blocked) {
 	sf::String rounding = to_string((int)adj); //A bit messy-looking way of rounding float to 1 decimal
-	rounding += "." + to_string((int)((adj - (int)adj) * 10));
+	rounding += "." + to_string((int)((adj - (int)adj)*10));
 
 	tgui::Label::Ptr label = themeTG->load("Label");
 	label->setText(name);
-	label->setPosition(5, scoreRows * 30 + 5);
+	label->setPosition(5, scoreRows*30+5);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
 
 	label = themeTG->load("Label");
 	label->setText(to_string(score));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(65, scoreRows * 30 + 5);
+	label->setPosition(65, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1073,7 +1063,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(to_string(rank));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(110, scoreRows * 30 + 5);
+	label->setPosition(110, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1081,7 +1071,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(to_string(bpm));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(155, scoreRows * 30 + 5);
+	label->setPosition(155, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1089,7 +1079,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(to_string(combo));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(200, scoreRows * 30 + 5);
+	label->setPosition(200, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1097,7 +1087,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(to_string(sent));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(240, scoreRows * 30 + 5);
+	label->setPosition(240, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1105,7 +1095,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(rounding);
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(275, scoreRows * 30 + 5);
+	label->setPosition(275, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1113,7 +1103,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(to_string(spm));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(315, scoreRows * 30 + 5);
+	label->setPosition(315, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1121,7 +1111,7 @@ void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short c
 	label = themeTG->load("Label");
 	label->setText(to_string(blocked) + "/" + to_string(received));
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	label->setPosition(380, scoreRows * 30 + 5);
+	label->setPosition(380, scoreRows*30+5);
 	label->setSize(100, 35);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -1138,7 +1128,7 @@ void UI::clearScore() {
 	label->setTextSize(16);
 	gui.get<tgui::Panel>("Score")->add(label);
 
-	scoreRows = 1;
+	scoreRows=1;
 }
 
 void UI::igtabSelect(const std::string& tab) {
@@ -1192,13 +1182,13 @@ void UI::otabSelect(std::string tab) {
 		gui.get("GenOpt")->show();
 		gui.get("VidOpt")->hide();
 		gui.get("SndOpt")->hide();
-		adjPieces = true;
+		adjPieces=true;
 	}
 	else if (tab == "Video") {
 		gui.get("VidOpt")->show();
 		gui.get("GenOpt")->hide();
 		gui.get("SndOpt")->hide();
-		adjPieces = false;
+		adjPieces=false;
 		if (options->fullscreen)
 			gui.get<tgui::CheckBox>("Fullscreen", 1)->check();
 		else
@@ -1207,14 +1197,14 @@ void UI::otabSelect(std::string tab) {
 			gui.get<tgui::CheckBox>("vSync", 1)->check();
 		else
 			gui.get<tgui::CheckBox>("vSync", 1)->uncheck();
-		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000 / options->frameDelay.asMicroseconds()));
+		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
 		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options->inputDelay.asMicroseconds()));
 	}
 	else if (tab == "Sound") {
 		gui.get("VidOpt")->hide();
 		gui.get("GenOpt")->hide();
 		gui.get("SndOpt")->show();
-		adjPieces = false;
+		adjPieces=false;
 	}
 	else if (tab == "Back") {
 		gui.get("MainMenu")->show();
@@ -1222,7 +1212,7 @@ void UI::otabSelect(std::string tab) {
 		gui.get("GenOpt")->hide();
 		gui.get("VidOpt")->hide();
 		gui.get("SndOpt")->hide();
-		adjPieces = false;
+		adjPieces=false;
 	}
 }
 
@@ -1262,7 +1252,7 @@ void UI::applyVideo() {
 			window->close();
 			window->create(options->modes[options->currentmode], "SpeedBlocks", sf::Style::Fullscreen);
 			window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-			options->fullscreen = true;
+			options->fullscreen=true;
 		}
 	}
 	else if (options->currentmode != -1) {
@@ -1270,7 +1260,7 @@ void UI::applyVideo() {
 		window->create(sf::VideoMode(960, 600), "SpeedBlocks");
 		options->currentmode = -1;
 		window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-		options->fullscreen = false;
+		options->fullscreen=false;
 	}
 
 	if (gui.get<tgui::CheckBox>("vSync", 1)->isChecked()) {
@@ -1283,12 +1273,12 @@ void UI::applyVideo() {
 	}
 
 	std::string fd = gui.get<tgui::EditBox>("FrameDelay", 1)->getText();
-	short value = 0;
+	short value=0;
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		options->frameDelay = sf::microseconds(1000000 / value);
-	value = 0;
+		options->frameDelay = sf::microseconds(1000000/value);
+	value=0;
 	fd = gui.get<tgui::EditBox>("InputDelay", 1)->getText();
 	if (fd.size())
 		value = stoi(fd);
@@ -1303,7 +1293,7 @@ void UI::vidSlide(short i) {
 }
 
 void UI::setBool(bool& var) {
-	var = true;
+	var=true;
 }
 
 void UI::Options() {
@@ -1311,7 +1301,7 @@ void UI::Options() {
 	gui.get("OptTab")->show();
 	gui.get("GenOpt")->show();
 	gui.get<tgui::Tab>("OptTab")->select(0);
-	adjPieces = true;
+	adjPieces=true;
 }
 
 void UI::mainMenu() {
@@ -1325,84 +1315,84 @@ void UI::mainMenu() {
 void UI::setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey) {
 	gui.get("SelectKey", true)->show();
 	gui.get("GenOpt", true)->disable();
-	setkey = true;
-	key = &skey;
-	button = butt;
+	setkey=true;
+	key=&skey;
+	button=butt;
 }
 
 void UI::putKey(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed) {
-		if (event.key.code == sf::Keyboard::Key::Escape || event.key.code == -1) {
-			gui.get("SelectKey", true)->hide();
-			gui.get("GenOpt", true)->enable();
-			setkey = false;
-		}
-		else {
-			gui.get("SelectKey", true)->hide();
-			gui.get("GenOpt", true)->enable();
-			setkey = false;
+        if (event.key.code == sf::Keyboard::Key::Escape || event.key.code == -1 ) {
+        	gui.get("SelectKey", true)->hide();
+        	gui.get("GenOpt", true)->enable();
+        	setkey=false;
+        }
+        else {
+        	gui.get("SelectKey", true)->hide();
+        	gui.get("GenOpt", true)->enable();
+        	setkey=false;
 
-
-			if (event.key.code == options->left) {
-				options->left = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindLeft", true)->setText("");
-
-			}
-
-			if (event.key.code == options->right) {
-				options->right = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindRight", true)->setText("");
-			}
-
-			if (event.key.code == options->down) {
-				options->down = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindDown", true)->setText("");
-			}
-
-			if (event.key.code == options->rcw) {
-				options->rcw = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindRCW", true)->setText("");
-			}
-
-			if (event.key.code == options->rccw) {
-				options->rccw = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindRCCW", true)->setText("");
-			}
-
-			if (event.key.code == options->r180) {
-				options->r180 = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindR180", true)->setText("");
-			}
-
-			if (event.key.code == options->hd) {
-				options->hd = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindHD", true)->setText("");
-			}
-
-			if (event.key.code == options->chat) {
-				options->chat = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindChat", true)->setText("");
-			}
-
-			if (event.key.code == options->score) {
-				options->score = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindScore", true)->setText("");
-			}
-
-			if (event.key.code == options->away) {
-				options->away = sf::Keyboard::Unknown;
-				gui.get<tgui::Button>("BindAway", true)->setText("");
-			}
-
-			*key = event.key.code;
-			char name[12];
-			SFKeyToString(event.key.code, name);
-
-
-			button->setText(name);
+		if (event.key.code == options->left) {
+			options->left = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindLeft", true)->setText("");
 		}
 
-	}
+		if (event.key.code == options->right) {
+			options->right = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRight", true)->setText("");
+		}
+
+		if (event.key.code == options->down) {
+			options->down = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindDown", true)->setText("");
+		}
+
+		if (event.key.code == options->rcw) {
+			options->rcw = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRCW", true)->setText("");
+		}
+
+		if (event.key.code == options->rccw) {
+			options->rccw = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRCCW", true)->setText("");
+		}
+
+		if (event.key.code == options->r180) {
+			options->r180 = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindR180", true)->setText("");
+		}
+
+		if (event.key.code == options->hd) {
+			options->hd = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindHD", true)->setText("");
+		}
+
+		if (event.key.code == options->chat) {
+			options->chat = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindChat", true)->setText("");
+		}
+
+		if (event.key.code == options->rcw) {
+			options->rcw = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindRCW", true)->setText("");
+		}
+
+		if (event.key.code == options->score) {
+			options->score = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindScore", true)->setText("");
+		}
+
+		if (event.key.code == options->away) {
+			options->away = sf::Keyboard::Unknown;
+			gui.get<tgui::Button>("BindAway", true)->setText("");
+		}
+
+        	*key = event.key.code;
+        	char name[12];
+        	SFKeyToString(event.key.code, name);
+        	button->setText(name);
+        }
+    }
 }
 
 void UI::changeName(const sf::String& name) {
@@ -1413,19 +1403,19 @@ void UI::changeName(const sf::String& name) {
 void UI::rotPiece(short i) {
 	options->piecerotation[i]++;
 	if (options->piecerotation[i]>3)
-		options->piecerotation[i] = 0;
-	piece[i].setRotation(options->piecerotation[i] * 90);
+		options->piecerotation[i]=0;
+	piece[i].setRotation(options->piecerotation[i]*90);
 	game->updateBasePieces();
 }
 
 void UI::colPiece(short i) {
 	options->basepiece[i].tile++;
 	if (options->basepiece[i].tile>7)
-		options->basepiece[i].tile = 1;
-	for (int x = 0; x<4; x++)
-		for (int y = 0; y<4; y++)
+		options->basepiece[i].tile=1;
+	for (int x=0; x<4; x++)
+		for (int y=0; y<4; y++)
 			if (options->basepiece[i].grid[y][x])
-				options->basepiece[i].grid[y][x] = options->basepiece[i].tile;
+				options->basepiece[i].grid[y][x]=options->basepiece[i].tile;
 	piece[i].setColor(pColor(options->basepiece[i].tile));
 	game->updateBasePieces();
 }
@@ -1433,15 +1423,15 @@ void UI::colPiece(short i) {
 sf::Color pColor(short i) {
 	sf::Color col;
 	switch (i) {
-	case 1: col.r = 255; col.g = 0; col.b = 0; break;
-	case 2: col.r = 0; col.g = 255; col.b = 0; break;
-	case 3: col.r = 0; col.g = 0; col.b = 255; break;
-	case 4: col.r = 255; col.g = 0; col.b = 255; break;
-	case 5: col.r = 0; col.g = 255; col.b = 255; break;
-	case 6: col.r = 255; col.g = 255; col.b = 0; break;
-	case 7: col.r = 255; col.g = 255; col.b = 255; break;
+		case 1: col.r=255; col.g=0; col.b=0; break;
+		case 2: col.r=0; col.g=255; col.b=0; break;
+		case 3: col.r=0; col.g=0; col.b=255; break;
+		case 4: col.r=255; col.g=0; col.b=255; break;
+		case 5: col.r=0; col.g=255; col.b=255; break;
+		case 6: col.r=255; col.g=255; col.b=0; break;
+		case 7: col.r=255; col.g=255; col.b=255; break;
 
-	default: col.r = 0; col.g = 0; col.b = 0; break;
+		default: col.r=0; col.g=0; col.b=0; break;
 	}
 	return col;
 }
@@ -1453,162 +1443,159 @@ void UI::initSprites() {
 	tile.setTexture(tileT);
 
 	sf::RenderTexture rendtex;
-	rendtex.create(120, 120);
+	rendtex.create(120,120);
 
 	short value[112] = { 0, 4, 0, 0,
-		0, 4, 0, 0,
-		0, 4, 4, 0,
-		0, 0, 0, 0,
+						 0, 4, 0, 0,
+						 0, 4, 4, 0,
+						 0, 0, 0, 0,
 
-		0, 3, 0, 0,
-		0, 3, 0, 0,
-		3, 3, 0, 0,
-		0, 0, 0, 0,
+						 0, 3, 0, 0,
+						 0, 3, 0, 0,
+						 3, 3, 0, 0,
+						 0, 0, 0, 0,
 
-		0, 5, 0, 0,
-		0, 5, 5, 0,
-		0, 0, 5, 0,
-		0, 0, 0, 0,
+						 0, 5, 0, 0,
+						 0, 5, 5, 0,
+						 0, 0, 5, 0,
+						 0, 0, 0, 0,
 
-		0, 7, 0, 0,
-		7, 7, 0, 0,
-		7, 0, 0, 0,
-		0, 0, 0, 0,
+						 0, 7, 0, 0,
+						 7, 7, 0, 0,
+						 7, 0, 0, 0,
+						 0, 0, 0, 0,
 
-		0, 2, 0, 0,
-		0, 2, 0, 0,
-		0, 2, 0, 0,
-		0, 2, 0, 0,
+						 0, 2, 0, 0,
+						 0, 2, 0, 0,
+						 0, 2, 0, 0,
+						 0, 2, 0, 0,
 
-		0, 0, 0, 0,
-		1, 1, 1, 0,
-		0, 1, 0, 0,
-		0, 0, 0, 0,
+						 0, 0, 0, 0,
+						 1, 1, 1, 0,
+						 0, 1, 0, 0,
+						 0, 0, 0, 0,
 
-		0, 0, 0, 0,
-		0, 6, 6, 0,
-		0, 6, 6, 0,
-		0, 0, 0, 0 };
-	for (int p = 0; p<7; p++) {
-		rendtex.clear(sf::Color(255, 255, 255, 0));
-		if (p == 4 || p == 6) {
-			for (int x = 0; x<4; x++)
-				for (int y = 0; y<4; y++)
-					if (value[16 * p + 4 * y + x]) {
-						tile.setPosition(x * 30, y * 30);
+						 0, 0, 0, 0,
+						 0, 6, 6, 0,
+						 0, 6, 6, 0,
+						 0, 0, 0, 0 };
+	for (int p=0; p<7; p++) {
+		rendtex.clear(sf::Color(255,255,255,0));
+		if (p==4 || p==6) {
+			for (int x=0; x<4; x++)
+				for (int y=0; y<4; y++)
+					if (value[16*p + 4*y + x]) {
+						tile.setPosition(x*30, y*30);
 						rendtex.draw(tile);
 					}
 			rendtex.display();
 			texture[p] = rendtex.getTexture();
 			piece[p].setTexture(texture[p]);
 			piece[p].setScale(0.8, 0.8);
-			piece[p].setPosition(115 * p + 50, 360 + 50);
+			piece[p].setPosition(115*p+50, 360+50);
 			piece[p].setColor(pColor(options->basepiece[p].tile));
-			piece[p].setOrigin(60, 60);
-			piece[p].setRotation(options->piecerotation[p] * 90);
+			piece[p].setOrigin(60,60);
+			piece[p].setRotation(options->piecerotation[p]*90);
 		}
 		else {
-			for (int x = 0; x<3; x++)
-				for (int y = 0; y<3; y++)
-					if (value[16 * p + 4 * y + x]) {
-						tile.setPosition(x * 30 + 15, y * 30 + 15);
+			for (int x=0; x<3; x++)
+				for (int y=0; y<3; y++)
+					if (value[16*p + 4*y + x]) {
+						tile.setPosition(x*30+15, y*30+15);
 						rendtex.draw(tile);
 					}
 			rendtex.display();
 			texture[p] = rendtex.getTexture();
 			piece[p].setTexture(texture[p]);
 			piece[p].setScale(0.8, 0.8);
-			piece[p].setPosition(115 * p + 50, 360 + 50);
+			piece[p].setPosition(115*p+50, 360+50);
 			piece[p].setColor(pColor(options->basepiece[p].tile));
-			piece[p].setOrigin(60, 60);
-			piece[p].setRotation(options->piecerotation[p] * 90);
+			piece[p].setOrigin(60,60);
+			piece[p].setRotation(options->piecerotation[p]*90);
 		}
 	}
 }
 
 void SFKeyToString(unsigned int keycode, char *keyStr) {
-	switch (keycode) {
-	case sf::Keyboard::Key::Escape: sprintf(keyStr, "Escape"); break;
-	case sf::Keyboard::Key::LControl: sprintf(keyStr, "LControl"); break;
-	case sf::Keyboard::Key::LShift: sprintf(keyStr, "LShift"); break;
-	case sf::Keyboard::Key::LAlt: sprintf(keyStr, "LAlt"); break;
-	case sf::Keyboard::Key::LSystem: sprintf(keyStr, "LSystem"); break;
-	case sf::Keyboard::Key::RControl: sprintf(keyStr, "RControl"); break;
-	case sf::Keyboard::Key::RShift: sprintf(keyStr, "RShift"); break;
-	case sf::Keyboard::Key::RAlt: sprintf(keyStr, "RAlt"); break;
-	case sf::Keyboard::Key::RSystem: sprintf(keyStr, "RSystem"); break;
-	case sf::Keyboard::Key::Menu: sprintf(keyStr, "Menu"); break;
-	case sf::Keyboard::Key::LBracket: sprintf(keyStr, "LBracket"); break;
-	case sf::Keyboard::Key::RBracket: sprintf(keyStr, "RBracket"); break;
-	case sf::Keyboard::Key::SemiColon: sprintf(keyStr, ";"); break;
-	case sf::Keyboard::Key::Comma: sprintf(keyStr, ","); break;
-	case sf::Keyboard::Key::Period: sprintf(keyStr, "."); break;
-	case sf::Keyboard::Key::Quote: sprintf(keyStr, "\'"); break;
-	case sf::Keyboard::Key::Slash: sprintf(keyStr, "/"); break;
-	case sf::Keyboard::Key::BackSlash: sprintf(keyStr, "\\"); break;
-	case sf::Keyboard::Key::Tilde: sprintf(keyStr, "~"); break;
-	case sf::Keyboard::Key::Equal: sprintf(keyStr, "="); break;
-	case sf::Keyboard::Key::Dash: sprintf(keyStr, "-"); break;
-	case sf::Keyboard::Key::Space: sprintf(keyStr, "Space"); break;
-	case sf::Keyboard::Key::Return: sprintf(keyStr, "Return"); break;
-	case sf::Keyboard::Key::Tab: sprintf(keyStr, "Tab"); break;
-	case sf::Keyboard::Key::PageUp: sprintf(keyStr, "Page Up"); break;
-	case sf::Keyboard::Key::PageDown: sprintf(keyStr, "Page Down"); break;
-	case sf::Keyboard::Key::End: sprintf(keyStr, "End"); break;
-	case sf::Keyboard::Key::Home: sprintf(keyStr, "Home"); break;
-	case sf::Keyboard::Key::Insert: sprintf(keyStr, "Insert"); break;
-	case sf::Keyboard::Key::Delete: sprintf(keyStr, "Delete"); break;
-	case sf::Keyboard::Key::Add: sprintf(keyStr, "+"); break;
-	case sf::Keyboard::Key::Subtract: sprintf(keyStr, "-"); break;
-	case sf::Keyboard::Key::Multiply: sprintf(keyStr, "*"); break;
-	case sf::Keyboard::Key::Divide: sprintf(keyStr, "/"); break;
-	case sf::Keyboard::Key::Left: sprintf(keyStr, "Left"); break;
-	case sf::Keyboard::Key::Right: sprintf(keyStr, "Right"); break;
-	case sf::Keyboard::Key::Up: sprintf(keyStr, "Up"); break;
-	case sf::Keyboard::Key::Down: sprintf(keyStr, "Down"); break;
-	case sf::Keyboard::Key::BackSpace: sprintf(keyStr, "BackSpace"); break;
-	case sf::Keyboard::Key::Numpad0: sprintf(keyStr, "NP 0"); break;
-	case sf::Keyboard::Key::Numpad1: sprintf(keyStr, "NP 1"); break;
-	case sf::Keyboard::Key::Numpad2: sprintf(keyStr, "NP 2"); break;
-	case sf::Keyboard::Key::Numpad3: sprintf(keyStr, "NP 3"); break;
-	case sf::Keyboard::Key::Numpad4: sprintf(keyStr, "NP 4"); break;
-	case sf::Keyboard::Key::Numpad5: sprintf(keyStr, "NP 5"); break;
-	case sf::Keyboard::Key::Numpad6: sprintf(keyStr, "NP 6"); break;
-	case sf::Keyboard::Key::Numpad7: sprintf(keyStr, "NP 7"); break;
-	case sf::Keyboard::Key::Numpad8: sprintf(keyStr, "NP 8"); break;
-	case sf::Keyboard::Key::Numpad9: sprintf(keyStr, "NP 9"); break;
-	case sf::Keyboard::Key::Num1: sprintf(keyStr, "1"); break;
-	case sf::Keyboard::Key::Num2: sprintf(keyStr, "2"); break;
-	case sf::Keyboard::Key::Num3: sprintf(keyStr, "3"); break;
-	case sf::Keyboard::Key::Num4: sprintf(keyStr, "4"); break;
-	case sf::Keyboard::Key::Num5: sprintf(keyStr, "5"); break;
-	case sf::Keyboard::Key::Num6: sprintf(keyStr, "6"); break;
-	case sf::Keyboard::Key::Num7: sprintf(keyStr, "7"); break;
-	case sf::Keyboard::Key::Num8: sprintf(keyStr, "8"); break;
-	case sf::Keyboard::Key::Num9: sprintf(keyStr, "9"); break;
-	case sf::Keyboard::Key::Num0: sprintf(keyStr, "0"); break;
-	case sf::Keyboard::Key::F1: sprintf(keyStr, "F1"); break;
-	case sf::Keyboard::Key::F2: sprintf(keyStr, "F2"); break;
-	case sf::Keyboard::Key::F3: sprintf(keyStr, "F3"); break;
-	case sf::Keyboard::Key::F4: sprintf(keyStr, "F4"); break;
-	case sf::Keyboard::Key::F5: sprintf(keyStr, "F5"); break;
-	case sf::Keyboard::Key::F6: sprintf(keyStr, "F6"); break;
-	case sf::Keyboard::Key::F7: sprintf(keyStr, "F7"); break;
-	case sf::Keyboard::Key::F8: sprintf(keyStr, "F8"); break;
-	case sf::Keyboard::Key::F9: sprintf(keyStr, "F9"); break;
-	case sf::Keyboard::Key::F10: sprintf(keyStr, "F10"); break;
-	case sf::Keyboard::Key::F11: sprintf(keyStr, "F11"); break;
-	case sf::Keyboard::Key::F12: sprintf(keyStr, "F12"); break;
-	case sf::Keyboard::Key::F13: sprintf(keyStr, "F13"); break;
-	case sf::Keyboard::Key::F14: sprintf(keyStr, "F14"); break;
-	case sf::Keyboard::Key::F15: sprintf(keyStr, "F15"); break;
-	case sf::Keyboard::Key::Pause: sprintf(keyStr, "Pause"); break;
+    switch (keycode) {
+    case sf::Keyboard::Key::Escape: sprintf(keyStr, "Escape"); break;
+    case sf::Keyboard::Key::LControl: sprintf(keyStr, "LControl"); break;
+    case sf::Keyboard::Key::LShift: sprintf(keyStr, "LShift"); break;
+    case sf::Keyboard::Key::LAlt: sprintf(keyStr, "LAlt"); break;
+    case sf::Keyboard::Key::LSystem: sprintf(keyStr, "LSystem"); break;
+    case sf::Keyboard::Key::RControl: sprintf(keyStr, "RControl"); break;
+    case sf::Keyboard::Key::RShift: sprintf(keyStr, "RShift"); break;
+    case sf::Keyboard::Key::RAlt: sprintf(keyStr, "RAlt"); break;
+    case sf::Keyboard::Key::RSystem: sprintf(keyStr, "RSystem"); break;
+    case sf::Keyboard::Key::Menu: sprintf(keyStr, "Menu"); break;
+    case sf::Keyboard::Key::LBracket: sprintf(keyStr, "LBracket"); break;
+    case sf::Keyboard::Key::RBracket: sprintf(keyStr, "RBracket"); break;
+    case sf::Keyboard::Key::SemiColon: sprintf(keyStr, ";"); break;
+    case sf::Keyboard::Key::Comma: sprintf(keyStr, ","); break;
+    case sf::Keyboard::Key::Period: sprintf(keyStr, "."); break;
+    case sf::Keyboard::Key::Quote: sprintf(keyStr, "\'"); break;
+    case sf::Keyboard::Key::Slash: sprintf(keyStr, "/"); break;
+    case sf::Keyboard::Key::BackSlash: sprintf(keyStr, "\\"); break;
+    case sf::Keyboard::Key::Tilde: sprintf(keyStr, "~"); break;
+    case sf::Keyboard::Key::Equal: sprintf(keyStr, "="); break;
+    case sf::Keyboard::Key::Dash: sprintf(keyStr, "-"); break;
+    case sf::Keyboard::Key::Space: sprintf(keyStr, "Space"); break;
+    case sf::Keyboard::Key::Return: sprintf(keyStr, "Return"); break;
+    case sf::Keyboard::Key::Tab: sprintf(keyStr, "Tab"); break;
+    case sf::Keyboard::Key::PageUp: sprintf(keyStr, "Page Up"); break;
+    case sf::Keyboard::Key::PageDown: sprintf(keyStr, "Page Down"); break;
+    case sf::Keyboard::Key::End: sprintf(keyStr, "End"); break;
+    case sf::Keyboard::Key::Home: sprintf(keyStr, "Home"); break;
+    case sf::Keyboard::Key::Insert: sprintf(keyStr, "Insert"); break;
+    case sf::Keyboard::Key::Delete: sprintf(keyStr, "Delete"); break;
+    case sf::Keyboard::Key::Add: sprintf(keyStr, "+"); break;
+    case sf::Keyboard::Key::Subtract: sprintf(keyStr, "-"); break;
+    case sf::Keyboard::Key::Multiply: sprintf(keyStr, "*"); break;
+    case sf::Keyboard::Key::Divide: sprintf(keyStr, "/"); break;
+    case sf::Keyboard::Key::Left: sprintf(keyStr, "Left"); break;
+    case sf::Keyboard::Key::Right: sprintf(keyStr, "Right"); break;
+    case sf::Keyboard::Key::Up: sprintf(keyStr, "Up"); break;
+    case sf::Keyboard::Key::Down: sprintf(keyStr, "Down"); break;
+    case sf::Keyboard::Key::BackSpace: sprintf(keyStr, "BackSpace"); break;
+    case sf::Keyboard::Key::Numpad0: sprintf(keyStr, "NP 0"); break;
+    case sf::Keyboard::Key::Numpad1: sprintf(keyStr, "NP 1"); break;
+    case sf::Keyboard::Key::Numpad2: sprintf(keyStr, "NP 2"); break;
+    case sf::Keyboard::Key::Numpad3: sprintf(keyStr, "NP 3"); break;
+    case sf::Keyboard::Key::Numpad4: sprintf(keyStr, "NP 4"); break;
+    case sf::Keyboard::Key::Numpad5: sprintf(keyStr, "NP 5"); break;
+    case sf::Keyboard::Key::Numpad6: sprintf(keyStr, "NP 6"); break;
+    case sf::Keyboard::Key::Numpad7: sprintf(keyStr, "NP 7"); break;
+    case sf::Keyboard::Key::Numpad8: sprintf(keyStr, "NP 8"); break;
+    case sf::Keyboard::Key::Numpad9: sprintf(keyStr, "NP 9"); break;
+    case sf::Keyboard::Key::Num1: sprintf(keyStr, "1"); break;
+    case sf::Keyboard::Key::Num2: sprintf(keyStr, "2"); break;
+    case sf::Keyboard::Key::Num3: sprintf(keyStr, "3"); break;
+    case sf::Keyboard::Key::Num4: sprintf(keyStr, "4"); break;
+    case sf::Keyboard::Key::Num5: sprintf(keyStr, "5"); break;
+    case sf::Keyboard::Key::Num6: sprintf(keyStr, "6"); break;
+    case sf::Keyboard::Key::Num7: sprintf(keyStr, "7"); break;
+    case sf::Keyboard::Key::Num8: sprintf(keyStr, "8"); break;
+    case sf::Keyboard::Key::Num9: sprintf(keyStr, "9"); break;
+    case sf::Keyboard::Key::Num0: sprintf(keyStr, "0"); break;
+    case sf::Keyboard::Key::F1: sprintf(keyStr, "F1"); break;
+    case sf::Keyboard::Key::F2: sprintf(keyStr, "F2"); break;
+    case sf::Keyboard::Key::F3: sprintf(keyStr, "F3"); break;
+    case sf::Keyboard::Key::F4: sprintf(keyStr, "F4"); break;
+    case sf::Keyboard::Key::F5: sprintf(keyStr, "F5"); break;
+    case sf::Keyboard::Key::F6: sprintf(keyStr, "F6"); break;
+    case sf::Keyboard::Key::F7: sprintf(keyStr, "F7"); break;
+    case sf::Keyboard::Key::F8: sprintf(keyStr, "F8"); break;
+    case sf::Keyboard::Key::F9: sprintf(keyStr, "F9"); break;
+    case sf::Keyboard::Key::F10: sprintf(keyStr, "F10"); break;
+    case sf::Keyboard::Key::F11: sprintf(keyStr, "F11"); break;
+    case sf::Keyboard::Key::F12: sprintf(keyStr, "F12"); break;
+    case sf::Keyboard::Key::F13: sprintf(keyStr, "F13"); break;
+    case sf::Keyboard::Key::F14: sprintf(keyStr, "F14"); break;
+    case sf::Keyboard::Key::F15: sprintf(keyStr, "F15"); break;
+    case sf::Keyboard::Key::Pause: sprintf(keyStr, "Pause"); break;
 
-	default:
-		if (keycode < 26)
-			sprintf(keyStr, "%c", keycode + 65);
-	}
-
-
+    default:
+    if (keycode < 26)
+        sprintf(keyStr, "%c", keycode+65);
+    }
 }
-
