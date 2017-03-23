@@ -24,7 +24,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	startcount=false;
 	disconnect=false;
 	away=false;
-	//
+
 	scoreRows=0;
 
 	window=&rwindow;
@@ -785,7 +785,7 @@ void UI::minimize(tgui::ChildWindow::Ptr win) {
 
 void UI::changeServerAdd(sf::String addr) { //Quickfix for issue #33
 	std::string serveraddr = addr.toAnsiString();
-	if (serveraddr.back() != '.' || serveraddr.size() != 0)
+	if (!(serveraddr.back() == '.' || serveraddr.size() == 0))
 		net->serverAdd = addr.toAnsiString();
 }
 
