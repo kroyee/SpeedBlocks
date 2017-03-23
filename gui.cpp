@@ -4,6 +4,8 @@
 #include "network.h"
 #include <iostream>
 #include "MingwConvert.h"
+#include <stdio.h>
+#include <curl/curl.h>
 using namespace std;
 
 #ifdef __APPLE__
@@ -703,14 +705,42 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 }
 
 void UI::sendReport(sf::String happened, sf::String expected, sf::String reproduce, sf::String contact, tgui::ChildWindow::Ptr win) {
-	if (!playonline) {
-		quickMsg("You must connect to the server to send a bug-report");
-		return;
+	CURL *curl;
+	CURLcode res;
+
+	/* In windows, this will init the winsock stuff */ 
+	curl_global_init(CURL_GLOBAL_ALL);
+
+	/* get a curl handle */ 
+	curl = curl_easy_init();
+	if(curl) {
+		/* First set the URL that is about to receive our POST. This URL can
+		just as well be a https:// URL if that is what should receive the
+		data. */ 
+		struct curl_slist *headers = NULL;
+		headers = curl_slist_append(headers, "Accept: application/json");
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		headers = curl_slist_append(headers, "charsets: utf-8");
+
+		curl_easy_setopt(curl, CURLOPT_URL, "https://speedblocks.spdns.org/bugs");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		/* Now specify the POST data */ 
+		sf::String postfield = "{\"happening\": \"" + happened + "\", \"supposed\": \"" + expected + "\", \"reproduce\": \"" + reproduce + "\", \"contact\": \"" + contact + "\" }";
+		cout << postfield.toAnsiString().c_str() << endl;
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postfield.toAnsiString().c_str());
+		/* Perform the request, res will get the return code */ 
+		res = curl_easy_perform(curl);
+		/* Check for errors */ 
+		if(res != CURLE_OK)
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+		curl_easy_strerror(res));
+
+		/* always cleanup */ 
+		curl_easy_cleanup(curl);
 	}
-	net->packet.clear();
-	sf::Uint8 packetid = 99;
-	net->packet << packetid << happened << expected << reproduce << contact;
-	net->sendTCP();
+	else
+		cout << "Curl failed to load" << endl;
+	curl_global_cleanup();
 	win->destroy();
 }
 
