@@ -685,8 +685,8 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	AUS->add(AUSNB);
 
 	tgui::Label::Ptr QmL = themeTG->load("Label");
-	QmL->setPosition(0,30);
-	QmL->setSize(960,200);
+	QmL->setPosition(0,10);
+	QmL->setSize(960,90);
 	QmL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	QmL->setTextSize(32);
 	QmL->setTextColor(sf::Color::Red);
