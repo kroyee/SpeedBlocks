@@ -237,7 +237,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Label::Ptr CwL = themeTG->load("Label");
 	CwL->setPosition(0, 183);
 	CwL->setSize(90, 30);
-	CwL->setText("RotateRight");
+	CwL->setText("Rotate >");
 	CwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CwL);
 	tgui::Button::Ptr CwB = themeTG->load("Button");
@@ -250,7 +250,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Label::Ptr CcL = themeTG->load("Label");
 	CcL->setPosition(0, 223);
 	CcL->setSize(90, 30);
-	CcL->setText("RotateLeft");
+	CcL->setText("Rotate <");
 	CcL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CcL);
 	tgui::Button::Ptr CcB = themeTG->load("Button");
@@ -263,7 +263,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Label::Ptr R1L = themeTG->load("Label");
 	R1L->setPosition(350, 63);
 	R1L->setSize(140, 30);
-	R1L->setText("Rotate180");
+	R1L->setText("Rotate 180");
 	R1L->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(R1L);
 	tgui::Button::Ptr R1B = themeTG->load("Button");
@@ -276,7 +276,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Label::Ptr HdL = themeTG->load("Label");
 	HdL->setPosition(350, 103);
 	HdL->setSize(140, 30);
-	HdL->setText("HardDrop");
+	HdL->setText("Hard Drop");
 	HdL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(HdL);
 	tgui::Button::Ptr HdB = themeTG->load("Button");
