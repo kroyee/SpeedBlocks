@@ -181,7 +181,7 @@ void GameFieldDrawer::unAway() {
 }
 
 void GameFieldDrawer::handleEvent(sf::Event event) {
-	gui.handleEvent(event);
+	bool selectchat=false;
 	if (setkey)
 		putKey(event);
 	if (gui.get("GameFields")->isVisible()) {
@@ -218,7 +218,7 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 			scaleup=0;
 		}
 	}
-	if (event.type == sf::Event::KeyPressed)
+	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
 			if (chatFocused) {
 				gui.get("ChatBox", 1)->unfocus();
@@ -251,6 +251,19 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 				}
 			}
 		}
+		else if (event.key.code == sf::Keyboard::Return) {
+			if (playonline) {
+				if (!chatFocused) {
+					if (inroom) {
+						gui.get("GameFields")->hide();
+						gui.get("Score")->hide();
+						gui.get("Chat")->show();
+						selectchat=true;
+					}
+				}
+			}
+		}
+	}
 	if (gui.get("Rooms")->isVisible())
 		if (event.type == sf::Event::MouseWheelScrolled)
 			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
@@ -265,6 +278,10 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 	if (gui.get("QuickMsg")->isVisible())
 		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
 			gui.get("QuickMsg")->hide();
+
+	gui.handleEvent(event);
+	if (selectchat)
+		gui.get("ChatBox", 1)->focus();
 }
 
 void GameFieldDrawer::sendGameData() { //UDP-Packet

@@ -934,15 +934,21 @@ void UI::quickMsg(const sf::String& msg) {
 }
 
 void UI::chatFocus(bool i) {
-	if (i)
+	if (i) {
 		chatFocused=true;
-	else
+		window->setKeyRepeatEnabled(true);
+	}
+	else {
 		chatFocused=false;
+		window->setKeyRepeatEnabled(false);
+	}
 }
 
 void UI::sendMsg(const sf::String& to, const sf::String& msg) {
-	if (!msg.getSize())
+	if (!msg.getSize()) {
+		gui.get("ChatBox", 1)->unfocus();
 		return;
+	}
 	sf::Uint8 packetid = 10;
 	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 		short until = msg.find(' ', 3);

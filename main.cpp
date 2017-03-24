@@ -102,6 +102,7 @@ int main()
     }
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
+    window.setKeyRepeatEnabled(false);
 
     GameFieldDrawer gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
     gui.clientVersion = CLIENT_VERSION;
