@@ -133,7 +133,7 @@ public:
 	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
 };
 
-void SFKeyToString(unsigned int keycode, char *keyStr);
+sf::String SFKeyToString(unsigned int keycode);
 sf::Color pColor(short i);
 
 class obsField;

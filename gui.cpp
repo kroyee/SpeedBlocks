@@ -180,8 +180,6 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	NTB->setSize(400, 30);
 	NTB->connect("TextChanged", &UI::changeName, this);
 	GenOpt->add(NTB);
-	
-	char keyname[12]; // "Press any key" box
 
 	tgui::Panel::Ptr CKP = themeTG->load("Panel");
 	CKP->setSize(300, 100);
@@ -203,8 +201,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr LeB = themeTG->load("Button");
 	LeB->setPosition(100, 60);
 	LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options->left));
-	SFKeyToString(options->left, keyname);
-	LeB->setText(keyname);
+	LeB->setText(SFKeyToString(options->left));
 	GenOpt->add(LeB,"BindLeft");
 
 	tgui::Label::Ptr RiL = themeTG->load("Label");
@@ -216,8 +213,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr RiB = themeTG->load("Button");
 	RiB->setPosition(100, 100);
 	RiB->connect("pressed", &UI::setKey, this, RiB, std::ref(options->right));
-	SFKeyToString(options->right, keyname);
-	RiB->setText(keyname);
+	RiB->setText(SFKeyToString(options->right));
 	GenOpt->add(RiB,"BindRight");
 
 	tgui::Label::Ptr DoL = themeTG->load("Label");
@@ -229,8 +225,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr DoB = themeTG->load("Button");
 	DoB->setPosition(100, 140);
 	DoB->connect("pressed", &UI::setKey, this, DoB, std::ref(options->down));
-	SFKeyToString(options->down, keyname);
-	DoB->setText(keyname);
+	DoB->setText(SFKeyToString(options->down));
 	GenOpt-> add(DoB,"BindDown");
 
 	tgui::Label::Ptr CwL = themeTG->load("Label");
@@ -242,8 +237,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr CwB = themeTG->load("Button");
 	CwB->setPosition(100, 180);
 	CwB->connect("pressed", &UI::setKey, this, CwB, std::ref(options->rcw));
-	SFKeyToString(options->rcw, keyname);
-	CwB->setText(keyname);
+	CwB->setText(SFKeyToString(options->rcw));
 	GenOpt->add(CwB,"BindRCW");
 
 	tgui::Label::Ptr CcL = themeTG->load("Label");
@@ -255,8 +249,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr CcB = themeTG->load("Button");
 	CcB->setPosition(100, 220);
 	CcB->connect("pressed", &UI::setKey, this, CcB, std::ref(options->rccw));
-	SFKeyToString(options->rccw, keyname);
-	CcB->setText(keyname);
+	CcB->setText(SFKeyToString(options->rccw));
 	GenOpt->add(CcB,"BindRCCW");
 
 	tgui::Label::Ptr R1L = themeTG->load("Label");
@@ -268,8 +261,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr R1B = themeTG->load("Button");
 	R1B->setPosition(500, 60);
 	R1B->connect("pressed", &UI::setKey, this, R1B, std::ref(options->r180));
-	SFKeyToString(options->r180, keyname);
-	R1B->setText(keyname);
+	R1B->setText(SFKeyToString(options->r180));
 	GenOpt->add(R1B,"BindR180");
 
 	tgui::Label::Ptr HdL = themeTG->load("Label");
@@ -281,8 +273,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr HdB = themeTG->load("Button");
 	HdB->setPosition(500, 100);
 	HdB->connect("pressed", &UI::setKey, this, HdB, std::ref(options->hd));
-	SFKeyToString(options->hd, keyname);
-	HdB->setText(keyname);
+	HdB->setText(SFKeyToString(options->hd));
 	GenOpt->add(HdB,"BindHD");
 
 	tgui::Label::Ptr ChL = themeTG->load("Label");
@@ -294,8 +285,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr ChB = themeTG->load("Button");
 	ChB->setPosition(500, 140);
 	ChB->connect("pressed", &UI::setKey, this, ChB, std::ref(options->chat));
-	SFKeyToString(options->chat, keyname);
-	ChB->setText(keyname);
+	ChB->setText(SFKeyToString(options->chat));
 	GenOpt->add(ChB,"BindChat");
 
 	tgui::Label::Ptr ScL = themeTG->load("Label");
@@ -307,8 +297,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr ScB = themeTG->load("Button");
 	ScB->setPosition(500, 180);
 	ScB->connect("pressed", &UI::setKey, this, ScB, std::ref(options->score));
-	SFKeyToString(options->score, keyname);
-	ScB->setText(keyname);
+	ScB->setText(SFKeyToString(options->score));
 	GenOpt->add(ScB,"BindScore");
 
 	tgui::Label::Ptr AwL = themeTG->load("Label");
@@ -320,8 +309,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Button::Ptr AwB = themeTG->load("Button");
 	AwB->setPosition(500, 220);
 	AwB->connect("pressed", &UI::setKey, this, AwB, std::ref(options->away));
-	SFKeyToString(options->away, keyname);
-	AwB->setText(keyname);
+	AwB->setText(SFKeyToString(options->away));
 	GenOpt->add(AwB,"BindAway");
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
@@ -1379,9 +1367,7 @@ void UI::putKey(sf::Event& event) {
 
 
         	*key = event.key.code;
-        	char name[12];
-        	SFKeyToString(event.key.code, name);
-        	button->setText(name);
+        	button->setText(SFKeyToString(event.key.code));
         }
     }
 }
@@ -1507,86 +1493,88 @@ void UI::initSprites() {
 	}
 }
 
-void SFKeyToString(unsigned int keycode, char *keyStr) {
+sf::String SFKeyToString(unsigned int keycode) {
     switch (keycode) {
-    case sf::Keyboard::Key::Escape: sprintf(keyStr, "Escape"); break;
-    case sf::Keyboard::Key::LControl: sprintf(keyStr, "LControl"); break;
-    case sf::Keyboard::Key::LShift: sprintf(keyStr, "LShift"); break;
-    case sf::Keyboard::Key::LAlt: sprintf(keyStr, "LAlt"); break;
-    case sf::Keyboard::Key::LSystem: sprintf(keyStr, "LSystem"); break;
-    case sf::Keyboard::Key::RControl: sprintf(keyStr, "RControl"); break;
-    case sf::Keyboard::Key::RShift: sprintf(keyStr, "RShift"); break;
-    case sf::Keyboard::Key::RAlt: sprintf(keyStr, "RAlt"); break;
-    case sf::Keyboard::Key::RSystem: sprintf(keyStr, "RSystem"); break;
-    case sf::Keyboard::Key::Menu: sprintf(keyStr, "Menu"); break;
-    case sf::Keyboard::Key::LBracket: sprintf(keyStr, "LBracket"); break;
-    case sf::Keyboard::Key::RBracket: sprintf(keyStr, "RBracket"); break;
-    case sf::Keyboard::Key::SemiColon: sprintf(keyStr, ";"); break;
-    case sf::Keyboard::Key::Comma: sprintf(keyStr, ","); break;
-    case sf::Keyboard::Key::Period: sprintf(keyStr, "."); break;
-    case sf::Keyboard::Key::Quote: sprintf(keyStr, "\'"); break;
-    case sf::Keyboard::Key::Slash: sprintf(keyStr, "/"); break;
-    case sf::Keyboard::Key::BackSlash: sprintf(keyStr, "\\"); break;
-    case sf::Keyboard::Key::Tilde: sprintf(keyStr, "~"); break;
-    case sf::Keyboard::Key::Equal: sprintf(keyStr, "="); break;
-    case sf::Keyboard::Key::Dash: sprintf(keyStr, "-"); break;
-    case sf::Keyboard::Key::Space: sprintf(keyStr, "Space"); break;
-    case sf::Keyboard::Key::Return: sprintf(keyStr, "Return"); break;
-    case sf::Keyboard::Key::Tab: sprintf(keyStr, "Tab"); break;
-    case sf::Keyboard::Key::PageUp: sprintf(keyStr, "Page Up"); break;
-    case sf::Keyboard::Key::PageDown: sprintf(keyStr, "Page Down"); break;
-    case sf::Keyboard::Key::End: sprintf(keyStr, "End"); break;
-    case sf::Keyboard::Key::Home: sprintf(keyStr, "Home"); break;
-    case sf::Keyboard::Key::Insert: sprintf(keyStr, "Insert"); break;
-    case sf::Keyboard::Key::Delete: sprintf(keyStr, "Delete"); break;
-    case sf::Keyboard::Key::Add: sprintf(keyStr, "+"); break;
-    case sf::Keyboard::Key::Subtract: sprintf(keyStr, "-"); break;
-    case sf::Keyboard::Key::Multiply: sprintf(keyStr, "*"); break;
-    case sf::Keyboard::Key::Divide: sprintf(keyStr, "/"); break;
-    case sf::Keyboard::Key::Left: sprintf(keyStr, "Left"); break;
-    case sf::Keyboard::Key::Right: sprintf(keyStr, "Right"); break;
-    case sf::Keyboard::Key::Up: sprintf(keyStr, "Up"); break;
-    case sf::Keyboard::Key::Down: sprintf(keyStr, "Down"); break;
-    case sf::Keyboard::Key::BackSpace: sprintf(keyStr, "BackSpace"); break;
-    case sf::Keyboard::Key::Numpad0: sprintf(keyStr, "NP 0"); break;
-    case sf::Keyboard::Key::Numpad1: sprintf(keyStr, "NP 1"); break;
-    case sf::Keyboard::Key::Numpad2: sprintf(keyStr, "NP 2"); break;
-    case sf::Keyboard::Key::Numpad3: sprintf(keyStr, "NP 3"); break;
-    case sf::Keyboard::Key::Numpad4: sprintf(keyStr, "NP 4"); break;
-    case sf::Keyboard::Key::Numpad5: sprintf(keyStr, "NP 5"); break;
-    case sf::Keyboard::Key::Numpad6: sprintf(keyStr, "NP 6"); break;
-    case sf::Keyboard::Key::Numpad7: sprintf(keyStr, "NP 7"); break;
-    case sf::Keyboard::Key::Numpad8: sprintf(keyStr, "NP 8"); break;
-    case sf::Keyboard::Key::Numpad9: sprintf(keyStr, "NP 9"); break;
-    case sf::Keyboard::Key::Num1: sprintf(keyStr, "1"); break;
-    case sf::Keyboard::Key::Num2: sprintf(keyStr, "2"); break;
-    case sf::Keyboard::Key::Num3: sprintf(keyStr, "3"); break;
-    case sf::Keyboard::Key::Num4: sprintf(keyStr, "4"); break;
-    case sf::Keyboard::Key::Num5: sprintf(keyStr, "5"); break;
-    case sf::Keyboard::Key::Num6: sprintf(keyStr, "6"); break;
-    case sf::Keyboard::Key::Num7: sprintf(keyStr, "7"); break;
-    case sf::Keyboard::Key::Num8: sprintf(keyStr, "8"); break;
-    case sf::Keyboard::Key::Num9: sprintf(keyStr, "9"); break;
-    case sf::Keyboard::Key::Num0: sprintf(keyStr, "0"); break;
-    case sf::Keyboard::Key::F1: sprintf(keyStr, "F1"); break;
-    case sf::Keyboard::Key::F2: sprintf(keyStr, "F2"); break;
-    case sf::Keyboard::Key::F3: sprintf(keyStr, "F3"); break;
-    case sf::Keyboard::Key::F4: sprintf(keyStr, "F4"); break;
-    case sf::Keyboard::Key::F5: sprintf(keyStr, "F5"); break;
-    case sf::Keyboard::Key::F6: sprintf(keyStr, "F6"); break;
-    case sf::Keyboard::Key::F7: sprintf(keyStr, "F7"); break;
-    case sf::Keyboard::Key::F8: sprintf(keyStr, "F8"); break;
-    case sf::Keyboard::Key::F9: sprintf(keyStr, "F9"); break;
-    case sf::Keyboard::Key::F10: sprintf(keyStr, "F10"); break;
-    case sf::Keyboard::Key::F11: sprintf(keyStr, "F11"); break;
-    case sf::Keyboard::Key::F12: sprintf(keyStr, "F12"); break;
-    case sf::Keyboard::Key::F13: sprintf(keyStr, "F13"); break;
-    case sf::Keyboard::Key::F14: sprintf(keyStr, "F14"); break;
-    case sf::Keyboard::Key::F15: sprintf(keyStr, "F15"); break;
-    case sf::Keyboard::Key::Pause: sprintf(keyStr, "Pause"); break;
+    case sf::Keyboard::Key::Escape: return "Escape"; break;
+    case sf::Keyboard::Key::LControl: return "LControl"; break;
+    case sf::Keyboard::Key::LShift: return "LShift"; break;
+    case sf::Keyboard::Key::LAlt: return "LAlt"; break;
+    case sf::Keyboard::Key::LSystem: return "LSystem"; break;
+    case sf::Keyboard::Key::RControl: return "RControl"; break;
+    case sf::Keyboard::Key::RShift: return "RShift"; break;
+    case sf::Keyboard::Key::RAlt: return "RAlt"; break;
+    case sf::Keyboard::Key::RSystem: return "RSystem"; break;
+    case sf::Keyboard::Key::Menu: return "Menu"; break;
+    case sf::Keyboard::Key::LBracket: return "LBracket"; break;
+    case sf::Keyboard::Key::RBracket: return "RBracket"; break;
+    case sf::Keyboard::Key::SemiColon: return ";"; break;
+    case sf::Keyboard::Key::Comma: return ","; break;
+    case sf::Keyboard::Key::Period: return "."; break;
+    case sf::Keyboard::Key::Quote: return "\'"; break;
+    case sf::Keyboard::Key::Slash: return "/"; break;
+    case sf::Keyboard::Key::BackSlash: return "\\"; break;
+    case sf::Keyboard::Key::Tilde: return "~"; break;
+    case sf::Keyboard::Key::Equal: return "="; break;
+    case sf::Keyboard::Key::Dash: return "-"; break;
+    case sf::Keyboard::Key::Space: return "Space"; break;
+    case sf::Keyboard::Key::Return: return "Return"; break;
+    case sf::Keyboard::Key::Tab: return "Tab"; break;
+    case sf::Keyboard::Key::PageUp: return "Page Up"; break;
+    case sf::Keyboard::Key::PageDown: return "Page Down"; break;
+    case sf::Keyboard::Key::End: return "End"; break;
+    case sf::Keyboard::Key::Home: return "Home"; break;
+    case sf::Keyboard::Key::Insert: return "Insert"; break;
+    case sf::Keyboard::Key::Delete: return "Delete"; break;
+    case sf::Keyboard::Key::Add: return "+"; break;
+    case sf::Keyboard::Key::Subtract: return "-"; break;
+    case sf::Keyboard::Key::Multiply: return "*"; break;
+    case sf::Keyboard::Key::Divide: return "/"; break;
+    case sf::Keyboard::Key::Left: return "Left"; break;
+    case sf::Keyboard::Key::Right: return "Right"; break;
+    case sf::Keyboard::Key::Up: return "Up"; break;
+    case sf::Keyboard::Key::Down: return "Down"; break;
+    case sf::Keyboard::Key::BackSpace: return "BackSpace"; break;
+    case sf::Keyboard::Key::Numpad0: return "NP 0"; break;
+    case sf::Keyboard::Key::Numpad1: return "NP 1"; break;
+    case sf::Keyboard::Key::Numpad2: return "NP 2"; break;
+    case sf::Keyboard::Key::Numpad3: return "NP 3"; break;
+    case sf::Keyboard::Key::Numpad4: return "NP 4"; break;
+    case sf::Keyboard::Key::Numpad5: return "NP 5"; break;
+    case sf::Keyboard::Key::Numpad6: return "NP 6"; break;
+    case sf::Keyboard::Key::Numpad7: return "NP 7"; break;
+    case sf::Keyboard::Key::Numpad8: return "NP 8"; break;
+    case sf::Keyboard::Key::Numpad9: return "NP 9"; break;
+    case sf::Keyboard::Key::Num1: return "1"; break;
+    case sf::Keyboard::Key::Num2: return "2"; break;
+    case sf::Keyboard::Key::Num3: return "3"; break;
+    case sf::Keyboard::Key::Num4: return "4"; break;
+    case sf::Keyboard::Key::Num5: return "5"; break;
+    case sf::Keyboard::Key::Num6: return "6"; break;
+    case sf::Keyboard::Key::Num7: return "7"; break;
+    case sf::Keyboard::Key::Num8: return "8"; break;
+    case sf::Keyboard::Key::Num9: return "9"; break;
+    case sf::Keyboard::Key::Num0: return "0"; break;
+    case sf::Keyboard::Key::F1: return "F1"; break;
+    case sf::Keyboard::Key::F2: return "F2"; break;
+    case sf::Keyboard::Key::F3: return "F3"; break;
+    case sf::Keyboard::Key::F4: return "F4"; break;
+    case sf::Keyboard::Key::F5: return "F5"; break;
+    case sf::Keyboard::Key::F6: return "F6"; break;
+    case sf::Keyboard::Key::F7: return "F7"; break;
+    case sf::Keyboard::Key::F8: return "F8"; break;
+    case sf::Keyboard::Key::F9: return "F9"; break;
+    case sf::Keyboard::Key::F10: return "F10"; break;
+    case sf::Keyboard::Key::F11: return "F11"; break;
+    case sf::Keyboard::Key::F12: return "F12"; break;
+    case sf::Keyboard::Key::F13: return "F13"; break;
+    case sf::Keyboard::Key::F14: return "F14"; break;
+    case sf::Keyboard::Key::F15: return "F15"; break;
+    case sf::Keyboard::Key::Pause: return "Pause"; break;
 
     default:
     if (keycode < 26)
-        sprintf(keyStr, "%c", keycode+65);
+        return (char)(keycode+65);
+    else
+    	return "";
     }
 }
