@@ -519,6 +519,8 @@ void GameFieldDrawer::handlePacket() {
 				playonline=false;
 				if (success == 3)
 					quickMsg("You have the wrong client version");
+				else if (success == 4)
+					quickMsg("Name already in use");
 				else
 					quickMsg("Authentication failed");
 				gui.get("Connecting")->hide();
