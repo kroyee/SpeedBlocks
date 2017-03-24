@@ -2,30 +2,22 @@ cmake_minimum_required(VERSION 3.5)
 
 project(SpeedBlocks)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wextra -pedantic")
 
 set(EXECUTABLE_NAME SpeedBlocks)
 file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/*.cpp ${CMAKE_SOURCE_DIR}/*.h  ${CMAKE_SOURCE_DIR}/*.hpp)
 add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES})
 
-if (WIN32)
-    if (NOT BOOST_ROOT)
-        message(SEND_ERROR "BOOST_ROOT not set")
-    endif()
-endif()
-
 find_package(SFML 2 COMPONENTS audio network graphics window system REQUIRED)
 find_package(TGUI 0.7.3 REQUIRED)
+find_package(Boost REQUIRED)
 
-if (WIN32)
-    include_directories(${SFML_INCLUDE_DIR} ${TGUI_INCLUDE_DIR} ${BOOST_ROOT})
-endif()
+include_directories(${SFML_INCLUDE_DIR} ${TGUI_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES} ${TGUI_LIBRARY})
 
