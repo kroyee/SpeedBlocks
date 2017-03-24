@@ -718,9 +718,8 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 		just as well be a https:// URL if that is what should receive the
 		data. */ 
 		struct curl_slist *headers = NULL;
-		headers = curl_slist_append(headers, "Accept: application/json");
 		headers = curl_slist_append(headers, "Content-Type: application/json");
-		headers = curl_slist_append(headers, "charsets: utf-8");
+		headers = curl_slist_append(headers, "Cache-Control: no-cache");
 
 		curl_easy_setopt(curl, CURLOPT_URL, "https://speedblocks.spdns.org/bugs");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
