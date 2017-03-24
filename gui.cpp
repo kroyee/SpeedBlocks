@@ -1372,11 +1372,6 @@ void UI::putKey(sf::Event& event) {
 			gui.get<tgui::Button>("BindChat", true)->setText("");
 		}
 
-		if (event.key.code == options->rcw) {
-			options->rcw = sf::Keyboard::Unknown;
-			gui.get<tgui::Button>("BindRCW", true)->setText("");
-		}
-
 		if (event.key.code == options->score) {
 			options->score = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindScore", true)->setText("");
@@ -1386,8 +1381,6 @@ void UI::putKey(sf::Event& event) {
 			options->away = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindAway", true)->setText("");
 		}
-
-		//
 
 
 
