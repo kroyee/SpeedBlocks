@@ -735,6 +735,8 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
 		curl_easy_strerror(res));
 
+		curl_slist_free_all(headers);
+
 		/* always cleanup */ 
 		curl_easy_cleanup(curl);
 	}
@@ -742,6 +744,7 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 		cout << "Curl failed to load" << endl;
 	curl_global_cleanup();
 	win->destroy();
+	cout << endl;
 }
 
 void UI::bugReport() {
