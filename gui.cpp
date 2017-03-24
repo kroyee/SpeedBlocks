@@ -708,6 +708,12 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 	CURL *curl;
 	CURLcode res;
 
+	sf::String postfield = "{\"happening\":\"" + happened + "\",\"supposed\":\"" + expected + "\",\"reproduce\":\"" + reproduce + "\",\"contact\":\"" + contact + "\"}";
+	cout << postfield.toAnsiString().c_str() << endl;
+
+	char * cstr = new char [postfield.getSize()+1];
+	std::strcpy (cstr, postfield.toAnsiString().c_str());
+
 	/* In windows, this will init the winsock stuff */ 
 	curl_global_init(CURL_GLOBAL_ALL);
 
@@ -718,15 +724,13 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 		just as well be a https:// URL if that is what should receive the
 		data. */ 
 		struct curl_slist *headers = NULL;
-		headers = curl_slist_append(headers, "Content-Type: application/json");
-		headers = curl_slist_append(headers, "Cache-Control: no-cache");
 
 		curl_easy_setopt(curl, CURLOPT_URL, "https://speedblocks.spdns.org/bugs");
+		headers = curl_slist_append(headers, "Content-Type: application/json");
+		headers = curl_slist_append(headers, "Cache-Control: no-cache");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		/* Now specify the POST data */ 
-		sf::String postfield = "{\"happening\": \"" + happened + "\", \"supposed\": \"" + expected + "\", \"reproduce\": \"" + reproduce + "\", \"contact\": \"" + contact + "\" }";
-		cout << postfield.toAnsiString().c_str() << endl;
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postfield.toAnsiString().c_str());
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cstr);
 		/* Perform the request, res will get the return code */ 
 		res = curl_easy_perform(curl);
 		/* Check for errors */ 
@@ -743,6 +747,7 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 		cout << "Curl failed to load" << endl;
 	curl_global_cleanup();
 	win->destroy();
+	delete[] cstr;
 	cout << endl;
 }
 
