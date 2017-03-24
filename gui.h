@@ -1,6 +1,5 @@
 #ifndef GUI_H
 #define GUI_H
-#define SFML_NO_DEPRECATED_WARNINGS
 
 #include <TGUI/TGUI.hpp>
 #include "packetcompress.h"

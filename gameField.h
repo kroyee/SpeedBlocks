@@ -1,7 +1,6 @@
 #ifndef GAMEFIELD_H
 #define GAMEFIELD_H
 
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Graphics.hpp>
 
 class gameField {

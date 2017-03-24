@@ -1,7 +1,6 @@
 #ifndef GAMEPLAY_H
 #define GAMEPLAY_H
 
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Graphics.hpp>
 #include <deque>
 #include "pieces.h"

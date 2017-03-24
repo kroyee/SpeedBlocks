@@ -1,7 +1,6 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Graphics.hpp>
 
 class textures {
