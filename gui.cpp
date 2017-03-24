@@ -84,8 +84,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	IPAddr->setPosition(10, 230);
 	IPAddr->setSize(250, 40);
 	IPAddr->setText(net->serverAdd.toString());
-	IPAddr->connect("TextChanged", &UI::changeServerAdd, this);
-	MainMenu->add(IPAddr);
+	MainMenu->add(IPAddr, "IPAddr");
 
 	tgui::Panel::Ptr LiP = tgui::Panel::create(); // Login panel
 	LiP->setSize(400, 300);
@@ -783,12 +782,6 @@ void UI::minimize(tgui::ChildWindow::Ptr win) {
 		win->setSize(win->getSize().x, 0);
 }
 
-void UI::changeServerAdd(sf::String addr) { //Quickfix for issue #33
-	std::string serveraddr = addr.toAnsiString();
-	if (!(serveraddr.back() == '.' || serveraddr.size() == 0))
-		net->serverAdd = addr.toAnsiString();
-}
-
 void UI::addRoom(const sf::String& name, short curr, short max, short id) {
 	playRoom newroom;
 	playRooms.push_back(newroom);
@@ -884,6 +877,7 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 	window->draw(textureBase->background); //Update the screen so a block on connect will show the connecting screen
 	gui.draw();
 	window->display();
+	net->serverAdd = gui.get<tgui::EditBox>("IPAddr", true)->getText().toAnsiString();
 	if (net->connect() == sf::Socket::Done) {
 		net->udpSock.unbind();
 		net->udpSock.bind(sf::Socket::AnyPort);
