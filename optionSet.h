@@ -1,7 +1,6 @@
 #ifndef OPTIONSET_H
 #define OPTIONSET_H
 
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Graphics.hpp>
 #include "pieces.h"
 
