@@ -12,6 +12,8 @@ public:
     sf::Sprite* tile;
     sf::Sprite* background;
     sf::Text nameTag;
+    sf::Text awayText;
+    sf::Text positionText;
 
     sf::String name;
 
@@ -50,6 +52,8 @@ public:
     sf::Uint8 grid[4][4];
     bool mouseover;
     sf::Uint8 datacount;
+    bool away;
+    sf::Uint8 position;
 
     void drawField();
 };

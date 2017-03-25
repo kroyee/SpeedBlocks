@@ -69,6 +69,10 @@ public:
 		awayText.setCharacterSize(52);
 		awayText.setColor(sf::Color::White);
 		awayText.setPosition(110,110);
+		positionText.setFont(*font);
+		positionText.setCharacterSize(48);
+		positionText.setColor(sf::Color::White);
+		positionText.setPosition(110,330);
 
 		updateBasePieces();
 	}
@@ -120,6 +124,7 @@ public:
 	std::deque<sf::Time> bpmCount;
 
 	sf::Uint8 nextpiece;
+	sf::Uint8 position;
 
 	bool gameover;
 	bool sendgameover;
@@ -138,6 +143,7 @@ public:
 	sf::Text countdownText;
 	sf::Text bpmText;
 	sf::Text awayText;
+	sf::Text positionText;
 
 	void startGame();
 

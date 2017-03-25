@@ -106,6 +106,7 @@ void GameFieldDrawer::calFieldPos() {
 
 void GameFieldDrawer::resetOppFields() {
 	for (auto&& field : fields) {
+		field.position=0;
 		field.datacount=250;
 		field.nextpiece=game->nextpiece;
 		field.posX=0;
@@ -334,6 +335,17 @@ void GameFieldDrawer::sendGameOver() { //3-Packet
 	net->packet << packetid << game->maxCombo << game->linesSent << game->linesRecieved << game->linesBlocked << game->bpm << game->linesPerMinute;
 	net->sendTCP();
 	game->sendgameover=false;
+
+	compressor.compress();
+	net->packet.clear();
+	packetid = 100; //UDP-Packet
+	net->packet << packetid << myId << gamedatacount;
+	gamedatacount++;
+	for (int i=0; i<compressor.tmpcount; i++)
+		net->packet << compressor.tmp[i];
+	if (compressor.bitcount>0)
+		net->packet << compressor.tmp[compressor.tmpcount];
+	net->sendUDP();
 }
 
 void GameFieldDrawer::sendGameWinner() { //4-Packet
@@ -430,8 +442,10 @@ void GameFieldDrawer::handlePacket() {
 			net->packet >> joinok;
 			if (joinok) {
 				sf::Uint8 playersinroom;
-				sf::Uint16 playerid;
-				net->packet >> playersinroom;
+				sf::Uint16 playerid, seed1, seed2;
+				net->packet >> seed1 >> seed2 >> playersinroom;
+				game->rander.seedPiece(seed1);
+				game->rander.seedHole(seed2);
 				obsField newfield(textureBase->tile, &textureBase->fieldBackground);
 				newfield.clear();
 				sf::String name;
@@ -536,10 +550,17 @@ void GameFieldDrawer::handlePacket() {
 			game->addGarbage(amount);
 		}
 		break;
-		case 11: //Server telling me to reset my oppfields
+		case 11: //Server telling me to reset my oppfields. This is the same as Packet 1, but when client is away.
+		{
 			resetOppFields();
+			sf::Uint16 seed;
+			net->packet >> seed;
+			game->rander.seedPiece(seed);
+			net->packet >> seed;
+			game->rander.seedHole(seed);
+		}
 		break;
-		case 12:
+		case 12: // Incoming chat msg
 		{
 			sf::String from, msg;
 			sf::Uint8 type;
@@ -552,5 +573,42 @@ void GameFieldDrawer::handlePacket() {
 				roomMsg(from, msg);
 		}
 		break;
+		case 13: // Another player went away
+		{
+			sf::Uint16 id;
+			net->packet >> id;
+			for (auto&& field : fields)
+				if (field.id == id) {
+					field.away=true;
+					drawOppField(field);
+				}
+		}
+		break; // Another player came back
+		case 14:
+		{
+			sf::Uint16 id;
+			net->packet >> id;
+			for (auto&& field : fields)
+				if (field.id == id) {
+					field.away=false;
+					drawOppField(field);
+				}
+		}
+		break;
+		case 15: // Server reported the position of a player
+		{
+			sf::Uint16 id;
+			sf::Uint8 position;
+			net->packet >> id >> position;
+			for (auto&& field : fields)
+				if (field.id == id) {
+					field.position = position;
+					drawOppField(field);
+				}
+			if (id == myId) {
+				game->position = position;
+				game->drawGameOver();
+			}
+		}
 	}
 }

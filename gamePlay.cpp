@@ -33,6 +33,7 @@ void gamePlay::startGame() {
 	pieceCount=0;
 	oldbpmCount=0;
 	autoaway=true;
+	position=0;
 	for (int i=0; i<10; i++)
 		oldbpm[i]=0;
 	setComboTimer();
@@ -601,6 +602,19 @@ bool gamePlay::gameOver() {
 			countdownText.setString("Game Over");
 		countdownText.setPosition(50,250);
 		countdownText.setCharacterSize(48);
+
+		if (position == 1)
+			positionText.setString("1st");
+		else if (position == 2)
+			positionText.setString("2nd");
+		else if (position == 3)
+			positionText.setString("3rd");
+		else if (position == 0)
+			positionText.setString("");
+		else
+			positionText.setString(to_string((int)position) + "th");
+
+		field.texture.draw(positionText);
 		field.texture.draw(countdownText);
 		field.texture.draw(awayText);
 
@@ -620,6 +634,18 @@ void gamePlay::drawGameOver() {
                 	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
             	}
 
+    if (position == 1)
+		positionText.setString("1st");
+	else if (position == 2)
+		positionText.setString("2nd");
+	else if (position == 3)
+		positionText.setString("3rd");
+	else if (position == 0)
+		positionText.setString("");
+	else
+		positionText.setString(to_string((int)position) + "th");
+
+	field.texture.draw(positionText);
     field.texture.draw(comboTimer);
     field.texture.draw(comboText);
     field.texture.draw(pendingText);
