@@ -133,6 +133,38 @@ void obsField::drawField() {
     texture.display();
 }
 
+void obsField::preDrawField() {
+    texture.clear(sf::Color(255,255,255,0));
+    texture.draw(*background);
+    for (int y=4; y<22; y++)
+        for (int x=0; x<10; x++)
+            if (square[y][x] != 0) {
+                tile[square[y][x]-1].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30));
+                texture.draw(tile[square[y][x]-1]);
+            }
+
+    if (position == 0)
+        positionText.setString("");
+    else if (position == 1)
+        positionText.setString("1st");
+    else if (position == 2)
+        positionText.setString("2nd");
+    else if (position == 3)
+        positionText.setString("3rd");
+    else
+        positionText.setString(to_string((int)position) + "th");
+
+    if (away)
+        awayText.setString("Away");
+    else
+        awayText.setString("");
+
+    texture.draw(awayText);
+    texture.draw(positionText);
+    texture.draw(nameTag);
+    texture.display();
+}
+
 obsField::obsField(const obsField& field) : gameField(field) {
     id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0; away=false; position=0;
     positionText=field.positionText; awayText=field.awayText;

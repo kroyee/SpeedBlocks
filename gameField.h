@@ -56,6 +56,7 @@ public:
     sf::Uint8 position;
 
     void drawField();
+    void preDrawField();
 };
 
 #endif

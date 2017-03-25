@@ -145,8 +145,10 @@ int main()
                     while (net.receiveData())
                             gui.handlePacket();
 
-                if (gui.disconnect)
+                if (gui.disconnect) {
                     gui.disconnect=false;
+                    gui.playonline=false;
+                }
             break;
 
             case CountDown:
@@ -199,8 +201,11 @@ int main()
                     }
                     if (gui.startcount)
                         gui.startcount=false;
-                    if (gui.disconnect)
+                    if (gui.disconnect) {
                         gamestate = MainMenu;
+                        gui.disconnect=false;
+                        gui.playonline=false;
+                    }
                 }
                 else if (gui.quit) {
                     gamestate = MainMenu;
@@ -285,6 +290,8 @@ int main()
                     if (gui.disconnect) {
                         gamestate = MainMenu;
                         gui.startgame=false;
+                        gui.playonline=false;
+                        gui.disconnect=false;
                     }
                     gui.sendGameData();
                 }
@@ -370,6 +377,8 @@ int main()
                     if (gui.disconnect) {
                         gamestate = MainMenu;
                         game.gameover=false;
+                        gui.disconnect=false;
+                        gui.playonline=false;
                     }
                     if (game.winner)
                         gui.sendGameWinner();

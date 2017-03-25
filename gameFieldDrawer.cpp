@@ -116,7 +116,10 @@ void GameFieldDrawer::resetOppFields() {
 }
 
 void GameFieldDrawer::drawOppField(obsField& field) {
-	field.drawField();
+	if (startgame)
+		field.drawField();
+	else
+		field.preDrawField();
 
 	for (int rot=0; rot < field.nprot; rot++)
 		options->basepiece[field.nextpiece].rcw();
@@ -363,7 +366,6 @@ void GameFieldDrawer::handlePacket() {
 			gui.get("MainMenu")->enable();
 			mainMenu();
 			disconnect=true;
-			playonline=false;
 		break;
 		case 100: //Game data
 		{
