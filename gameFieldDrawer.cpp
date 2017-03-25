@@ -108,7 +108,6 @@ void GameFieldDrawer::resetOppFields() {
 	for (auto&& field : fields) {
 		field.position=0;
 		field.datacount=250;
-		field.nextpiece=game->nextpiece;
 		field.posX=0;
 		field.posY=0;
 		field.clear();
@@ -285,20 +284,24 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 		gui.get("ChatBox", 1)->focus();
 }
 
-void GameFieldDrawer::sendGameData() { //UDP-Packet
+void GameFieldDrawer::sendGameState() { //UDP Packet outgoing
+	compressor.compress();
+	net->packet.clear();
+	sf::Uint8 packetid = 100;
+	net->packet << packetid << myId << gamedatacount;
+	gamedatacount++;
+	for (int i=0; i<compressor.tmpcount; i++)
+		net->packet << compressor.tmp[i];
+	if (compressor.bitcount>0)
+		net->packet << compressor.tmp[compressor.tmpcount];
+	net->sendUDP();
+}
+
+void GameFieldDrawer::sendGameData() {
 	sf::Time tmp = game->keyclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
-		compressor.compress();
-		net->packet.clear();
-		sf::Uint8 packetid = 100;
-		net->packet << packetid << myId << gamedatacount;
-		gamedatacount++;
-		for (int i=0; i<compressor.tmpcount; i++)
-			net->packet << compressor.tmp[i];
-		if (compressor.bitcount>0)
-			net->packet << compressor.tmp[compressor.tmpcount];
-		net->sendUDP();
+		sendGameState();
 	}
 
 	if (game->linesSent > linesSent) { //5-Packet
@@ -336,16 +339,7 @@ void GameFieldDrawer::sendGameOver() { //3-Packet
 	net->sendTCP();
 	game->sendgameover=false;
 
-	compressor.compress();
-	net->packet.clear();
-	packetid = 100; //UDP-Packet
-	net->packet << packetid << myId << gamedatacount;
-	gamedatacount++;
-	for (int i=0; i<compressor.tmpcount; i++)
-		net->packet << compressor.tmp[i];
-	if (compressor.bitcount>0)
-		net->packet << compressor.tmp[compressor.tmpcount];
-	net->sendUDP();
+	sendGameState();
 }
 
 void GameFieldDrawer::sendGameWinner() { //4-Packet
@@ -422,10 +416,14 @@ void GameFieldDrawer::handlePacket() {
 			game->countDown(countdown);
 			resetOppFields();
 			startcount=true;
+			gamedatacount=251;
+			sendGameState();
 		}
 		break;
 		case 2://Countdown
 		{
+			if (!game->rander.total)
+				game->startCountdown();
 			sf::Uint8 countdown;
 			net->packet >> countdown;
 			game->countDown(countdown);
@@ -433,6 +431,10 @@ void GameFieldDrawer::handlePacket() {
 				startgame=true;
 				gamedatacount=0;
 				gamedata=sf::seconds(0);
+			}
+			else {
+				gamedatacount=255-countdown;
+				sendGameState();
 			}
 		}
 		break;
@@ -446,6 +448,7 @@ void GameFieldDrawer::handlePacket() {
 				net->packet >> seed1 >> seed2 >> playersinroom;
 				game->rander.seedPiece(seed1);
 				game->rander.seedHole(seed2);
+				game->rander.reset();
 				obsField newfield(textureBase->tile, &textureBase->fieldBackground);
 				newfield.clear();
 				sf::String name;
@@ -558,6 +561,7 @@ void GameFieldDrawer::handlePacket() {
 			game->rander.seedPiece(seed);
 			net->packet >> seed;
 			game->rander.seedHole(seed);
+			game->rander.reset();
 		}
 		break;
 		case 12: // Incoming chat msg

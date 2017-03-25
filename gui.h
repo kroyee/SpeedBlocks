@@ -172,6 +172,7 @@ public:
 	void sendGameData();
 	void sendGameOver();
 	void sendGameWinner();
+	void sendGameState();
 
 	void goAway();
 	void unAway();
