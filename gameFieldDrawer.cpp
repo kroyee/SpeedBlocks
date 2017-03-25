@@ -564,6 +564,9 @@ void GameFieldDrawer::handlePacket() {
 			net->packet >> seed;
 			game->rander.seedHole(seed);
 			game->rander.reset();
+			game->position=0;
+			game->countdownText.setString("");
+			game->drawGameOver();
 		}
 		break;
 		case 12: // Incoming chat msg
