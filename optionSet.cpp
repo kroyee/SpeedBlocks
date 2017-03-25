@@ -13,7 +13,8 @@ using namespace std;
 #endif
 
 void optionSet::loadOptions() {
-	string line;
+	string line, keyword, pieceoption;
+	int pieceindex;
 	ifstream file (resourcePath() + "options.cfg");
 
 	int countset = 0;
@@ -22,41 +23,45 @@ void optionSet::loadOptions() {
 
 	if (file.is_open()) {
 		while (getline(file, line)) {
-			switch (countset) {
-				case 0: down = sf::Keyboard::Key(stoi(line)); break;
-				case 1: left = sf::Keyboard::Key(stoi(line)); break;
-				case 2: right = sf::Keyboard::Key(stoi(line)); break;
-				case 3: rcw = sf::Keyboard::Key(stoi(line)); break;
-				case 4: rccw = sf::Keyboard::Key(stoi(line)); break;
-				case 5: r180 = sf::Keyboard::Key(stoi(line)); break;
-				case 6: hd = sf::Keyboard::Key(stoi(line)); break;
-				case 7: chat = sf::Keyboard::Key(stoi(line)); break;
-				case 8: score = sf::Keyboard::Key(stoi(line)); break;
-				case 9: away = sf::Keyboard::Key(stoi(line)); break;
-				case 10: ghostpiece = stoi(line); break;
-				case 11: fullscreen = stoi(line); break;
-				case 12: repeatDelay = sf::milliseconds(stoi(line)); break;
-				case 13: repeatSpeed = sf::milliseconds(stoi(line)); break;
-				case 14: piecerotation[0] = stoi(line); break;
-				case 15: piecerotation[1] = stoi(line); break;
-				case 16: piecerotation[2] = stoi(line); break;
-				case 17: piecerotation[3] = stoi(line); break;
-				case 18: piecerotation[4] = stoi(line); break;
-				case 19: piecerotation[5] = stoi(line); break;
-				case 20: piecerotation[6] = stoi(line); break;
-				case 21: name = line; break;
-				case 22: currentmode = stoi(line); break;
-				case 23: MusicVolume = stoi(line); break;
-				case 24: EffectVolume = stoi(line); break;
-				case 25: ChatVolume = stoi(line); break;
-				case 26: sound = stoi(line); break;
-				case 27: repeatDelayDown = sf::milliseconds(stoi(line)); break;
-				case 28: repeatSpeedDown = sf::milliseconds(stoi(line)); break;
-				case 29: frameDelay = sf::microseconds(stoi(line)); break;
-				case 30: inputDelay = sf::microseconds(stoi(line)); break;
-				case 31: vSync = stoi(line); break;
-			}
 			countset++;
+			keyword = line.substr(0, line.find('='));
+			line = line.substr(line.find('=')+1);
+			if (keyword.find('_') != string::npos)
+			{
+					pieceindex = stoi(keyword.substr(keyword.find('_')+1, 1));
+					pieceoption = keyword.substr(keyword.find('_', keyword.find('_')+1)+1);
+					keyword = keyword.substr(0, keyword.find('_'));
+			}
+			if (keyword == "down") down = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "left") left = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "right") right = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "rcw") rcw = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "rccw") rccw = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "r180") r180 = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "hd") hd = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "chat") chat = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "score") score = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "away") away = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "ghostpiece") ghostpiece = stoi(line);
+			else if (keyword == "fullscreen") fullscreen = stoi(line);
+			else if (keyword == "repeatdelay") repeatDelay = sf::milliseconds(stoi(line));
+			else if (keyword == "repeatspeed") repeatSpeed = sf::milliseconds(stoi(line));
+			else if (keyword == "piece")
+			{
+					if (pieceoption == "rotation") piecerotation[pieceindex] = stoi(line);
+			}
+			else if (keyword == "name") name = line;
+			else if (keyword == "currentmode") currentmode = stoi(line);
+			else if (keyword == "musicvolume") MusicVolume = stoi(line);
+			else if (keyword == "effectvolume") EffectVolume = stoi(line);
+			else if (keyword == "chatvolume") ChatVolume = stoi(line);
+			else if (keyword == "sound") sound = stoi(line);
+			else if (keyword == "repeatdelaydown") repeatDelayDown = sf::milliseconds(stoi(line));
+			else if (keyword == "repeatspeeddown") repeatSpeedDown = sf::milliseconds(stoi(line));
+			else if (keyword == "framedelay") frameDelay = sf::microseconds(stoi(line));
+			else if (keyword == "inputdelay") inputDelay = sf::microseconds(stoi(line));
+			else if (keyword == "vsync") vSync = stoi(line);
+			else countset--;
 		}
 		file.close();
 	}
@@ -102,8 +107,6 @@ void optionSet::loadOptions() {
 		piecerotation[5] = 2;
 		piecerotation[6] = 0;
 
-
-
 		name="Player";
 		currentmode=-1;
 		MusicVolume=100;
@@ -115,37 +118,40 @@ void optionSet::loadOptions() {
 
 void optionSet::saveOptions() {
 	ofstream file(resourcePath() + "options.cfg", ios::trunc);
+    sf::Color col;
 
 	cout << "Saving options..." << endl;
 
 	if (file.is_open()) {
-		file << down << endl;
-		file << left << endl;
-		file << right << endl;
-		file << rcw << endl;
-		file << rccw << endl;
-		file << r180 << endl;
-		file << hd << endl;
-		file << chat << endl;
-		file << score << endl;
-		file << away << endl;
-		file << ghostpiece << endl;
-		file << fullscreen << endl;
-		file << repeatDelay.asMilliseconds() << endl;
-		file << repeatSpeed.asMilliseconds() << endl;
+		file << "down=" << down << endl;
+		file << "left=" << left << endl;
+		file << "right=" << right << endl;
+		file << "rcw=" << rcw << endl;
+		file << "rccw=" << rccw << endl;
+		file << "r180=" << r180 << endl;
+		file << "hd=" << hd << endl;
+		file << "chat=" << chat << endl;
+		file << "score=" << score << endl;
+		file << "away=" << away << endl;
+		file << "ghostpiece=" << ghostpiece << endl;
+		file << "fullscreen=" << fullscreen << endl;
+		file << "repeatdelay=" << repeatDelay.asMilliseconds() << endl;
+		file << "repeatspeed=" << repeatSpeed.asMilliseconds() << endl;
 		for (int x=0; x<7; x++)
-			file << (int)piecerotation[x] << endl;
-		file << name.toAnsiString() << endl;
-		file << currentmode << endl;
-		file << MusicVolume << endl;
-		file << EffectVolume << endl;
-		file << ChatVolume << endl;
-		file << sound << endl;
-		file << repeatDelayDown.asMilliseconds() << endl;
-		file << repeatSpeedDown.asMilliseconds() << endl;
-		file << frameDelay.asMicroseconds() << endl;
-		file << inputDelay.asMicroseconds() << endl;
-		file << vSync;
+		{
+			file << "piece_" << x << "_rotation=" << (int)piecerotation[x] << endl;
+    }
+		file << "name=" << name.toAnsiString() << endl;
+		file << "currentmode=" << currentmode << endl;
+		file << "musicvolume=" << MusicVolume << endl;
+		file << "effectvolume=" << EffectVolume << endl;
+		file << "chatvolume=" << ChatVolume << endl;
+		file << "sound=" << sound << endl;
+		file << "repeatdelaydown=" << repeatDelayDown.asMilliseconds() << endl;
+		file << "repeatspeeddown=" << repeatSpeedDown.asMilliseconds() << endl;
+		file << "framedelay=" << frameDelay.asMicroseconds() << endl;
+		file << "inputdelay=" << inputDelay.asMicroseconds() << endl;
+		file << "vsync=" << vSync;
 	}
 	else
 		cout << "Failed" << endl;
