@@ -1,4 +1,3 @@
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Graphics.hpp>
 #include "gamePlay.h"
 #include "textures.h"
@@ -32,21 +31,55 @@ void resizeWindow(sf::View& view, sf::Event& event) {
     }
 }
 
+bool loadError(sf::String error) {
+    if (error == "OK")
+        return false;
+    sf::RenderWindow window;
+    window.create(sf::VideoMode(500, 400), "SpeedBlocks");
+    tgui::Gui gui(window);
+    tgui::Label::Ptr errorMsg = tgui::Label::create();
+    errorMsg->setText("Failed to load resources " + error + "\nSee that the file is there or reinstall the game.\n\nPress any key to quit.");
+    errorMsg->setTextColor(sf::Color::White);
+    errorMsg->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+    errorMsg->setTextSize(35);
+    errorMsg->setSize(500,400);
+    gui.add(errorMsg);
+    gui.draw();
+    window.display();
+
+    sf::Event event;
+    while (1) {
+        window.waitEvent(event);
+        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::Closed)
+            break;
+    }
+    return true;
+}
+
 int main()
 {
     sf::Font typewriter, printFont;
-    typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf");
-    printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf");
+    if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf")) {
+        loadError("media/Kingthings Trypewriter 2.ttf");
+        return false;
+    }
+    if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf")) {
+        loadError("media/F25_Bank_Printer.ttf");
+        return false;
+    }
 
     enum gamestates { MainMenu, CountDown, Game, GameOver };
     gamestates gamestate = MainMenu;
 
     textures textureBase;
-    textureBase.loadTextures();
+    if (loadError(textureBase.loadTextures()))
+        return false;
 
     network net;
 
     soundBank sounds;
+    if (loadError(sounds.loadSounds()))
+        return false;
 
     srand(time(NULL));
 
@@ -69,6 +102,7 @@ int main()
     }
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
+    window.setKeyRepeatEnabled(false);
 
     GameFieldDrawer gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
     gui.clientVersion = CLIENT_VERSION;
@@ -111,8 +145,10 @@ int main()
                     while (net.receiveData())
                             gui.handlePacket();
 
-                if (gui.disconnect)
+                if (gui.disconnect) {
                     gui.disconnect=false;
+                    gui.playonline=false;
+                }
             break;
 
             case CountDown:
@@ -165,8 +201,11 @@ int main()
                     }
                     if (gui.startcount)
                         gui.startcount=false;
-                    if (gui.disconnect)
+                    if (gui.disconnect) {
                         gamestate = MainMenu;
+                        gui.disconnect=false;
+                        gui.playonline=false;
+                    }
                 }
                 else if (gui.quit) {
                     gamestate = MainMenu;
@@ -182,8 +221,8 @@ int main()
                     gamestate = GameOver;
                     gui.startgame=false;
                     gui.startcount=false;
-                    //if (game.autoaway)
-                    //    gui.goAway();
+                    if (game.autoaway)
+                        gui.goAway();
                     if (game.sendgameover)
                         gui.sendGameOver();
                     if (game.winner)
@@ -251,6 +290,8 @@ int main()
                     if (gui.disconnect) {
                         gamestate = MainMenu;
                         gui.startgame=false;
+                        gui.playonline=false;
+                        gui.disconnect=false;
                     }
                     gui.sendGameData();
                 }
@@ -263,8 +304,8 @@ int main()
                 if (game.gameOver()) {
                     gamestate = GameOver;
                     gui.startgame=false;
-                    //if (game.autoaway)
-                    //    gui.goAway();
+                    if (game.autoaway)
+                        gui.goAway();
                     if (game.sendgameover)
                         gui.sendGameOver();
                     if (game.winner)
@@ -336,6 +377,8 @@ int main()
                     if (gui.disconnect) {
                         gamestate = MainMenu;
                         game.gameover=false;
+                        gui.disconnect=false;
+                        gui.playonline=false;
                     }
                     if (game.winner)
                         gui.sendGameWinner();

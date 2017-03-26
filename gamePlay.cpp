@@ -33,6 +33,7 @@ void gamePlay::startGame() {
 	pieceCount=0;
 	oldbpmCount=0;
 	autoaway=true;
+	position=0;
 	for (int i=0; i<10; i++)
 		oldbpm[i]=0;
 	setComboTimer();
@@ -302,7 +303,7 @@ void gamePlay::delayCheck() {
 		}
 
 	if (keyclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		linesSent = linesSent + comboCount * pow(1.09, comboCount);
+		linesSent = linesSent + comboCount * pow(1.1, comboCount);
 
 		cout << "Combo " << comboCount << " sent. Total " << linesSent << " SPM " << (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0 << endl;
 
@@ -310,7 +311,6 @@ void gamePlay::delayCheck() {
 			maxCombo=comboCount;
 
 		comboCount = 0;
-		comboTime = sf::seconds(0);
 		comboText.setString(to_string(comboCount));
 		draw();
 
@@ -395,6 +395,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	else {
 		lines.x--;
+		bool blocked=false;
 		for (int i=0; i<tmplines-1; i++)
 			if (garbage.size()) {
 				garbage.front().count--;
@@ -403,7 +404,14 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				lines.x--;
 				linesBlocked++;
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+				short total=0;
+				blocked=true;
 			}
+		short total=0;
+		for (unsigned int x=0; x<garbage.size(); x++)
+			total+=garbage[x].count;
+		if (blocked)
+			pendingText.setString(to_string(total));
 	}
 	if (options.sound) {
 		sounds->lineClear();
@@ -414,9 +422,10 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		comboStart=keyclock.getElapsedTime();
 		if (options.sound)
 			sounds->comboTimeStart();
+		comboTime=sf::seconds(0);
 	}
 	comboCount++;
-	comboTime+=sf::seconds((2.0/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
+	comboTime+=sf::seconds((1.5/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
 
 	if (options.sound) {
 		if (comboCount==5)
@@ -488,8 +497,7 @@ void gamePlay::pushGarbage() {
 
 bool gamePlay::setComboTimer() {
 	sf::Time timeleft = comboStart + comboTime - keyclock.getElapsedTime();
-
-	short count = (timeleft.asMilliseconds()/5.0) / 10.0;
+	short count = (timeleft.asMilliseconds()/6.0) / 10.0;
 	if (count>100)
 		count=100;
 
@@ -561,6 +569,7 @@ bool gamePlay::countDown() {
 }
 
 void gamePlay::countDown(short c) {
+	gameover=false;
 	countdownText.setPosition(130,210);
 	countdownText.setCharacterSize(96);
 	countdownText.setString(to_string(c));
@@ -599,6 +608,19 @@ bool gamePlay::gameOver() {
 			countdownText.setString("Game Over");
 		countdownText.setPosition(50,250);
 		countdownText.setCharacterSize(48);
+
+		if (position == 1)
+			positionText.setString("1st");
+		else if (position == 2)
+			positionText.setString("2nd");
+		else if (position == 3)
+			positionText.setString("3rd");
+		else if (position == 0)
+			positionText.setString("");
+		else
+			positionText.setString(to_string((int)position) + "th");
+
+		field.texture.draw(positionText);
 		field.texture.draw(countdownText);
 		field.texture.draw(awayText);
 
@@ -618,6 +640,18 @@ void gamePlay::drawGameOver() {
                 	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
             	}
 
+    if (position == 1)
+		positionText.setString("1st");
+	else if (position == 2)
+		positionText.setString("2nd");
+	else if (position == 3)
+		positionText.setString("3rd");
+	else if (position == 0)
+		positionText.setString("");
+	else
+		positionText.setString(to_string((int)position) + "th");
+
+	field.texture.draw(positionText);
     field.texture.draw(comboTimer);
     field.texture.draw(comboText);
     field.texture.draw(pendingText);

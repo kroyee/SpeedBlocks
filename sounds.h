@@ -1,13 +1,10 @@
 #ifndef SOUNDS_H
 #define SOUNDS_H
 
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Audio.hpp>
 
 class soundBank {
 public:
-	soundBank();
-
 	sf::SoundBuffer comboTimeBuff;
 	sf::SoundBuffer pieceDropBuff;
 	sf::SoundBuffer lineClearBuff;
@@ -42,6 +39,8 @@ public:
 	sf::Sound combo21Sound;
 	sf::Sound startBeep1Sound;
 	sf::Sound startBeep2Sound;
+
+	sf::String loadSounds();
 
 	void comboTimeStart() { comboTimeSound.play(); }
 	void comboTimeStop() { comboTimeSound.stop(); }

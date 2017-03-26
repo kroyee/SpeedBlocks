@@ -1,6 +1,5 @@
 #ifndef GUI_H
 #define GUI_H
-#define SFML_NO_DEPRECATED_WARNINGS
 
 #include <TGUI/TGUI.hpp>
 #include "packetcompress.h"
@@ -133,7 +132,7 @@ public:
 	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
 };
 
-void SFKeyToString(unsigned int keycode, char *keyStr);
+sf::String SFKeyToString(unsigned int keycode);
 sf::Color pColor(short i);
 
 class obsField;
@@ -173,6 +172,7 @@ public:
 	void sendGameData();
 	void sendGameOver();
 	void sendGameWinner();
+	void sendGameState();
 
 	void goAway();
 	void unAway();
