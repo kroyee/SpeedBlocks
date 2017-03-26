@@ -409,12 +409,12 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::CheckBox::Ptr FsC = themeTG->load("CheckBox");
 	FsC->setPosition(120, 130);
 	FsC->setText("Fullscreen");
+	FsC->connect("Checked Unchecked", &UI::fsChecked, this);
+	VidOpt->add(FsC, "Fullscreen");
 	if (options->fullscreen) {
 		FsC->check();
 		ViS->enable();
 	}
-	FsC->connect("Checked Unchecked", &UI::fsChecked, this);
-	VidOpt->add(FsC, "Fullscreen");
 
 	tgui::CheckBox::Ptr VsC = themeTG->load("CheckBox");
 	VsC->setPosition(380, 130);
@@ -470,9 +470,9 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	EsC->setPosition(150, 0);
 	EsC->setText("Sound Enabled");
 	EsC->connect("Checked Unchecked", &UI::sndChecked, this);
+	SndOpt->add(EsC, "sndCheck");
 	if (options->sound)
 		EsC->check();
-	SndOpt->add(EsC);
 
 	tgui::Slider::Ptr MvS = themeTG->load("Slider");
 	MvS->setPosition(50, 100);
@@ -1220,14 +1220,14 @@ void UI::volSlide(short i, short vol) {
 }
 
 void UI::sndChecked(bool i) {
-	if (i)
+	if (gui.get<tgui::CheckBox>("sndCheck", 1)->isChecked())
 		options->sound = true;
 	else
 		options->sound = false;
 }
 
 void UI::fsChecked(bool i) {
-	if (i)
+	if (gui.get<tgui::CheckBox>("Fullscreen", 1)->isChecked())
 		gui.get("VMSlider", 1)->enable();
 	else
 		gui.get("VMSlider", 1)->disable();
