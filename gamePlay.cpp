@@ -303,7 +303,7 @@ void gamePlay::delayCheck() {
 		}
 
 	if (keyclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		linesSent = linesSent + comboCount * pow(1.09, comboCount);
+		linesSent = linesSent + comboCount * pow(1.1, comboCount);
 
 		cout << "Combo " << comboCount << " sent. Total " << linesSent << " SPM " << (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0 << endl;
 
@@ -421,7 +421,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		comboTime=sf::seconds(0);
 	}
 	comboCount++;
-	comboTime+=sf::seconds((2.0/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
+	comboTime+=sf::seconds((1.5/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
 
 	if (options.sound) {
 		if (comboCount==5)
@@ -493,7 +493,7 @@ void gamePlay::pushGarbage() {
 
 bool gamePlay::setComboTimer() {
 	sf::Time timeleft = comboStart + comboTime - keyclock.getElapsedTime();
-	short count = (timeleft.asMilliseconds()/5.0) / 10.0;
+	short count = (timeleft.asMilliseconds()/6.0) / 10.0;
 	if (count>100)
 		count=100;
 
