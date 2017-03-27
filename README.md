@@ -2,17 +2,17 @@ SpeedBlocks
 
 You need SFML, TGUI and boost to run this, libraries can be found here:
 
-[SFML](https://www.sfml-dev.org/index.php)
+# [SFML](https://www.sfml-dev.org/index.php)
 
 I am using version 2.4.2
 
-[TGUI](https://tgui.eu/)
+# [TGUI](https://tgui.eu/)
 
 The game runs fine with the stable 0.7.3 except for a minor bug with when window
 is rezised to a none-standard ratio. If you want it to remove this bug you need the
 latest master from TGUIs github repo
 
-[boost](http://www.boost.org/)
+# [boost](http://www.boost.org/)
 
 You only need boost/random from the boost libs. (Except MingW users, see below)
 
@@ -30,8 +30,8 @@ Please see the Wiki for additional instructions.
 If you want to contribute, please make a fork where you can push until your code
 is stable. I will integrate from there.
 
-		You can find the server here:
-	https://github.com/kroyee/SpeedBlocks-server
+# Server
+You can find the server [here](https://github.com/kroyee/SpeedBlocks-server)
 	
 # Donation
 We are currently collecting money for a VPS server solution. This costs around €50-100 per year.
