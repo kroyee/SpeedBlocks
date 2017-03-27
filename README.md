@@ -1,4 +1,4 @@
-SpeedBlocks
+# SpeedBlocks
 
 You need SFML, TGUI and boost to run this, libraries can be found here:
 
