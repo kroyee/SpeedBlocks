@@ -619,5 +619,37 @@ void GameFieldDrawer::handlePacket() {
 				game->drawGameOver();
 			}
 		}
+		case 16: // Server sending room list
+		{ // This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
+			sf::String name;
+			sf::Uint8 roomCount, maxPlayers, currentPlayers;
+			sf::Uint16 id;
+
+			net->packet >> roomCount;
+			removeAllRooms();
+
+			for (int i=0; i<roomCount; i++) {
+				net->packet >> id >> name >> currentPlayers >> maxPlayers;
+				addRoom(name, currentPlayers, maxPlayers, id);
+			}
+		}
+		break;
+		case 17: // New room created
+		{
+			sf::String name;
+			sf::Uint16 id;
+			sf::Uint8 maxPlayers, currentPlayers;
+
+			net->packet >> id >> name >> currentPlayers >> maxPlayers;
+			addRoom(name, currentPlayers, maxPlayers, id);
+		}
+		break;
+		case 18: // Room was removed
+		{
+			sf::Uint16 id;
+			net->packet >> id;
+			removeRoom(id);
+		}
+		break;
 	}
 }

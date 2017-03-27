@@ -98,7 +98,7 @@ public:
 	void opTabSelect(const std::string& tab);
 
 	void addRoom(const sf::String& name, short curr, short max, short id);
-	void removeRoom(const sf::String& name);
+	void removeRoom(sf::Uint16 id);
 	void removeAllRooms();
 	void setRoomPos();
 	void roomScrolled(int i);
@@ -130,6 +130,8 @@ public:
 	void minimize(tgui::ChildWindow::Ptr);
 	void close(tgui::ChildWindow::Ptr);
 	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
+
+	void createRoom(const sf::String&, const sf::String&);
 };
 
 sf::String SFKeyToString(unsigned int keycode);

@@ -599,6 +599,7 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	tgui::Tab::Ptr LoT = themeBB->load("Tab"); // Online play Tab
 	LoT->add("Rooms");
 	LoT->add("Lobby");
+	LoT->add("Create room");
 	LoT->add("Back");
 	LoT->setTabHeight(60);
 	LoT->setPosition(50, 20);
@@ -641,6 +642,41 @@ UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& o
 	SlE->connect("ReturnKeyPressed", &UI::sendMsg, this, "Lobby");
 	SlE->connect("Focused Unfocused", &UI::chatFocus, this, std::bind(&tgui::Widget::isFocused, SlE));
 	LoP->add(SlE, "slChatBox");
+
+	tgui::Panel::Ptr CrP = tgui::Panel::create(); // Create room panel
+	CrP->setPosition(0,100);
+	CrP->setSize(960, 500);
+	CrP->hide();
+	CrP->setBackgroundColor(sf::Color(255,255,255,0));
+	gui.add(CrP, "CreateRoom");
+
+	tgui::Label::Ptr NorL = themeTG->load("Label");
+	NorL->setPosition(30, 30);
+	NorL->setText("Room name");
+	CrP->add(NorL);
+
+	tgui::EditBox::Ptr NorE = themeTG->load("EditBox");
+	NorE->setPosition(25, 60);
+	NorE->setSize(250, 40);
+	CrP->add(NorE);
+
+	tgui::Label::Ptr NopL = themeTG->load("Label");
+	NopL->setPosition(430, 30);
+	NopL->setText("Max players (0=unlimited)");
+	CrP->add(NopL);
+
+	tgui::EditBox::Ptr NopE = themeTG->load("EditBox");
+	NopE->setPosition(425, 60);
+	NopE->setSize(250, 40);
+	NopE->setInputValidator(tgui::EditBox::Validator::UInt);
+	CrP->add(NopE);
+
+	tgui::Button::Ptr CrB = themeBB->load("Button");
+	CrB->setPosition(300, 150);
+	CrB->setText("Create");
+	CrB->setSize(100, 40);
+	CrB->connect("Pressed", &UI::createRoom, this, std::bind(&tgui::EditBox::getText, NorE), std::bind(&tgui::EditBox::getText, NopE));
+	CrP->add(CrB);
 
 	tgui::Panel::Ptr AUS = tgui::Panel::create(); // Are you sure? Panel
 	AUS->setPosition(330,250);
@@ -759,6 +795,17 @@ void UI::bugReport() {
 	ChW->add(send);
 }
 
+void UI::createRoom(const sf::String& name, const sf::String& maxplayers) {
+	if (!name.getSize())
+		return;
+	if (!maxplayers.getSize())
+		return;
+	sf::Uint8 max = stoi(maxplayers.toAnsiString()), packetid = 11; //11-Packet
+	net->packet.clear();
+	net->packet << packetid << name << max;
+	net->sendTCP();
+}
+
 void UI::close(tgui::ChildWindow::Ptr win) {
 	win->destroy();
 }
@@ -816,9 +863,10 @@ void GameFieldDrawer::leaveRoom() { //1-Packet
 	removeAllFields();
 }
 
-void UI::removeRoom(const sf::String& name) {
+void UI::removeRoom(sf::Uint16 id) {
 	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
-		if (it->name == name) {
+		if (it->id == id) {
+			cout << "removing room " << it->name.toAnsiString() << " as " << it->id << endl;
 			gui.get<tgui::Panel>("Rooms")->remove(it->button);
 			it = playRooms.erase(it);
 			setRoomPos();
@@ -833,7 +881,7 @@ void UI::removeAllRooms() {
 }
 
 void UI::setRoomPos() {
-	short height = playRooms.size() * 120;
+	short height = playRooms.size() * 120 + 10;
 	if (height > 500) {
 		height-=500;
 		height/=30;
@@ -845,14 +893,14 @@ void UI::setRoomPos() {
 	short scrollpos = gui.get<tgui::Scrollbar>("RoomScroll", 1)->getValue();
 	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
 		int i = std::distance(playRooms.begin(), it);
-		it->button->setPosition(50, i*120 - scrollpos*30);
+		it->button->setPosition(50, i*120 - scrollpos*30 + 10);
 	}
 }
 
 void UI::roomScrolled(int c) {
 	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
 		int i = std::distance(playRooms.begin(), it);
-		it->button->setPosition(50, i*120 - c*30);
+		it->button->setPosition(50, i*120 - c*30 + 10);
 	}
 }
 
@@ -902,15 +950,23 @@ void UI::opTabSelect(const std::string& tab) {
 	if (tab == "Rooms") {
 		gui.get("Rooms")->show();
 		gui.get("ServerLobby")->hide();
+		gui.get("CreateRoom")->hide();
 	}
 	else if (tab == "Lobby") {
 		gui.get("ServerLobby")->show();
 		gui.get("Rooms")->hide();
+		gui.get("CreateRoom")->hide();
+	}
+	else if (tab == "Create room") {
+		gui.get("ServerLobby")->hide();
+		gui.get("Rooms")->hide();
+		gui.get("CreateRoom")->show();
 	}
 	else if (tab == "Back") {
 		gui.get("ServerLobby")->hide();
 		gui.get("Rooms")->hide();
 		gui.get("opTab")->hide();
+		gui.get("CreateRoom")->hide();
 		gui.get("MainMenu")->show();
 		net->disconnect();
 		playonline=false;
