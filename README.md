@@ -32,6 +32,7 @@ is stable. I will integrate from there.
 
 # Server
 You can find the server [here](https://github.com/kroyee/SpeedBlocks-server)
+
 We currently have a VPS running a test-server in Oslo. Connect to it with hostname: darn.site
 You can only connect with guest account at the moment.
 	
