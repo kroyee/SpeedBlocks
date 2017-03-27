@@ -804,6 +804,7 @@ void UI::createRoom(const sf::String& name, const sf::String& maxplayers) {
 	net->packet.clear();
 	net->packet << packetid << name << max;
 	net->sendTCP();
+	gui.get<tgui::Tab>("opTab")->select(0);
 }
 
 void UI::close(tgui::ChildWindow::Ptr win) {
