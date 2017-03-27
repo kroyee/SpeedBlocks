@@ -1,7 +1,6 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#define SFML_NO_DEPRECATED_WARNINGS
 #include <SFML/Network.hpp>
 #include <list>
 

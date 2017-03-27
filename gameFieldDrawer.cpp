@@ -106,8 +106,8 @@ void GameFieldDrawer::calFieldPos() {
 
 void GameFieldDrawer::resetOppFields() {
 	for (auto&& field : fields) {
+		field.position=0;
 		field.datacount=250;
-		field.nextpiece=game->nextpiece;
 		field.posX=0;
 		field.posY=0;
 		field.clear();
@@ -116,7 +116,10 @@ void GameFieldDrawer::resetOppFields() {
 }
 
 void GameFieldDrawer::drawOppField(obsField& field) {
-	field.drawField();
+	if (startgame)
+		field.drawField();
+	else
+		field.preDrawField();
 
 	for (int rot=0; rot < field.nprot; rot++)
 		options->basepiece[field.nextpiece].rcw();
@@ -181,7 +184,7 @@ void GameFieldDrawer::unAway() {
 }
 
 void GameFieldDrawer::handleEvent(sf::Event event) {
-	gui.handleEvent(event);
+	bool selectchat=false;
 	if (setkey)
 		putKey(event);
 	if (gui.get("GameFields")->isVisible()) {
@@ -218,7 +221,7 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 			scaleup=0;
 		}
 	}
-	if (event.type == sf::Event::KeyPressed)
+	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
 			if (chatFocused) {
 				gui.get("ChatBox", 1)->unfocus();
@@ -251,6 +254,19 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 				}
 			}
 		}
+		else if (event.key.code == sf::Keyboard::Return) {
+			if (playonline) {
+				if (!chatFocused) {
+					if (inroom) {
+						gui.get("GameFields")->hide();
+						gui.get("Score")->hide();
+						gui.get("Chat")->show();
+						selectchat=true;
+					}
+				}
+			}
+		}
+	}
 	if (gui.get("Rooms")->isVisible())
 		if (event.type == sf::Event::MouseWheelScrolled)
 			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
@@ -265,22 +281,30 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 	if (gui.get("QuickMsg")->isVisible())
 		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
 			gui.get("QuickMsg")->hide();
+
+	gui.handleEvent(event);
+	if (selectchat)
+		gui.get("ChatBox", 1)->focus();
 }
 
-void GameFieldDrawer::sendGameData() { //UDP-Packet
+void GameFieldDrawer::sendGameState() { //UDP Packet outgoing
+	compressor.compress();
+	net->packet.clear();
+	sf::Uint8 packetid = 100;
+	net->packet << packetid << myId << gamedatacount;
+	gamedatacount++;
+	for (int i=0; i<compressor.tmpcount; i++)
+		net->packet << compressor.tmp[i];
+	if (compressor.bitcount>0)
+		net->packet << compressor.tmp[compressor.tmpcount];
+	net->sendUDP();
+}
+
+void GameFieldDrawer::sendGameData() {
 	sf::Time tmp = game->keyclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
-		compressor.compress();
-		net->packet.clear();
-		sf::Uint8 packetid = 100;
-		net->packet << packetid << myId << gamedatacount;
-		gamedatacount++;
-		for (int i=0; i<compressor.tmpcount; i++)
-			net->packet << compressor.tmp[i];
-		if (compressor.bitcount>0)
-			net->packet << compressor.tmp[compressor.tmpcount];
-		net->sendUDP();
+		sendGameState();
 	}
 
 	if (game->linesSent > linesSent) { //5-Packet
@@ -317,6 +341,8 @@ void GameFieldDrawer::sendGameOver() { //3-Packet
 	net->packet << packetid << game->maxCombo << game->linesSent << game->linesRecieved << game->linesBlocked << game->bpm << game->linesPerMinute;
 	net->sendTCP();
 	game->sendgameover=false;
+
+	sendGameState();
 }
 
 void GameFieldDrawer::sendGameWinner() { //4-Packet
@@ -340,7 +366,6 @@ void GameFieldDrawer::handlePacket() {
 			gui.get("MainMenu")->enable();
 			mainMenu();
 			disconnect=true;
-			playonline=false;
 		break;
 		case 100: //Game data
 		{
@@ -393,10 +418,14 @@ void GameFieldDrawer::handlePacket() {
 			game->countDown(countdown);
 			resetOppFields();
 			startcount=true;
+			gamedatacount=251;
+			sendGameState();
 		}
 		break;
 		case 2://Countdown
 		{
+			if (!game->rander.total)
+				game->startCountdown();
 			sf::Uint8 countdown;
 			net->packet >> countdown;
 			game->countDown(countdown);
@@ -404,6 +433,10 @@ void GameFieldDrawer::handlePacket() {
 				startgame=true;
 				gamedatacount=0;
 				gamedata=sf::seconds(0);
+			}
+			else {
+				gamedatacount=255-countdown;
+				sendGameState();
 			}
 		}
 		break;
@@ -413,8 +446,11 @@ void GameFieldDrawer::handlePacket() {
 			net->packet >> joinok;
 			if (joinok) {
 				sf::Uint8 playersinroom;
-				sf::Uint16 playerid;
-				net->packet >> playersinroom;
+				sf::Uint16 playerid, seed1, seed2;
+				net->packet >> seed1 >> seed2 >> playersinroom;
+				game->rander.seedPiece(seed1);
+				game->rander.seedHole(seed2);
+				game->rander.reset();
 				obsField newfield(textureBase->tile, &textureBase->fieldBackground);
 				newfield.clear();
 				sf::String name;
@@ -502,6 +538,8 @@ void GameFieldDrawer::handlePacket() {
 				playonline=false;
 				if (success == 3)
 					quickMsg("You have the wrong client version");
+				else if (success == 4)
+					quickMsg("Name already in use");
 				else
 					quickMsg("Authentication failed");
 				gui.get("Connecting")->hide();
@@ -517,10 +555,21 @@ void GameFieldDrawer::handlePacket() {
 			game->addGarbage(amount);
 		}
 		break;
-		case 11: //Server telling me to reset my oppfields
+		case 11: //Server telling me to reset my oppfields. This is the same as Packet 1, but when client is away.
+		{
 			resetOppFields();
+			sf::Uint16 seed;
+			net->packet >> seed;
+			game->rander.seedPiece(seed);
+			net->packet >> seed;
+			game->rander.seedHole(seed);
+			game->rander.reset();
+			game->position=0;
+			game->countdownText.setString("");
+			game->drawGameOver();
+		}
 		break;
-		case 12:
+		case 12: // Incoming chat msg
 		{
 			sf::String from, msg;
 			sf::Uint8 type;
@@ -531,6 +580,75 @@ void GameFieldDrawer::handlePacket() {
 				lobbyMsg(from, msg);
 			else
 				roomMsg(from, msg);
+		}
+		break;
+		case 13: // Another player went away
+		{
+			sf::Uint16 id;
+			net->packet >> id;
+			for (auto&& field : fields)
+				if (field.id == id) {
+					field.away=true;
+					drawOppField(field);
+				}
+		}
+		break; // Another player came back
+		case 14:
+		{
+			sf::Uint16 id;
+			net->packet >> id;
+			for (auto&& field : fields)
+				if (field.id == id) {
+					field.away=false;
+					drawOppField(field);
+				}
+		}
+		break;
+		case 15: // Server reported the position of a player
+		{
+			sf::Uint16 id;
+			sf::Uint8 position;
+			net->packet >> id >> position;
+			for (auto&& field : fields)
+				if (field.id == id) {
+					field.position = position;
+					drawOppField(field);
+				}
+			if (id == myId) {
+				game->position = position;
+				game->drawGameOver();
+			}
+		}
+		case 16: // Server sending room list
+		{ // This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
+			sf::String name;
+			sf::Uint8 roomCount, maxPlayers, currentPlayers;
+			sf::Uint16 id;
+
+			net->packet >> roomCount;
+			removeAllRooms();
+
+			for (int i=0; i<roomCount; i++) {
+				net->packet >> id >> name >> currentPlayers >> maxPlayers;
+				addRoom(name, currentPlayers, maxPlayers, id);
+			}
+		}
+		break;
+		case 17: // New room created
+		{
+			sf::String name;
+			sf::Uint16 id;
+			sf::Uint8 maxPlayers, currentPlayers;
+
+			net->packet >> id >> name >> currentPlayers >> maxPlayers;
+			addRoom(name, currentPlayers, maxPlayers, id);
+		}
+		break;
+		case 18: // Room was removed
+		{
+			sf::Uint16 id;
+			net->packet >> id;
+			removeRoom(id);
 		}
 		break;
 	}

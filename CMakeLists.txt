@@ -2,48 +2,30 @@ cmake_minimum_required(VERSION 3.5)
 
 project(SpeedBlocks)
 
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules")
-
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wextra -pedantic")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+endif()
+add_definitions(-DSFML_NO_DEPRECATED_WARNINGS)
 
-set(SOURCE_FILES
-        EmptyResourcePath.cpp
-        EmptyResourcePath.h
-        gameField.cpp
-        gameField.h
-        gameFieldDrawer.cpp
-        gamePlay.cpp
-        gamePlay.h
-        gui.cpp
-        gui.h
-        main.cpp
-        MingwConvert.cpp
-        MingwConvert.h
-        network.cpp
-        network.h
-        optionSet.cpp
-        optionSet.h
-        packetcompress.cpp
-        packetcompress.h
-        pieces.cpp
-        pieces.h
-        randomizer.cpp
-        randomizer.h
-        ResourcePath.hpp
-        sounds.cpp
-        sounds.h
-        textures.cpp
-        textures.h)
-
-add_executable(SpeedBlocks ${SOURCE_FILES})
+set(EXECUTABLE_NAME SpeedBlocks)
+file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/*.cpp ${CMAKE_SOURCE_DIR}/*.h  ${CMAKE_SOURCE_DIR}/*.hpp)
+add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES})
 
 find_package(SFML 2 COMPONENTS audio network graphics window system REQUIRED)
-
 find_package(TGUI 0.7.3 REQUIRED)
+find_package(Boost REQUIRED)
 
-target_link_libraries(SpeedBlocks ${SFML_LIBRARIES} ${TGUI_LIBRARY})
+include_directories(${SFML_INCLUDE_DIR} ${TGUI_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
+
+target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES} ${TGUI_LIBRARY})
 
 if (NOT ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

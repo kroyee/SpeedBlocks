@@ -1,6 +1,5 @@
 #ifndef GUI_H
 #define GUI_H
-#define SFML_NO_DEPRECATED_WARNINGS
 
 #include <TGUI/TGUI.hpp>
 #include "packetcompress.h"
@@ -99,7 +98,7 @@ public:
 	void opTabSelect(const std::string& tab);
 
 	void addRoom(const sf::String& name, short curr, short max, short id);
-	void removeRoom(const sf::String& name);
+	void removeRoom(sf::Uint16 id);
 	void removeAllRooms();
 	void setRoomPos();
 	void roomScrolled(int i);
@@ -131,9 +130,11 @@ public:
 	void minimize(tgui::ChildWindow::Ptr);
 	void close(tgui::ChildWindow::Ptr);
 	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
+
+	void createRoom(const sf::String&, const sf::String&);
 };
 
-void SFKeyToString(unsigned int keycode, char *keyStr);
+sf::String SFKeyToString(unsigned int keycode);
 sf::Color pColor(short i);
 
 class obsField;
@@ -173,6 +174,7 @@ public:
 	void sendGameData();
 	void sendGameOver();
 	void sendGameWinner();
+	void sendGameState();
 
 	void goAway();
 	void unAway();

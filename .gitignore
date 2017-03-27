@@ -8,7 +8,6 @@
 #editorproject files
 .idea/
 *.sublime*
-SpeedBlocks.props
 
 
 #cmake and build artifacts
