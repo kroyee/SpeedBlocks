@@ -619,6 +619,7 @@ void GameFieldDrawer::handlePacket() {
 				game->drawGameOver();
 			}
 		}
+		break;
 		case 16: // Server sending room list
 		{ // This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
 			sf::String name;
