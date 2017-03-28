@@ -14,27 +14,37 @@ using namespace std;
 #include "EmptyResourcePath.h"
 #endif
 
-UI::UI(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& _net, textures& _tex) : typewriter(font1), printFont2(font2), printFont(&font2), gui(rwindow) {
-	training=false;
-	playonline=false;
-	quit=false;
-	adjPieces=false;
-	updPieces=false;
-	chatFocused=false;
-	inroom=false;
-	startgame=false;
-	startcount=false;
-	disconnect=false;
-	away=false;
-
-	scoreRows=0;
-
-	window=&rwindow;
-	sounds=&soundy;
-	options=&opt;
-	game=&gamey;
-	net=&_net;
-	textureBase=&_tex;
+UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
+    optionSet& options_, soundBank& sounds_, gamePlay& game_, network& net_,
+    textures& textureBase_)
+    : typewriter(font1),
+      printFont2(font2),
+      printFont(&font2),
+      gui(window_),
+      options(&options_),
+      sounds(&sounds_),
+      game(&game_),
+      net(&net_),
+      textureBase(&textureBase_),
+      window(&window_),
+      training(false),
+      playonline(false),
+      quit(false),
+      setkey(false),
+      adjPieces(false),
+      updPieces(false),
+      chatFocused(false),
+      inroom(false),
+      startgame(false),
+      startcount(false),
+      disconnect(false),
+      away(false),
+      key(nullptr),
+      linesSent(0),
+      garbageCleared(0),
+      linesBlocked(0),
+      clientVersion(0),
+      scoreRows(0) {
 
 	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");

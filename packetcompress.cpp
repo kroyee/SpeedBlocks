@@ -25,16 +25,16 @@ void PacketCompress::extract() {
 		for (; y<22-endy; y++)
 			getBits(square[y][x], 3);
 	}
-	temp=0; getBits(temp, 4); posX = temp-2;
-	temp=0; getBits(temp, 5); posY = temp;
+	temp=0; getBits(temp, 4); posX = static_cast<short>(temp-2);
+	temp=0; getBits(temp, 5); posY = static_cast<short>(temp);
 	for (int x=0; x<4; x++)
 		for (y=0; y<4; y++) {
 			temp=0; getBits(temp, 3);
 			grid[y][x] = temp;
 		}
-	temp=0; getBits(temp, 3); nextpiece=temp;
-	temp=0; getBits(temp, 3); npcol=temp;
-	temp=0; getBits(temp, 3); nprot=temp;
+	temp=0; getBits(temp, 3); nextpiece=static_cast<short>(temp);
+	temp=0; getBits(temp, 3); npcol=static_cast<short>(temp);
+	temp=0; getBits(temp, 3); nprot=static_cast<short>(temp);
 }
 
 void PacketCompress::getBits(sf::Uint8& byte, sf::Uint8 bits) {
