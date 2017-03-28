@@ -303,7 +303,28 @@ void gamePlay::delayCheck() {
 		}
 
 	if (keyclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		linesSent = linesSent + comboCount * pow(1.1, comboCount);
+		sf::Uint16 comboLinesSent = comboCount * pow(1.1, comboCount);
+
+		bool blocked=false;
+		for (int i=0; i<comboLinesSent; i++)
+			if (garbage.size()) {
+				garbage.front().count--;
+				if (garbage.front().count == 0)
+					garbage.pop_front();
+				comboLinesSent--;
+				linesBlocked++;
+				blocked=true;
+			}
+
+		if (blocked) {
+			garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+			short total=0;
+			for (unsigned int x=0; x<garbage.size(); x++)
+				total+=garbage[x].count;
+			pendingText.setString(to_string(total));
+		}
+
+		linesSent += comboLinesSent;
 
 		cout << "Combo " << comboCount << " sent. Total " << linesSent << " SPM " << (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0 << endl;
 
@@ -402,7 +423,6 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				lines.x--;
 				linesBlocked++;
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
-				short total=0;
 				blocked=true;
 			}
 		short total=0;
