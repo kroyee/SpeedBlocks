@@ -421,7 +421,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		comboTime=sf::seconds(0);
 	}
 	comboCount++;
-	comboTime+=sf::seconds((1.5/comboCount) + ((tmplines+1)/2.0)*(2.0/comboCount));
+	comboTime+=sf::seconds((1.0/comboCount) + ((tmplines+1)/2.0)*(1.5/comboCount));
 
 	if (options.sound) {
 		if (comboCount==5)

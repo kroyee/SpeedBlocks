@@ -806,7 +806,7 @@ void UI::bugReport() {
 
 	tgui::Label::Ptr WhL3 = themeBB->load("Label");
 	WhL3->setPosition(10, 245);
-	WhL3->setText("What do we need to do to see what you are seeing?");
+	WhL3->setText("How can we reproduce this?");
 	ChW->add(WhL3);
 
 	tgui::TextBox::Ptr WhT3 = themeBB->load("TextBox");
@@ -816,7 +816,7 @@ void UI::bugReport() {
 
 	tgui::Label::Ptr WhL4 = themeBB->load("Label");
 	WhL4->setPosition(10, 365);
-	WhL4->setText("How can we contact you if we have questions?");
+	WhL4->setText("How can we contact you with questions?");
 	ChW->add(WhL4);
 
 	tgui::TextBox::Ptr WhT4 = themeBB->load("TextBox");
@@ -855,7 +855,7 @@ void UI::minimize(tgui::ChildWindow::Ptr win) {
 		win->setSize(win->getSize().x, 0);
 }
 
-void UI::addRoom(const sf::String& name, short curr, short max, short id) {
+void UI::addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint16 id) {
 	playRoom newroom;
 	playRooms.push_back(newroom);
 	playRooms.back().name = name;
@@ -866,6 +866,8 @@ void UI::addRoom(const sf::String& name, short curr, short max, short id) {
 	playRooms.back().button->setSize(300, 100);
 	playRooms.back().button->connect("Pressed", &UI::joinRoom, this, id);
 	gui.get<tgui::Panel>("Rooms")->add(playRooms.back().button);
+
+	cout << "adding room " << playRooms.back().name.toAnsiString() << " as " << playRooms.back().id;
 
 	playRooms.back().label = themeTG->load("Label");
 	playRooms.back().label->setText(to_string(curr) + "/" + to_string(max) + " players");

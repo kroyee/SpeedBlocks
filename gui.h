@@ -20,9 +20,9 @@ public:
 class playRoom {
 public:
 	sf::String name;
-	short currentPlayers;
-	short maxPlayers;
-	short id;
+	sf::Uint8 currentPlayers;
+	sf::Uint8 maxPlayers;
+	sf::Uint16 id;
 	tgui::Button::Ptr button;
 	tgui::Label::Ptr label;
 };
@@ -97,7 +97,7 @@ public:
 	void chattabSelect(const std::string& tab);
 	void opTabSelect(const std::string& tab);
 
-	void addRoom(const sf::String& name, short curr, short max, short id);
+	void addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint16 id);
 	void removeRoom(sf::Uint16 id);
 	void removeAllRooms();
 	void setRoomPos();
