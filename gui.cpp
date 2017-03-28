@@ -754,6 +754,7 @@ void UI::sendReport(sf::String happened, sf::String expected, sf::String reprodu
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 		/* Now specify the POST data */ 
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cstr);
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 		/* Perform the request, res will get the return code */ 
 		res = curl_easy_perform(curl);
 		/* Check for errors */ 
