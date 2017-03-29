@@ -6,7 +6,7 @@
 
 class network {
 public:
-	network() { tcpSock.setBlocking(false); udpSock.setBlocking(false); serverAdd="localhost"; tcpPort=21512; udpPort=21514; }
+	network() { tcpSock.setBlocking(false); udpSock.setBlocking(false); serverAdd="darn.site"; tcpPort=21512; udpPort=21514; }
 
 	sf::TcpSocket tcpSock;
 	sf::UdpSocket udpSock;
