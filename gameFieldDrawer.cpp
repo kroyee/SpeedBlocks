@@ -116,10 +116,7 @@ void GameFieldDrawer::resetOppFields() {
 }
 
 void GameFieldDrawer::drawOppField(obsField& field) {
-	if (startgame)
-		field.drawField();
-	else
-		field.preDrawField();
+	field.drawField();
 
 	for (int rot=0; rot < field.nprot; rot++)
 		options->basepiece[field.nextpiece].rcw();
