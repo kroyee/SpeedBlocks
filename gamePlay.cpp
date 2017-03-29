@@ -34,6 +34,7 @@ void gamePlay::startGame() {
 	oldbpmCount=0;
 	autoaway=true;
 	position=0;
+	lockdown=false;
 	for (int i=0; i<10; i++)
 		oldbpm[i]=0;
 	setComboTimer();
@@ -105,9 +106,14 @@ void gamePlay::mDown() {
 	if (possible()) {
 		draw();
 		dclock.restart();
+		lockdown=false;
 	}
-	else
+	else {
 		piece.mup();
+		if (!lockdown)
+			lockDownTime=keyclock.getElapsedTime()+sf::milliseconds(400);
+		lockdown=true;
+	}
 }
 
 void gamePlay::hd() {
@@ -269,13 +275,13 @@ void gamePlay::delayCheck() {
 		piece.mdown();
 		if (possible()) {
 			draw();
+			lockdown=false;
 		}
 		else {
 			piece.mup();
-			addPiece();
-			sendLines(field.clearlines());
-			makeNewPiece();
-			draw();
+			if (!lockdown)
+				lockDownTime=keyclock.getElapsedTime()+sf::milliseconds(400);
+			lockdown=true;
 		}
 		dclock.restart();
 	}
@@ -302,8 +308,44 @@ void gamePlay::delayCheck() {
 			dKeyTime+=options.repeatSpeedDown;
 		}
 
+	if (lockdown && keyclock.getElapsedTime() > lockDownTime) {
+		piece.mdown();
+		if (!possible()) {
+			piece.mup();
+			addPiece();
+			sendLines(field.clearlines());
+			makeNewPiece();
+			draw();
+		}
+		else {
+			piece.mup();
+			lockdown=false;
+		}
+	}
+
 	if (keyclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		linesSent = linesSent + comboCount * pow(1.1, comboCount);
+		sf::Uint16 comboLinesSent = comboCount * pow(1.1, comboCount);
+
+		bool blocked=false;
+		for (int i=0; i<comboLinesSent; i++)
+			if (garbage.size()) {
+				garbage.front().count--;
+				if (garbage.front().count == 0)
+					garbage.pop_front();
+				comboLinesSent--;
+				linesBlocked++;
+				blocked=true;
+			}
+
+		if (blocked) {
+			garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
+			short total=0;
+			for (unsigned int x=0; x<garbage.size(); x++)
+				total+=garbage[x].count;
+			pendingText.setString(to_string(total));
+		}
+
+		linesSent += comboLinesSent;
 
 		cout << "Combo " << comboCount << " sent. Total " << linesSent << " SPM " << (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0 << endl;
 
@@ -402,7 +444,6 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 				lines.x--;
 				linesBlocked++;
 				garbage.front().delay = keyclock.getElapsedTime()+sf::milliseconds(1500);
-				short total=0;
 				blocked=true;
 			}
 		short total=0;
@@ -485,9 +526,9 @@ void gamePlay::pushGarbage() {
 
 	if (!possible()) {
 		piece.mup();
-		addPiece();
-		sendLines(field.clearlines());
-		makeNewPiece();
+		if (!lockdown)
+			lockDownTime=keyclock.getElapsedTime()+sf::milliseconds(400);
+		lockdown=true;
 	}
 }
 
