@@ -45,6 +45,8 @@ public:
 		sendgameover=false;
 		winner=false;
 
+		lockdown=false;
+
 		rKey=false;
 		lKey=false;
 		dKey=false;
@@ -104,6 +106,9 @@ public:
 
 	sf::Time countDownTime;
 	short countDowncount;
+
+	sf::Time lockDownTime;
+	bool lockdown;
 
 	sf::Uint16 linesSent;
 	sf::Uint16 linesRecieved;
