@@ -353,7 +353,6 @@ void gamePlay::delayCheck() {
 			maxCombo=comboCount;
 
 		comboCount = 0;
-		comboText.setString(to_string(comboCount));
 		draw();
 	}
 
