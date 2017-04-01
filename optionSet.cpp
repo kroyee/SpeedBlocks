@@ -124,7 +124,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=32)
+	if (countset!=39)
 		success = 0;
 
 	if (!success)
