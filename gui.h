@@ -11,6 +11,8 @@ class network;
 class PacketCompress;
 class textures;
 
+class obsField;
+
 class privChat {
 public:
 	tgui::ChatBox::Ptr chatBox;
@@ -26,6 +28,8 @@ public:
 	tgui::Button::Ptr button;
 	tgui::Label::Ptr label;
 };
+
+enum GameStates { MainMenu, CountDown, Game, GameOver };
 
 class UI {
 public:
@@ -77,6 +81,8 @@ public:
 
 	sf::Clock quickMsgClock;
 
+	GameStates gamestate;
+
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
 	void putKey(sf::Event& event);
 	void changeName(const sf::String& name);
@@ -96,6 +102,8 @@ public:
 	void igtabSelect(const std::string& tab);
 	void chattabSelect(const std::string& tab);
 	void opTabSelect(const std::string& tab);
+	void Training();
+	void setGameState(GameStates state);
 
 	void addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint16 id);
 	void removeRoom(sf::Uint16 id);
@@ -132,17 +140,9 @@ public:
 	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
 
 	void createRoom(const sf::String&, const sf::String&);
-};
 
-sf::String SFKeyToString(unsigned int keycode);
-sf::Color pColor(short i);
+	//GameFIeldDrawer stuff
 
-class obsField;
-
-class GameFieldDrawer: public UI {
-public:
-	GameFieldDrawer(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& net, textures& tex) : UI(rwindow,font1,font2,opt,soundy,gamey,net,tex) { scaleup=0; compressor.game=game; gamedata=sf::seconds(0); gamedatacount=0; myId=0; }
-	
 	std::list<obsField> fields;
 
 	sf::Clock sclock;
@@ -181,5 +181,8 @@ public:
 
 	sf::String getName(sf::Uint16);
 };
+
+sf::String SFKeyToString(unsigned int keycode);
+sf::Color pColor(short i);
 
 #endif

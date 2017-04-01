@@ -5,13 +5,13 @@
 #include <iostream>
 using namespace std;
 
-void GameFieldDrawer::addField(obsField& field) {
+void UI::addField(obsField& field) {
 	fields.push_back(field);
 	calFieldPos();
 	drawOppField(fields.back());
 }
 
-void GameFieldDrawer::removeField(sf::Uint16 id) {
+void UI::removeField(sf::Uint16 id) {
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
 			it = fields.erase(it);
@@ -20,12 +20,12 @@ void GameFieldDrawer::removeField(sf::Uint16 id) {
 	calFieldPos();
 }
 
-void GameFieldDrawer::removeAllFields() {
+void UI::removeAllFields() {
 	while (fields.size())
 		fields.pop_front();
 }
 
-void GameFieldDrawer::updateField(obsField& field) {
+void UI::updateField(obsField& field) {
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == field.id) {
 			for (int y=0; y<22; y++)
@@ -38,7 +38,7 @@ void GameFieldDrawer::updateField(obsField& field) {
 		}
 }
 
-void GameFieldDrawer::calFieldPos() {
+void UI::calFieldPos() {
 	float r = 600/440.0;
 	short width = 490, height = 555, startx = 465, starty = 40;
 	short total = fields.size(), placed = 0;
@@ -104,7 +104,7 @@ void GameFieldDrawer::calFieldPos() {
 	currentR = r;
 }
 
-void GameFieldDrawer::resetOppFields() {
+void UI::resetOppFields() {
 	for (auto&& field : fields) {
 		field.position=0;
 		field.datacount=250;
@@ -115,7 +115,7 @@ void GameFieldDrawer::resetOppFields() {
 	}
 }
 
-void GameFieldDrawer::drawOppField(obsField& field) {
+void UI::drawOppField(obsField& field) {
 	field.drawField();
 
 	for (int rot=0; rot < field.nprot; rot++)
@@ -130,7 +130,7 @@ void GameFieldDrawer::drawOppField(obsField& field) {
 		options->basepiece[field.nextpiece].rccw();
 }
 
-void GameFieldDrawer::drawFields() {
+void UI::drawFields() {
 	if (!gui.get("GameFields")->isVisible())
 		return;
 	for (auto &&it : fields)
@@ -148,7 +148,7 @@ void GameFieldDrawer::drawFields() {
 	}
 }
 
-sf::String GameFieldDrawer::getName(sf::Uint16 id) {
+sf::String UI::getName(sf::Uint16 id) {
 	if (id == myId)
 		return game->field.name;
 	for (auto&& field : fields)
@@ -157,7 +157,7 @@ sf::String GameFieldDrawer::getName(sf::Uint16 id) {
 	return "Unknown";
 }
 
-void GameFieldDrawer::goAway() {
+void UI::goAway() {
 	away=true;
 	net->packet.clear();
 	sf::Uint8 packetid = 8; //8-Packet
@@ -169,7 +169,7 @@ void GameFieldDrawer::goAway() {
 	game->drawGameOver();
 }
 
-void GameFieldDrawer::unAway() {
+void UI::unAway() {
 	away=false;
 	game->autoaway=false;
 	net->packet.clear();
@@ -180,7 +180,7 @@ void GameFieldDrawer::unAway() {
 	game->drawGameOver();
 }
 
-void GameFieldDrawer::handleEvent(sf::Event event) {
+void UI::handleEvent(sf::Event event) {
 	bool selectchat=false;
 	if (setkey)
 		putKey(event);
@@ -284,7 +284,7 @@ void GameFieldDrawer::handleEvent(sf::Event event) {
 		gui.get("ChatBox", 1)->focus();
 }
 
-void GameFieldDrawer::sendGameState() { //UDP Packet outgoing
+void UI::sendGameState() { //UDP Packet outgoing
 	compressor.compress();
 	net->packet.clear();
 	sf::Uint8 packetid = 100;
@@ -297,7 +297,7 @@ void GameFieldDrawer::sendGameState() { //UDP Packet outgoing
 	net->sendUDP();
 }
 
-void GameFieldDrawer::sendGameData() {
+void UI::sendGameData() {
 	sf::Time tmp = game->keyclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
@@ -332,7 +332,7 @@ void GameFieldDrawer::sendGameData() {
 	}
 }
 
-void GameFieldDrawer::sendGameOver() { //3-Packet
+void UI::sendGameOver() { //3-Packet
 	net->packet.clear();
 	sf::Uint8 packetid = 3;
 	net->packet << packetid << game->maxCombo << game->linesSent << game->linesRecieved << game->linesBlocked << game->bpm << game->linesPerMinute;
@@ -342,7 +342,7 @@ void GameFieldDrawer::sendGameOver() { //3-Packet
 	sendGameState();
 }
 
-void GameFieldDrawer::sendGameWinner() { //4-Packet
+void UI::sendGameWinner() { //4-Packet
 	net->packet.clear();
 	sf::Uint8 packetid = 4;
 	net->packet << packetid << game->maxCombo << game->linesSent << game->linesRecieved << game->linesBlocked << game->bpm << game->linesPerMinute;
@@ -350,7 +350,7 @@ void GameFieldDrawer::sendGameWinner() { //4-Packet
 	game->winner=false;
 }
 
-void GameFieldDrawer::handlePacket() {
+void UI::handlePacket() {
 	if (net->packetid !=100)
 		cout << "Packet id: " << (int)net->packetid << endl;
 	switch ((int)net->packetid) {
@@ -361,8 +361,11 @@ void GameFieldDrawer::handlePacket() {
 			gui.get("AUS")->hide();
 			gui.get("Connecting")->hide();
 			gui.get("MainMenu")->enable();
-			mainMenu();
-			disconnect=true;
+			gui.get("Login")->hide();
+			inroom=false;
+			playonline=false;
+			startgame=false;
+			setGameState(MainMenu);
 		break;
 		case 100: //Game data
 		{

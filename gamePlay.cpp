@@ -16,7 +16,7 @@ using namespace std;
 void gamePlay::startGame() {
 	field.clear();
 	makeNewPiece();
-	draw();
+	drawMe=true;
 	dclock.restart();
 	iclock.restart();
 	keyclock.restart();
@@ -88,7 +88,7 @@ bool gamePlay::possible() {
 void gamePlay::mRight() {
 	piece.mright();
 	if (possible())
-		draw();
+		drawMe=true;
 	else
 		piece.mleft();
 }
@@ -96,7 +96,7 @@ void gamePlay::mRight() {
 void gamePlay::mLeft() {
 	piece.mleft();
 	if (possible())
-		draw();
+		drawMe=true;
 	else
 		piece.mright();
 }
@@ -104,7 +104,7 @@ void gamePlay::mLeft() {
 void gamePlay::mDown() {
 	piece.mdown();
 	if (possible()) {
-		draw();
+		drawMe=true;
 		dclock.restart();
 		lockdown=false;
 	}
@@ -122,7 +122,7 @@ void gamePlay::hd() {
 	addPiece();
 	sendLines(field.clearlines());
 	makeNewPiece();
-	draw();
+	drawMe=true;
 	dclock.restart();
 	autoaway=false;
 }
@@ -131,15 +131,15 @@ void gamePlay::rcw() {
 	autoaway=false;
 	piece.rcw();
 	if (possible()) {
-		draw(); return;
+		drawMe=true; return;
 	}
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX--; piece.posY++; if (possible()) { draw(); return; }
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX-=3; piece.posY--; if (possible()) { draw(); return; }
-	piece.posX+=4; if (possible()) { draw(); return; }
+	piece.posX--; if (possible()) { drawMe=true; return; }
+	piece.posX+=2; if (possible()) { drawMe=true; return; }
+	piece.posX--; piece.posY++; if (possible()) { drawMe=true; return; }
+	piece.posX--; if (possible()) { drawMe=true; return; }
+	piece.posX+=2; if (possible()) { drawMe=true; return; }
+	piece.posX-=3; piece.posY--; if (possible()) { drawMe=true; return; }
+	piece.posX+=4; if (possible()) { drawMe=true; return; }
 
 	piece.posX-=2;
 	piece.rccw();
@@ -149,15 +149,15 @@ void gamePlay::rccw() {
 	autoaway=false;
 	piece.rccw();
 	if (possible()) {
-		draw(); return;
+		drawMe=true; return;
 	}
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX--; piece.posY++; if (possible()) { draw(); return; }
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX-=3; piece.posY--; if (possible()) { draw(); return; }
-	piece.posX+=4; if (possible()) { draw(); return; }
+	piece.posX--; if (possible()) { drawMe=true; return; }
+	piece.posX+=2; if (possible()) { drawMe=true; return; }
+	piece.posX--; piece.posY++; if (possible()) { drawMe=true; return; }
+	piece.posX--; if (possible()) { drawMe=true; return; }
+	piece.posX+=2; if (possible()) { drawMe=true; return; }
+	piece.posX-=3; piece.posY--; if (possible()) { drawMe=true; return; }
+	piece.posX+=4; if (possible()) { drawMe=true; return; }
 
 	piece.posX-=2;
 	piece.rcw();
@@ -168,15 +168,15 @@ void gamePlay::r180() {
 	piece.rccw();
 	piece.rccw();
 	if (possible()) {
-		draw(); return;
+		drawMe=true; return;
 	}
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX--; piece.posY++; if (possible()) { draw(); return; }
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX-=3; piece.posY--; if (possible()) { draw(); return; }
-	piece.posX+=4; if (possible()) { draw(); return; }
+	piece.posX--; if (possible()) { drawMe=true; return; }
+	piece.posX+=2; if (possible()) { drawMe=true; return; }
+	piece.posX--; piece.posY++; if (possible()) { drawMe=true; return; }
+	piece.posX--; if (possible()) { drawMe=true; return; }
+	piece.posX+=2; if (possible()) { drawMe=true; return; }
+	piece.posX-=3; piece.posY--; if (possible()) { drawMe=true; return; }
+	piece.posX+=4; if (possible()) { drawMe=true; return; }
 
 	piece.posX-=2;
 	piece.rcw();
@@ -274,7 +274,7 @@ void gamePlay::delayCheck() {
 	if (dclock.getElapsedTime() > ddelay) {
 		piece.mdown();
 		if (possible()) {
-			draw();
+			drawMe=true;
 			lockdown=false;
 		}
 		else {
@@ -315,7 +315,7 @@ void gamePlay::delayCheck() {
 			addPiece();
 			sendLines(field.clearlines());
 			makeNewPiece();
-			draw();
+			drawMe=true;
 		}
 		else {
 			piece.mup();
@@ -347,13 +347,11 @@ void gamePlay::delayCheck() {
 
 		linesSent += comboLinesSent;
 
-		cout << "Combo " << comboCount << " sent. Total " << linesSent << " SPM " << (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0 << endl;
-
 		if (comboCount>maxCombo)
 			maxCombo=comboCount;
 
 		comboCount = 0;
-		draw();
+		drawMe=true;
 	}
 
 	if (keyclock.getElapsedTime() > bpmMeasureTiming) {
@@ -372,7 +370,7 @@ void gamePlay::delayCheck() {
 		bpm=total/10;
 		if (bpm!=tmpbpm) {
 			bpmText.setString(to_string(bpm));
-			draw();
+			drawMe=true;
 		}
 		oldbpmCount++;
 		if (oldbpmCount==10)
@@ -381,12 +379,12 @@ void gamePlay::delayCheck() {
 
 
 	if (setComboTimer())
-		draw();
+		drawMe=true;
 
 	if (garbage.size())
 		if (keyclock.getElapsedTime() > garbage.front().delay) {
 			pushGarbage();
-			draw();
+			drawMe=true;
 		}
 }
 

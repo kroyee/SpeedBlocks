@@ -135,6 +135,7 @@ public:
 	bool sendgameover;
 	bool winner;
 	bool autoaway;
+	bool drawMe;
 
 	bool rKey;
 	bool lKey;

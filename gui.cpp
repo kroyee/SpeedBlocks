@@ -42,7 +42,14 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       garbageCleared(0),
       linesBlocked(0),
       clientVersion(0),
-      scoreRows(0) {
+      scoreRows(0),
+      scaleup(0),
+      gamedata(sf::seconds(0)),
+      gamedatacount(0),
+      myId(0),
+      gamestate(MainMenu) {
+
+    compressor.game=game;
 
 	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
@@ -69,7 +76,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
 	Tr->setText("Training");
 	Tr->setTextSize(72);
 	Tr->setFont(typewriter);
-	Tr->connect("pressed", &UI::setBool, this, std::ref(training));
+	Tr->connect("pressed", &UI::Training, this);
 	MainMenu->add(Tr);
 
 	tgui::Button::Ptr Opt = themeTG->load("Button");
@@ -859,7 +866,7 @@ void UI::joinRoom(sf::Uint16 id) { //0-Packet
 	game->autoaway=false;
 }
 
-void GameFieldDrawer::leaveRoom() { //1-Packet
+void UI::leaveRoom() { //1-Packet
 	net->packet.clear();
 	sf::Uint8 packetid = 1;
 	net->packet << packetid;
@@ -957,6 +964,67 @@ void UI::playOnline() {
 	gui.get("MainMenu")->disable();
 	gui.get("Login")->show();
 	gui.get("Username", 1)->focus();
+}
+
+void UI::Training() {
+	training=true;
+	setGameState(CountDown);
+    game->startCountdown();
+}
+
+void UI::setGameState(GameStates state) {
+	if (gamestate == MainMenu) { // Reset depending on what state we come from
+		gui.get("MainMenu")->hide();
+		gui.get("opTab")->hide();
+	    gui.get("Rooms")->hide();
+	    gui.get("ServerLobby")->hide();
+		gui.get("CreateRoom")->hide();
+		if (state != MainMenu) {
+			gui.get("InGameTab")->show();
+			gui.get<tgui::Tab>("InGameTab")->select(0);
+    		gui.get("GameFields")->show();
+		}
+	}
+
+	if (state == MainMenu) { // Set depending on what state we are going into
+		if (playonline) {
+			gui.get("opTab")->show();
+			gui.get("Rooms")->show();
+			gui.get<tgui::Tab>("opTab")->select(0);
+			gui.get("InGameTab")->hide();
+			gui.get("Chat")->hide();
+			gui.get("Score")->hide();
+			gui.get("GameFields")->hide();
+			removeAllFields();
+		}
+		else
+			mainMenu();
+	}
+	else if (state == CountDown) {
+        startcount=false;
+        startgame=false;
+        game->sRKey();
+        game->sLKey();
+        game->sDKey();
+	}
+	else if (state == Game) {
+		linesSent=0;
+        garbageCleared=0;
+        linesBlocked=0;
+        game->startGame();
+	}
+	else if (state == GameOver) {
+        startgame=false;
+        startcount=false;
+        if (game->autoaway)
+            goAway();
+        if (game->sendgameover)
+            sendGameOver();
+        if (game->winner)
+            sendGameWinner();
+	}
+
+	gamestate = state;
 }
 
 void UI::opTabSelect(const std::string& tab) {
