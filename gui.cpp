@@ -27,14 +27,11 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       window(&window_),
       training(false),
       playonline(false),
-      quit(false),
       setkey(false),
       adjPieces(false),
       updPieces(false),
       chatFocused(false),
       inroom(false),
-      startgame(false),
-      startcount(false),
       disconnect(false),
       away(false),
       key(nullptr),
@@ -94,7 +91,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
 	Quit->setText("Quit");
 	Quit->setTextSize(72);
 	Quit->setFont(typewriter);
-	Quit->connect("pressed", &UI::setBool, this, std::ref(quit));
+	Quit->connect("pressed", &UI::quitGame, this);
 	MainMenu->add(Quit);
 
 	tgui::EditBox::Ptr IPAddr = themeTG->load("EditBox");
@@ -872,15 +869,7 @@ void UI::leaveRoom() { //1-Packet
 	net->packet << packetid;
 	net->sendTCP();
 	inroom=false;
-	quit=true;
-	gui.get("opTab")->show();
-	gui.get("Rooms")->show();
-	gui.get<tgui::Tab>("opTab")->select(0);
-	gui.get("InGameTab")->hide();
-	gui.get("Chat")->hide();
-	gui.get("Score")->hide();
-	gui.get("GameFields")->hide();
-	removeAllFields();
+	setGameState(MainMenu);
 }
 
 void UI::removeRoom(sf::Uint16 id) {
@@ -948,6 +937,7 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 			game->field.setName(name, *printFont);
 	}
 	else {
+		net->disconnect();
 		quickMsg("Could not connect to server");
 		gui.get("Connecting")->hide();
 		gui.get("Login")->show();
@@ -1001,21 +991,20 @@ void UI::setGameState(GameStates state) {
 			mainMenu();
 	}
 	else if (state == CountDown) {
-        startcount=false;
-        startgame=false;
         game->sRKey();
         game->sLKey();
         game->sDKey();
+        game->gameover=false;
 	}
 	else if (state == Game) {
 		linesSent=0;
         garbageCleared=0;
         linesBlocked=0;
+        gamedatacount=0;
+		gamedata=sf::seconds(0);
         game->startGame();
 	}
 	else if (state == GameOver) {
-        startgame=false;
-        startcount=false;
         if (game->autoaway)
             goAway();
         if (game->sendgameover)
@@ -1055,7 +1044,10 @@ void UI::opTabSelect(const std::string& tab) {
 }
 
 void UI::ausY() {
-	quit=true;
+	if (playonline)
+		leaveRoom();
+	else
+		setGameState(MainMenu);
 	gui.get("AUS")->hide();
 }
 
@@ -1419,6 +1411,10 @@ void UI::vidSlide(short i) {
 
 void UI::setBool(bool& var) {
 	var=true;
+}
+
+void UI::quitGame() {
+	window->close();
 }
 
 void UI::Options() {

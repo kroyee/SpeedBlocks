@@ -56,14 +56,11 @@ public:
 
 	bool training;
 	bool playonline;
-	bool quit;
 	bool setkey;
 	bool adjPieces;
 	bool updPieces;
 	bool chatFocused;
 	bool inroom;
-	bool startgame;
-	bool startcount;
 	bool disconnect;
 	bool away;
 
@@ -89,6 +86,7 @@ public:
 	void initSprites();
 	void Options();
 	void mainMenu();
+	void quitGame();
 	void playOnline();
 	void rotPiece(short i);
 	void colPiece(short i);

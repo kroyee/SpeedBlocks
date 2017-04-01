@@ -130,14 +130,9 @@ int main()
                         gui.gui.setView(view);
                     }
                 }
-                if (gui.inroom)
-                    gui.gamestate=GameOver;
-                if (gui.quit) {
-                    window.close();
-                }
                 if (gui.playonline)
                     while (net.receiveData())
-                            gui.handlePacket();
+                        gui.handlePacket();
             break;
 
             case CountDown:
@@ -175,43 +170,15 @@ int main()
                 }
                 if (gui.playonline) {
                     while (net.receiveData())
-                            gui.handlePacket();
-                    if (gui.startgame) {
-                        gui.linesSent=0;
-                        gui.garbageCleared=0;
-                        gui.linesBlocked=0;
-                        game.startGame();
-                        gui.gamestate = Game;
-                    }
-                    if (gui.quit) {
-                        gui.gamestate= MainMenu;
-                        gui.leaveRoom();
-                        gui.quit=false;
-                    }
-                    if (gui.startcount)
-                        gui.startcount=false;
-                }
-                else if (gui.quit) {
-                    gui.gamestate = MainMenu;
-                    gui.mainMenu();
-                    gui.quit=false;
+                        gui.handlePacket();
                 }
                 else if (game.countDown()) {
                     game.startGame();
                     gui.gamestate = Game;
                 }
 
-                if (game.gameOver()) {
-                    gui.gamestate = GameOver;
-                    gui.startgame=false;
-                    gui.startcount=false;
-                    if (game.autoaway)
-                        gui.goAway();
-                    if (game.sendgameover)
-                        gui.sendGameOver();
-                    if (game.winner)
-                        gui.sendGameWinner();
-                }
+                if (game.gameOver())
+                    gui.setGameState(GameOver);
             break;
 
             case Game:
@@ -265,39 +232,11 @@ int main()
                 if (gui.playonline) {
                     while (net.receiveData())
                             gui.handlePacket();
-                    if (gui.quit) {
-                        gui.gamestate=MainMenu;
-                        gui.leaveRoom();
-                        gui.quit=false;
-                        gui.startgame=false;
-                    }
                     gui.sendGameData();
                 }
-                else if (gui.quit) {
-                    gui.gamestate = MainMenu;
-                    gui.mainMenu();
-                    gui.quit=false;
-                }
 
-                if (game.gameOver()) {
-                    gui.gamestate = GameOver;
-                    gui.startgame=false;
-                    if (game.autoaway)
-                        gui.goAway();
-                    if (game.sendgameover)
-                        gui.sendGameOver();
-                    if (game.winner)
-                        gui.sendGameWinner();
-                }
-
-                if (gui.startcount) {
-                    gui.gamestate=CountDown;
-                    gui.startcount=false;
-                    gui.startgame=false;
-                    game.sRKey();
-                    game.sLKey();
-                    game.sDKey();
-                }
+                if (game.gameOver())
+                    gui.setGameState(GameOver);
             break;
 
             case GameOver:
@@ -331,34 +270,9 @@ int main()
                 }
                 if (gui.playonline) {
                     while (net.receiveData())
-                            gui.handlePacket();
-                    if (gui.startcount) {
-                        gui.gamestate=CountDown;
-                        gui.startcount=false;
-                        game.gameover=false;
-                        game.sRKey();
-                        game.sLKey();
-                        game.sDKey();
-                    }
-                    if (gui.startgame) {
-                        gui.linesSent=0;
-                        gui.garbageCleared=0;
-                        gui.linesBlocked=0;
-                        game.startGame();
-                        gui.gamestate = Game;
-                    }
-                    if (gui.quit) {
-                        gui.gamestate= MainMenu;
-                        gui.leaveRoom();
-                        gui.quit=false;
-                    }
+                        gui.handlePacket();
                     if (game.winner)
                         gui.sendGameWinner();
-                }
-                else if (gui.quit) {
-                    gui.gamestate = MainMenu;
-                    gui.mainMenu();
-                    gui.quit=false;
                 }
             break;
         }
@@ -375,10 +289,10 @@ int main()
                 window.draw( game.field.sprite );
                 gui.drawFields();
             }
-            gui.gui.draw();
             if (gui.adjPieces)
                 for (int i=0; i<7; i++)
                     window.draw(gui.piece[i]);
+            gui.gui.draw();
             window.display();
             frameRate++;
         }

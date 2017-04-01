@@ -255,9 +255,7 @@ void UI::handleEvent(sf::Event event) {
 			if (playonline) {
 				if (!chatFocused) {
 					if (inroom) {
-						gui.get("GameFields")->hide();
-						gui.get("Score")->hide();
-						gui.get("Chat")->show();
+						gui.get<tgui::Tab>("InGameTab")->select(2);
 						selectchat=true;
 					}
 				}
@@ -364,7 +362,6 @@ void UI::handlePacket() {
 			gui.get("Login")->hide();
 			inroom=false;
 			playonline=false;
-			startgame=false;
 			setGameState(MainMenu);
 		break;
 		case 100: //Game data
@@ -417,7 +414,7 @@ void UI::handlePacket() {
 			game->startCountdown();
 			game->countDown(countdown);
 			resetOppFields();
-			startcount=true;
+			setGameState(CountDown);
 			gamedatacount=251;
 			sendGameState();
 		}
@@ -429,11 +426,8 @@ void UI::handlePacket() {
 			sf::Uint8 countdown;
 			net->packet >> countdown;
 			game->countDown(countdown);
-			if (!countdown) {
-				startgame=true;
-				gamedatacount=0;
-				gamedata=sf::seconds(0);
-			}
+			if (!countdown)
+				setGameState(Game);
 			else {
 				gamedatacount=255-countdown;
 				sendGameState();
