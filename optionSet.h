@@ -39,6 +39,7 @@ public:
     sf::Time inputDelay;
 
     sf::Uint8 piecerotation[7];
+    sf::Uint8 colormap[7];
     basePieces basepiece[7];
 
     sf::String name;
@@ -49,8 +50,10 @@ public:
     void getVideoModes();
     void initBasePieces();
     void loadOptions();
+    void loadStandardOptions();
     void saveOptions();
 
+    void setPieceColor(short, sf::Uint8);
     void setDelay(short, sf::String);
 };
 

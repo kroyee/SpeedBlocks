@@ -1461,13 +1461,10 @@ void UI::rotPiece(short i) {
 }
 
 void UI::colPiece(short i) {
-	options->basepiece[i].tile++;
-	if (options->basepiece[i].tile>7)
-		options->basepiece[i].tile=1;
-	for (int x=0; x<4; x++)
-		for (int y=0; y<4; y++)
-			if (options->basepiece[i].grid[y][x])
-				options->basepiece[i].grid[y][x]=options->basepiece[i].tile;
+	if (options->basepiece[i].tile+1>8)
+        options->setPieceColor(i, 1);
+    else
+        options->setPieceColor(i, options->basepiece[i].tile+1);
 	piece[i].setColor(pColor(options->basepiece[i].tile));
 	game->updateBasePieces();
 }
@@ -1477,11 +1474,12 @@ sf::Color pColor(short i) {
 	switch (i) {
 		case 1: col.r=255; col.g=0; col.b=0; break;
 		case 2: col.r=0; col.g=255; col.b=0; break;
-		case 3: col.r=0; col.g=0; col.b=255; break;
+		case 3: col.r=115; col.g=145; col.b=255; break;
 		case 4: col.r=255; col.g=0; col.b=255; break;
 		case 5: col.r=0; col.g=255; col.b=255; break;
 		case 6: col.r=255; col.g=255; col.b=0; break;
-		case 7: col.r=255; col.g=255; col.b=255; break;
+		case 7: col.r=255; col.g=165; col.b=0; break;
+		case 8: col.r=255; col.g=255; col.b=255; break;
 
 		default: col.r=0; col.g=0; col.b=0; break;
 	}
@@ -1512,9 +1510,9 @@ void UI::initSprites() {
 						 0, 0, 5, 0,
 						 0, 0, 0, 0,
 
-						 0, 7, 0, 0,
-						 7, 7, 0, 0,
-						 7, 0, 0, 0,
+						 0, 8, 0, 0,
+						 8, 8, 0, 0,
+						 8, 0, 0, 0,
 						 0, 0, 0, 0,
 
 						 0, 2, 0, 0,

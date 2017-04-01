@@ -6,7 +6,7 @@
 class textures {
 public:
 	sf::Texture tileTexture;
-	sf::Sprite tile[16];
+	sf::Sprite tile[18];
 
 	sf::Texture fieldBackgroundTexture;
     sf::Sprite fieldBackground;
