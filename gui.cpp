@@ -40,11 +40,11 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       linesBlocked(0),
       clientVersion(0),
       scoreRows(0),
+      gamestate(MainMenu),
       scaleup(0),
       gamedata(sf::seconds(0)),
       gamedatacount(0),
-      myId(0),
-      gamestate(MainMenu) {
+      myId(0) {
 
     compressor.game=game;
 
