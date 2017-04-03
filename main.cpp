@@ -112,6 +112,8 @@ int main()
     sf::Time current=sf::seconds(0), nextDraw=sf::seconds(0);
 
     sf::Time lastFrame=sf::seconds(0), longestFrame=sf::seconds(0), secCount=sf::seconds(0);
+    sf::Time pollTime=sf::seconds(0), restTime=sf::seconds(0), drawTime=sf::seconds(0);
+    sf::Time longestPoll=sf::seconds(0), longestRest=sf::seconds(0), longestDraw=sf::seconds(0);
     int frameCount=0, frameRate=0;
 
     while (window.isOpen())
@@ -130,9 +132,11 @@ int main()
                         gui.gui.setView(view);
                     }
                 }
+                pollTime = frameClock.getElapsedTime()-lastFrame;
                 if (gui.playonline)
                     while (net.receiveData())
                         gui.handlePacket();
+                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
 
             case CountDown:
@@ -168,6 +172,7 @@ int main()
                             game.lKey=false;
                     }
                 }
+                pollTime = frameClock.getElapsedTime()-lastFrame;
                 if (gui.playonline) {
                     while (net.receiveData())
                         gui.handlePacket();
@@ -179,6 +184,7 @@ int main()
 
                 if (game.gameOver())
                     gui.setGameState(GameOver);
+                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
 
             case Game:
@@ -227,6 +233,7 @@ int main()
                             game.sDKey();
                     }
                 }
+                pollTime = frameClock.getElapsedTime()-lastFrame;
                 game.delayCheck();
 
                 if (gui.playonline) {
@@ -237,6 +244,7 @@ int main()
 
                 if (game.gameOver())
                     gui.setGameState(GameOver);
+                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
 
             case GameOver:
@@ -268,12 +276,14 @@ int main()
                         }
                     }
                 }
+                pollTime = frameClock.getElapsedTime()-lastFrame;
                 if (gui.playonline) {
                     while (net.receiveData())
                         gui.handlePacket();
                     if (game.winner)
                         gui.sendGameWinner();
                 }
+                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
         }
 
@@ -301,16 +311,29 @@ int main()
         if (nextDraw < current)
             nextDraw=current;
 
+        drawTime = frameClock.getElapsedTime()-current;
+
         current = frameClock.getElapsedTime();
         if (current-lastFrame > longestFrame)
             longestFrame = current-lastFrame;
+        if (pollTime>longestPoll)
+            longestPoll=pollTime;
+        if (restTime>longestRest)
+            longestRest=restTime;
+        if (drawTime>longestDraw)
+            longestDraw=drawTime;
         frameCount++;
 
         if (current-secCount > sf::seconds(1)) {
-            cout << "Framerate: " << frameRate << " Framecount: " << frameCount << " longest: " << longestFrame.asMilliseconds() << endl;
+            cout << "Framerate: " << frameRate << " Framecount: " << frameCount << " longest: " << longestFrame.asMilliseconds();
+            cout << " poll: " << longestPoll.asMilliseconds() << " rest: " << longestRest.asMilliseconds();
+            cout << " draw: " << longestDraw.asMilliseconds() << endl;
             frameRate=0;
             frameCount=0;
             longestFrame=sf::seconds(0);
+            longestDraw=sf::seconds(0);
+            longestRest=sf::seconds(0);
+            longestPoll=sf::seconds(0);
             secCount=current;
         }
         lastFrame=current;

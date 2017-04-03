@@ -85,34 +85,44 @@ bool gamePlay::possible() {
 	return possible;
 }
 
-void gamePlay::mRight() {
+bool gamePlay::mRight() {
 	piece.mright();
-	if (possible())
+	if (possible()) {
 		drawMe=true;
-	else
+		return true;
+	}
+	else {
 		piece.mleft();
+		return false;
+	}
 }
 
-void gamePlay::mLeft() {
+bool gamePlay::mLeft() {
 	piece.mleft();
-	if (possible())
+	if (possible()) {
 		drawMe=true;
-	else
+		return true;
+	}
+	else {
 		piece.mright();
+		return false;
+	}
 }
 
-void gamePlay::mDown() {
+bool gamePlay::mDown() {
 	piece.mdown();
 	if (possible()) {
 		drawMe=true;
 		dclock.restart();
 		lockdown=false;
+		return true;
 	}
 	else {
 		piece.mup();
 		if (!lockdown)
 			lockDownTime=keyclock.getElapsedTime()+sf::milliseconds(400);
 		lockdown=true;
+		return false;
 	}
 }
 
@@ -291,21 +301,25 @@ void gamePlay::delayCheck() {
 		iclock.restart();
 	}
 
+	sf::Time current = keyclock.getElapsedTime();
 	if (rKey) {
-		if (keyclock.getElapsedTime() > rKeyTime) {
-			mRight();
+		while (current > rKeyTime) {
 			rKeyTime+=options.repeatSpeed;
+			if (!mRight())
+				break;
 		}
 	}
 	if (lKey)
-		if (keyclock.getElapsedTime() > lKeyTime) {
-			mLeft();
+		while (current > lKeyTime) {
 			lKeyTime+=options.repeatSpeed;
+			if (!mLeft())
+				break;
 		}
 	if (dKey)
-		if (keyclock.getElapsedTime() > dKeyTime) {
-			mDown();
+		while (current > dKeyTime) {
 			dKeyTime+=options.repeatSpeedDown;
+			if (!mDown())
+				break;
 		}
 
 	if (lockdown && keyclock.getElapsedTime() > lockDownTime) {

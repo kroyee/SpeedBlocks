@@ -163,9 +163,9 @@ public:
 
 	bool possible();
 
-	void mRight();
-	void mLeft();
-	void mDown();
+	bool mRight();
+	bool mLeft();
+	bool mDown();
 	void hd();
 	void rcw();
 	void rccw();
