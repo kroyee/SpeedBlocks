@@ -22,10 +22,11 @@ add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES})
 find_package(SFML 2 COMPONENTS audio network graphics window system REQUIRED)
 find_package(TGUI 0.7.3 REQUIRED)
 find_package(Boost REQUIRED)
+find_package(CURL REQUIRED)
 
 include_directories(${SFML_INCLUDE_DIR} ${TGUI_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
-target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES} ${TGUI_LIBRARY})
+target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES} ${TGUI_LIBRARY} ${CURL_LIBRARY})
 
 if (NOT ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
