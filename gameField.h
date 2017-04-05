@@ -55,6 +55,8 @@ public:
     bool away;
     sf::Uint8 position;
 
+    sf::Text comboText, pendingText, bpmText;
+
     void drawField();
     void preDrawField();
 };

@@ -39,7 +39,9 @@ void gamePlay::startGame() {
 		oldbpm[i]=0;
 	setComboTimer();
 	comboText.setString(to_string(0));
+	comboTextVal=0;
 	pendingText.setString(to_string(0));
+	pendingTextVal=0;
 	bpmCount.clear();
 }
 
@@ -357,6 +359,7 @@ void gamePlay::delayCheck() {
 			for (unsigned int x=0; x<garbage.size(); x++)
 				total+=garbage[x].count;
 			pendingText.setString(to_string(total));
+			pendingTextVal=total;
 		}
 
 		linesSent += comboLinesSent;
@@ -384,6 +387,7 @@ void gamePlay::delayCheck() {
 		bpm=total/10;
 		if (bpm!=tmpbpm) {
 			bpmText.setString(to_string(bpm));
+			bpmTextVal=bpm;
 			drawMe=true;
 		}
 		oldbpmCount++;
@@ -460,8 +464,10 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		short total=0;
 		for (unsigned int x=0; x<garbage.size(); x++)
 			total+=garbage[x].count;
-		if (blocked)
+		if (blocked) {
 			pendingText.setString(to_string(total));
+			pendingTextVal=total;
+		}
 	}
 	if (options.sound) {
 		sounds->lineClear();
@@ -496,6 +502,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 
 	setComboTimer();
 	comboText.setString(to_string(comboCount));
+	comboTextVal = comboCount;
 }
 
 void gamePlay::addGarbage(short add) {
@@ -509,6 +516,7 @@ void gamePlay::addGarbage(short add) {
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
+	pendingTextVal=total;
 
 	if (options.sound)
 		sounds->garbAdd();
@@ -527,6 +535,7 @@ void gamePlay::pushGarbage() {
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
+	pendingTextVal=total;
 
 	for (int y=0; y<21; y++)
 		for (int x=0; x<10; x++)
@@ -576,8 +585,11 @@ void gamePlay::startCountdown() {
 		makeNewPiece();
 	}
 	comboText.setString("0");
+	comboTextVal=0;
 	pendingText.setString("0");
+	pendingTextVal=0;
 	bpmText.setString("0");
+	bpmTextVal=0;
 	countdownText.setPosition(130,210);
 	countdownText.setCharacterSize(96);
 	comboStart=sf::seconds(0);

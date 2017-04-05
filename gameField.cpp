@@ -130,6 +130,9 @@ void obsField::drawField() {
     texture.draw(awayText);
     texture.draw(positionText);
     texture.draw(nameTag);
+    texture.draw(comboText);
+    texture.draw(pendingText);
+    texture.draw(bpmText);
     texture.display();
 }
 
@@ -162,12 +165,27 @@ void obsField::preDrawField() {
     texture.draw(awayText);
     texture.draw(positionText);
     texture.draw(nameTag);
+    texture.draw(comboText);
+    texture.draw(pendingText);
+    texture.draw(bpmText);
     texture.display();
 }
 
 obsField::obsField(const obsField& field) : gameField(field) {
     id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0; away=false; position=0;
     positionText=field.positionText; awayText=field.awayText;
+    comboText.setFont(*positionText.getFont()); comboText.setString("0");
+    pendingText.setFont(*positionText.getFont()); pendingText.setString("0");
+    bpmText.setFont(*positionText.getFont()); bpmText.setString("0");
+    comboText.setCharacterSize(48);
+    comboText.setColor(sf::Color::White);
+    comboText.setPosition(340,270);
+    pendingText.setCharacterSize(48);
+    pendingText.setColor(sf::Color::White);
+    pendingText.setPosition(340,500);
+    bpmText.setCharacterSize(48);
+    bpmText.setColor(sf::Color::White);
+    bpmText.setPosition(340, 400);
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
             grid[y][x]=0;

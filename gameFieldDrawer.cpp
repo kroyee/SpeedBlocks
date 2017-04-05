@@ -413,6 +413,7 @@ void UI::handlePacket() {
 			game->rander.reset();
 			game->startCountdown();
 			game->countDown(countdown);
+			game->position=0;
 			resetOppFields();
 			setGameState(CountDown);
 			gamedatacount=251;
@@ -455,6 +456,7 @@ void UI::handlePacket() {
 					addField(newfield);
 				}
 				inroom=true;
+				setGameState(GameOver);
 				gui.get("InGameTab")->show();
 				gui.get<tgui::Tab>("InGameTab")->select(0);
 	            gui.get("GameFields")->show();

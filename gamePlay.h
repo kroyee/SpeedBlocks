@@ -51,6 +51,10 @@ public:
 		lKey=false;
 		dKey=false;
 
+		comboTextVal=0;
+		pendingTextVal=0;
+		bpmTextVal=0;
+
 		comboText.setFont(*font);
 		comboText.setCharacterSize(48);
 		comboText.setColor(sf::Color::White);
@@ -150,6 +154,9 @@ public:
 	sf::Text bpmText;
 	sf::Text awayText;
 	sf::Text positionText;
+
+	sf::Uint8 comboTextVal, pendingTextVal;
+	sf::Uint16 bpmTextVal;
 
 	void startGame();
 
