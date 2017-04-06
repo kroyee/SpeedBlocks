@@ -59,7 +59,7 @@ void PacketCompress::compress() {
 	sf::Uint8 counter = 0;
 	int y, endy;
 	for (endy=21; endy>=0; endy--) {
-		if (game->field.square[endy][0]==8 || game->field.square[endy][1]==8)
+		if (game->field.square[endy][0]==9 || game->field.square[endy][1]==9)
 			counter++;
 		else
 			break;

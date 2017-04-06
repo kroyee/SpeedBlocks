@@ -520,7 +520,7 @@ void gamePlay::pushGarbage() {
 		for (int x=0; x<10; x++)
 			field.square[y][x]=field.square[y+1][x];
 	for (int x=0; x<10; x++)
-		field.square[21][x]=8;
+		field.square[21][x]=9;
 	field.square[21][rander.getHole()]=0;
 
 	if (!possible()) {

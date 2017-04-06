@@ -58,7 +58,7 @@ sf::Vector2i gameField::clearlines () {
         rm=1;
         gb=0;
         for (int x=0; x<10; x++) {
-            if (square[y][x] == 8)
+            if (square[y][x] == 9)
                 gb=1;
             if (square[y][x] == 0) {
                 rm=0;
