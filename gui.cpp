@@ -18,6 +18,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
     : typewriter(font1),
       printFont2(font2),
       printFont(&font2),
+      typewriterSF(&font1),
       gui(window_),
       options(&options_),
       sounds(&sounds_),
@@ -934,7 +935,7 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 		net->sendTCP();
 		playonline=true;
 		if (guest)
-			game->field.setName(name, *printFont);
+			game->field.setName(name);
 	}
 	else {
 		net->disconnect();
@@ -1046,6 +1047,8 @@ void UI::opTabSelect(const std::string& tab) {
 void UI::ausY() {
 	if (playonline)
 		leaveRoom();
+	else if (gamestate == MainMenu)
+		window->close();
 	else
 		setGameState(MainMenu);
 	gui.get("AUS")->hide();
@@ -1513,7 +1516,7 @@ void UI::putKey(sf::Event& event) {
 
 void UI::changeName(const sf::String& name) {
 	options->name = name;
-	game->field.setName(name, *printFont);
+	game->field.setName(name);
 }
 
 void UI::rotPiece(short i) {

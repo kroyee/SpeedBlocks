@@ -80,9 +80,9 @@ int main()
 
     srand(time(NULL));
 
-    gamePlay game(&textureBase, &sounds, &typewriter);
+    gamePlay game(&textureBase, &sounds, printFont, &typewriter);
 
-    game.field.setName(game.options.name, printFont);
+    game.field.setName(game.options.name);
 
     sounds.setEffectVolume(game.options.EffectVolume);
     sounds.setMusicVolume(game.options.MusicVolume);

@@ -4,7 +4,9 @@
 #include "MingwConvert.h"
 using namespace std;
 
-gameField::gameField(sf::Sprite* tilep, sf::Sprite* backgroundp) {
+gameField::gameField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font) {
+    nameTag.setFont(font);
+    nameTag.setCharacterSize(32);
 	texture.create(440, 600);
     sprite.setTexture(texture.getTexture());
     tile = tilep;
@@ -76,17 +78,9 @@ sf::Vector2i gameField::clearlines () {
     return linescleared;
 }
 
-void gameField::setName(const sf::String& n, const sf::Font& font) {
+void gameField::setName(const sf::String& n) {
     name = n;
-    nameTag.setFont(font);
-    awayText.setFont(font);
-    awayText.setCharacterSize(48);
-    awayText.setPosition(110, 150);
-    positionText.setFont(font);
-    positionText.setCharacterSize(48);
-    positionText.setPosition(130, 220);
     nameTag.setString(n);
-    nameTag.setCharacterSize(32);
     short x = (310-nameTag.getLocalBounds().width)/2;
     if (x<0)
         x=0;
@@ -174,26 +168,36 @@ void obsField::preDrawField() {
 obsField::obsField(const obsField& field) : gameField(field) {
     id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0; away=false; position=0;
     positionText=field.positionText; awayText=field.awayText;
-    comboText.setFont(*positionText.getFont()); comboText.setString("0");
-    pendingText.setFont(*positionText.getFont()); pendingText.setString("0");
-    bpmText.setFont(*positionText.getFont()); bpmText.setString("0");
-    comboText.setCharacterSize(48);
-    comboText.setColor(sf::Color::White);
-    comboText.setPosition(340,270);
-    pendingText.setCharacterSize(48);
-    pendingText.setColor(sf::Color::White);
-    pendingText.setPosition(340,500);
-    bpmText.setCharacterSize(48);
-    bpmText.setColor(sf::Color::White);
-    bpmText.setPosition(340, 400);
+    comboText=field.comboText; pendingText=field.pendingText; bpmText=field.bpmText;
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
             grid[y][x]=0;
         }
 }
 
-obsField::obsField(sf::Sprite* tilep, sf::Sprite* backgroundp) : gameField(tilep, backgroundp) {
+obsField::obsField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font1, sf::Font& font2) : gameField(tilep, backgroundp, font1) {
     id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; posX=0; posY=0; away=false; position=0;
+
+    awayText.setFont(font2);
+    awayText.setCharacterSize(48);
+    awayText.setPosition(110, 150);
+    positionText.setFont(font2);
+    positionText.setCharacterSize(48);
+    positionText.setPosition(130, 220);
+
+    comboText.setFont(font2); comboText.setString("0");
+    pendingText.setFont(font2); pendingText.setString("0");
+    bpmText.setFont(font2); bpmText.setString("0");
+    comboText.setCharacterSize(48);
+    comboText.setColor(sf::Color::White);
+    comboText.setPosition(360,270);
+    pendingText.setCharacterSize(48);
+    pendingText.setColor(sf::Color::White);
+    pendingText.setPosition(360,500);
+    bpmText.setCharacterSize(48);
+    bpmText.setColor(sf::Color::White);
+    bpmText.setPosition(360, 400);
+
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
             grid[y][x]=0;

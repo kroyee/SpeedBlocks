@@ -446,13 +446,13 @@ void UI::handlePacket() {
 				game->rander.seedPiece(seed1);
 				game->rander.seedHole(seed2);
 				game->rander.reset();
-				obsField newfield(textureBase->tile, &textureBase->fieldBackground);
+				obsField newfield(textureBase->tile, &textureBase->fieldBackground, *printFont, *typewriterSF);
 				newfield.clear();
 				sf::String name;
 				for (int c=0; c<playersinroom; c++) {
 					net->packet >> playerid >> name;
 					newfield.id = playerid;
-					newfield.setName(name, *printFont);
+					newfield.setName(name);
 					addField(newfield);
 				}
 				inroom=true;
@@ -473,10 +473,10 @@ void UI::handlePacket() {
 		case 4: //Another player joined room
 		{
 			sf::String name;
-			obsField newfield(textureBase->tile, &textureBase->fieldBackground);
+			obsField newfield(textureBase->tile, &textureBase->fieldBackground, *printFont, *typewriterSF);
 			newfield.clear();
 			net->packet >> newfield.id >> name;
-			newfield.setName(name, *printFont);
+			newfield.setName(name);
 			addField(newfield);
 		}
 		break;
@@ -515,7 +515,7 @@ void UI::handlePacket() {
 			if (success == 1) {
 				sf::String name;
 				net->packet >> name >> myId;
-				game->field.setName(name, *printFont);
+				game->field.setName(name);
 				gui.get("Connecting")->hide();
 				gui.get("opTab")->show();
 				gui.get("Rooms")->show();

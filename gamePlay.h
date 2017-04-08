@@ -20,10 +20,10 @@ public:
 
 class gamePlay {
 public:
-	gamePlay(textures* texy, soundBank* soundy, sf::Font* fonty) : field(texy->tile, &texy->fieldBackground){
+	gamePlay(textures* texy, soundBank* soundy, sf::Font& font1, sf::Font* font2) : field(texy->tile, &texy->fieldBackground, font1){
 		sounds=soundy;
 
-		font=fonty;
+		font=font2;
 
 		nextpiece=0;
 

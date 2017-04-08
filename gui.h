@@ -38,6 +38,7 @@ public:
 	tgui::Font typewriter;
 	tgui::Font printFont2;
 	sf::Font* printFont;
+	sf::Font* typewriterSF;
 
 	tgui::Gui gui;
 	tgui::Theme::Ptr themeTG;
