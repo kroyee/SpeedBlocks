@@ -177,6 +177,7 @@ public:
 	void rcw();
 	void rccw();
 	void r180();
+	bool kickTest();
 
 	void addPiece();
 	void makeNewPiece();
@@ -203,6 +204,10 @@ public:
 
 	bool gameOver();
 	void drawGameOver();
+
+	void drawText();
+	void drawNextPiece();
+	void drawGameText();
 };
 
 #endif

@@ -23,6 +23,7 @@ public:
     void clear();
 
     void drawField();
+    void drawSquares();
 
     sf::Sprite* getSprite() { return &sprite; }
 
@@ -59,6 +60,9 @@ public:
 
     void drawField();
     void preDrawField();
+
+    void drawPiece();
+    void drawText();
 };
 
 #endif

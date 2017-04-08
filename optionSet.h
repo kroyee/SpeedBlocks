@@ -50,6 +50,7 @@ public:
     void initBasePieces();
     void loadOptions();
     void saveOptions();
+    std::vector<short> pieceArray();
 
     void setDelay(short, sf::String);
 };

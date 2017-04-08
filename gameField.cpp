@@ -35,14 +35,20 @@ void gameField::clear() {
 void gameField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(*background);
+    
+    drawSquares();
+
+    texture.draw(nameTag);
+    texture.display();
+}
+
+void gameField::drawSquares() {
     for (int y=4; y<22; y++)
         for (int x=0; x<10; x++)
             if (square[y][x] != 0) {
                 tile[square[y][x]-1].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30));
                 texture.draw(tile[square[y][x]-1]);
             }
-    texture.draw(nameTag);
-    texture.display();
 }
 
 void gameField::removeline(short y) {
@@ -90,13 +96,26 @@ void gameField::setName(const sf::String& n) {
 void obsField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(*background);
-    for (int y=4; y<22; y++)
-        for (int x=0; x<10; x++)
-            if (square[y][x] != 0) {
-                tile[square[y][x]-1].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30));
-                texture.draw(tile[square[y][x]-1]);
-            }
+    
+    drawSquares();
 
+    drawPiece();
+
+    drawText();
+    texture.display();
+}
+
+void obsField::preDrawField() {
+    texture.clear(sf::Color(255,255,255,0));
+    texture.draw(*background);
+    
+    drawSquares();
+
+    drawText();
+    texture.display();
+}
+
+void obsField::drawPiece() {
     for (int y=0; y<4; y++)
         for (int x=0; x<4; x++)
             if (grid[y][x] != 0)
@@ -104,42 +123,9 @@ void obsField::drawField() {
                     tile[grid[y][x]-1].setPosition(sf::Vector2f(5+(posX+x)*30, 5+(posY+y-4)*30));
                     texture.draw(tile[grid[y][x]-1]);
                 }
-
-    if (position == 0)
-        positionText.setString("");
-    else if (position == 1)
-        positionText.setString("1st");
-    else if (position == 2)
-        positionText.setString("2nd");
-    else if (position == 3)
-        positionText.setString("3rd");
-    else
-        positionText.setString(to_string((int)position) + "th");
-
-    if (away)
-        awayText.setString("Away");
-    else
-        awayText.setString("");
-
-    texture.draw(awayText);
-    texture.draw(positionText);
-    texture.draw(nameTag);
-    texture.draw(comboText);
-    texture.draw(pendingText);
-    texture.draw(bpmText);
-    texture.display();
 }
 
-void obsField::preDrawField() {
-    texture.clear(sf::Color(255,255,255,0));
-    texture.draw(*background);
-    for (int y=4; y<22; y++)
-        for (int x=0; x<10; x++)
-            if (square[y][x] != 0) {
-                tile[square[y][x]-1].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30));
-                texture.draw(tile[square[y][x]-1]);
-            }
-
+void obsField::drawText() {
     if (position == 0)
         positionText.setString("");
     else if (position == 1)
@@ -162,7 +148,6 @@ void obsField::preDrawField() {
     texture.draw(comboText);
     texture.draw(pendingText);
     texture.draw(bpmText);
-    texture.display();
 }
 
 obsField::obsField(const obsField& field) : gameField(field) {
