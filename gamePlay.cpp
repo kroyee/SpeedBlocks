@@ -13,6 +13,69 @@ using namespace std;
 
 #define PI 3.14159265
 
+gamePlay::gamePlay(textures* texy, soundBank* soundy, sf::Font& font1, sf::Font* font2) : field(texy->tile, &texy->fieldBackground, font1){
+	sounds=soundy;
+
+	font=font2;
+
+	nextpiece=0;
+
+	ddelay=sf::seconds(1);
+	idelay=sf::seconds(3);
+
+	comboTime=sf::seconds(0);
+
+	comboTimer.setPosition(315, 240);
+	comboTimer.setFillColor(sf::Color(255,0,0));
+
+	comboCount=0;
+	linesSent=0;
+	maxCombo=0;
+	linesRecieved=0;
+	garbageCleared=0;
+
+	gameover=false;
+	sendgameover=false;
+	winner=false;
+
+	lockdown=false;
+
+	rKey=false;
+	lKey=false;
+	dKey=false;
+
+	comboTextVal=0;
+	pendingTextVal=0;
+	bpmTextVal=0;
+
+	comboText.setFont(*font);
+	comboText.setCharacterSize(48);
+	comboText.setColor(sf::Color::White);
+	comboText.setPosition(360,270);
+	pendingText.setFont(*font);
+	pendingText.setCharacterSize(48);
+	pendingText.setColor(sf::Color::White);
+	pendingText.setPosition(360,500);
+	countdownText.setFont(*font);
+	countdownText.setCharacterSize(96);
+	countdownText.setColor(sf::Color::White);
+	countdownText.setPosition(110,210);
+	bpmText.setFont(*font);
+	bpmText.setCharacterSize(48);
+	bpmText.setColor(sf::Color::White);
+	bpmText.setPosition(360, 400);
+	awayText.setFont(*font);
+	awayText.setCharacterSize(52);
+	awayText.setColor(sf::Color::White);
+	awayText.setPosition(110,110);
+	positionText.setFont(*font);
+	positionText.setCharacterSize(48);
+	positionText.setColor(sf::Color::White);
+	positionText.setPosition(110,330);
+
+	updateBasePieces();
+}
+
 void gamePlay::startGame() {
 	field.clear();
 	makeNewPiece();

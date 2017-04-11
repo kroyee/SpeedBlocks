@@ -19,18 +19,6 @@ using namespace std;
 
 #define CLIENT_VERSION 1
 
-void resizeWindow(sf::View& view, sf::Event& event) {
-    float ratio;
-    if ((float)event.size.width/event.size.height > 960.0/600) {
-        ratio = (event.size.height * (960.0/600)) / event.size.width;
-        view.setViewport(sf::FloatRect((1-ratio)/2.0, 0, ratio, 1));
-    }
-    else {
-        ratio = (event.size.width / (960.0/600)) / event.size.height;
-        view.setViewport(sf::FloatRect(0, (1-ratio)/2.0, 1, ratio));
-    }
-}
-
 bool loadError(sf::String error) {
     if (error == "OK")
         return false;
@@ -58,6 +46,8 @@ bool loadError(sf::String error) {
 
 int main()
 {
+    // Initializing classes and loading resources
+
     sf::Font typewriter, printFont;
     if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf")) {
         loadError("media/Kingthings Trypewriter 2.ttf");
@@ -77,8 +67,6 @@ int main()
     soundBank sounds;
     if (loadError(sounds.loadSounds()))
         return false;
-
-    srand(time(NULL));
 
     gamePlay game(&textureBase, &sounds, printFont, &typewriter);
 
@@ -112,180 +100,53 @@ int main()
     sf::Time current=sf::seconds(0), nextDraw=sf::seconds(0);
 
     sf::Time lastFrame=sf::seconds(0), longestFrame=sf::seconds(0), secCount=sf::seconds(0);
-    sf::Time pollTime=sf::seconds(0), restTime=sf::seconds(0), drawTime=sf::seconds(0);
-    sf::Time longestPoll=sf::seconds(0), longestRest=sf::seconds(0), longestDraw=sf::seconds(0);
     int frameCount=0, frameRate=0;
+
+    game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
+
+    // The main-loop
 
     while (window.isOpen())
     {
         sf::Event event;
-        switch (gui.gamestate) {
-            case MainMenu:
-                while (window.pollEvent(event))
-                {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                }
-                pollTime = frameClock.getElapsedTime()-lastFrame;
-                if (gui.playonline)
-                    while (net.receiveData())
-                        gui.handlePacket();
-                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
-            break;
 
+        while (window.pollEvent(event))
+            gui.handleEvent(event);
+
+        if (gui.playonline)
+            while (net.receiveData())
+                gui.handlePacket();
+        
+        switch (gui.gamestate) {
             case CountDown:
-                while (window.pollEvent(event)) {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
+                if (!gui.playonline)
+                    if (game.countDown()) {
+                        game.startGame();
+                        gui.gamestate = Game;
                     }
-                    else if (event.type == sf::Event::KeyPressed && !gui.chatFocused) {
-                        if (event.key.code == game.options.right)
-                            game.rKey=true;
-                        else if (event.key.code == game.options.left)
-                            game.lKey=true;
-                        else if (event.key.code == game.options.chat)
-                            gui.Chat();
-                        else if (event.key.code == game.options.score)
-                            gui.Score();
-                        else if (event.key.code == game.options.away && gui.playonline) {
-                            if (gui.away)
-                                gui.unAway();
-                            else
-                                gui.goAway();
-                        }
-                    }
-                    else if (event.type == sf::Event::KeyReleased) {
-                        if (event.key.code == game.options.right)
-                            game.rKey=false;
-                        else if (event.key.code == game.options.left)
-                            game.lKey=false;
-                    }
-                }
-                pollTime = frameClock.getElapsedTime()-lastFrame;
-                if (gui.playonline) {
-                    while (net.receiveData())
-                        gui.handlePacket();
-                }
-                else if (game.countDown()) {
-                    game.startGame();
-                    gui.gamestate = Game;
-                }
 
                 if (game.gameOver())
                     gui.setGameState(GameOver);
-                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
 
             case Game:
-                while (window.pollEvent(event))
-                {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                    else if (event.type == sf::Event::KeyPressed && !gui.chatFocused) {
-                        if (event.key.code == game.options.right)
-                            game.mRKey();
-                        else if (event.key.code == game.options.left)
-                            game.mLKey();
-                        else if (event.key.code == game.options.rcw)
-                            game.rcw();
-                        else if (event.key.code == game.options.rccw)
-                            game.rccw();
-                        else if (event.key.code == game.options.r180)
-                            game.r180();
-                        else if (event.key.code == game.options.down)
-                            game.mDKey();
-                        else if (event.key.code == game.options.hd)
-                            game.hd();
-                        else if (event.key.code == game.options.chat)
-                            gui.Chat();
-                        else if (event.key.code == game.options.score)
-                            gui.Score();
-                        else if (event.key.code == game.options.away && gui.playonline) {
-                            if (gui.away)
-                                gui.unAway();
-                            else
-                                gui.goAway();
-                        }
-                    }
-                    else if (event.type == sf::Event::KeyReleased) {
-                        if (event.key.code == game.options.right)
-                            game.sRKey();
-                        else if (event.key.code == game.options.left)
-                            game.sLKey();
-                        else if (event.key.code == game.options.down)
-                            game.sDKey();
-                    }
-                }
-                pollTime = frameClock.getElapsedTime()-lastFrame;
                 game.delayCheck();
 
-                if (gui.playonline) {
-                    while (net.receiveData())
-                            gui.handlePacket();
+                if (gui.playonline)
                     gui.sendGameData();
-                }
 
                 if (game.gameOver())
                     gui.setGameState(GameOver);
-                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
 
             case GameOver:
-                while (window.pollEvent(event))
-                {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                    else if (event.type == sf::Event::KeyPressed && !gui.chatFocused) {
-                        if (event.key.code == sf::Keyboard::Return && !gui.playonline) {
-                            gui.setGameState(CountDown);
-                            game.startCountdown();
-                            game.gameover=false;
-                        }
-                        else if (event.key.code == game.options.chat)
-                            gui.Chat();
-                        else if (event.key.code == game.options.score)
-                            gui.Score();
-                        else if (event.key.code == game.options.away && gui.playonline) {
-                            if (gui.away)
-                                gui.unAway();
-                            else
-                                gui.goAway();
-                        }
-                    }
-                }
-                pollTime = frameClock.getElapsedTime()-lastFrame;
-                if (gui.playonline) {
-                    while (net.receiveData())
-                        gui.handlePacket();
+                if (gui.playonline)
                     if (game.winner)
                         gui.sendGameWinner();
-                }
-                restTime = frameClock.getElapsedTime()-lastFrame-pollTime;
             break;
         }
+
+        // Drawing to the screen
 
         current = frameClock.getElapsedTime();
         if (current > nextDraw || game.options.vSync) {
@@ -311,33 +172,24 @@ int main()
         if (nextDraw < current)
             nextDraw=current;
 
-        drawTime = frameClock.getElapsedTime()-current;
+        // Performance output
 
         current = frameClock.getElapsedTime();
         if (current-lastFrame > longestFrame)
             longestFrame = current-lastFrame;
-        if (pollTime>longestPoll)
-            longestPoll=pollTime;
-        if (restTime>longestRest)
-            longestRest=restTime;
-        if (drawTime>longestDraw)
-            longestDraw=drawTime;
         frameCount++;
 
         if (current-secCount > sf::seconds(1)) {
-            cout << "Framerate: " << frameRate << " Framecount: " << frameCount << " longest: " << longestFrame.asMilliseconds();
-            cout << " poll: " << longestPoll.asMilliseconds() << " rest: " << longestRest.asMilliseconds();
-            cout << " draw: " << longestDraw.asMilliseconds() << endl;
+            cout << "Framerate: " << frameRate << " Framecount: " << frameCount << " longest: " << longestFrame.asMilliseconds() << endl;
             frameRate=0;
             frameCount=0;
             longestFrame=sf::seconds(0);
-            longestDraw=sf::seconds(0);
-            longestRest=sf::seconds(0);
-            longestPoll=sf::seconds(0);
             secCount=current;
         }
         lastFrame=current;
     }
+
+    // Things to do before the game turns off
 
     game.options.saveOptions();
 

@@ -167,7 +167,16 @@ public:
 	void drawOppField(obsField& field);
 	void drawFields();
 
-	void handleEvent(sf::Event event);
+	void handleEvent(sf::Event& event);
+
+	void gameInput(sf::Event& event);
+	void windowEvents(sf::Event& event);
+	void resizeWindow(sf::Event& event);
+	
+	void enlargePlayfield(sf::Event& event);
+	void keyEvents(sf::Event& event, bool& selectchat);
+	void scrollBar(sf::Event& event);
+
 	void handlePacket();
 
 	void sendGameData();

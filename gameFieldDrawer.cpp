@@ -180,10 +180,133 @@ void UI::unAway() {
 	game->drawGameOver();
 }
 
-void UI::handleEvent(sf::Event event) {
+void UI::handleEvent(sf::Event& event) {
 	bool selectchat=false;
+
+	gameInput(event);
+	windowEvents(event);
+	
 	if (setkey)
 		putKey(event);
+	enlargePlayfield(event);
+	keyEvents(event, selectchat);
+	scrollBar(event);
+
+	if (gui.get("QuickMsg")->isVisible())
+		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
+			gui.get("QuickMsg")->hide();
+
+	gui.handleEvent(event);
+	if (selectchat)
+		gui.get("ChatBox", 1)->focus();
+}
+
+void UI::gameInput(sf::Event& event) {
+	if (gamestate == CountDown) {
+		if (event.type == sf::Event::KeyPressed && !chatFocused) {
+            if (event.key.code == options->right)
+                game->rKey=true;
+            else if (event.key.code == options->left)
+                game->lKey=true;
+            else if (event.key.code == options->chat)
+                Chat();
+            else if (event.key.code == options->score)
+                Score();
+            else if (event.key.code == options->away && playonline) {
+                if (away)
+                    unAway();
+                else
+                    goAway();
+            }
+        }
+        else if (event.type == sf::Event::KeyReleased) {
+            if (event.key.code == options->right)
+                game->rKey=false;
+            else if (event.key.code == options->left)
+                game->lKey=false;
+        }
+	}
+	else if (gamestate == Game) {
+		if (event.type == sf::Event::KeyPressed && !chatFocused) {
+            if (event.key.code == options->right)
+                game->mRKey();
+            else if (event.key.code == options->left)
+                game->mLKey();
+            else if (event.key.code == options->rcw)
+                game->rcw();
+            else if (event.key.code == options->rccw)
+                game->rccw();
+            else if (event.key.code == options->r180)
+                game->r180();
+            else if (event.key.code == options->down)
+                game->mDKey();
+            else if (event.key.code == options->hd)
+                game->hd();
+            else if (event.key.code == options->chat)
+                Chat();
+            else if (event.key.code == options->score)
+                Score();
+            else if (event.key.code == options->away && playonline) {
+                if (away)
+                    unAway();
+                else
+                    goAway();
+            }
+        }
+        else if (event.type == sf::Event::KeyReleased) {
+            if (event.key.code == options->right)
+                game->sRKey();
+            else if (event.key.code == options->left)
+                game->sLKey();
+            else if (event.key.code == options->down)
+                game->sDKey();
+        }
+	}
+	else if (gamestate == GameOver) {
+		if (event.type == sf::Event::KeyPressed && !chatFocused) {
+            if (event.key.code == sf::Keyboard::Return && !playonline) {
+                setGameState(CountDown);
+                game->startCountdown();
+                game->gameover=false;
+            }
+            else if (event.key.code == options->chat)
+                Chat();
+            else if (event.key.code == options->score)
+                Score();
+            else if (event.key.code == options->away && playonline) {
+                if (away)
+                    unAway();
+                else
+                    goAway();
+            }
+        }
+	}
+}
+
+void UI::windowEvents(sf::Event& event) {
+	if (event.type == sf::Event::Closed)
+        window->close();
+    else if (event.type == sf::Event::Resized && options->currentmode == -1) {
+        resizeWindow(event);
+    }
+}
+
+void UI::resizeWindow(sf::Event& event) {
+	sf::View view = window->getView();
+    float ratio;
+    if ((float)event.size.width/event.size.height > 960.0/600) {
+        ratio = (event.size.height * (960.0/600)) / event.size.width;
+        view.setViewport(sf::FloatRect((1-ratio)/2.0, 0, ratio, 1));
+    }
+    else {
+        ratio = (event.size.width / (960.0/600)) / event.size.height;
+        view.setViewport(sf::FloatRect(0, (1-ratio)/2.0, 1, ratio));
+    }
+    window->setView(view);
+    gui.setView(view);
+}
+
+void UI::enlargePlayfield(sf::Event& event) {
 	if (gui.get("GameFields")->isVisible()) {
 		if (event.type == sf::Event::MouseMoved) {
 			sf::Vector2f pos = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
@@ -218,6 +341,9 @@ void UI::handleEvent(sf::Event event) {
 			scaleup=0;
 		}
 	}
+}
+
+void UI::keyEvents(sf::Event& event, bool& selectchat) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
 			if (chatFocused) {
@@ -262,6 +388,9 @@ void UI::handleEvent(sf::Event event) {
 			}
 		}
 	}
+}
+
+void UI::scrollBar(sf::Event& event) {
 	if (gui.get("Rooms")->isVisible())
 		if (event.type == sf::Event::MouseWheelScrolled)
 			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
@@ -272,14 +401,6 @@ void UI::handleEvent(sf::Event event) {
 						cur=0;
 					gui.get<tgui::Scrollbar>("RoomScroll", 1)->setValue(cur);
 				}
-
-	if (gui.get("QuickMsg")->isVisible())
-		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
-			gui.get("QuickMsg")->hide();
-
-	gui.handleEvent(event);
-	if (selectchat)
-		gui.get("ChatBox", 1)->focus();
 }
 
 void UI::sendGameState() { //UDP Packet outgoing
