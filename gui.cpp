@@ -1096,9 +1096,9 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		return;
 	}
 	sf::String postmsg = game->field.name + ": " + msg;
-	gui.get<tgui::ChatBox>(to, 1)->addLine(postmsg, sf::Color(255, 0, 0));
+	gui.get<tgui::ChatBox>(to, 1)->addLine(postmsg, sf::Color(200, 200, 50));
 	if (to == "Lobby")
-		gui.get<tgui::ChatBox>("Lobby2", 1)->addLine(postmsg, sf::Color(255, 0, 0));
+		gui.get<tgui::ChatBox>("Lobby2", 1)->addLine(postmsg, sf::Color(200, 200, 50));
 	gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 	gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
 	net->packet.clear(); //10-Packet
