@@ -81,6 +81,8 @@ public:
 
 	GameStates gamestate;
 
+	void createAllWidgets();
+
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
 	void putKey(sf::Event& event);
 	void changeName(const sf::String& name);
