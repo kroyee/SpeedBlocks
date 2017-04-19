@@ -51,7 +51,7 @@ void optionSet::loadStandardOptions() {
         colormap[0] = 4;
         colormap[1] = 3;
         colormap[2] = 5;
-        colormap[3] = 8;
+        colormap[3] = 7;
         colormap[4] = 2;
         colormap[5] = 1;
         colormap[6] = 6;

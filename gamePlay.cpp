@@ -229,8 +229,8 @@ void gamePlay::draw() {
 		    for (int x=0; x<4; x++)
 		        if (piece.grid[y][x] != 0)
 		        	if (piece.posY+y > 3) {
-		            	field.tile[piece.tile+8].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
-		            	field.texture.draw(field.tile[piece.tile+8]);
+		            	field.tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+		            	field.texture.draw(field.tile[piece.tile+7]);
 		        	}
 
 		piece.posY = posY;
@@ -520,7 +520,7 @@ void gamePlay::pushGarbage() {
 		for (int x=0; x<10; x++)
 			field.square[y][x]=field.square[y+1][x];
 	for (int x=0; x<10; x++)
-		field.square[21][x]=9;
+		field.square[21][x]=8;
 	field.square[21][rander.getHole()]=0;
 
 	if (!possible()) {
