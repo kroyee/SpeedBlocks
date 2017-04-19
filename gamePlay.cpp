@@ -390,7 +390,7 @@ void gamePlay::delayCheck() {
 	}
 
 	if (keyclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		sf::Uint16 comboLinesSent = comboCount * pow(1.1, comboCount);
+		sf::Uint16 comboLinesSent = comboCount * pow(1.15, comboCount);
 
 		bool blocked=false;
 		for (int i=0; i<comboLinesSent; i++)
