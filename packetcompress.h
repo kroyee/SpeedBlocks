@@ -19,6 +19,7 @@ public:
 	short posX, posY;
 	sf::Uint8 grid[4][4];
 	short nextpiece, npcol, nprot;
+	sf::Uint8 comboText, pendingText, bpmText;
 
 	void compress();
 	void extract();

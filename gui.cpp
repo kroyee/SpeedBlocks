@@ -18,6 +18,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
     : typewriter(font1),
       printFont2(font2),
       printFont(&font2),
+      typewriterSF(&font1),
       gui(window_),
       options(&options_),
       sounds(&sounds_),
@@ -27,14 +28,11 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       window(&window_),
       training(false),
       playonline(false),
-      quit(false),
       setkey(false),
       adjPieces(false),
       updPieces(false),
       chatFocused(false),
       inroom(false),
-      startgame(false),
-      startcount(false),
       disconnect(false),
       away(false),
       key(nullptr),
@@ -42,7 +40,14 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       garbageCleared(0),
       linesBlocked(0),
       clientVersion(0),
-      scoreRows(0) {
+      scoreRows(0),
+      gamestate(MainMenu),
+      scaleup(0),
+      gamedata(sf::seconds(0)),
+      gamedatacount(0),
+      myId(0) {
+
+    compressor.game=game;
 
 	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
@@ -69,7 +74,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
 	Tr->setText("Training");
 	Tr->setTextSize(72);
 	Tr->setFont(typewriter);
-	Tr->connect("pressed", &UI::setBool, this, std::ref(training));
+	Tr->connect("pressed", &UI::Training, this);
 	MainMenu->add(Tr);
 
 	tgui::Button::Ptr Opt = themeTG->load("Button");
@@ -87,7 +92,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
 	Quit->setText("Quit");
 	Quit->setTextSize(72);
 	Quit->setFont(typewriter);
-	Quit->connect("pressed", &UI::setBool, this, std::ref(quit));
+	Quit->connect("pressed", &UI::quitGame, this);
 	MainMenu->add(Quit);
 
 	tgui::EditBox::Ptr IPAddr = themeTG->load("EditBox");
@@ -859,21 +864,13 @@ void UI::joinRoom(sf::Uint16 id) { //0-Packet
 	game->autoaway=false;
 }
 
-void GameFieldDrawer::leaveRoom() { //1-Packet
+void UI::leaveRoom() { //1-Packet
 	net->packet.clear();
 	sf::Uint8 packetid = 1;
 	net->packet << packetid;
 	net->sendTCP();
 	inroom=false;
-	quit=true;
-	gui.get("opTab")->show();
-	gui.get("Rooms")->show();
-	gui.get<tgui::Tab>("opTab")->select(0);
-	gui.get("InGameTab")->hide();
-	gui.get("Chat")->hide();
-	gui.get("Score")->hide();
-	gui.get("GameFields")->hide();
-	removeAllFields();
+	setGameState(MainMenu);
 }
 
 void UI::removeRoom(sf::Uint16 id) {
@@ -938,9 +935,10 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 		net->sendTCP();
 		playonline=true;
 		if (guest)
-			game->field.setName(name, *printFont);
+			game->field.setName(name);
 	}
 	else {
+		net->disconnect();
 		quickMsg("Could not connect to server");
 		gui.get("Connecting")->hide();
 		gui.get("Login")->show();
@@ -957,6 +955,66 @@ void UI::playOnline() {
 	gui.get("MainMenu")->disable();
 	gui.get("Login")->show();
 	gui.get("Username", 1)->focus();
+}
+
+void UI::Training() {
+	training=true;
+	setGameState(CountDown);
+    game->startCountdown();
+}
+
+void UI::setGameState(GameStates state) {
+	if (gamestate == MainMenu) { // Reset depending on what state we come from
+		gui.get("MainMenu")->hide();
+		gui.get("opTab")->hide();
+	    gui.get("Rooms")->hide();
+	    gui.get("ServerLobby")->hide();
+		gui.get("CreateRoom")->hide();
+		if (state != MainMenu) {
+			gui.get("InGameTab")->show();
+			gui.get<tgui::Tab>("InGameTab")->select(0);
+    		gui.get("GameFields")->show();
+		}
+	}
+
+	if (state == MainMenu) { // Set depending on what state we are going into
+		if (playonline) {
+			gui.get("opTab")->show();
+			gui.get("Rooms")->show();
+			gui.get<tgui::Tab>("opTab")->select(0);
+			gui.get("InGameTab")->hide();
+			gui.get("Chat")->hide();
+			gui.get("Score")->hide();
+			gui.get("GameFields")->hide();
+			removeAllFields();
+		}
+		else
+			mainMenu();
+	}
+	else if (state == CountDown) {
+        game->sRKey();
+        game->sLKey();
+        game->sDKey();
+        game->gameover=false;
+	}
+	else if (state == Game) {
+		linesSent=0;
+        garbageCleared=0;
+        linesBlocked=0;
+        gamedatacount=0;
+		gamedata=sf::seconds(0);
+        game->startGame();
+	}
+	else if (state == GameOver) {
+        if (game->autoaway)
+            goAway();
+        if (game->sendgameover)
+            sendGameOver();
+        if (game->winner)
+            sendGameWinner();
+	}
+
+	gamestate = state;
 }
 
 void UI::opTabSelect(const std::string& tab) {
@@ -987,7 +1045,12 @@ void UI::opTabSelect(const std::string& tab) {
 }
 
 void UI::ausY() {
-	quit=true;
+	if (playonline)
+		leaveRoom();
+	else if (gamestate == MainMenu)
+		window->close();
+	else
+		setGameState(MainMenu);
 	gui.get("AUS")->hide();
 }
 
@@ -1353,6 +1416,10 @@ void UI::setBool(bool& var) {
 	var=true;
 }
 
+void UI::quitGame() {
+	window->close();
+}
+
 void UI::Options() {
 	gui.get("MainMenu")->hide();
 	gui.get("OptTab")->show();
@@ -1449,7 +1516,7 @@ void UI::putKey(sf::Event& event) {
 
 void UI::changeName(const sf::String& name) {
 	options->name = name;
-	game->field.setName(name, *printFont);
+	game->field.setName(name);
 }
 
 void UI::rotPiece(short i) {
@@ -1494,40 +1561,8 @@ void UI::initSprites() {
 	sf::RenderTexture rendtex;
 	rendtex.create(120,120);
 
-	short value[112] = { 0, 4, 0, 0,
-						 0, 4, 0, 0,
-						 0, 4, 4, 0,
-						 0, 0, 0, 0,
+	std::vector<short> value = options->pieceArray();
 
-						 0, 3, 0, 0,
-						 0, 3, 0, 0,
-						 3, 3, 0, 0,
-						 0, 0, 0, 0,
-
-						 0, 5, 0, 0,
-						 0, 5, 5, 0,
-						 0, 0, 5, 0,
-						 0, 0, 0, 0,
-
-						 0, 7, 0, 0,
-						 7, 7, 0, 0,
-						 7, 0, 0, 0,
-						 0, 0, 0, 0,
-
-						 0, 2, 0, 0,
-						 0, 2, 0, 0,
-						 0, 2, 0, 0,
-						 0, 2, 0, 0,
-
-						 0, 0, 0, 0,
-						 1, 1, 1, 0,
-						 0, 1, 0, 0,
-						 0, 0, 0, 0,
-
-						 0, 0, 0, 0,
-						 0, 6, 6, 0,
-						 0, 6, 6, 0,
-						 0, 0, 0, 0 };
 	for (int p=0; p<7; p++) {
 		rendtex.clear(sf::Color(255,255,255,0));
 		if (p==4 || p==6) {

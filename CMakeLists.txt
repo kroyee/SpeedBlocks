@@ -19,9 +19,29 @@ set(EXECUTABLE_NAME SpeedBlocks)
 file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/*.cpp ${CMAKE_SOURCE_DIR}/*.h  ${CMAKE_SOURCE_DIR}/*.hpp)
 add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES})
 
-find_package(SFML 2 COMPONENTS audio network graphics window system REQUIRED)
-find_package(TGUI 0.7.3 REQUIRED)
-find_package(Boost REQUIRED)
+add_custom_target(run
+    COMMAND SpeedBlocks
+    DEPENDS SpeedBlocks
+    WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
+)
+
+find_package(SFML 2 COMPONENTS audio network graphics window system)
+if( NOT SFML_FOUND )
+    set( SFML_ROOT "" CACHE PATH "SFML root directory" )
+    message( FATAL_ERROR "CMake couldn't find SFML. Set the SFML_ROOT entry to SFML's root directory (containing \"include\" and \"lib\" directories)." )
+endif()
+
+find_package(TGUI 0.7.3)
+if( NOT TGUI_FOUND )
+    set( TGUI_ROOT "" CACHE PATH "TGUI root directory" )
+    message( FATAL_ERROR "CMake couldn't find TGUI. Set the TGUI_ROOT entry to TGUI's root directory (containing \"include\" and \"lib\" directories)." )
+endif()
+
+find_package(Boost)
+if( NOT Boost_FOUND )
+    set( BOOST_ROOT "" CACHE PATH "Boost root directory" )
+    message( FATAL_ERROR "CMake couldn't find Boost. Set the BOOST_ROOT entry to Boost's root directory (containing \"boost\" directory)." )
+endif()
 
 include_directories(${SFML_INCLUDE_DIR} ${TGUI_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 

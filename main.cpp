@@ -19,18 +19,6 @@ using namespace std;
 
 #define CLIENT_VERSION 1
 
-void resizeWindow(sf::View& view, sf::Event& event) {
-    float ratio;
-    if ((float)event.size.width/event.size.height > 960.0/600) {
-        ratio = (event.size.height * (960.0/600)) / event.size.width;
-        view.setViewport(sf::FloatRect((1-ratio)/2.0, 0, ratio, 1));
-    }
-    else {
-        ratio = (event.size.width / (960.0/600)) / event.size.height;
-        view.setViewport(sf::FloatRect(0, (1-ratio)/2.0, 1, ratio));
-    }
-}
-
 bool loadError(sf::String error) {
     if (error == "OK")
         return false;
@@ -58,6 +46,8 @@ bool loadError(sf::String error) {
 
 int main()
 {
+    // Initializing classes and loading resources
+
     sf::Font typewriter, printFont;
     if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf")) {
         loadError("media/Kingthings Trypewriter 2.ttf");
@@ -67,9 +57,6 @@ int main()
         loadError("media/F25_Bank_Printer.ttf");
         return false;
     }
-
-    enum gamestates { MainMenu, CountDown, Game, GameOver };
-    gamestates gamestate = MainMenu;
 
     textures textureBase;
     if (loadError(textureBase.loadTextures()))
@@ -81,11 +68,9 @@ int main()
     if (loadError(sounds.loadSounds()))
         return false;
 
-    srand(time(NULL));
+    gamePlay game(&textureBase, &sounds, printFont, &typewriter);
 
-    gamePlay game(&textureBase, &sounds, &typewriter);
-
-    game.field.setName(game.options.name, printFont);
+    game.field.setName(game.options.name);
 
     sounds.setEffectVolume(game.options.EffectVolume);
     sounds.setMusicVolume(game.options.MusicVolume);
@@ -106,7 +91,7 @@ int main()
     if (game.options.vSync)
         window.setVerticalSyncEnabled(true);
 
-    GameFieldDrawer gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
+    UI gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
     gui.clientVersion = CLIENT_VERSION;
 
     gui.gui.setView(view);
@@ -114,304 +99,97 @@ int main()
     sf::Clock frameClock;
     sf::Time current=sf::seconds(0), nextDraw=sf::seconds(0);
 
+    sf::Time lastFrame=sf::seconds(0), longestFrame=sf::seconds(0), secCount=sf::seconds(0);
+    int frameCount=0, frameRate=0;
+
+    game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
+
+    // The main-loop
+
     while (window.isOpen())
     {
         sf::Event event;
-        switch (gamestate) {
-            case MainMenu:
-                while (window.pollEvent(event))
-                {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                }
-                if (gui.inroom)
-                    gamestate=GameOver;
-                if (gui.training) {
-                    gui.training=false;
-                    gui.gui.get("MainMenu")->hide();
-                    gui.gui.get("InGameTab")->show();
-                    gui.gui.get("GameFields")->show();
-                    gamestate = CountDown;
-                    game.startCountdown();
-                }
-                if (gui.quit) {
-                    window.close();
-                }
-                if (gui.playonline)
-                    while (net.receiveData())
-                            gui.handlePacket();
 
-                if (gui.disconnect) {
-                    gui.disconnect=false;
-                    gui.playonline=false;
-                }
-            break;
+        while (window.pollEvent(event))
+            gui.handleEvent(event);
 
+        if (gui.playonline)
+            while (net.receiveData())
+                gui.handlePacket();
+        
+        switch (gui.gamestate) {
             case CountDown:
-                while (window.pollEvent(event)) {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                    else if (event.type == sf::Event::KeyPressed && !gui.chatFocused) {
-                        if (event.key.code == game.options.right)
-                            game.rKey=true;
-                        else if (event.key.code == game.options.left)
-                            game.lKey=true;
-                        else if (event.key.code == game.options.chat)
-                            gui.Chat();
-                        else if (event.key.code == game.options.score)
-                            gui.Score();
-                        else if (event.key.code == game.options.away && gui.playonline) {
-                            if (gui.away)
-                                gui.unAway();
-                            else
-                                gui.goAway();
-                        }
-                    }
-                    else if (event.type == sf::Event::KeyReleased) {
-                        if (event.key.code == game.options.right)
-                            game.rKey=false;
-                        else if (event.key.code == game.options.left)
-                            game.lKey=false;
-                    }
-                }
-                if (gui.playonline) {
-                    while (net.receiveData())
-                            gui.handlePacket();
-                    if (gui.startgame) {
-                        gui.linesSent=0;
-                        gui.garbageCleared=0;
-                        gui.linesBlocked=0;
+                if (!gui.playonline)
+                    if (game.countDown()) {
                         game.startGame();
-                        gamestate = Game;
+                        gui.gamestate = Game;
                     }
-                    if (gui.quit) {
-                        gamestate= MainMenu;
-                        gui.leaveRoom();
-                        gui.quit=false;
-                    }
-                    if (gui.startcount)
-                        gui.startcount=false;
-                    if (gui.disconnect) {
-                        gamestate = MainMenu;
-                        gui.disconnect=false;
-                        gui.playonline=false;
-                    }
-                }
-                else if (gui.quit) {
-                    gamestate = MainMenu;
-                    gui.mainMenu();
-                    gui.quit=false;
-                }
-                else if (game.countDown()) {
-                    game.startGame();
-                    gamestate = Game;
-                }
 
-                if (game.gameOver()) {
-                    gamestate = GameOver;
-                    gui.startgame=false;
-                    gui.startcount=false;
-                    if (game.autoaway)
-                        gui.goAway();
-                    if (game.sendgameover)
-                        gui.sendGameOver();
-                    if (game.winner)
-                        gui.sendGameWinner();
-                }
+                if (game.gameOver())
+                    gui.setGameState(GameOver);
             break;
 
             case Game:
-                while (window.pollEvent(event))
-                {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                    else if (event.type == sf::Event::KeyPressed && !gui.chatFocused) {
-                        if (event.key.code == game.options.right)
-                            game.mRKey();
-                        else if (event.key.code == game.options.left)
-                            game.mLKey();
-                        else if (event.key.code == game.options.rcw)
-                            game.rcw();
-                        else if (event.key.code == game.options.rccw)
-                            game.rccw();
-                        else if (event.key.code == game.options.r180)
-                            game.r180();
-                        else if (event.key.code == game.options.down)
-                            game.mDKey();
-                        else if (event.key.code == game.options.hd)
-                            game.hd();
-                        else if (event.key.code == game.options.chat)
-                            gui.Chat();
-                        else if (event.key.code == game.options.score)
-                            gui.Score();
-                        else if (event.key.code == game.options.away && gui.playonline) {
-                            if (gui.away)
-                                gui.unAway();
-                            else
-                                gui.goAway();
-                        }
-                    }
-                    else if (event.type == sf::Event::KeyReleased) {
-                        if (event.key.code == game.options.right)
-                            game.sRKey();
-                        else if (event.key.code == game.options.left)
-                            game.sLKey();
-                        else if (event.key.code == game.options.down)
-                            game.sDKey();
-                    }
-                }
                 game.delayCheck();
 
-                if (gui.playonline) {
-                    while (net.receiveData())
-                            gui.handlePacket();
-                    if (gui.quit) {
-                        gamestate=MainMenu;
-                        gui.leaveRoom();
-                        gui.quit=false;
-                        gui.startgame=false;
-                    }
-                    if (gui.disconnect) {
-                        gamestate = MainMenu;
-                        gui.startgame=false;
-                        gui.playonline=false;
-                        gui.disconnect=false;
-                    }
+                if (gui.playonline)
                     gui.sendGameData();
-                }
-                else if (gui.quit) {
-                    gamestate = MainMenu;
-                    gui.mainMenu();
-                    gui.quit=false;
-                }
 
-                if (game.gameOver()) {
-                    gamestate = GameOver;
-                    gui.startgame=false;
-                    if (game.autoaway)
-                        gui.goAway();
-                    if (game.sendgameover)
-                        gui.sendGameOver();
-                    if (game.winner)
-                        gui.sendGameWinner();
-                }
-
-                if (gui.startcount) {
-                    gamestate=CountDown;
-                    gui.startcount=false;
-                    gui.startgame=false;
-                    game.sRKey();
-                    game.sLKey();
-                    game.sDKey();
-                }
+                if (game.gameOver())
+                    gui.setGameState(GameOver);
             break;
 
             case GameOver:
-                while (window.pollEvent(event))
-                {
-                    gui.handleEvent(event);
-                    if (event.type == sf::Event::Closed)
-                        window.close();
-                    else if (event.type == sf::Event::Resized && gui.options->currentmode == -1) {
-                        resizeWindow(view, event);
-                        window.setView(view);
-                        gui.gui.setView(view);
-                    }
-                    else if (event.type == sf::Event::KeyPressed && !gui.chatFocused) {
-                        if (event.key.code == sf::Keyboard::Return && !gui.playonline) {
-                            gamestate = CountDown;
-                            game.startCountdown();
-                            game.gameover=false;
-                        }
-                        else if (event.key.code == game.options.chat)
-                            gui.Chat();
-                        else if (event.key.code == game.options.score)
-                            gui.Score();
-                        else if (event.key.code == game.options.away && gui.playonline) {
-                            if (gui.away)
-                                gui.unAway();
-                            else
-                                gui.goAway();
-                        }
-                    }
-                }
-                if (gui.playonline) {
-                    while (net.receiveData())
-                            gui.handlePacket();
-                    if (gui.startcount) {
-                        gamestate=CountDown;
-                        gui.startcount=false;
-                        game.gameover=false;
-                        game.sRKey();
-                        game.sLKey();
-                        game.sDKey();
-                    }
-                    if (gui.startgame) {
-                        gui.linesSent=0;
-                        gui.garbageCleared=0;
-                        gui.linesBlocked=0;
-                        game.startGame();
-                        gamestate = Game;
-                    }
-                    if (gui.quit) {
-                        gamestate= MainMenu;
-                        gui.leaveRoom();
-                        gui.quit=false;
-                    }
-                    if (gui.disconnect) {
-                        gamestate = MainMenu;
-                        game.gameover=false;
-                        gui.disconnect=false;
-                        gui.playonline=false;
-                    }
+                if (gui.playonline)
                     if (game.winner)
                         gui.sendGameWinner();
-                }
-                else if (gui.quit) {
-                    gamestate = MainMenu;
-                    gui.mainMenu();
-                    gui.quit=false;
-                }
             break;
         }
 
+        // Drawing to the screen
+
         current = frameClock.getElapsedTime();
         if (current > nextDraw || game.options.vSync) {
+            if (game.drawMe && gui.gamestate == Game) {
+                game.draw();
+                game.drawMe=false;
+            }
             nextDraw+=game.options.frameDelay;
             window.draw(textureBase.background);
-            if (gamestate == CountDown || gamestate == Game || gamestate == GameOver) {
+            if (gui.gamestate == CountDown || gui.gamestate == Game || gui.gamestate == GameOver) {
                 window.draw( game.field.sprite );
                 gui.drawFields();
             }
-            gui.gui.draw();
             if (gui.adjPieces)
                 for (int i=0; i<7; i++)
                     window.draw(gui.piece[i]);
+            gui.gui.draw();
             window.display();
+            frameRate++;
         }
         else if (!game.options.vSync)
             sf::sleep(game.options.inputDelay);
         if (nextDraw < current)
             nextDraw=current;
+
+        // Performance output
+
+        current = frameClock.getElapsedTime();
+        if (current-lastFrame > longestFrame)
+            longestFrame = current-lastFrame;
+        frameCount++;
+
+        if (current-secCount > sf::seconds(1)) {
+            cout << "Framerate: " << frameRate << " Framecount: " << frameCount << " longest: " << longestFrame.asMilliseconds() << endl;
+            frameRate=0;
+            frameCount=0;
+            longestFrame=sf::seconds(0);
+            secCount=current;
+        }
+        lastFrame=current;
     }
+
+    // Things to do before the game turns off
 
     game.options.saveOptions();
 

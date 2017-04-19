@@ -52,6 +52,7 @@ public:
     void loadOptions();
     void loadStandardOptions();
     void saveOptions();
+    std::vector<short> pieceArray();
 
     void setPieceColor(short, sf::Uint8);
     void setDelay(short, sf::String);
