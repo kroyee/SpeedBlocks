@@ -17,12 +17,13 @@ public:
 
     sf::String name;
 
-    gameField(sf::Sprite* tilep, sf::Sprite* backgroundp);
+    gameField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font);
     gameField(const gameField& field);
 
     void clear();
 
     void drawField();
+    void drawSquares();
 
     sf::Sprite* getSprite() { return &sprite; }
 
@@ -34,14 +35,14 @@ public:
 
     sf::Vector2i clearlines();
 
-    void setName(const sf::String& n, const sf::Font& font);
+    void setName(const sf::String& n);
 };
 
 class obsField : public gameField {
 public:
     obsField(const obsField& field);
     
-    obsField(sf::Sprite* tilep, sf::Sprite* backgroundp);
+    obsField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font1, sf::Font& font2);
 
     sf::Uint16 id;
     short nextpiece;
@@ -55,8 +56,13 @@ public:
     bool away;
     sf::Uint8 position;
 
+    sf::Text comboText, pendingText, bpmText;
+
     void drawField();
     void preDrawField();
+
+    void drawPiece();
+    void drawText();
 };
 
 #endif

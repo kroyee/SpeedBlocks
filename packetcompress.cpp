@@ -25,19 +25,23 @@ void PacketCompress::extract() {
 		for (; y<22-endy; y++)
 			getBits(square[y][x], 3);
 	}
-	temp=0; getBits(temp, 4); posX = static_cast<short>(temp-2);
-	temp=0; getBits(temp, 5); posY = static_cast<short>(temp);
+	getBits(temp, 4); posX = static_cast<short>(temp-2);
+	getBits(temp, 5); posY = static_cast<short>(temp);
 	for (int x=0; x<4; x++)
 		for (y=0; y<4; y++) {
-			temp=0; getBits(temp, 3);
+			getBits(temp, 3);
 			grid[y][x] = temp;
 		}
-	temp=0; getBits(temp, 3); nextpiece=static_cast<short>(temp);
-	temp=0; getBits(temp, 3); npcol=static_cast<short>(temp);
-	temp=0; getBits(temp, 3); nprot=static_cast<short>(temp);
+	getBits(temp, 3); nextpiece=static_cast<short>(temp);
+	getBits(temp, 3); npcol=static_cast<short>(temp);
+	getBits(temp, 3); nprot=static_cast<short>(temp);
+	getBits(temp, 5); comboText=temp;
+	getBits(temp, 8); pendingText=temp;
+	getBits(temp, 8); bpmText=temp;
 }
 
 void PacketCompress::getBits(sf::Uint8& byte, sf::Uint8 bits) {
+	byte=0;
 	sf::Uint8 temp=0;
 	temp = tmp[tmpcount]>>bitcount | temp;
 	bitcount+=bits;
@@ -94,6 +98,14 @@ void PacketCompress::compress() {
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
 	addBits(game->options.piecerotation[game->nextpiece], 3);
+	addBits(game->comboTextVal, 5);
+	addBits(game->pendingTextVal, 8);
+	sf::Uint8 tmp;
+	if (game->bpmTextVal > 255)
+		tmp=255;
+	else
+		tmp = game->bpmTextVal;
+	addBits(tmp, 8);
 }
 
 void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -124,6 +136,9 @@ void PacketCompress::copy() {
 	field->nextpiece = nextpiece;
 	field->npcol = npcol;
 	field->nprot = nprot;
+	field->bpmText.setString(to_string(bpmText));
+	field->pendingText.setString(to_string(pendingText));
+	field->comboText.setString(to_string(comboText));
 }
 
 bool PacketCompress::validate() {
