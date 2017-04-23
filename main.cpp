@@ -17,13 +17,14 @@
 
 using namespace std;
 
-#define CLIENT_VERSION 1
+#define CLIENT_VERSION 2
 
 bool loadError(sf::String error) {
     if (error == "OK")
         return false;
     sf::RenderWindow window;
     window.create(sf::VideoMode(500, 400), "SpeedBlocks");
+    window.clear();
     tgui::Gui gui(window);
     tgui::Label::Ptr errorMsg = tgui::Label::create();
     errorMsg->setText("Failed to load resources " + error + "\nSee that the file is there or reinstall the game.\n\nPress any key to quit.");

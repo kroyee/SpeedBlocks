@@ -52,6 +52,7 @@ void UI::createAllWidgets() {
 	IPAddr->setPosition(10, 230);
 	IPAddr->setSize(250, 40);
 	IPAddr->setText(net->serverAdd.toString());
+	IPAddr->hide();
 	MainMenu->add(IPAddr, "IPAddr");
 
 	tgui::Panel::Ptr LiP = tgui::Panel::create(); // Login panel
