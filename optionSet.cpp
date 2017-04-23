@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 #include <SFML/Graphics.hpp>
-#include "MingwConvert.h"
 using namespace std;
 
 #ifdef __APPLE__
