@@ -11,6 +11,8 @@ class network;
 class PacketCompress;
 class textures;
 
+class obsField;
+
 class privChat {
 public:
 	tgui::ChatBox::Ptr chatBox;
@@ -27,6 +29,8 @@ public:
 	tgui::Label::Ptr label;
 };
 
+enum GameStates { MainMenu, CountDown, Game, GameOver };
+
 class UI {
 public:
 	UI(sf::RenderWindow&, sf::Font&, sf::Font&, optionSet&, soundBank&, gamePlay&, network&, textures&);
@@ -34,6 +38,7 @@ public:
 	tgui::Font typewriter;
 	tgui::Font printFont2;
 	sf::Font* printFont;
+	sf::Font* typewriterSF;
 
 	tgui::Gui gui;
 	tgui::Theme::Ptr themeTG;
@@ -52,14 +57,11 @@ public:
 
 	bool training;
 	bool playonline;
-	bool quit;
 	bool setkey;
 	bool adjPieces;
 	bool updPieces;
 	bool chatFocused;
 	bool inroom;
-	bool startgame;
-	bool startcount;
 	bool disconnect;
 	bool away;
 
@@ -77,12 +79,17 @@ public:
 
 	sf::Clock quickMsgClock;
 
+	GameStates gamestate;
+
+	void createAllWidgets();
+
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
 	void putKey(sf::Event& event);
 	void changeName(const sf::String& name);
 	void initSprites();
 	void Options();
 	void mainMenu();
+	void quitGame();
 	void playOnline();
 	void rotPiece(short i);
 	void colPiece(short i);
@@ -96,6 +103,8 @@ public:
 	void igtabSelect(const std::string& tab);
 	void chattabSelect(const std::string& tab);
 	void opTabSelect(const std::string& tab);
+	void Training();
+	void setGameState(GameStates state);
 
 	void addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint16 id);
 	void removeRoom(sf::Uint16 id);
@@ -132,17 +141,9 @@ public:
 	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
 
 	void createRoom(const sf::String&, const sf::String&);
-};
 
-sf::String SFKeyToString(unsigned int keycode);
-sf::Color pColor(short i);
+	//GameFIeldDrawer stuff
 
-class obsField;
-
-class GameFieldDrawer: public UI {
-public:
-	GameFieldDrawer(sf::RenderWindow& rwindow, sf::Font& font1, sf::Font& font2, optionSet& opt, soundBank& soundy, gamePlay& gamey, network& net, textures& tex) : UI(rwindow,font1,font2,opt,soundy,gamey,net,tex) { scaleup=0; compressor.game=game; gamedata=sf::seconds(0); gamedatacount=0; myId=0; }
-	
 	std::list<obsField> fields;
 
 	sf::Clock sclock;
@@ -168,7 +169,16 @@ public:
 	void drawOppField(obsField& field);
 	void drawFields();
 
-	void handleEvent(sf::Event event);
+	void handleEvent(sf::Event& event);
+
+	void gameInput(sf::Event& event);
+	void windowEvents(sf::Event& event);
+	void resizeWindow(sf::Event& event);
+	
+	void enlargePlayfield(sf::Event& event);
+	void keyEvents(sf::Event& event, bool& selectchat);
+	void scrollBar(sf::Event& event);
+
 	void handlePacket();
 
 	void sendGameData();
@@ -181,5 +191,8 @@ public:
 
 	sf::String getName(sf::Uint16);
 };
+
+sf::String SFKeyToString(unsigned int keycode);
+sf::Color pColor(short i);
 
 #endif

@@ -8,15 +8,77 @@
 #include <iostream>
 #include <deque>
 #include <string>
-#include "MingwConvert.h"
 using namespace std;
 
 #define PI 3.14159265
 
+gamePlay::gamePlay(textures* texy, soundBank* soundy, sf::Font& font1, sf::Font* font2) : field(texy->tile, &texy->fieldBackground, font1){
+	sounds=soundy;
+
+	font=font2;
+
+	nextpiece=0;
+
+	ddelay=sf::seconds(1);
+	idelay=sf::seconds(3);
+
+	comboTime=sf::seconds(0);
+
+	comboTimer.setPosition(315, 240);
+	comboTimer.setFillColor(sf::Color(255,0,0));
+
+	comboCount=0;
+	linesSent=0;
+	maxCombo=0;
+	linesRecieved=0;
+	garbageCleared=0;
+
+	gameover=false;
+	sendgameover=false;
+	winner=false;
+
+	lockdown=false;
+
+	rKey=false;
+	lKey=false;
+	dKey=false;
+
+	comboTextVal=0;
+	pendingTextVal=0;
+	bpmTextVal=0;
+
+	comboText.setFont(*font);
+	comboText.setCharacterSize(48);
+	comboText.setColor(sf::Color::White);
+	comboText.setPosition(360,270);
+	pendingText.setFont(*font);
+	pendingText.setCharacterSize(48);
+	pendingText.setColor(sf::Color::White);
+	pendingText.setPosition(360,500);
+	countdownText.setFont(*font);
+	countdownText.setCharacterSize(96);
+	countdownText.setColor(sf::Color::White);
+	countdownText.setPosition(110,210);
+	bpmText.setFont(*font);
+	bpmText.setCharacterSize(48);
+	bpmText.setColor(sf::Color::White);
+	bpmText.setPosition(360, 400);
+	awayText.setFont(*font);
+	awayText.setCharacterSize(52);
+	awayText.setColor(sf::Color::White);
+	awayText.setPosition(110,110);
+	positionText.setFont(*font);
+	positionText.setCharacterSize(48);
+	positionText.setColor(sf::Color::White);
+	positionText.setPosition(110,330);
+
+	updateBasePieces();
+}
+
 void gamePlay::startGame() {
 	field.clear();
 	makeNewPiece();
-	draw();
+	drawMe=true;
 	dclock.restart();
 	iclock.restart();
 	keyclock.restart();
@@ -39,7 +101,9 @@ void gamePlay::startGame() {
 		oldbpm[i]=0;
 	setComboTimer();
 	comboText.setString(to_string(0));
+	comboTextVal=0;
 	pendingText.setString(to_string(0));
+	pendingTextVal=0;
 	bpmCount.clear();
 }
 
@@ -85,34 +149,44 @@ bool gamePlay::possible() {
 	return possible;
 }
 
-void gamePlay::mRight() {
+bool gamePlay::mRight() {
 	piece.mright();
-	if (possible())
-		draw();
-	else
+	if (possible()) {
+		drawMe=true;
+		return true;
+	}
+	else {
 		piece.mleft();
+		return false;
+	}
 }
 
-void gamePlay::mLeft() {
+bool gamePlay::mLeft() {
 	piece.mleft();
-	if (possible())
-		draw();
-	else
+	if (possible()) {
+		drawMe=true;
+		return true;
+	}
+	else {
 		piece.mright();
+		return false;
+	}
 }
 
-void gamePlay::mDown() {
+bool gamePlay::mDown() {
 	piece.mdown();
 	if (possible()) {
-		draw();
+		drawMe=true;
 		dclock.restart();
 		lockdown=false;
+		return true;
 	}
 	else {
 		piece.mup();
 		if (!lockdown)
 			lockDownTime=keyclock.getElapsedTime()+sf::milliseconds(400);
 		lockdown=true;
+		return false;
 	}
 }
 
@@ -122,7 +196,7 @@ void gamePlay::hd() {
 	addPiece();
 	sendLines(field.clearlines());
 	makeNewPiece();
-	draw();
+	drawMe=true;
 	dclock.restart();
 	autoaway=false;
 }
@@ -131,15 +205,12 @@ void gamePlay::rcw() {
 	autoaway=false;
 	piece.rcw();
 	if (possible()) {
-		draw(); return;
+		drawMe=true; return;
 	}
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX--; piece.posY++; if (possible()) { draw(); return; }
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX-=3; piece.posY--; if (possible()) { draw(); return; }
-	piece.posX+=4; if (possible()) { draw(); return; }
+	if (kickTest()) {
+		drawMe=true;
+		return;
+	}
 
 	piece.posX-=2;
 	piece.rccw();
@@ -149,15 +220,12 @@ void gamePlay::rccw() {
 	autoaway=false;
 	piece.rccw();
 	if (possible()) {
-		draw(); return;
+		drawMe=true; return;
 	}
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX--; piece.posY++; if (possible()) { draw(); return; }
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX-=3; piece.posY--; if (possible()) { draw(); return; }
-	piece.posX+=4; if (possible()) { draw(); return; }
+	if (kickTest()) {
+		drawMe=true;
+		return;
+	}
 
 	piece.posX-=2;
 	piece.rcw();
@@ -168,19 +236,28 @@ void gamePlay::r180() {
 	piece.rccw();
 	piece.rccw();
 	if (possible()) {
-		draw(); return;
+		drawMe=true; return;
 	}
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX--; piece.posY++; if (possible()) { draw(); return; }
-	piece.posX--; if (possible()) { draw(); return; }
-	piece.posX+=2; if (possible()) { draw(); return; }
-	piece.posX-=3; piece.posY--; if (possible()) { draw(); return; }
-	piece.posX+=4; if (possible()) { draw(); return; }
+	if (kickTest()) {
+		drawMe=true;
+		return;
+	}
 
 	piece.posX-=2;
 	piece.rcw();
 	piece.rcw();
+}
+
+bool gamePlay::kickTest() {
+	piece.posX--; if (possible()) return true;
+	piece.posX+=2; if (possible()) return true;
+	piece.posX--; piece.posY++; if (possible()) return true;
+	piece.posX--; if (possible()) return true;
+	piece.posX+=2; if (possible()) return true;
+	piece.posX-=3; piece.posY--; if (possible()) return true;
+	piece.posX+=4; if (possible()) return true;
+
+	return false;
 }
 
 void gamePlay::addPiece() {
@@ -236,17 +313,9 @@ void gamePlay::draw() {
 		piece.posY = posY;
 	}
 
-	for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (basepiece[nextpiece].grid[y][x] != 0) {
-                	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
-                	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
-            	}
+	drawNextPiece();
 
-    field.texture.draw(comboTimer);
-    field.texture.draw(comboText);
-    field.texture.draw(pendingText);
-    field.texture.draw(bpmText);
+    drawGameText();
 
     field.texture.display();
 }
@@ -254,18 +323,10 @@ void gamePlay::draw() {
 void gamePlay::preDraw() {
 	field.drawField();
 
-	for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (basepiece[nextpiece].grid[y][x] != 0) {
-                	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
-                	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
-            	}
+	drawNextPiece();
 
-    field.texture.draw(comboTimer);
-    field.texture.draw(comboText);
-    field.texture.draw(pendingText);
+    drawGameText();
     field.texture.draw(countdownText);
-    field.texture.draw(bpmText);
 
     field.texture.display();
 }
@@ -274,7 +335,7 @@ void gamePlay::delayCheck() {
 	if (dclock.getElapsedTime() > ddelay) {
 		piece.mdown();
 		if (possible()) {
-			draw();
+			drawMe=true;
 			lockdown=false;
 		}
 		else {
@@ -291,21 +352,25 @@ void gamePlay::delayCheck() {
 		iclock.restart();
 	}
 
+	sf::Time current = keyclock.getElapsedTime();
 	if (rKey) {
-		if (keyclock.getElapsedTime() > rKeyTime) {
-			mRight();
+		while (current > rKeyTime) {
 			rKeyTime+=options.repeatSpeed;
+			if (!mRight())
+				break;
 		}
 	}
 	if (lKey)
-		if (keyclock.getElapsedTime() > lKeyTime) {
-			mLeft();
+		while (current > lKeyTime) {
 			lKeyTime+=options.repeatSpeed;
+			if (!mLeft())
+				break;
 		}
 	if (dKey)
-		if (keyclock.getElapsedTime() > dKeyTime) {
-			mDown();
+		while (current > dKeyTime) {
 			dKeyTime+=options.repeatSpeedDown;
+			if (!mDown())
+				break;
 		}
 
 	if (lockdown && keyclock.getElapsedTime() > lockDownTime) {
@@ -315,7 +380,7 @@ void gamePlay::delayCheck() {
 			addPiece();
 			sendLines(field.clearlines());
 			makeNewPiece();
-			draw();
+			drawMe=true;
 		}
 		else {
 			piece.mup();
@@ -324,7 +389,7 @@ void gamePlay::delayCheck() {
 	}
 
 	if (keyclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		sf::Uint16 comboLinesSent = comboCount * pow(1.1, comboCount);
+		sf::Uint16 comboLinesSent = comboCount * pow(1.15, comboCount);
 
 		bool blocked=false;
 		for (int i=0; i<comboLinesSent; i++)
@@ -343,18 +408,16 @@ void gamePlay::delayCheck() {
 			for (unsigned int x=0; x<garbage.size(); x++)
 				total+=garbage[x].count;
 			pendingText.setString(to_string(total));
+			pendingTextVal=total;
 		}
 
 		linesSent += comboLinesSent;
-
-		cout << "Combo " << comboCount << " sent. Total " << linesSent << " SPM " << (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0 << endl;
 
 		if (comboCount>maxCombo)
 			maxCombo=comboCount;
 
 		comboCount = 0;
-		comboText.setString(to_string(comboCount));
-		draw();
+		drawMe=true;
 	}
 
 	if (keyclock.getElapsedTime() > bpmMeasureTiming) {
@@ -373,7 +436,8 @@ void gamePlay::delayCheck() {
 		bpm=total/10;
 		if (bpm!=tmpbpm) {
 			bpmText.setString(to_string(bpm));
-			draw();
+			bpmTextVal=bpm;
+			drawMe=true;
 		}
 		oldbpmCount++;
 		if (oldbpmCount==10)
@@ -382,12 +446,12 @@ void gamePlay::delayCheck() {
 
 
 	if (setComboTimer())
-		draw();
+		drawMe=true;
 
 	if (garbage.size())
 		if (keyclock.getElapsedTime() > garbage.front().delay) {
 			pushGarbage();
-			draw();
+			drawMe=true;
 		}
 }
 
@@ -449,8 +513,10 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		short total=0;
 		for (unsigned int x=0; x<garbage.size(); x++)
 			total+=garbage[x].count;
-		if (blocked)
+		if (blocked) {
 			pendingText.setString(to_string(total));
+			pendingTextVal=total;
+		}
 	}
 	if (options.sound) {
 		sounds->lineClear();
@@ -485,6 +551,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 
 	setComboTimer();
 	comboText.setString(to_string(comboCount));
+	comboTextVal = comboCount;
 }
 
 void gamePlay::addGarbage(short add) {
@@ -498,6 +565,7 @@ void gamePlay::addGarbage(short add) {
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
+	pendingTextVal=total;
 
 	if (options.sound)
 		sounds->garbAdd();
@@ -516,6 +584,7 @@ void gamePlay::pushGarbage() {
 		total+=garbage[x].count;
 
 	pendingText.setString(to_string(total));
+	pendingTextVal=total;
 
 	for (int y=0; y<21; y++)
 		for (int x=0; x<10; x++)
@@ -565,8 +634,11 @@ void gamePlay::startCountdown() {
 		makeNewPiece();
 	}
 	comboText.setString("0");
+	comboTextVal=0;
 	pendingText.setString("0");
+	pendingTextVal=0;
 	bpmText.setString("0");
+	bpmTextVal=0;
 	countdownText.setPosition(130,210);
 	countdownText.setCharacterSize(96);
 	comboStart=sf::seconds(0);
@@ -623,19 +695,12 @@ bool gamePlay::gameOver() {
 			maxCombo=comboCount;
 		linesPerMinute = (((float)linesSent)/((float)keyclock.getElapsedTime().asSeconds()))*60.0;
 		bpm = (int)(pieceCount / ((float)(keyclock.getElapsedTime().asSeconds()))*60.0);
+		bpmText.setString(to_string(bpm));
+		bpmTextVal=bpm;
 
 		field.drawField();
 
-		for (int y=0; y<4; y++)
-	        for (int x=0; x<4; x++)
-	            if (basepiece[nextpiece].grid[y][x] != 0) {
-	                	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
-	                	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
-	            	}
-
-	    field.texture.draw(comboTimer);
-	    field.texture.draw(comboText);
-	    field.texture.draw(pendingText);
+		drawNextPiece();
 
 	    if (winner)
 	    	countdownText.setString("Winner");
@@ -644,20 +709,7 @@ bool gamePlay::gameOver() {
 		countdownText.setPosition(50,250);
 		countdownText.setCharacterSize(48);
 
-		if (position == 1)
-			positionText.setString("1st");
-		else if (position == 2)
-			positionText.setString("2nd");
-		else if (position == 3)
-			positionText.setString("3rd");
-		else if (position == 0)
-			positionText.setString("");
-		else
-			positionText.setString(to_string((int)position) + "th");
-
-		field.texture.draw(positionText);
-		field.texture.draw(countdownText);
-		field.texture.draw(awayText);
+		drawText();
 
 		field.texture.display();
 		return true;
@@ -668,14 +720,22 @@ bool gamePlay::gameOver() {
 void gamePlay::drawGameOver() {
 	field.drawField();
 
-	for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (basepiece[nextpiece].grid[y][x] != 0) {
-                	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
-                	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
-            	}
+	drawNextPiece();
 
-    if (position == 1)
+    drawText();
+
+	field.texture.display();
+}
+
+void gamePlay::drawGameText() {
+	field.texture.draw(comboTimer);
+    field.texture.draw(comboText);
+    field.texture.draw(pendingText);
+    field.texture.draw(bpmText);
+}
+
+void gamePlay::drawText() {
+	if (position == 1)
 		positionText.setString("1st");
 	else if (position == 2)
 		positionText.setString("2nd");
@@ -687,11 +747,16 @@ void gamePlay::drawGameOver() {
 		positionText.setString(to_string((int)position) + "th");
 
 	field.texture.draw(positionText);
-    field.texture.draw(comboTimer);
-    field.texture.draw(comboText);
-    field.texture.draw(pendingText);
 	field.texture.draw(countdownText);
 	field.texture.draw(awayText);
+	drawGameText();
+}
 
-	field.texture.display();
+void gamePlay::drawNextPiece() {
+	for (int y=0; y<4; y++)
+        for (int x=0; x<4; x++)
+            if (basepiece[nextpiece].grid[y][x] != 0) {
+                	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
+                	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
+            	}
 }
