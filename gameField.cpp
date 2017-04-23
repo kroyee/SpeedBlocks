@@ -1,7 +1,6 @@
 #include "gameField.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "MingwConvert.h"
 using namespace std;
 
 gameField::gameField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font) {

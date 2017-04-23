@@ -1,6 +1,5 @@
 #include "packetcompress.h"
 #include "gamePlay.h"
-#include "MingwConvert.h"
 #include <iostream>
 using namespace std;
 
