@@ -1,7 +1,7 @@
 # SpeedBlocks
 This game tries to be the unofficial successor of Cultris II since the development of this awesome game seems to be dead for many years. If you want to help us, please read the "How to contribute" section below.
 
-#Requirements
+# Requirements
 
 - [SFML](https://www.sfml-dev.org/index.php)
 Version 2.4.2 is used by this project and it's highly recommended not to use an older version.
@@ -10,8 +10,6 @@ Version 2.4.2 is used by this project and it's highly recommended not to use an 
 The game runs fine with the stable 0.7.3 except for a minor bug with when window
 is rezised to a none-standard ratio. If you want it to remove this bug you need the
 latest master from TGUIs github repo
-
-- [boost](http://www.boost.org/) At the moment this project is only using boost/random from the boost libs. (Except MingW users, see below)
 
 - [curl](https://curl.haxx.se/libcurl/)
 
@@ -28,11 +26,11 @@ standard functions to_string() and stoi(). It's replaced with boost/lexical_cast
 if you want to compile with MingW32 you need that too.
 This is again included in the source to make it compile as-is.
 
-#Building
+# Building
 
 Please see the Wiki for additional instructions.
 
-#How to contribute
+# How to contribute
 
 Please read the following before you start working on something.
 
