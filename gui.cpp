@@ -42,6 +42,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       linesBlocked(0),
       clientVersion(0),
       scoreRows(0),
+      udpConfirmed(false),
       gamestate(MainMenu),
       scaleup(0),
       gamedata(sf::seconds(0)),
@@ -169,10 +170,7 @@ void UI::createRoom(const sf::String& name, const sf::String& maxplayers) {
 		return;
 	if (!maxplayers.getSize())
 		return;
-	sf::Uint8 max = stoi(maxplayers.toAnsiString()), packetid = 11; //11-Packet
-	net->packet.clear();
-	net->packet << packetid << name << max;
-	net->sendTCP();
+	sendPacket11(name, stoi(maxplayers.toAnsiString()) );
 	gui.get<tgui::Tab>("opTab")->select(0);
 }
 
@@ -209,20 +207,14 @@ void UI::addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint
 	setRoomPos();
 }
 
-void UI::joinRoom(sf::Uint16 id) { //0-Packet
-	net->packet.clear();
-	sf::Uint8 packetid = 0;
-	net->packet << packetid << id;
-	net->sendTCP();
+void UI::joinRoom(sf::Uint16 id) {
+	sendPacket0(id);
 	away=false;
 	game->autoaway=false;
 }
 
-void UI::leaveRoom() { //1-Packet
-	net->packet.clear();
-	sf::Uint8 packetid = 1;
-	net->packet << packetid;
-	net->sendTCP();
+void UI::leaveRoom() {
+	sendPacket1();
 	inroom=false;
 	setGameState(MainMenu);
 }
@@ -282,11 +274,7 @@ void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) 
 		net->udpSock.unbind();
 		net->udpSock.bind(sf::Socket::AnyPort);
 		net->localUdpPort = net->udpSock.getLocalPort();
-		net->packet.clear();
-		sf::Uint8 packetid = 2; //2-Packet
-		sf::Uint16 port = net->localUdpPort;
-		net->packet << packetid << clientVersion << port << guest << name << pass;
-		net->sendTCP();
+		sendPacket2(name, pass, guest);
 		playonline=true;
 		if (guest)
 			game->field.setName(name);
@@ -435,16 +423,11 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		gui.get("ChatBox", 1)->unfocus();
 		return;
 	}
-	sf::Uint8 packetid = 10;
 	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 		short until = msg.find(' ', 3);
 		sf::String privto = msg.substring(3, until-3);
 		sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
-		net->packet.clear();
-		net->packet << packetid;
-		packetid = 3;
-		net->packet << packetid << privto << privmsg;
-		net->sendTCP();
+		sendPacket10(privto, privmsg);
 		gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 		gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
 		return;
@@ -455,23 +438,7 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		gui.get<tgui::ChatBox>("Lobby2", 1)->addLine(postmsg, sf::Color(200, 200, 50));
 	gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 	gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
-	net->packet.clear(); //10-Packet
-	net->packet << packetid;
-	if (to == "Room") {
-		packetid = 1;
-		net->packet << packetid << msg;
-		net->sendTCP();
-	}
-	else if (to == "Lobby") {
-		packetid = 2;
-		net->packet << packetid << msg;
-		net->sendTCP();
-	}
-	else {
-		packetid = 3;
-		net->packet << packetid << to << msg;
-		net->sendTCP();
-	}
+	sendPacket10(to, msg);
 }
 
 void UI::chattabSelect(const std::string& tab) {
@@ -788,6 +755,20 @@ void UI::mainMenu() {
 	gui.get("Score")->hide();
 	gui.get("GameFields")->hide();
 	gui.get("MainMenu")->show();
+}
+
+void UI::delayCheck() {
+	if (gui.get("QuickMsg")->isVisible())
+		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
+			gui.get("QuickMsg")->hide();
+
+	if (playonline) {
+		if (!udpConfirmed)
+			if (udpPortClock.getElapsedTime() > sf::milliseconds(500)) {
+				sendPacket101();
+				udpPortClock.restart();
+			}
+	}
 }
 
 void UI::setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey) {

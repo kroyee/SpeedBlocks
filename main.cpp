@@ -117,6 +117,8 @@ int main()
         if (gui.playonline)
             while (net.receiveData())
                 gui.handlePacket();
+
+        gui.delayCheck();
         
         switch (gui.gamestate) {
             case CountDown:

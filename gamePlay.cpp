@@ -277,6 +277,7 @@ void gamePlay::makeNewPiece() {
 	nextpiece = rander.getPiece();
 	piece.posX = 3;
 	piece.posY = 2;
+	lockdown=false;
 	if (!possible()) {
 		addPiece();
 		gameover=true;

@@ -78,6 +78,9 @@ public:
 	short scoreRows;
 
 	sf::Clock quickMsgClock;
+	sf::Clock udpPortClock;
+
+	bool udpConfirmed;
 
 	GameStates gamestate;
 
@@ -190,6 +193,23 @@ public:
 	void unAway();
 
 	sf::String getName(sf::Uint16);
+
+	void delayCheck();
+
+	//Send packet functions
+	void sendPacket0(sf::Uint16 id);
+	void sendPacket1();
+	void sendPacket2(const sf::String& name, const sf::String& pass, sf::Uint8 guest);
+	void sendPacket3();
+	void sendPacket4();
+	void sendPacket5(sf::Uint8 amount);
+	void sendPacket6(sf::Uint8 amount);
+	void sendPacket7(sf::Uint8 amount);
+	void sendPacket8();
+	void sendPacket9();
+	void sendPacket10(const sf::String& to, const sf::String& msg);
+	void sendPacket11(const sf::String& name, sf::Uint8 maxPlayers);
+	void sendPacket101();
 };
 
 sf::String SFKeyToString(unsigned int keycode);

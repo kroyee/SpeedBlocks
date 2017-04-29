@@ -159,10 +159,7 @@ sf::String UI::getName(sf::Uint16 id) {
 
 void UI::goAway() {
 	away=true;
-	net->packet.clear();
-	sf::Uint8 packetid = 8; //8-Packet
-	net->packet << packetid;
-	net->sendTCP();
+	sendPacket8();
 	game->gameover=true;
 	game->sendgameover=true;
 	game->awayText.setString("Away");
@@ -172,10 +169,7 @@ void UI::goAway() {
 void UI::unAway() {
 	away=false;
 	game->autoaway=false;
-	net->packet.clear();
-	sf::Uint8 packetid = 9; //9-Packet
-	net->packet << packetid;
-	net->sendTCP();
+	sendPacket9();
 	game->awayText.setString("");
 	game->drawGameOver();
 }
@@ -191,10 +185,6 @@ void UI::handleEvent(sf::Event& event) {
 	enlargePlayfield(event);
 	keyEvents(event, selectchat);
 	scrollBar(event);
-
-	if (gui.get("QuickMsg")->isVisible())
-		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
-			gui.get("QuickMsg")->hide();
 
 	gui.handleEvent(event);
 	if (selectchat)
@@ -423,49 +413,34 @@ void UI::sendGameData() {
 		sendGameState();
 	}
 
-	if (game->linesSent > linesSent) { //5-Packet
-		sf::Uint8 packetid=5;
+	if (game->linesSent > linesSent) {
 		sf::Uint8 amount = game->linesSent-linesSent;
-		net->packet.clear();
-		net->packet << packetid << amount;
-		net->sendTCP();
+		sendPacket5(amount);
 		linesSent = game->linesSent;
 	}
 
-	if (game->garbageCleared > garbageCleared) { //6-Packet
-		sf::Uint8 packetid=6;
+	if (game->garbageCleared > garbageCleared) {
 		sf::Uint8 amount = game->garbageCleared-garbageCleared;
-		net->packet.clear();
-		net->packet << packetid << amount;
-		net->sendTCP();
+		sendPacket6(amount);
 		garbageCleared = game->garbageCleared;
 	}
 
-	if (game->linesBlocked > linesBlocked) { //7-Packet
-		sf::Uint8 packetid=7;
+	if (game->linesBlocked > linesBlocked) {
 		sf::Uint8 amount = game->linesBlocked-linesBlocked;
-		net->packet.clear();
-		net->packet << packetid << amount;
-		net->sendTCP();
+		sendPacket7(amount);
 		linesBlocked = game->linesBlocked;
 	}
 }
 
-void UI::sendGameOver() { //3-Packet
-	net->packet.clear();
-	sf::Uint8 packetid = 3;
-	net->packet << packetid << game->maxCombo << game->linesSent << game->linesRecieved << game->linesBlocked << game->bpm << game->linesPerMinute;
-	net->sendTCP();
+void UI::sendGameOver() {
+	sendPacket3();
 	game->sendgameover=false;
 
 	sendGameState();
 }
 
-void UI::sendGameWinner() { //4-Packet
-	net->packet.clear();
-	sf::Uint8 packetid = 4;
-	net->packet << packetid << game->maxCombo << game->linesSent << game->linesRecieved << game->linesBlocked << game->bpm << game->linesPerMinute;
-	net->sendTCP();
+void UI::sendGameWinner() {
+	sendPacket4();
 	game->winner=false;
 }
 
@@ -484,6 +459,7 @@ void UI::handlePacket() {
 			inroom=false;
 			playonline=false;
 			setGameState(MainMenu);
+			quickMsg("Disconnected from server");
 		break;
 		case 100: //Game data
 		{
@@ -768,6 +744,9 @@ void UI::handlePacket() {
 			net->packet >> id;
 			removeRoom(id);
 		}
+		break;
+		case 19: // UDP-port was established by server
+			udpConfirmed=true;
 		break;
 	}
 }

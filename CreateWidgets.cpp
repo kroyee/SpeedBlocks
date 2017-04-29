@@ -197,25 +197,25 @@ void UI::createAllWidgets() {
 	GenOpt-> add(DoB,"BindDown");
 
 	tgui::Label::Ptr CwL = themeTG->load("Label");
-	CwL->setPosition(0, 183);
+	CwL->setPosition(0, 223);
 	CwL->setSize(90, 30);
 	CwL->setText("Rotate >");
 	CwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CwL);
 	tgui::Button::Ptr CwB = themeTG->load("Button");
-	CwB->setPosition(100, 180);
+	CwB->setPosition(100, 220);
 	CwB->connect("pressed", &UI::setKey, this, CwB, std::ref(options->rcw));
 	CwB->setText(SFKeyToString(options->rcw));
 	GenOpt->add(CwB,"BindRCW");
 
 	tgui::Label::Ptr CcL = themeTG->load("Label");
-	CcL->setPosition(0, 223);
+	CcL->setPosition(0, 183);
 	CcL->setSize(90, 30);
 	CcL->setText("Rotate <");
 	CcL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CcL);
 	tgui::Button::Ptr CcB = themeTG->load("Button");
-	CcB->setPosition(100, 220);
+	CcB->setPosition(100, 180);
 	CcB->connect("pressed", &UI::setKey, this, CcB, std::ref(options->rccw));
 	CcB->setText(SFKeyToString(options->rccw));
 	GenOpt->add(CcB,"BindRCCW");
