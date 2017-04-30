@@ -38,6 +38,7 @@ void PacketCompress::extract() {
 	getBits(temp, 5); comboText=temp;
 	getBits(temp, 8); pendingText=temp;
 	getBits(temp, 8); bpmText=temp;
+	getBits(temp, 7); comboTimerCount=temp;
 }
 
 void PacketCompress::getBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -106,6 +107,8 @@ void PacketCompress::compress() {
 	else
 		tmp = game->bpmTextVal;
 	addBits(tmp, 8);
+	tmp = game->comboTimer.getPointCount()-2;
+	addBits(tmp, 7);
 }
 
 void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -139,6 +142,7 @@ void PacketCompress::copy() {
 	field->bpmText.setString(to_string(bpmText));
 	field->pendingText.setString(to_string(pendingText));
 	field->comboText.setString(to_string(comboText));
+	field->setComboTimer(comboTimerCount);
 }
 
 bool PacketCompress::validate() {

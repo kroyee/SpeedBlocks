@@ -58,10 +58,13 @@ public:
 
     sf::Text comboText, pendingText, bpmText;
 
+    sf::ConvexShape comboTimer;
+
     void drawField();
     void preDrawField();
 
     void drawPiece();
+    bool setComboTimer(sf::Uint8 count);
     void drawText();
 };
 

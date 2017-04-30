@@ -20,6 +20,7 @@ public:
 	sf::Uint8 grid[4][4];
 	short nextpiece, npcol, nprot;
 	sf::Uint8 comboText, pendingText, bpmText;
+	sf::Uint8 comboTimerCount;
 
 	void compress();
 	void extract();

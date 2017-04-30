@@ -124,6 +124,21 @@ void obsField::drawPiece() {
                 }
 }
 
+#define PI 3.14159265
+bool obsField::setComboTimer(sf::Uint8 count) {
+    if (count>100)
+        count=100;
+    if (comboTimer.getPointCount() == static_cast<unsigned int>(count+2))
+        return false;
+    comboTimer.setPointCount(count+2);
+
+    comboTimer.setPoint(0, sf::Vector2f(60, 60));
+    for (int x=1; x<(count+2); x++)
+        comboTimer.setPoint(x, sf::Vector2f(60 + 60*cos((PI*2)/100 * (x-26)), 60 + 60*sin((PI*2)/100 * (x-26) )));
+
+    return true;
+}
+
 void obsField::drawText() {
     if (position == 0)
         positionText.setString("");
@@ -144,6 +159,7 @@ void obsField::drawText() {
     texture.draw(awayText);
     texture.draw(positionText);
     texture.draw(nameTag);
+    texture.draw(comboTimer);
     texture.draw(comboText);
     texture.draw(pendingText);
     texture.draw(bpmText);
@@ -153,6 +169,12 @@ obsField::obsField(const obsField& field) : gameField(field) {
     id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0; away=false; position=0;
     positionText=field.positionText; awayText=field.awayText;
     comboText=field.comboText; pendingText=field.pendingText; bpmText=field.bpmText;
+
+    comboTimer.setPosition(315, 240);
+    comboTimer.setFillColor(sf::Color(255,0,0));
+
+    setComboTimer(0);
+
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
             grid[y][x]=0;
@@ -181,6 +203,9 @@ obsField::obsField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font1, 
     bpmText.setCharacterSize(48);
     bpmText.setColor(sf::Color::White);
     bpmText.setPosition(360, 400);
+
+    comboTimer.setPosition(315, 240);
+    comboTimer.setFillColor(sf::Color(255,0,0));
 
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
