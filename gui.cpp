@@ -197,8 +197,6 @@ void UI::addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint
 	playRooms.back().button->connect("Pressed", &UI::joinRoom, this, id);
 	gui.get<tgui::Panel>("Rooms")->add(playRooms.back().button);
 
-	cout << "adding room " << playRooms.back().name.toAnsiString() << " as " << playRooms.back().id;
-
 	playRooms.back().label = themeTG->load("Label");
 	playRooms.back().label->setText(to_string(curr) + "/" + to_string(max) + " players");
 
@@ -765,7 +763,7 @@ void UI::delayCheck() {
 	if (playonline) {
 		if (!udpConfirmed)
 			if (udpPortClock.getElapsedTime() > sf::milliseconds(500)) {
-				sendPacket101();
+				sendPacket99();
 				udpPortClock.restart();
 			}
 	}

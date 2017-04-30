@@ -209,7 +209,7 @@ public:
 	void sendPacket9();
 	void sendPacket10(const sf::String& to, const sf::String& msg);
 	void sendPacket11(const sf::String& name, sf::Uint8 maxPlayers);
-	void sendPacket101();
+	void sendPacket99();
 };
 
 sf::String SFKeyToString(unsigned int keycode);

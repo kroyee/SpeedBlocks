@@ -100,8 +100,8 @@ void UI::sendPacket11(const sf::String& name, sf::Uint8 maxPlayers) {
 	net->sendTCP();
 }
 
-void UI::sendPacket101() {
-	sf::Uint8 packetid = 101;
+void UI::sendPacket99() {
+	sf::Uint8 packetid = 99;
 	net->packet.clear();
 	net->packet << packetid << myId;
 	net->sendUDP();
