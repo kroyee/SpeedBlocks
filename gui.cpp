@@ -44,6 +44,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       scoreRows(0),
       udpConfirmed(false),
       gamestate(MainMenu),
+      spamCount(0),
       scaleup(0),
       gamedata(sf::seconds(0)),
       gamedatacount(0),
@@ -421,6 +422,15 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		gui.get("ChatBox", 1)->unfocus();
 		return;
 	}
+	if (spamCount>7000) {
+		gui.get<tgui::ChatBox>(to, 1)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
+		if (to == "Lobby")
+			gui.get<tgui::ChatBox>("Lobby2", 1)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
+		gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
+		gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
+		spamCount=12000;
+		return;
+	}
 	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 		short until = msg.find(' ', 3);
 		sf::String privto = msg.substring(3, until-3);
@@ -428,15 +438,22 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		sendPacket10(privto, privmsg);
 		gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 		gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
+		spamCount+=2000;
 		return;
 	}
 	sf::String postmsg = game->field.name + ": " + msg;
-	gui.get<tgui::ChatBox>(to, 1)->addLine(postmsg, sf::Color(200, 200, 50));
-	if (to == "Lobby")
-		gui.get<tgui::ChatBox>("Lobby2", 1)->addLine(postmsg, sf::Color(200, 200, 50));
 	gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 	gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
-	sendPacket10(to, msg);
+
+	for (int i=0; i<msg.getSize(); i++)
+		if (msg[i] != ' ') {
+			gui.get<tgui::ChatBox>(to, 1)->addLine(postmsg, sf::Color(200, 200, 50));
+			if (to == "Lobby")
+				gui.get<tgui::ChatBox>("Lobby2", 1)->addLine(postmsg, sf::Color(200, 200, 50));
+			sendPacket10(to, msg);
+			spamCount+=2000;
+			return;
+		}
 }
 
 void UI::chattabSelect(const std::string& tab) {
@@ -767,6 +784,10 @@ void UI::delayCheck() {
 				udpPortClock.restart();
 			}
 	}
+
+	spamCount-=spamClock.restart().asMilliseconds();
+	if (spamCount<0)
+		spamCount=0;
 }
 
 void UI::setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey) {

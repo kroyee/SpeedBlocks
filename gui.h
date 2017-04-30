@@ -84,6 +84,9 @@ public:
 
 	GameStates gamestate;
 
+	short spamCount;
+	sf::Clock spamClock;
+
 	void createAllWidgets();
 
 	void setKey(tgui::Button::Ptr butt, sf::Keyboard::Key& skey);
