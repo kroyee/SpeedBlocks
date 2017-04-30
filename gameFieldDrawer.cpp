@@ -116,7 +116,10 @@ void UI::resetOppFields() {
 }
 
 void UI::drawOppField(obsField& field) {
-	field.drawField();
+	if (net->packetid == 102)
+		field.preDrawField();
+	else
+		field.drawField();
 
 	for (int rot=0; rot < field.nprot; rot++)
 		options->basepiece[field.nextpiece].rcw();
@@ -397,6 +400,8 @@ void UI::sendGameState() { //UDP Packet outgoing
 	compressor.compress();
 	net->packet.clear();
 	sf::Uint8 packetid = 100;
+	if (gamestate == CountDown)
+		packetid = 102;
 	net->packet << packetid << myId << gamedatacount;
 	gamedatacount++;
 	for (int i=0; i<compressor.tmpcount; i++)
@@ -462,6 +467,7 @@ void UI::handlePacket() {
 			quickMsg("Disconnected from server");
 		break;
 		case 100: //Game data
+		case 102:
 		{
 			sf::Uint16 clientid;
 			sf::Uint8 datacount;
@@ -519,6 +525,8 @@ void UI::handlePacket() {
 		break;
 		case 2://Countdown
 		{
+			if (gamestate != CountDown)
+				setGameState(CountDown);
 			if (!game->rander.total)
 				game->startCountdown();
 			sf::Uint8 countdown;
