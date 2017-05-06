@@ -273,6 +273,8 @@ void gamePlay::makeNewPiece() {
 			piece.grid[y][x] = basepiece[nextpiece].grid[y][x];
 	piece.lpiece=basepiece[nextpiece].lpiece;
 	piece.tile=basepiece[nextpiece].tile;
+	piece.piece=basepiece[nextpiece].piece;
+	piece.current_rotation=basepiece[nextpiece].current_rotation;
 
 	nextpiece = rander.getPiece();
 	piece.posX = 3;
@@ -473,6 +475,8 @@ void gamePlay::updateBasePieces() {
 		basepiece[p].lpiece=false;
 		basepiece[p].tile=options.basepiece[p].tile;
 		basepiece[p].rotation=options.basepiece[p].rotation;
+		basepiece[p].current_rotation=options.basepiece[p].current_rotation;
+		basepiece[p].piece=p;
 		for (int y=0; y<4; y++)
 			for (int x=0; x<4; x++)
 				basepiece[p].grid[y][x] = options.basepiece[p].grid[y][x];

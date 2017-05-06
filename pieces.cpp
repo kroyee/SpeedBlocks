@@ -19,6 +19,10 @@ void basePieces::rcw() {
 			for (int y=0; y<3; y++)
 				grid[x][2-y]=tmpgrid[y][x];
 	}
+	if (current_rotation == 3)
+		current_rotation = 0;
+	else
+		current_rotation++;
 }
 
 void basePieces::rccw() {
@@ -40,4 +44,8 @@ void basePieces::rccw() {
 			for (int y=0; y<3; y++)
 				grid[2-x][y]=tmpgrid[y][x];
 	}
+	if (current_rotation == 0)
+		current_rotation = 3;
+	else
+		current_rotation--;
 }

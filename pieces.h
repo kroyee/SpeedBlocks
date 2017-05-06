@@ -8,13 +8,14 @@ public:
 	sf::Uint8 grid[4][4];
 
 	sf::Uint8 rotation;
+	sf::Uint8 current_rotation;
 
 	short posX;
 	short posY;
 
 	short lpiece;
 
-	sf::Uint8 tile;
+	sf::Uint8 tile, piece;
 
 	void rcw();
 	void rccw();

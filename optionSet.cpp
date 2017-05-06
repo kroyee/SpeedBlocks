@@ -182,7 +182,9 @@ void optionSet::initBasePieces() {
 		basepiece[p].posY=0;
 		basepiece[p].lpiece=false;
 		basepiece[p].rotation=piecerotation[p];
+		basepiece[p].current_rotation=0;
 		basepiece[p].tile=colormap[p];
+		basepiece[p].piece=p;
 		for (int y=0; y<4; y++)
 			for (int x=0; x<4; x++) {
                 basepiece[p].grid[y][x] = value[vc];
