@@ -1,4 +1,6 @@
 #include "Recording.h"
+#include <iostream>
+#include <fstream>
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -12,8 +14,7 @@ void Recording::clear() {
 			starting_position[y][x] = 0;
 	duration = sf::seconds(0);
 	name = "";
-	while (events.size() > 0)
-		events.pop_back();
+	events.clear();
 }
 
 void Recording::start() {
@@ -39,12 +40,12 @@ void Recording::addEvent(RecordingEvent& event) {
 }
 
 void Recording::save() {
-	ofstream file(resourcePath() + "Recordings/" + name);
-	int duplicate_counter=2;
+	time_t rawtime;
+	time(&rawtime);
+	std::ofstream file(resourcePath() + "Recordings/" + name + " " + ctime(&rawtime), std::ios::trunc);
 	while (!file.is_open()) {
-		if (duplicate_counter == 1000)
-			return;
-		ofstream file(resourcePath() + "Recordings/" + name + "-" + to_string(duplicate_counter));
+		std::cout << "Error saving recording" << std::endl;
+		return;
 	}
 
 	for (auto&& event : events) {
@@ -57,14 +58,14 @@ void Recording::save() {
 			break;
 			case 1:
 				file << "1." << (int)event.piece << "." << (int)event.rotation << "." << (int)event.color << ".";
-				file << (int)event.x << "." << (int)event.y << "." << time.asMilliseconds() << ".";
+				file << (int)event.x << "." << (int)event.y << "." << event.time.asMilliseconds() << ".";
 			break;
 			case 2:
 				file << "2." << (int)event.piece << "." << (int)event.rotation << "." << (int)event.color << ".";
-				file << (int)event.x << "." << (int)event.y << "." << time.asMilliseconds() << ".";
+				file << (int)event.x << "." << (int)event.y << "." << event.time.asMilliseconds() << ".";
 			break;
 			case 3:
-				file << "3." << (int)event.y << "." << time.asMilliseconds();
+				file << "3." << (int)event.y << "." << event.time.asMilliseconds();
 			break;
 		}
 	}

@@ -147,19 +147,29 @@ int main()
                     if (game.winner)
                         gui.sendGameWinner();
             break;
+            case Replay:
+                if (game.playReplay())
+                    gui.setGameState(GameOver);
+            break;
+            default:
+            break;
         }
 
         // Drawing to the screen
 
         current = frameClock.getElapsedTime();
         if (current > nextDraw || game.options.vSync) {
-            if (game.drawMe && gui.gamestate == Game) {
+            if (game.drawMe && (gui.gamestate == Game || gui.gamestate == Replay)) {
                 game.draw();
                 game.drawMe=false;
             }
+            if (game.preDrawMe && gui.gamestate == Replay) {
+                game.preDraw();
+                game.preDrawMe=false;
+            }
             nextDraw+=game.options.frameDelay;
             window.draw(textureBase.background);
-            if (gui.gamestate == CountDown || gui.gamestate == Game || gui.gamestate == GameOver) {
+            if (gui.gamestate == CountDown || gui.gamestate == Game || gui.gamestate == GameOver || gui.gamestate == Replay) {
                 window.draw( game.field.sprite );
                 gui.drawFields();
             }

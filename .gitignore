@@ -1,5 +1,6 @@
-#game configuration
+#game configuration & recording files
 *.cfg
+/Recordings/*
 
 #possible lib archives
 *.tar.*
@@ -23,3 +24,6 @@ build/
 
 #mac shit
 .DS_Store
+
+#use .gitkeep to track empty directories
+!*.gitkeep

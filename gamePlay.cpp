@@ -153,6 +153,8 @@ bool gamePlay::mRight() {
 	piece.mright();
 	if (possible()) {
 		drawMe=true;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		return true;
 	}
 	else {
@@ -165,6 +167,8 @@ bool gamePlay::mLeft() {
 	piece.mleft();
 	if (possible()) {
 		drawMe=true;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		return true;
 	}
 	else {
@@ -179,6 +183,8 @@ bool gamePlay::mDown() {
 		drawMe=true;
 		dclock.restart();
 		lockdown=false;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		return true;
 	}
 	else {
@@ -205,10 +211,14 @@ void gamePlay::rcw() {
 	autoaway=false;
 	piece.rcw();
 	if (possible()) {
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		drawMe=true; return;
 	}
 	if (kickTest()) {
 		drawMe=true;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		return;
 	}
 
@@ -220,10 +230,14 @@ void gamePlay::rccw() {
 	autoaway=false;
 	piece.rccw();
 	if (possible()) {
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		drawMe=true; return;
 	}
 	if (kickTest()) {
 		drawMe=true;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		return;
 	}
 
@@ -236,10 +250,14 @@ void gamePlay::r180() {
 	piece.rccw();
 	piece.rccw();
 	if (possible()) {
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		drawMe=true; return;
 	}
 	if (kickTest()) {
 		drawMe=true;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 		return;
 	}
 
@@ -261,6 +279,8 @@ bool gamePlay::kickTest() {
 }
 
 void gamePlay::addPiece() {
+	if (recorder.rec)
+		addRecEvent(2, 0);
 	for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
             if (piece.grid[y][x])
@@ -268,13 +288,7 @@ void gamePlay::addPiece() {
 }
 
 void gamePlay::makeNewPiece() {
-	for (int x=0; x<4; x++)
-		for (int y=0; y<4; y++)
-			piece.grid[y][x] = basepiece[nextpiece].grid[y][x];
-	piece.lpiece=basepiece[nextpiece].lpiece;
-	piece.tile=basepiece[nextpiece].tile;
-	piece.piece=basepiece[nextpiece].piece;
-	piece.current_rotation=basepiece[nextpiece].current_rotation;
+	copyPiece(nextpiece);
 
 	nextpiece = rander.getPiece();
 	piece.posX = 3;
@@ -287,6 +301,21 @@ void gamePlay::makeNewPiece() {
 	}
 	pieceCount++;
 	bpmCount.push_front(keyclock.getElapsedTime());
+
+	if (recorder.rec) {
+		addRecEvent(1, 0);
+		addRecEvent(6, 0);
+	}
+}
+
+void gamePlay::copyPiece(sf::Uint8 np) {
+	for (int x=0; x<4; x++)
+		for (int y=0; y<4; y++)
+			piece.grid[y][x] = basepiece[np].grid[y][x];
+	piece.lpiece=basepiece[np].lpiece;
+	piece.tile=basepiece[np].tile;
+	piece.piece=basepiece[np].piece;
+	piece.current_rotation=basepiece[np].current_rotation;
 }
 
 void gamePlay::draw() {
@@ -456,6 +485,10 @@ void gamePlay::delayCheck() {
 			pushGarbage();
 			drawMe=true;
 		}
+
+	if (recorder.rec)
+		if (recorder.timer.getElapsedTime() - recorder.events.back().time > sf::milliseconds(100))
+			addRecEvent(5, 0);
 }
 
 void gamePlay::setPieceOrientation() {
@@ -535,28 +568,31 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	comboCount++;
 	comboTime+=sf::seconds((1.0/comboCount) + ((tmplines+1)/2.0)*(1.5/comboCount));
 
-	if (options.sound) {
-		if (comboCount==5)
-			sounds->combo5();
-		else if (comboCount==8)
-			sounds->combo8();
-		else if (comboCount==11)
-			sounds->combo11();
-		else if (comboCount==13)
-			sounds->combo13();
-		else if (comboCount==15)
-			sounds->combo15();
-		else if (comboCount==17)
-			sounds->combo17();
-		else if (comboCount==19)
-			sounds->combo19();
-		else if (comboCount==21)
-			sounds->combo21();
-	}
+	if (options.sound)
+		playComboSound(comboCount);
 
 	setComboTimer();
 	comboText.setString(to_string(comboCount));
 	comboTextVal = comboCount;
+}
+
+void gamePlay::playComboSound(sf::Uint8 combo) {
+	if (combo==5)
+		sounds->combo5();
+	else if (combo==8)
+		sounds->combo8();
+	else if (combo==11)
+		sounds->combo11();
+	else if (combo==13)
+		sounds->combo13();
+	else if (combo==15)
+		sounds->combo15();
+	else if (combo==17)
+		sounds->combo17();
+	else if (combo==19)
+		sounds->combo19();
+	else if (combo==21)
+		sounds->combo21();
 }
 
 void gamePlay::addGarbage(short add) {
@@ -591,19 +627,29 @@ void gamePlay::pushGarbage() {
 	pendingText.setString(to_string(total));
 	pendingTextVal=total;
 
-	for (int y=0; y<21; y++)
-		for (int x=0; x<10; x++)
-			field.square[y][x]=field.square[y+1][x];
-	for (int x=0; x<10; x++)
-		field.square[21][x]=8;
-	field.square[21][rander.getHole()]=0;
+	sf::Uint8 hole = rander.getHole();
+	addGarbageLine(hole);
+
+	if (recorder.rec)
+		addRecEvent(4, hole);
 
 	if (!possible()) {
 		piece.mup();
 		if (!lockdown)
 			lockDownTime=keyclock.getElapsedTime()+sf::milliseconds(400);
 		lockdown=true;
+		if (recorder.rec)
+			addRecEvent(1, 0);
 	}
+}
+
+void gamePlay::addGarbageLine(sf::Uint8 hole) {
+	for (int y=0; y<21; y++)
+		for (int x=0; x<10; x++)
+			field.square[y][x]=field.square[y+1][x];
+	for (int x=0; x<10; x++)
+		field.square[21][x]=8;
+	field.square[21][hole]=0;
 }
 
 bool gamePlay::setComboTimer() {
@@ -617,13 +663,16 @@ bool gamePlay::setComboTimer() {
 
 	if (comboTimer.getPointCount() == static_cast<unsigned int>(count+2))
 		return false;
+	setComboTimerCount(count);
+    return true;
+}
+
+void gamePlay::setComboTimerCount(sf::Uint8 count) {
 	comboTimer.setPointCount(count+2);
 
     comboTimer.setPoint(0, sf::Vector2f(60, 60));
     for (int x=1; x<(count+2); x++)
         comboTimer.setPoint(x, sf::Vector2f(60 + 60*cos((PI*2)/100 * (x-26)), 60 + 60*sin((PI*2)/100 * (x-26) )));
-
-    return true;
 }
 
 void gamePlay::startCountdown() {
@@ -655,6 +704,8 @@ void gamePlay::startCountdown() {
 	while (garbage.size())
 		garbage.pop_front();
 	preDraw();
+	if (recorder.rec)
+		addRecEvent(7, 3);
 }
 
 bool gamePlay::countDown() {
@@ -669,11 +720,15 @@ bool gamePlay::countDown() {
 			if (options.sound)
 				sounds->startBeep1();
 			preDraw();
+			if (recorder.rec)
+				addRecEvent(7, 4-countDowncount);
 			return false;
 		}
 		else {
 			if (options.sound)
 				sounds->startBeep2();
+			if (recorder.rec)
+				addRecEvent(7, 0);
 			return true;
 		}
 	}
@@ -692,6 +747,8 @@ void gamePlay::countDown(short c) {
 			sounds->startBeep2();
 	}
 	preDraw();
+	if (recorder.rec)
+		addRecEvent(7, c);
 }
 
 bool gamePlay::gameOver() {
@@ -764,4 +821,156 @@ void gamePlay::drawNextPiece() {
                 	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
                 	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
             	}
+}
+
+void gamePlay::addRecEvent(sf::Uint8 type, sf::Uint8 value) {
+	RecordingEvent event;
+	event.type = type;
+	switch (type) {
+		case 1:
+		case 2:
+			event.piece = piece.piece;
+			event.rotation = piece.current_rotation;
+			event.color = piece.tile;
+			event.pending = pendingTextVal;
+			event.combo = comboTextVal;
+			event.bpm = bpmTextVal;
+			event.comboTimer = comboTimer.getPointCount()-2;
+			event.x = piece.posX;
+			event.y = piece.posY;
+			recorder.addEvent(event);
+		break;
+		case 3:
+		break;
+		case 4:
+			event.x = value;
+		case 5:
+			event.pending = pendingTextVal;
+			event.combo = comboTextVal;
+			event.bpm = bpmTextVal;
+			event.comboTimer = comboTimer.getPointCount()-2;
+			recorder.addEvent(event);
+		break;
+		case 6:
+			event.piece = basepiece[nextpiece].piece;
+			event.rotation = basepiece[nextpiece].current_rotation;
+			event.color = basepiece[nextpiece].tile;
+			event.pending = pendingTextVal;
+			event.combo = comboTextVal;
+			event.bpm = bpmTextVal;
+			event.comboTimer = comboTimer.getPointCount()-2;
+			recorder.addEvent(event);
+		break;
+		case 7:
+			event.piece = basepiece[nextpiece].piece;
+			event.rotation = basepiece[nextpiece].current_rotation;
+			event.color = basepiece[nextpiece].tile;
+			event.pending = value;
+			recorder.addEvent(event);
+		break;
+	}
+}
+
+void gamePlay::startReplay() {
+	recorder.timer.restart();
+	recorder.currentEvent = 0;
+	recorder.prevCombo = 0;
+	recorder.halt = false;
+}
+
+bool gamePlay::playReplay() {
+	if (recorder.halt)
+		return true;
+	sf::Time currentTime = recorder.timer.getElapsedTime();
+	for ( ; currentTime>recorder.events[recorder.currentEvent].time; recorder.currentEvent++) {
+		auto&& event = recorder.events[recorder.currentEvent];
+		switch (event.type) {
+			case 100:
+				field.clear();
+			break;
+			case 101:
+				recorder.halt=true;
+				drawMe=true;
+				return false;
+			break;
+			case 1:
+				copyPiece(event.piece);
+				while (piece.current_rotation != event.rotation)
+					piece.rcw();
+				piece.tile = event.color;
+				piece.posX = event.x;
+				piece.posY = event.y;
+
+				updateReplayText(event);
+				drawMe = true;
+			break;
+			case 2:
+			{
+				copyPiece(event.piece);
+				while (piece.current_rotation != event.rotation)
+					piece.rcw();
+				piece.tile = event.color;
+				piece.posX = event.x;
+				piece.posY = event.y;
+				addPiece();
+				sf::Vector2i lines = field.clearlines();
+				if (options.sound) {
+					if (lines.x == 0)
+						sounds->pieceDrop();
+					else
+						sounds->lineClear();
+				}
+
+				updateReplayText(event);
+				drawMe = true;
+			}
+			break;
+			case 4:
+				addGarbageLine(event.x);
+
+				updateReplayText(event);
+				drawMe=true;
+			break;
+			case 5:
+				updateReplayText(event);
+				drawMe=true;
+			break;
+			case 6:
+				nextpiece = event.piece;
+
+				updateReplayText(event);
+				drawMe=true;
+			break;
+			case 7:
+				countdownText.setPosition(130,210);
+				countdownText.setCharacterSize(96);
+				countdownText.setString(to_string(event.pending));
+				if (options.sound) {
+					if (event.pending)
+						sounds->startBeep1();
+					else
+						sounds->startBeep2();
+				}
+
+				if (event.pending)
+					preDrawMe=true;
+				else
+					drawMe=true;
+			break;
+		}
+	}
+	return false;
+}
+
+void gamePlay::updateReplayText(RecordingEvent& event) {
+	bpmText.setString(to_string(event.bpm));
+	comboText.setString(to_string(event.combo));
+	pendingText.setString(to_string(event.pending));
+
+	setComboTimerCount(event.comboTimer);
+
+	if (event.combo != recorder.prevCombo)
+		if (options.sound)
+			playComboSound(event.combo);
+	recorder.prevCombo = event.combo;
 }

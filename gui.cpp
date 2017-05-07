@@ -354,6 +354,9 @@ void UI::setGameState(GameStates state) {
         if (game->winner)
             sendGameWinner();
 	}
+	else if (state == Replay) {
+		game->startReplay();
+	}
 
 	gamestate = state;
 }
@@ -445,7 +448,7 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 	gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 	gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
 
-	for (int i=0; i<msg.getSize(); i++)
+	for (unsigned int i=0; i<msg.getSize(); i++)
 		if (msg[i] != ' ') {
 			gui.get<tgui::ChatBox>(to, 1)->addLine(postmsg, sf::Color(200, 200, 50));
 			if (to == "Lobby")

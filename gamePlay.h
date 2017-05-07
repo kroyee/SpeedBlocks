@@ -8,6 +8,7 @@
 #include "randomizer.h"
 #include "gameField.h"
 #include "textures.h"
+#include "Recording.h"
 
 class soundBank;
 
@@ -30,6 +31,8 @@ public:
 	soundBank* sounds;
 
 	randomizer rander;
+
+	Recording recorder;
 
 	sf::Clock dclock;
 	sf::Clock iclock;
@@ -78,7 +81,7 @@ public:
 	bool sendgameover;
 	bool winner;
 	bool autoaway;
-	bool drawMe;
+	bool drawMe, preDrawMe;
 
 	bool rKey;
 	bool lKey;
@@ -120,6 +123,7 @@ public:
 
 	void addPiece();
 	void makeNewPiece();
+	void copyPiece(sf::Uint8 np);
 
 	void draw();
 	void preDraw();
@@ -130,12 +134,15 @@ public:
 	void updateBasePieces();
 
 	void sendLines(sf::Vector2i lines);
+	void playComboSound(sf::Uint8 combo);
 
 	void addGarbage(short add);
 	void pushGarbage();
+	void addGarbageLine(sf::Uint8 hole);
 	void clearGarbage();
 
 	bool setComboTimer();
+	void setComboTimerCount(sf::Uint8 count);
 
 	void startCountdown();
 	bool countDown();
@@ -147,6 +154,11 @@ public:
 	void drawText();
 	void drawNextPiece();
 	void drawGameText();
+
+	void addRecEvent(sf::Uint8 type, sf::Uint8 value);
+	void startReplay();
+	bool playReplay();
+	void updateReplayText(RecordingEvent& event);
 };
 
 #endif
