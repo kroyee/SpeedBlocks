@@ -77,15 +77,20 @@ public:
 
 	short scoreRows;
 
-	sf::Clock quickMsgClock;
-	sf::Clock udpPortClock;
+	sf::Time quickMsgTime;
+	sf::Time udpPortTime;
+	sf::Time pingTime;
+	sf::Time spamTime;
+	sf::Clock delayClock;
 
-	bool udpConfirmed;
+	bool udpConfirmed, pingReturned;
+
+	sf::Text ping, frameRate, inputRate, longestFrame, performanceLabel;
+	sf::Uint8 pingColor, frameRateColor, inputRateColor, longestFrameColor;
 
 	GameStates gamestate;
 
 	short spamCount;
-	sf::Clock spamClock;
 
 	void createAllWidgets();
 
@@ -148,6 +153,8 @@ public:
 
 	void createRoom(const sf::String&, const sf::String&);
 
+	void drawPerformanceOutput();
+
 	//GameFIeldDrawer stuff
 
 	std::list<obsField> fields;
@@ -190,7 +197,6 @@ public:
 	void sendGameData();
 	void sendGameOver();
 	void sendGameWinner();
-	void sendGameState();
 
 	void goAway();
 	void unAway();
@@ -213,6 +219,8 @@ public:
 	void sendPacket10(const sf::String& to, const sf::String& msg);
 	void sendPacket11(const sf::String& name, sf::Uint8 maxPlayers);
 	void sendPacket99();
+	void sendPacket100();
+	void sendPacket102();
 };
 
 sf::String SFKeyToString(unsigned int keycode);

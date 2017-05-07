@@ -106,3 +106,27 @@ void UI::sendPacket99() {
 	net->packet << packetid << myId;
 	net->sendUDP();
 }
+
+// Sends the current gamestate to server, ALSO USES packetid 101!!!
+void UI::sendPacket100() {
+	compressor.compress();
+	net->packet.clear();
+	sf::Uint8 packetid = 100;
+	if (gamestate == CountDown)
+		packetid = 101;
+	net->packet << packetid << myId << gamedatacount;
+	gamedatacount++;
+	for (int i=0; i<compressor.tmpcount; i++)
+		net->packet << compressor.tmp[i];
+	if (compressor.bitcount>0)
+		net->packet << compressor.tmp[compressor.tmpcount];
+	net->sendUDP();
+}
+
+// Ping packet to check latency with server
+void UI::sendPacket102() {
+	net->packet.clear();
+	sf::Uint8 packetid = 102;
+	net->packet << packetid << myId;
+	net->sendUDP();
+}

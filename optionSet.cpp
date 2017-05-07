@@ -27,6 +27,7 @@ void optionSet::loadStandardOptions() {
 		ghostpiece = true;
 		fullscreen = false;
 		vSync = false;
+		performanceOutput = true;
 
 		repeatDelay = sf::milliseconds(150);
 		repeatSpeed = sf::milliseconds(0);
@@ -116,6 +117,7 @@ void optionSet::loadOptions() {
 			else if (keyword == "framedelay") frameDelay = sf::microseconds(stoi(line));
 			else if (keyword == "inputdelay") inputDelay = sf::microseconds(stoi(line));
 			else if (keyword == "vsync") vSync = stoi(line);
+			else if (keyword == "performanceOutput") performanceOutput = stoi(line);
 			else countset--;
 		}
 		file.close();
@@ -123,7 +125,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=39)
+	if (countset!=40)
 		success = 0;
 
 	if (!success)
@@ -166,7 +168,8 @@ void optionSet::saveOptions() {
 		file << "repeatspeeddown=" << repeatSpeedDown.asMilliseconds() << endl;
 		file << "framedelay=" << frameDelay.asMicroseconds() << endl;
 		file << "inputdelay=" << inputDelay.asMicroseconds() << endl;
-		file << "vsync=" << vSync;
+		file << "vsync=" << vSync << endl;
+		file << "performanceOutput=" << performanceOutput;
 	}
 	else
 		cout << "Failed" << endl;

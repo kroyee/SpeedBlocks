@@ -43,6 +43,8 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       clientVersion(0),
       scoreRows(0),
       udpConfirmed(false),
+      pingReturned(false),
+      pingColor(255),
       gamestate(MainMenu),
       spamCount(0),
       scaleup(0),
@@ -58,6 +60,31 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
 	initSprites();
 
 	createAllWidgets();
+
+
+	performanceLabel.setFont(*printFont);
+	performanceLabel.setCharacterSize(10);
+	performanceLabel.setColor(sf::Color::White);
+	performanceLabel.setPosition(846,2);
+	performanceLabel.setString("LFT IPS  FPS MS");
+
+	ping.setFont(*printFont);
+	ping.setCharacterSize(12);
+	ping.setColor(sf::Color::Black);
+	ping.setPosition(932,12);
+	ping.setString("0");
+	frameRate.setFont(*printFont);
+	frameRate.setCharacterSize(12);
+	frameRate.setColor(sf::Color::Black);
+	frameRate.setPosition(902,12);
+	inputRate.setFont(*printFont);
+	inputRate.setCharacterSize(12);
+	inputRate.setColor(sf::Color::Black);
+	inputRate.setPosition(872,12);
+	longestFrame.setFont(*printFont);
+	longestFrame.setCharacterSize(12);
+	longestFrame.setColor(sf::Color::Black);
+	longestFrame.setPosition(849,12);
 }
 
 void UI::sendReport(sf::String happened, sf::String expected, sf::String reproduce, sf::String contact, tgui::ChildWindow::Ptr win) {
@@ -385,6 +412,8 @@ void UI::opTabSelect(const std::string& tab) {
 		gui.get("MainMenu")->show();
 		net->disconnect();
 		playonline=false;
+		ping.setString("0");
+		pingColor=255;
 	}
 }
 
@@ -406,7 +435,7 @@ void UI::ausN() {
 void UI::quickMsg(const sf::String& msg) {
 	gui.get<tgui::Label>("QuickMsg")->setText(msg);
 	gui.get<tgui::Label>("QuickMsg")->show();
-	quickMsgClock.restart();
+	quickMsgTime = delayClock.getElapsedTime();
 }
 
 void UI::chatFocus(bool i) {
@@ -731,6 +760,11 @@ void UI::applyVideo() {
 		window->setVerticalSyncEnabled(false);
 	}
 
+	if (gui.get<tgui::CheckBox>("performanceOutput", 1)->isChecked())
+		options->performanceOutput = true;
+	else
+		options->performanceOutput = false;
+
 	std::string fd = gui.get<tgui::EditBox>("FrameDelay", 1)->getText();
 	short value=0;
 	if (fd.size())
@@ -742,7 +776,7 @@ void UI::applyVideo() {
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		options->inputDelay = sf::microseconds(value);
+		options->inputDelay = sf::microseconds(1000000/value);
 }
 
 void UI::vidSlide(short i) {
@@ -776,19 +810,30 @@ void UI::mainMenu() {
 }
 
 void UI::delayCheck() {
+	sf::Time currentTime = delayClock.getElapsedTime();
 	if (gui.get("QuickMsg")->isVisible())
-		if (quickMsgClock.getElapsedTime() > sf::seconds(5))
+		if (currentTime - quickMsgTime > sf::seconds(5))
 			gui.get("QuickMsg")->hide();
 
 	if (playonline) {
 		if (!udpConfirmed)
-			if (udpPortClock.getElapsedTime() > sf::milliseconds(500)) {
+			if (currentTime - udpPortTime > sf::milliseconds(500)) {
+				udpPortTime = currentTime;
 				sendPacket99();
-				udpPortClock.restart();
 			}
+		if (currentTime - pingTime > sf::seconds(1)) {
+			if (!pingReturned) {
+				ping.setString("999");
+				pingColor=0;
+			}
+			pingTime = currentTime;
+			sendPacket102();
+		}
 	}
 
-	spamCount-=spamClock.restart().asMilliseconds();
+	sf::Time tmp = currentTime - spamTime;
+	spamCount-=tmp.asMilliseconds();
+	spamTime = currentTime;
 	if (spamCount<0)
 		spamCount=0;
 }
@@ -874,6 +919,34 @@ void UI::putKey(sf::Event& event) {
 void UI::changeName(const sf::String& name) {
 	options->name = name;
 	game->field.setName(name);
+}
+
+void UI::drawPerformanceOutput() {
+	sf::RectangleShape rect;
+	rect.setSize(sf::Vector2f(28,15));
+	rect.setOutlineColor(sf::Color(255,255,255));
+	rect.setFillColor(sf::Color(255-pingColor, pingColor, 0));
+	rect.setPosition(930, 13);
+	window->draw(rect);
+	window->draw(ping);
+
+	rect.setFillColor(sf::Color(255-frameRateColor, frameRateColor, 0));
+	rect.setPosition(900, 13);
+	window->draw(rect);
+	window->draw(frameRate);
+
+	rect.setFillColor(sf::Color(255-inputRateColor, inputRateColor, 0));
+	rect.setPosition(870, 13);
+	window->draw(rect);
+	window->draw(inputRate);
+
+	rect.setSize(sf::Vector2f(21,15));
+	rect.setFillColor(sf::Color(255-longestFrameColor, longestFrameColor, 0));
+	rect.setPosition(847, 13);
+	window->draw(rect);
+	window->draw(longestFrame);
+
+	window->draw(performanceLabel);
 }
 
 void UI::rotPiece(short i) {

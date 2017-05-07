@@ -396,26 +396,11 @@ void UI::scrollBar(sf::Event& event) {
 				}
 }
 
-void UI::sendGameState() { //UDP Packet outgoing
-	compressor.compress();
-	net->packet.clear();
-	sf::Uint8 packetid = 100;
-	if (gamestate == CountDown)
-		packetid = 101;
-	net->packet << packetid << myId << gamedatacount;
-	gamedatacount++;
-	for (int i=0; i<compressor.tmpcount; i++)
-		net->packet << compressor.tmp[i];
-	if (compressor.bitcount>0)
-		net->packet << compressor.tmp[compressor.tmpcount];
-	net->sendUDP();
-}
-
 void UI::sendGameData() {
 	sf::Time tmp = game->keyclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
-		sendGameState();
+		sendPacket100();
 	}
 
 	if (game->linesSent > linesSent) {
@@ -441,7 +426,7 @@ void UI::sendGameOver() {
 	sendPacket3();
 	game->sendgameover=false;
 
-	sendGameState();
+	sendPacket100();
 }
 
 void UI::sendGameWinner() {
@@ -450,7 +435,7 @@ void UI::sendGameWinner() {
 }
 
 void UI::handlePacket() {
-	if (net->packetid !=100)
+	if (net->packetid <100)
 		cout << "Packet id: " << (int)net->packetid << endl;
 	switch ((int)net->packetid) {
 		case 255: //Disconnect
@@ -463,6 +448,7 @@ void UI::handlePacket() {
 			gui.get("Login")->hide();
 			inroom=false;
 			playonline=false;
+			ping.setString("0");
 			setGameState(MainMenu);
 			quickMsg("Disconnected from server");
 		break;
@@ -520,7 +506,7 @@ void UI::handlePacket() {
 			resetOppFields();
 			setGameState(CountDown);
 			gamedatacount=251;
-			sendGameState();
+			sendPacket100();
 		}
 		break;
 		case 2://Countdown
@@ -536,7 +522,7 @@ void UI::handlePacket() {
 				setGameState(Game);
 			else {
 				gamedatacount=255-countdown;
-				sendGameState();
+				sendPacket100();
 			}
 		}
 		break;
@@ -646,6 +632,7 @@ void UI::handlePacket() {
 				gui.get("Connecting")->hide();
 				gui.get("MainMenu")->show();
 				gui.get("Login")->show();
+				ping.setString("0");
 			}
 		}
 		break;
@@ -755,6 +742,17 @@ void UI::handlePacket() {
 		break;
 		case 19: // UDP-port was established by server
 			udpConfirmed=true;
+		break;
+		case 102:
+		{
+			sf::Time tmp = delayClock.getElapsedTime() - pingTime;
+			ping.setString(to_string(tmp.asMilliseconds()));
+			if (tmp.asMilliseconds() > 255)
+				pingColor = 0;
+			else
+				pingColor = 255-tmp.asMilliseconds();
+			pingReturned=true;
+		}
 		break;
 	}
 }

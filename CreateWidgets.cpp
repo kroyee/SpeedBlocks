@@ -391,6 +391,13 @@ void UI::createAllWidgets() {
 		VsC->check();
 	VidOpt->add(VsC, "vSync");
 
+	tgui::CheckBox::Ptr PoC = themeTG->load("CheckBox");
+	PoC->setPosition(580, 130);
+	PoC->setText("Performance output");
+	if (options->performanceOutput)
+		PoC->check();
+	VidOpt->add(PoC, "performanceOutput");
+
 	tgui::Label::Ptr FdL = themeTG->load("Label");
 	FdL->setPosition(150, 200);
 	FdL->setText("Frame Rate");
@@ -404,15 +411,15 @@ void UI::createAllWidgets() {
 	VidOpt->add(FdE, "FrameDelay");
 
 	tgui::Label::Ptr IdL = themeTG->load("Label");
-	IdL->setPosition(400, 200);
-	IdL->setText("Frame Time [microseconds]");
+	IdL->setPosition(470, 200);
+	IdL->setText("Input Rate");
 	VidOpt->add(IdL);
 
 	tgui::EditBox::Ptr IdE = themeTG->load("EditBox");
 	IdE->setPosition(460, 230);
 	IdE->setSize(110, 30);
 	IdE->setInputValidator(tgui::EditBox::Validator::UInt);
-	IdE->setText(to_string(options->inputDelay.asMicroseconds()));
+	IdE->setText(to_string(1000000/options->inputDelay.asMicroseconds()));
 	VidOpt->add(IdE, "InputDelay");
 
 	tgui::Button::Ptr AvB = themeBB->load("Button");
@@ -424,7 +431,7 @@ void UI::createAllWidgets() {
 
 	tgui::Label::Ptr InL = themeTG->load("Label");
 	InL->setPosition(10, 390);
-	InL->setText("Note: Enabling vSync will disable both FrameRate and FrameTime settings.\nLower FrameTime will increase how responsive the game is for input but will also increase CPU load.\nIf you experience the controls as too sensitive, try increasing FrameTime to 5000-10000\nRecommended settings FrameRate:100 FrameTime:1000 ");
+	InL->setText("Frame Rate = frames drawn per second\nInput Rate = input parsed per second\nNote: Enabling vSync will disable both FrameRate and InputRate.");
 	VidOpt->add(InL);
 
 	tgui::Panel::Ptr SndOpt = tgui::Panel::create(); // Sound Options

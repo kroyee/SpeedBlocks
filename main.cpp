@@ -177,27 +177,47 @@ int main()
                 for (int i=0; i<7; i++)
                     window.draw(gui.piece[i]);
             gui.gui.draw();
+            if (game.options.performanceOutput)
+                gui.drawPerformanceOutput();
             window.display();
             frameRate++;
         }
-        else if (!game.options.vSync)
-            sf::sleep(game.options.inputDelay);
+        current = frameClock.getElapsedTime();
+        if (game.options.inputDelay - (current - lastFrame) > sf::microseconds(200))
+            sf::sleep(game.options.inputDelay - (current - lastFrame));
         if (nextDraw < current)
             nextDraw=current;
 
         // Performance output
 
-        current = frameClock.getElapsedTime();
-        if (current-lastFrame > longestFrame)
-            longestFrame = current-lastFrame;
-        frameCount++;
+        if (game.options.performanceOutput) {
+            current = frameClock.getElapsedTime();
+            if (current-lastFrame > longestFrame)
+                longestFrame = current-lastFrame;
+            frameCount++;
 
-        if (current-secCount > sf::seconds(1)) {
-            cout << "Framerate: " << frameRate << " Framecount: " << frameCount << " longest: " << longestFrame.asMilliseconds() << endl;
-            frameRate=0;
-            frameCount=0;
-            longestFrame=sf::seconds(0);
-            secCount=current;
+            if (current-secCount > sf::seconds(1)) {
+                gui.frameRate.setString(to_string(frameRate));
+                gui.frameRateColor = 255;
+                if (frameRate < 40)
+                    gui.frameRateColor = 0;
+                else if (frameRate < 100)
+                    gui.frameRateColor = (frameRate-40)*4.25;
+                gui.inputRate.setString(to_string(frameCount));
+                gui.inputRateColor = 255;
+                if (frameCount < 255)
+                    gui.inputRateColor = frameCount;
+                gui.longestFrame.setString(to_string(longestFrame.asMilliseconds()));
+                gui.longestFrameColor = 255;
+                if (longestFrame.asMilliseconds() > 21)
+                    gui.longestFrameColor = 0;
+                else if (longestFrame.asMilliseconds() > 4)
+                    gui.longestFrameColor = 255 - (longestFrame.asMilliseconds() - 4) * 15;
+                frameRate=0;
+                frameCount=0;
+                longestFrame=sf::seconds(0);
+                secCount=current;
+            }
         }
         lastFrame=current;
     }

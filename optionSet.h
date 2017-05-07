@@ -24,6 +24,7 @@ public:
     bool fullscreen;
     bool sound;
     bool vSync;
+    bool performanceOutput;
 
     short MusicVolume;
     short EffectVolume;
