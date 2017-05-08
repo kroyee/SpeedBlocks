@@ -745,13 +745,18 @@ void UI::handlePacket() {
 		break;
 		case 102:
 		{
-			sf::Time tmp = delayClock.getElapsedTime() - pingTime;
-			ping.setString(to_string(tmp.asMilliseconds()));
-			if (tmp.asMilliseconds() > 255)
-				pingColor = 0;
-			else
-				pingColor = 255-tmp.asMilliseconds();
-			pingReturned=true;
+			sf::Uint8 pingId;
+			sf::Uint16 clientid;
+			net->packet >> clientid >> pingId;
+			if (pingId == pingIdCount) {
+				sf::Time tmp = delayClock.getElapsedTime() - pingTime;
+				ping.setString(to_string(tmp.asMilliseconds()));
+				if (tmp.asMilliseconds() > 255)
+					pingColor = 0;
+				else
+					pingColor = 255-tmp.asMilliseconds();
+				pingReturned=true;
+			}
 		}
 		break;
 	}

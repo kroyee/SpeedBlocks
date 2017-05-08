@@ -44,6 +44,7 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       scoreRows(0),
       udpConfirmed(false),
       pingReturned(false),
+      pingIdCount(0),
       pingColor(255),
       gamestate(MainMenu),
       spamCount(0),
@@ -827,7 +828,8 @@ void UI::delayCheck() {
 				pingColor=0;
 			}
 			pingTime = currentTime;
-			sendPacket102();
+			pingIdCount++;
+			sendPacket102(pingIdCount);
 		}
 	}
 

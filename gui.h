@@ -84,6 +84,7 @@ public:
 	sf::Clock delayClock;
 
 	bool udpConfirmed, pingReturned;
+	sf::Uint8 pingIdCount;
 
 	sf::Text ping, frameRate, inputRate, longestFrame, performanceLabel;
 	sf::Uint8 pingColor, frameRateColor, inputRateColor, longestFrameColor;
@@ -220,7 +221,7 @@ public:
 	void sendPacket11(const sf::String& name, sf::Uint8 maxPlayers);
 	void sendPacket99();
 	void sendPacket100();
-	void sendPacket102();
+	void sendPacket102(sf::Uint8 pingId);
 };
 
 sf::String SFKeyToString(unsigned int keycode);

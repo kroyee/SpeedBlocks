@@ -124,9 +124,9 @@ void UI::sendPacket100() {
 }
 
 // Ping packet to check latency with server
-void UI::sendPacket102() {
+void UI::sendPacket102(sf::Uint8 pingId) {
 	net->packet.clear();
 	sf::Uint8 packetid = 102;
-	net->packet << packetid << myId;
+	net->packet << packetid << myId << pingId;
 	net->sendUDP();
 }
