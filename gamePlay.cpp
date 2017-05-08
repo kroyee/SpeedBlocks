@@ -109,7 +109,9 @@ void gamePlay::startGame() {
 
 void gamePlay::mRKey() {
 	if (!rKey) {
-		mRight();
+		if (mRight())
+			if (recorder.rec)
+				addRecEvent(1, 0);
 		rKeyTime=keyclock.getElapsedTime()+options.repeatDelay;
 		lKey=false;
 	}
@@ -119,7 +121,9 @@ void gamePlay::mRKey() {
 
 void gamePlay::mLKey() {
 	if (!lKey) {
-		mLeft();
+		if (mLeft())
+			if (recorder.rec)
+				addRecEvent(1, 0);
 		lKeyTime=keyclock.getElapsedTime()+options.repeatDelay;
 		rKey=false;
 	}
@@ -129,7 +133,9 @@ void gamePlay::mLKey() {
 
 void gamePlay::mDKey() {
 	if (!dKey) {
-		mDown();
+		if (mDown())
+			if (recorder.rec)
+				addRecEvent(1, 0);
 		dKeyTime=keyclock.getElapsedTime()+options.repeatDelayDown;
 	}
 	dKey=true;
@@ -153,8 +159,6 @@ bool gamePlay::mRight() {
 	piece.mright();
 	if (possible()) {
 		drawMe=true;
-		if (recorder.rec)
-			addRecEvent(1, 0);
 		return true;
 	}
 	else {
@@ -167,8 +171,6 @@ bool gamePlay::mLeft() {
 	piece.mleft();
 	if (possible()) {
 		drawMe=true;
-		if (recorder.rec)
-			addRecEvent(1, 0);
 		return true;
 	}
 	else {
@@ -183,8 +185,6 @@ bool gamePlay::mDown() {
 		drawMe=true;
 		dclock.restart();
 		lockdown=false;
-		if (recorder.rec)
-			addRecEvent(1, 0);
 		return true;
 	}
 	else {
@@ -385,25 +385,42 @@ void gamePlay::delayCheck() {
 	}
 
 	sf::Time current = keyclock.getElapsedTime();
+	bool recEvent=false;
 	if (rKey) {
 		while (current > rKeyTime) {
 			rKeyTime+=options.repeatSpeed;
 			if (!mRight())
 				break;
+			else
+				recEvent=true;
 		}
+		if (recorder.rec && recEvent)
+			addRecEvent(1, 0);
 	}
-	if (lKey)
+	if (lKey) {
+		recEvent=false;
 		while (current > lKeyTime) {
 			lKeyTime+=options.repeatSpeed;
 			if (!mLeft())
 				break;
+			else
+				recEvent=true;
 		}
-	if (dKey)
+		if (recorder.rec && recEvent)
+			addRecEvent(1, 0);
+	}
+	if (dKey) {
+		recEvent=false;
 		while (current > dKeyTime) {
 			dKeyTime+=options.repeatSpeedDown;
 			if (!mDown())
 				break;
+			else
+				recEvent=true;
 		}
+		if (recorder.rec && recEvent)
+			addRecEvent(1, 0);
+	}
 
 	if (lockdown && keyclock.getElapsedTime() > lockDownTime) {
 		piece.mdown();
@@ -876,12 +893,13 @@ void gamePlay::startReplay() {
 	recorder.currentEvent = 0;
 	recorder.prevCombo = 0;
 	recorder.halt = false;
+	recorder.startAt = sf::seconds(0);
 }
 
 bool gamePlay::playReplay() {
 	if (recorder.halt)
 		return true;
-	sf::Time currentTime = recorder.timer.getElapsedTime();
+	sf::Time currentTime = recorder.timer.getElapsedTime() + recorder.startAt;
 	for ( ; currentTime>recorder.events[recorder.currentEvent].time; recorder.currentEvent++) {
 		auto&& event = recorder.events[recorder.currentEvent];
 		switch (event.type) {

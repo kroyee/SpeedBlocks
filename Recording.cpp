@@ -34,6 +34,12 @@ void Recording::stop() {
 	rec=false;
 }
 
+void Recording::jumpTo(sf::Uint32 startTime) {
+	timer.restart();
+	startAt = sf::milliseconds(startTime);
+	currentEvent=0;
+}
+
 void Recording::addEvent(RecordingEvent& event) {
 	event.time = timer.getElapsedTime();
 	events.push_back(event);

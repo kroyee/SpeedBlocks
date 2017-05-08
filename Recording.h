@@ -27,7 +27,7 @@ class Recording {
 public:
 	sf::Uint8 starting_position[22][10];
 	std::vector<RecordingEvent> events;
-	sf::Time duration;
+	sf::Time duration, startAt;
 	sf::String name;
 	sf::Clock timer;
 	sf::Uint32 currentEvent;
@@ -38,6 +38,7 @@ public:
 	void clear();
 	void start();
 	void stop();
+	void jumpTo(sf::Uint32 startTime);
 	void addEvent(RecordingEvent& event);
 	void save();
 };
