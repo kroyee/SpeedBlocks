@@ -178,30 +178,22 @@ void UI::unAway() {
 }
 
 void UI::handleEvent(sf::Event& event) {
-	bool selectchat=false;
-
 	gameInput(event);
 	windowEvents(event);
 	
 	if (setkey)
 		putKey(event);
 	enlargePlayfield(event);
-	keyEvents(event, selectchat);
+	keyEvents(event);
 	scrollBar(event);
 
 	gui.handleEvent(event);
-	if (selectchat)
-		gui.get("ChatBox", 1)->focus();
 }
 
 void UI::gameInput(sf::Event& event) {
-	if (gamestate == CountDown) {
-		if (event.type == sf::Event::KeyPressed && !chatFocused) {
-            if (event.key.code == options->right)
-                game->rKey=true;
-            else if (event.key.code == options->left)
-                game->lKey=true;
-            else if (event.key.code == options->chat)
+	if (gamestate != Replay)
+		if (event.type == sf::Event::KeyPressed) {
+			if (event.key.code == options->chat)
                 Chat();
             else if (event.key.code == options->score)
                 Score();
@@ -211,6 +203,13 @@ void UI::gameInput(sf::Event& event) {
                 else
                     goAway();
             }
+		}
+	if (gamestate == CountDown) {
+		if (event.type == sf::Event::KeyPressed && !chatFocused) {
+            if (event.key.code == options->right)
+                game->rKey=true;
+            else if (event.key.code == options->left)
+                game->lKey=true;
         }
         else if (event.type == sf::Event::KeyReleased) {
             if (event.key.code == options->right)
@@ -235,16 +234,6 @@ void UI::gameInput(sf::Event& event) {
                 game->mDKey();
             else if (event.key.code == options->hd)
                 game->hd();
-            else if (event.key.code == options->chat)
-                Chat();
-            else if (event.key.code == options->score)
-                Score();
-            else if (event.key.code == options->away && playonline) {
-                if (away)
-                    unAway();
-                else
-                    goAway();
-            }
         }
         else if (event.type == sf::Event::KeyReleased) {
             if (event.key.code == options->right)
@@ -261,16 +250,6 @@ void UI::gameInput(sf::Event& event) {
                 setGameState(CountDown);
                 game->startCountdown();
                 game->gameover=false;
-            }
-            else if (event.key.code == options->chat)
-                Chat();
-            else if (event.key.code == options->score)
-                Score();
-            else if (event.key.code == options->away && playonline) {
-                if (away)
-                    unAway();
-                else
-                    goAway();
             }
         }
 	}
@@ -336,14 +315,10 @@ void UI::enlargePlayfield(sf::Event& event) {
 	}
 }
 
-void UI::keyEvents(sf::Event& event, bool& selectchat) {
+void UI::keyEvents(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
-			if (chatFocused) {
-				gui.get("ChatBox", 1)->unfocus();
-				gui.get("slChatBox", 1)->unfocus();
-			}
-			else if (gui.get("Login")->isVisible()) {
+			if (gui.get("Login")->isVisible()) {
 				closeLogin();
 			}
 			else if (gui.get("MainMenu")->isVisible()) {
@@ -367,16 +342,6 @@ void UI::keyEvents(sf::Event& event, bool& selectchat) {
 				else {
 					gui.get<tgui::Label>("AUSL", 1)->setText("Leave this game?");
 					gui.get("AUS")->show();
-				}
-			}
-		}
-		else if (event.key.code == sf::Keyboard::Return) {
-			if (playonline) {
-				if (!chatFocused) {
-					if (inroom) {
-						gui.get<tgui::Tab>("InGameTab")->select(2);
-						selectchat=true;
-					}
 				}
 			}
 		}

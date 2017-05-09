@@ -190,7 +190,7 @@ public:
 	void resizeWindow(sf::Event& event);
 	
 	void enlargePlayfield(sf::Event& event);
-	void keyEvents(sf::Event& event, bool& selectchat);
+	void keyEvents(sf::Event& event);
 	void scrollBar(sf::Event& event);
 
 	void handlePacket();

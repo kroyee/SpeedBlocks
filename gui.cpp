@@ -649,6 +649,7 @@ void UI::Chat() {
 		gui.get("GameFields")->hide();
 		gui.get("Score")->hide();
 		gui.get<tgui::Tab>("InGameTab")->select(2);
+		gui.get("ChatBox", 1)->focus();
 	}
 }
 
@@ -658,7 +659,7 @@ void UI::Score() {
 		gui.get("GameFields")->show();
 		gui.get<tgui::Tab>("InGameTab")->select(0);
 	}
-	else {
+	else if (!chatFocused) {
 		gui.get("Chat")->hide();
 		gui.get("GameFields")->hide();
 		gui.get("Score")->show();
