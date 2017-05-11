@@ -1,15 +1,16 @@
 #include "gameField.h"
+#include "textures.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 using namespace std;
 
-gameField::gameField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font) {
-    nameTag.setFont(font);
+gameField::gameField(Resources& _resources) {
+    nameTag.setFont(_resources.gfx.typewriter);
     nameTag.setCharacterSize(32);
 	texture.create(440, 600);
     sprite.setTexture(texture.getTexture());
-    tile = tilep;
-    background = backgroundp;
+    tile = _resources.gfx.tile;
+    background = &_resources.gfx.fieldBackground;
 }
 
 gameField::gameField(const gameField& field) {
@@ -34,7 +35,7 @@ void gameField::clear() {
 void gameField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(*background);
-    
+
     drawSquares();
 
     texture.draw(nameTag);
@@ -97,9 +98,8 @@ void obsField::drawField() {
     texture.draw(*background);
     
     drawSquares();
-
     drawPiece();
-
+    drawGhostPiece();
     drawText();
     texture.display();
 }
@@ -117,11 +117,54 @@ void obsField::preDrawField() {
 void obsField::drawPiece() {
     for (int y=0; y<4; y++)
         for (int x=0; x<4; x++)
-            if (grid[y][x] != 0)
-                if (posY+y > 3) {
-                    tile[grid[y][x]-1].setPosition(sf::Vector2f(5+(posX+x)*30, 5+(posY+y-4)*30));
-                    texture.draw(tile[grid[y][x]-1]);
+            if (piece.grid[y][x] != 0)
+                if (piece.posY+y > 3) {
+                    tile[piece.tile-1].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+                    texture.draw(tile[piece.tile-1]);
                 }
+}
+
+void obsField::drawNextPiece() {
+    for (int rot=0; rot < nprot; rot++)
+        resources.options.basepiece[nextpiece].rcw();
+    for (int y=0; y<4; y++)
+        for (int x=0; x<4; x++)
+            if (resources.options.basepiece[nextpiece].grid[y][x] != 0) {
+                    tile[npcol-1].setPosition(sf::Vector2f(-15*resources.options.basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
+                    texture.draw(tile[npcol-1]);
+                }
+    for (int rot=0; rot < nprot; rot++)
+        resources.options.basepiece[nextpiece].rccw();
+}
+
+void obsField::drawGhostPiece() {
+    if (resources.options.ghostpiece) {
+        short posY = piece.posY;
+        while (possible()) { piece.mdown(); }
+        piece.mup();
+        for (int y=0; y<4; y++)
+            for (int x=0; x<4; x++)
+                if (piece.grid[y][x] != 0)
+                    if (piece.posY+y > 3) {
+                        tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+                        texture.draw(tile[piece.tile+7]);
+                    }
+
+        piece.posY = posY;
+    }
+}
+
+bool obsField::possible() {
+    for (int x=0; x<4; x++)
+        for (int y=0; y<4; y++)
+            if (piece.grid[y][x]) {
+                if (piece.posX+x<0 || piece.posX+x>9 || piece.posY+y<0 || piece.posY+y>21)
+                    return false;
+                if (square[piece.posY+y][piece.posX+x])
+                    return false;
+            }
+    cout << (int)piece.posY << endl;
+    return true;
 }
 
 #define PI 3.14159265
@@ -165,7 +208,20 @@ void obsField::drawText() {
     texture.draw(bpmText);
 }
 
-obsField::obsField(const obsField& field) : gameField(field) {
+void obsField::updatePiece() {
+    for (int x=0; x<4; x++)
+        for (int y=0; y<4; y++) {
+            if (resources.options.basepiece[piece.piece].grid[y][x])
+                piece.grid[y][x] = piece.tile;
+            else
+                piece.grid[y][x] = 0;
+        }
+    piece.current_rotation = 0;
+    while (piece.current_rotation != piece.rotation)
+        piece.rcw();
+}
+
+obsField::obsField(const obsField& field) : gameField(field), resources(field.resources) {
     id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0; away=false; position=0;
     positionText=field.positionText; awayText=field.awayText;
     comboText=field.comboText; pendingText=field.pendingText; bpmText=field.bpmText;
@@ -177,23 +233,23 @@ obsField::obsField(const obsField& field) : gameField(field) {
 
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
-            grid[y][x]=0;
+            piece.grid[y][x]=1;
         }
 }
 
-obsField::obsField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font1, sf::Font& font2) : gameField(tilep, backgroundp, font1) {
-    id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; posX=0; posY=0; away=false; position=0;
+obsField::obsField(Resources& _resources) : gameField(_resources), resources(_resources) {
+    id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0; away=false; position=0;
 
-    awayText.setFont(font2);
+    awayText.setFont(_resources.gfx.printFont);
     awayText.setCharacterSize(48);
     awayText.setPosition(110, 150);
-    positionText.setFont(font2);
+    positionText.setFont(_resources.gfx.printFont);
     positionText.setCharacterSize(48);
     positionText.setPosition(130, 220);
 
-    comboText.setFont(font2); comboText.setString("0");
-    pendingText.setFont(font2); pendingText.setString("0");
-    bpmText.setFont(font2); bpmText.setString("0");
+    comboText.setFont(_resources.gfx.printFont); comboText.setString("0");
+    pendingText.setFont(_resources.gfx.printFont); pendingText.setString("0");
+    bpmText.setFont(_resources.gfx.printFont); bpmText.setString("0");
     comboText.setCharacterSize(48);
     comboText.setColor(sf::Color::White);
     comboText.setPosition(360,270);
@@ -209,5 +265,5 @@ obsField::obsField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font1, 
 
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
-            grid[y][x]=0;
+            piece.grid[y][x]=1;
 }

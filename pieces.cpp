@@ -1,5 +1,7 @@
 #include "pieces.h"
 
+basePieces::basePieces() : rotation(0), current_rotation(0), posX(0), posY(0), lpiece(0), tile(1), piece(0) {}
+
 void basePieces::rcw() {
 	if (lpiece) {
 		short tmpgrid[4][4];

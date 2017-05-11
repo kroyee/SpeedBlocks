@@ -108,29 +108,20 @@ void UI::resetOppFields() {
 	for (auto&& field : fields) {
 		field.position=0;
 		field.datacount=250;
-		field.posX=0;
-		field.posY=0;
+		field.piece.posX=0;
+		field.piece.posY=0;
 		field.clear();
 		drawOppField(field);
 	}
 }
 
 void UI::drawOppField(obsField& field) {
-	if (net->packetid == 101)
+	if (net.packetid == 101)
 		field.preDrawField();
 	else
 		field.drawField();
 
-	for (int rot=0; rot < field.nprot; rot++)
-		options->basepiece[field.nextpiece].rcw();
-	for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (options->basepiece[field.nextpiece].grid[y][x] != 0) {
-                	field.tile[field.npcol-1].setPosition(sf::Vector2f(-15*options->basepiece[field.nextpiece].lpiece+330+x*30, 45+y*30));
-                	field.texture.draw(field.tile[field.npcol-1]);
-            	}
-    for (int rot=0; rot < field.nprot; rot++)
-		options->basepiece[field.nextpiece].rccw();
+	field.drawNextPiece();
 }
 
 void UI::drawFields() {
@@ -151,30 +142,30 @@ void UI::drawFields() {
 	}
 }
 
-sf::String UI::getName(sf::Uint16 id) {
+const sf::String& UI::getName(sf::Uint16 id) {
 	if (id == myId)
-		return game->field.name;
+		return game.field.name;
 	for (auto&& field : fields)
 		if (field.id == id)
 			return field.name;
-	return "Unknown";
+	return unknown;
 }
 
 void UI::goAway() {
 	away=true;
 	sendPacket8();
-	game->gameover=true;
-	game->sendgameover=true;
-	game->awayText.setString("Away");
-	game->drawGameOver();
+	game.gameover=true;
+	game.sendgameover=true;
+	game.awayText.setString("Away");
+	game.drawGameOver();
 }
 
 void UI::unAway() {
 	away=false;
-	game->autoaway=false;
+	game.autoaway=false;
 	sendPacket9();
-	game->awayText.setString("");
-	game->drawGameOver();
+	game.awayText.setString("");
+	game.drawGameOver();
 }
 
 void UI::handleEvent(sf::Event& event) {
@@ -185,19 +176,20 @@ void UI::handleEvent(sf::Event& event) {
 		putKey(event);
 	enlargePlayfield(event);
 	keyEvents(event);
-	scrollBar(event);
+	roomList.scrolled(event);
+	tournamentList.scrolled(event);
 
 	gui.handleEvent(event);
 }
 
 void UI::gameInput(sf::Event& event) {
-	if (gamestate != Replay)
+	if (gamestate != Replay && gamestate != MainMenu)
 		if (event.type == sf::Event::KeyPressed) {
-			if (event.key.code == options->chat)
+			if (event.key.code == options.chat)
                 Chat();
-            else if (event.key.code == options->score)
+            else if (event.key.code == options.score)
                 Score();
-            else if (event.key.code == options->away && playonline) {
+            else if (event.key.code == options.away && playonline) {
                 if (away)
                     unAway();
                 else
@@ -206,50 +198,50 @@ void UI::gameInput(sf::Event& event) {
 		}
 	if (gamestate == CountDown) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
-            if (event.key.code == options->right)
-                game->rKey=true;
-            else if (event.key.code == options->left)
-                game->lKey=true;
+            if (event.key.code == options.right)
+                game.rKey=true;
+            else if (event.key.code == options.left)
+                game.lKey=true;
         }
         else if (event.type == sf::Event::KeyReleased) {
-            if (event.key.code == options->right)
-                game->rKey=false;
-            else if (event.key.code == options->left)
-                game->lKey=false;
+            if (event.key.code == options.right)
+                game.rKey=false;
+            else if (event.key.code == options.left)
+                game.lKey=false;
         }
 	}
 	else if (gamestate == Game) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
-            if (event.key.code == options->right)
-                game->mRKey();
-            else if (event.key.code == options->left)
-                game->mLKey();
-            else if (event.key.code == options->rcw)
-                game->rcw();
-            else if (event.key.code == options->rccw)
-                game->rccw();
-            else if (event.key.code == options->r180)
-                game->r180();
-            else if (event.key.code == options->down)
-                game->mDKey();
-            else if (event.key.code == options->hd)
-                game->hd();
+            if (event.key.code == options.right)
+                game.mRKey();
+            else if (event.key.code == options.left)
+                game.mLKey();
+            else if (event.key.code == options.rcw)
+                game.rcw();
+            else if (event.key.code == options.rccw)
+                game.rccw();
+            else if (event.key.code == options.r180)
+                game.r180();
+            else if (event.key.code == options.down)
+                game.mDKey();
+            else if (event.key.code == options.hd)
+                game.hd();
         }
         else if (event.type == sf::Event::KeyReleased) {
-            if (event.key.code == options->right)
-                game->sRKey();
-            else if (event.key.code == options->left)
-                game->sLKey();
-            else if (event.key.code == options->down)
-                game->sDKey();
+            if (event.key.code == options.right)
+                game.sRKey();
+            else if (event.key.code == options.left)
+                game.sLKey();
+            else if (event.key.code == options.down)
+                game.sDKey();
         }
 	}
 	else if (gamestate == GameOver) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
             if (event.key.code == sf::Keyboard::Return && !playonline) {
                 setGameState(CountDown);
-                game->startCountdown();
-                game->gameover=false;
+                game.startCountdown();
+                game.gameover=false;
             }
         }
 	}
@@ -258,7 +250,7 @@ void UI::gameInput(sf::Event& event) {
 void UI::windowEvents(sf::Event& event) {
 	if (event.type == sf::Event::Closed)
         window->close();
-    else if (event.type == sf::Event::Resized && options->currentmode == -1) {
+    else if (event.type == sf::Event::Resized && options.currentmode == -1) {
         resizeWindow(event);
     }
 }
@@ -348,62 +340,50 @@ void UI::keyEvents(sf::Event& event) {
 	}
 }
 
-void UI::scrollBar(sf::Event& event) {
-	if (gui.get("Rooms")->isVisible())
-		if (event.type == sf::Event::MouseWheelScrolled)
-			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
-				if (!gui.get("RoomScroll", 1)->isFocused()) {
-					short cur = gui.get<tgui::Scrollbar>("RoomScroll", 1)->getValue();
-					cur-=event.mouseWheelScroll.delta;
-					if (cur<0)
-						cur=0;
-					gui.get<tgui::Scrollbar>("RoomScroll", 1)->setValue(cur);
-				}
-}
-
 void UI::sendGameData() {
-	sf::Time tmp = game->keyclock.getElapsedTime();
+	sf::Time tmp = game.keyclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
 		sendPacket100();
 	}
 
-	if (game->linesSent > linesSent) {
-		sf::Uint8 amount = game->linesSent-linesSent;
+	if (game.linesSent > linesSent) {
+		sf::Uint8 amount = game.linesSent-linesSent;
 		sendPacket5(amount);
-		linesSent = game->linesSent;
+		linesSent = game.linesSent;
 	}
 
-	if (game->garbageCleared > garbageCleared) {
-		sf::Uint8 amount = game->garbageCleared-garbageCleared;
+	if (game.garbageCleared > garbageCleared) {
+		sf::Uint8 amount = game.garbageCleared-garbageCleared;
 		sendPacket6(amount);
-		garbageCleared = game->garbageCleared;
+		garbageCleared = game.garbageCleared;
 	}
 
-	if (game->linesBlocked > linesBlocked) {
-		sf::Uint8 amount = game->linesBlocked-linesBlocked;
+	if (game.linesBlocked > linesBlocked) {
+		sf::Uint8 amount = game.linesBlocked-linesBlocked;
 		sendPacket7(amount);
-		linesBlocked = game->linesBlocked;
+		linesBlocked = game.linesBlocked;
 	}
 }
 
 void UI::sendGameOver() {
 	sendPacket3();
-	game->sendgameover=false;
+	game.sendgameover=false;
 
 	sendPacket100();
 }
 
 void UI::sendGameWinner() {
 	sendPacket4();
-	game->winner=false;
+	game.winner=false;
 }
 
 void UI::handlePacket() {
-	if (net->packetid <100)
-		cout << "Packet id: " << (int)net->packetid << endl;
-	switch ((int)net->packetid) {
-		case 255: //Disconnect
+	if (net.packetid <100)
+		cout << "Packet id: " << (int)net.packetid << endl;
+	switch ((int)net.packetid) {
+		case 255: //Disconnected from server
+			disconnect();
 			gui.get("opTab")->hide();
 			gui.get("Rooms")->hide();
 			gui.get("ServerLobby")->hide();
@@ -422,12 +402,12 @@ void UI::handlePacket() {
 		{
 			sf::Uint16 clientid;
 			sf::Uint8 datacount;
-			net->packet >> clientid >> datacount;
+			net.packet >> clientid >> datacount;
 			for (auto&& field : fields)
 				if (field.id==clientid) {
 					if (datacount>field.datacount || (datacount<50 && field.datacount>200)) {
 						field.datacount=datacount;
-						for (int c=0; net->packet >> compressor.tmp[c]; c++) {}
+						for (int c=0; net.packet >> compressor.tmp[c]; c++) {}
 						compressor.extract();
 						if (compressor.validate()) {
 							compressor.field = &field;
@@ -441,33 +421,26 @@ void UI::handlePacket() {
 		break;
 		case 0: //Welcome packet
 		{
-			sf::String name;
-			sf::Uint8 roomCount, maxPlayers, currentPlayers;
-			sf::Uint16 id;
+			sf::String welcomeMsg;
 
-			net->packet >> myId >> name >> roomCount;
+			net.packet >> myId >> welcomeMsg;
 
-			lobbyMsg("Server", name);
+			lobbyMsg("Server", welcomeMsg);
 
-			removeAllRooms();
-
-			for (int i=0; i<roomCount; i++) {
-				net->packet >> id >> name >> currentPlayers >> maxPlayers;
-				addRoom(name, currentPlayers, maxPlayers, id);
-			}
+			makeRoomList();
 		}
 		break;
 		case 1://Start countdown
 		{
 			sf::Uint8 countdown;
 			sf::Uint16 seed1, seed2;
-			net->packet >> countdown >> seed1 >> seed2;
-			game->rander.seedPiece(seed1);
-			game->rander.seedHole(seed2);
-			game->rander.reset();
-			game->startCountdown();
-			game->countDown(countdown);
-			game->position=0;
+			net.packet >> countdown >> seed1 >> seed2;
+			game.rander.seedPiece(seed1);
+			game.rander.seedHole(seed2);
+			game.rander.reset();
+			game.startCountdown();
+			game.countDown(countdown);
+			game.position=0;
 			resetOppFields();
 			setGameState(CountDown);
 			gamedatacount=251;
@@ -478,11 +451,11 @@ void UI::handlePacket() {
 		{
 			if (gamestate != CountDown)
 				setGameState(CountDown);
-			if (!game->rander.total)
-				game->startCountdown();
+			if (!game.rander.total)
+				game.startCountdown();
 			sf::Uint8 countdown;
-			net->packet >> countdown;
-			game->countDown(countdown);
+			net.packet >> countdown;
+			game.countDown(countdown);
 			if (!countdown)
 				setGameState(Game);
 			else {
@@ -494,19 +467,19 @@ void UI::handlePacket() {
 		case 3://Join room ok/no
 		{
 			sf::Uint8 joinok;
-			net->packet >> joinok;
-			if (joinok) {
+			net.packet >> joinok;
+			if (joinok == 1) {
 				sf::Uint8 playersinroom;
 				sf::Uint16 playerid, seed1, seed2;
-				net->packet >> seed1 >> seed2 >> playersinroom;
-				game->rander.seedPiece(seed1);
-				game->rander.seedHole(seed2);
-				game->rander.reset();
-				obsField newfield(textureBase->tile, &textureBase->fieldBackground, *printFont, *typewriterSF);
+				net.packet >> seed1 >> seed2 >> playersinroom;
+				game.rander.seedPiece(seed1);
+				game.rander.seedHole(seed2);
+				game.rander.reset();
+				obsField newfield(resources);
 				newfield.clear();
 				sf::String name;
 				for (int c=0; c<playersinroom; c++) {
-					net->packet >> playerid >> name;
+					net.packet >> playerid >> name;
 					newfield.id = playerid;
 					newfield.setName(name);
 					addField(newfield);
@@ -518,20 +491,23 @@ void UI::handlePacket() {
 	            gui.get("GameFields")->show();
 	            gui.get("opTab")->hide();
 	            gui.get("Rooms")->hide();
-	            game->makeNewPiece();
-				game->field.clear();
-				game->countdownText.setString("");
-				game->preDraw();
+	            game.makeNewPiece();
+				game.field.clear();
+				game.countdownText.setString("");
+				game.preDraw();
 			}
-			else {} //Show "Couldn't join room" message
+			else if (joinok == 2)
+				quickMsg("Room is full");
+			else
+				quickMsg("Please wait for server to get your user-data");
 		}
 		break;
 		case 4: //Another player joined room
 		{
 			sf::String name;
-			obsField newfield(textureBase->tile, &textureBase->fieldBackground, *printFont, *typewriterSF);
+			obsField newfield(resources);
 			newfield.clear();
-			net->packet >> newfield.id >> name;
+			net.packet >> newfield.id >> name;
 			newfield.setName(name);
 			addField(newfield);
 		}
@@ -539,39 +515,35 @@ void UI::handlePacket() {
 		case 5: //Another player left the room
 		{
 			sf::Uint16 removeid;
-			net->packet >> removeid;
+			net.packet >> removeid;
 			removeField(removeid);
 		}
 		break;
 		case 6: //Round ended
-			game->gameover=true;
+			game.gameover=true;
 		break;
 		case 7: //Round ended and you where the winner
-			game->gameover=true;
-			game->winner=true;
-			game->autoaway=false;
+			game.gameover=true;
+			game.winner=true;
+			game.autoaway=false;
 		break;
 		case 8: // Round score data
 		{
-			sf::Uint8 count, maxcombo, rank, position;
-			sf::Uint16 id, linesSent, linesRecieved, linesBlocked, bpm, spm, score;
-			float linesAdjusted;
-			net->packet >> count;
+			sf::Uint8 count;
+			net.packet >> count;
 			clearScore();
-			for (int i=0; i<count; i++) {
-				net->packet >> id >> maxcombo >> linesSent >> linesRecieved >> linesBlocked >> bpm >> spm >> rank >> position >> score >> linesAdjusted;
-				scoreRow(getName(id), score, rank, bpm, maxcombo, linesSent, linesAdjusted, spm, linesRecieved, linesBlocked);
-			}
+			for (int i=0; i<count; i++)
+				scoreRow();
 		}
 		break;
 		case 9: // Auth result
 		{
 			sf::Uint8 success;
-			net->packet >> success;
+			net.packet >> success;
 			if (success == 1) {
 				sf::String name;
-				net->packet >> name >> myId;
-				game->field.setName(name);
+				net.packet >> name >> myId;
+				game.field.setName(name);
 				gui.get("Connecting")->hide();
 				gui.get("opTab")->show();
 				gui.get("Rooms")->show();
@@ -586,8 +558,7 @@ void UI::handlePacket() {
 				gui.get("MainMenu")->enable();
 			}
 			else {
-				net->disconnect();
-				playonline=false;
+				disconnect();
 				if (success == 3)
 					quickMsg("You have the wrong client version");
 				else if (success == 4)
@@ -604,29 +575,29 @@ void UI::handlePacket() {
 		case 10: //Garbage received
 		{
 			sf::Uint8 amount;
-			net->packet >> amount;
-			game->addGarbage(amount);
+			net.packet >> amount;
+			game.addGarbage(amount);
 		}
 		break;
 		case 11: //Server telling me to reset my oppfields. This is the same as Packet 1, but when client is away.
 		{
 			resetOppFields();
 			sf::Uint16 seed;
-			net->packet >> seed;
-			game->rander.seedPiece(seed);
-			net->packet >> seed;
-			game->rander.seedHole(seed);
-			game->rander.reset();
-			game->position=0;
-			game->countdownText.setString("");
-			game->drawGameOver();
+			net.packet >> seed;
+			game.rander.seedPiece(seed);
+			net.packet >> seed;
+			game.rander.seedHole(seed);
+			game.rander.reset();
+			game.position=0;
+			game.countdownText.setString("");
+			game.drawGameOver();
 		}
 		break;
 		case 12: // Incoming chat msg
 		{
 			sf::String from, msg;
 			sf::Uint8 type;
-			net->packet >> type >> from >> msg;
+			net.packet >> type >> from >> msg;
 			if (type == 3)
 				privMsg(from, msg);
 			else if (type == 2)
@@ -638,7 +609,7 @@ void UI::handlePacket() {
 		case 13: // Another player went away
 		{
 			sf::Uint16 id;
-			net->packet >> id;
+			net.packet >> id;
 			for (auto&& field : fields)
 				if (field.id == id) {
 					field.away=true;
@@ -649,7 +620,7 @@ void UI::handlePacket() {
 		case 14:
 		{
 			sf::Uint16 id;
-			net->packet >> id;
+			net.packet >> id;
 			for (auto&& field : fields)
 				if (field.id == id) {
 					field.away=false;
@@ -661,58 +632,40 @@ void UI::handlePacket() {
 		{
 			sf::Uint16 id;
 			sf::Uint8 position;
-			net->packet >> id >> position;
+			net.packet >> id >> position;
 			for (auto&& field : fields)
 				if (field.id == id) {
 					field.position = position;
 					drawOppField(field);
 				}
 			if (id == myId) {
-				game->position = position;
-				game->drawGameOver();
+				game.position = position;
+				game.drawGameOver();
 			}
 		}
 		break;
 		case 16: // Server sending room list
-		{ // This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
-			sf::String name;
-			sf::Uint8 roomCount, maxPlayers, currentPlayers;
-			sf::Uint16 id;
-
-			net->packet >> roomCount;
-			removeAllRooms();
-
-			for (int i=0; i<roomCount; i++) {
-				net->packet >> id >> name >> currentPlayers >> maxPlayers;
-				addRoom(name, currentPlayers, maxPlayers, id);
-			}
-		}
+			// This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
+			makeRoomList();
 		break;
 		case 17: // New room created
-		{
-			sf::String name;
-			sf::Uint16 id;
-			sf::Uint8 maxPlayers, currentPlayers;
-
-			net->packet >> id >> name >> currentPlayers >> maxPlayers;
-			addRoom(name, currentPlayers, maxPlayers, id);
-		}
+			addRoom();
 		break;
 		case 18: // Room was removed
 		{
 			sf::Uint16 id;
-			net->packet >> id;
-			removeRoom(id);
+			net.packet >> id;
+			roomList.removeItem(id);
 		}
 		break;
 		case 19: // UDP-port was established by server
 			udpConfirmed=true;
 		break;
-		case 102:
+		case 102: // Ping packet returned from server
 		{
 			sf::Uint8 pingId;
 			sf::Uint16 clientid;
-			net->packet >> clientid >> pingId;
+			net.packet >> clientid >> pingId;
 			if (pingId == pingIdCount) {
 				sf::Time tmp = delayClock.getElapsedTime() - pingTime;
 				ping.setString(to_string(tmp.asMilliseconds()));

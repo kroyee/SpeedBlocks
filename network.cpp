@@ -18,7 +18,6 @@ bool network::receiveData() {
 	status = tcpSock.receive(packet);
 	if (status == sf::Socket::Disconnected) {
 		std::cout << "TCP disconnected" << std::endl;
-		tcpSock.disconnect();
 		packetid=255;
 		return true;
 	}

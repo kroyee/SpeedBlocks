@@ -25,20 +25,18 @@ void PacketCompress::extract() {
 		for (; y<22-endy; y++)
 			getBits(square[y][x], 3);
 	}
-	getBits(temp, 4); posX = static_cast<short>(temp-2);
-	getBits(temp, 5); posY = static_cast<short>(temp);
-	for (int x=0; x<4; x++)
-		for (y=0; y<4; y++) {
-			getBits(temp, 3);
-			grid[y][x] = temp;
-		}
-	getBits(temp, 3); nextpiece=static_cast<short>(temp);
-	getBits(temp, 3); npcol=static_cast<short>(temp);
-	getBits(temp, 3); nprot=static_cast<short>(temp);
-	getBits(temp, 5); comboText=temp;
-	getBits(temp, 8); pendingText=temp;
-	getBits(temp, 8); bpmText=temp;
-	getBits(temp, 7); comboTimerCount=temp;
+	getBits(temp, 4); posX = temp-2;
+	getBits(temp, 5); posY = temp;
+	getBits(piece, 3);
+	getBits(color, 3);
+	getBits(rotation, 2);
+	getBits(nextpiece, 3);
+	getBits(npcol, 3);
+	getBits(nprot, 2);
+	getBits(comboText, 5);
+	getBits(pendingText, 8);
+	getBits(bpmText, 8);
+	getBits(comboTimerCount, 7);
 }
 
 void PacketCompress::getBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -93,12 +91,12 @@ void PacketCompress::compress() {
 	posx = game->piece.posX+2; posy = game->piece.posY;
 	addBits(posx, 4);
 	addBits(posy, 5);
-	for (int x=0; x<4; x++)
-		for (y=0; y<4; y++)
-			addBits(game->piece.grid[y][x], 3);
+	addBits(game->piece.piece, 3);
+	addBits(game->piece.tile, 3);
+	addBits(game->piece.current_rotation, 2);
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
-	addBits(game->options.piecerotation[game->nextpiece], 3);
+	addBits(game->options.piecerotation[game->nextpiece], 2);
 	addBits(game->comboTextVal, 5);
 	addBits(game->pendingTextVal, 8);
 	sf::Uint8 tmp;
@@ -131,11 +129,12 @@ void PacketCompress::copy() {
 	for (int y=0; y<22; y++)
 		for (int x=0; x<10; x++)
 			field->square[y][x] = square[y][x];
-	for (int y=0; y<4; y++)
-		for (int x=0; x<4; x++)
-			field->grid[y][x] = grid[y][x];
-	field->posX = posX;
-	field->posY = posY;
+	field->piece.posX = posX;
+	field->piece.posY = posY;
+	field->piece.piece = piece;
+	field->piece.tile = color;
+	field->piece.rotation = rotation;
+	field->updatePiece();
 	field->nextpiece = nextpiece;
 	field->npcol = npcol;
 	field->nprot = nprot;
@@ -150,10 +149,12 @@ bool PacketCompress::validate() {
 		for (int x=0; x<10; x++)
 			if (square[y][x] > 8)
 				return false;
-	for (int y=0; y<4; y++)
-		for (int x=0; x<4; x++)
-			if (grid[y][x] > 8)
-				return false;
+	if (piece > 7)
+		return false;
+	if (color > 7)
+		return false;
+	if (rotation > 3)
+		return false;
 	if (posX > 8)
 		return false;
 	if (posY > 20)

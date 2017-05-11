@@ -16,9 +16,9 @@ public:
 
 	//Tempstorage for validation
 	sf::Uint8 square[22][10];
-	short posX, posY;
-	sf::Uint8 grid[4][4];
-	short nextpiece, npcol, nprot;
+	sf::Int8 posX, posY;
+	sf::Uint8 piece, color, rotation;
+	sf::Uint8 nextpiece, npcol, nprot;
 	sf::Uint8 comboText, pendingText, bpmText;
 	sf::Uint8 comboTimerCount;
 

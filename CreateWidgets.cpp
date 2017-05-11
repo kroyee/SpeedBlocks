@@ -50,7 +50,7 @@ void UI::createAllWidgets() {
 	tgui::EditBox::Ptr IPAddr = themeTG->load("EditBox");
 	IPAddr->setPosition(10, 230);
 	IPAddr->setSize(250, 40);
-	IPAddr->setText(net->serverAdd.toString());
+	IPAddr->setText(net.serverAdd.toString());
 	IPAddr->hide();
 	MainMenu->add(IPAddr, "IPAddr");
 
@@ -143,7 +143,7 @@ void UI::createAllWidgets() {
 	NL->setText("Name");
 	GenOpt->add(NL);
 	tgui::EditBox::Ptr NTB = themeTG->load("EditBox");
-	NTB->setText(options->name);
+	NTB->setText(options.name);
 	NTB->setPosition(150, 10);
 	NTB->setSize(400, 30);
 	NTB->connect("TextChanged", &UI::changeName, this);
@@ -168,8 +168,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(LeL);
 	tgui::Button::Ptr LeB = themeTG->load("Button");
 	LeB->setPosition(100, 60);
-	LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options->left));
-	LeB->setText(SFKeyToString(options->left));
+	LeB->connect("pressed", &UI::setKey, this, LeB, std::ref(options.left));
+	LeB->setText(SFKeyToString(options.left));
 	GenOpt->add(LeB,"BindLeft");
 
 	tgui::Label::Ptr RiL = themeTG->load("Label");
@@ -180,8 +180,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(RiL);
 	tgui::Button::Ptr RiB = themeTG->load("Button");
 	RiB->setPosition(100, 100);
-	RiB->connect("pressed", &UI::setKey, this, RiB, std::ref(options->right));
-	RiB->setText(SFKeyToString(options->right));
+	RiB->connect("pressed", &UI::setKey, this, RiB, std::ref(options.right));
+	RiB->setText(SFKeyToString(options.right));
 	GenOpt->add(RiB,"BindRight");
 
 	tgui::Label::Ptr DoL = themeTG->load("Label");
@@ -192,8 +192,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(DoL);
 	tgui::Button::Ptr DoB = themeTG->load("Button");
 	DoB->setPosition(100, 140);
-	DoB->connect("pressed", &UI::setKey, this, DoB, std::ref(options->down));
-	DoB->setText(SFKeyToString(options->down));
+	DoB->connect("pressed", &UI::setKey, this, DoB, std::ref(options.down));
+	DoB->setText(SFKeyToString(options.down));
 	GenOpt-> add(DoB,"BindDown");
 
 	tgui::Label::Ptr CwL = themeTG->load("Label");
@@ -204,8 +204,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(CwL);
 	tgui::Button::Ptr CwB = themeTG->load("Button");
 	CwB->setPosition(100, 220);
-	CwB->connect("pressed", &UI::setKey, this, CwB, std::ref(options->rcw));
-	CwB->setText(SFKeyToString(options->rcw));
+	CwB->connect("pressed", &UI::setKey, this, CwB, std::ref(options.rcw));
+	CwB->setText(SFKeyToString(options.rcw));
 	GenOpt->add(CwB,"BindRCW");
 
 	tgui::Label::Ptr CcL = themeTG->load("Label");
@@ -216,8 +216,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(CcL);
 	tgui::Button::Ptr CcB = themeTG->load("Button");
 	CcB->setPosition(100, 180);
-	CcB->connect("pressed", &UI::setKey, this, CcB, std::ref(options->rccw));
-	CcB->setText(SFKeyToString(options->rccw));
+	CcB->connect("pressed", &UI::setKey, this, CcB, std::ref(options.rccw));
+	CcB->setText(SFKeyToString(options.rccw));
 	GenOpt->add(CcB,"BindRCCW");
 
 	tgui::Label::Ptr R1L = themeTG->load("Label");
@@ -228,8 +228,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(R1L);
 	tgui::Button::Ptr R1B = themeTG->load("Button");
 	R1B->setPosition(500, 60);
-	R1B->connect("pressed", &UI::setKey, this, R1B, std::ref(options->r180));
-	R1B->setText(SFKeyToString(options->r180));
+	R1B->connect("pressed", &UI::setKey, this, R1B, std::ref(options.r180));
+	R1B->setText(SFKeyToString(options.r180));
 	GenOpt->add(R1B,"BindR180");
 
 	tgui::Label::Ptr HdL = themeTG->load("Label");
@@ -240,8 +240,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(HdL);
 	tgui::Button::Ptr HdB = themeTG->load("Button");
 	HdB->setPosition(500, 100);
-	HdB->connect("pressed", &UI::setKey, this, HdB, std::ref(options->hd));
-	HdB->setText(SFKeyToString(options->hd));
+	HdB->connect("pressed", &UI::setKey, this, HdB, std::ref(options.hd));
+	HdB->setText(SFKeyToString(options.hd));
 	GenOpt->add(HdB,"BindHD");
 
 	tgui::Label::Ptr ChL = themeTG->load("Label");
@@ -252,8 +252,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(ChL);
 	tgui::Button::Ptr ChB = themeTG->load("Button");
 	ChB->setPosition(500, 140);
-	ChB->connect("pressed", &UI::setKey, this, ChB, std::ref(options->chat));
-	ChB->setText(SFKeyToString(options->chat));
+	ChB->connect("pressed", &UI::setKey, this, ChB, std::ref(options.chat));
+	ChB->setText(SFKeyToString(options.chat));
 	GenOpt->add(ChB,"BindChat");
 
 	tgui::Label::Ptr ScL = themeTG->load("Label");
@@ -264,8 +264,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(ScL);
 	tgui::Button::Ptr ScB = themeTG->load("Button");
 	ScB->setPosition(500, 180);
-	ScB->connect("pressed", &UI::setKey, this, ScB, std::ref(options->score));
-	ScB->setText(SFKeyToString(options->score));
+	ScB->connect("pressed", &UI::setKey, this, ScB, std::ref(options.score));
+	ScB->setText(SFKeyToString(options.score));
 	GenOpt->add(ScB,"BindScore");
 
 	tgui::Label::Ptr AwL = themeTG->load("Label");
@@ -276,8 +276,8 @@ void UI::createAllWidgets() {
 	GenOpt->add(AwL);
 	tgui::Button::Ptr AwB = themeTG->load("Button");
 	AwB->setPosition(500, 220);
-	AwB->connect("pressed", &UI::setKey, this, AwB, std::ref(options->away));
-	AwB->setText(SFKeyToString(options->away));
+	AwB->connect("pressed", &UI::setKey, this, AwB, std::ref(options.away));
+	AwB->setText(SFKeyToString(options.away));
 	GenOpt->add(AwB,"BindAway");
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
@@ -309,7 +309,7 @@ void UI::createAllWidgets() {
 	Re1->setPosition(750, 50);
 	Re1->setSize(70, 30);
 	Re1->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re1->setText(to_string(options->repeatDelay.asMilliseconds()));
+	Re1->setText(to_string(options.repeatDelay.asMilliseconds()));
 	Re1->connect("TextChanged", &optionSet::setDelay, options, 1);
 	GenOpt->add(Re1);
 
@@ -317,7 +317,7 @@ void UI::createAllWidgets() {
 	Re2->setPosition(850, 50);
 	Re2->setSize(70, 30);
 	Re2->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re2->setText(to_string(options->repeatSpeed.asMilliseconds()));
+	Re2->setText(to_string(options.repeatSpeed.asMilliseconds()));
 	Re2->connect("TextChanged", &optionSet::setDelay, options, 2);
 	GenOpt->add(Re2);
 
@@ -331,7 +331,7 @@ void UI::createAllWidgets() {
 	Re3->setPosition(750, 150);
 	Re3->setSize(70, 30);
 	Re3->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re3->setText(to_string(options->repeatDelayDown.asMilliseconds()));
+	Re3->setText(to_string(options.repeatDelayDown.asMilliseconds()));
 	Re3->connect("TextChanged", &optionSet::setDelay, options, 3);
 	GenOpt->add(Re3);
 
@@ -339,7 +339,7 @@ void UI::createAllWidgets() {
 	Re4->setPosition(850, 150);
 	Re4->setSize(70, 30);
 	Re4->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re4->setText(to_string(options->repeatSpeedDown.asMilliseconds()));
+	Re4->setText(to_string(options.repeatSpeedDown.asMilliseconds()));
 	Re4->connect("TextChanged", &optionSet::setDelay, options, 4);
 	GenOpt->add(Re4);
 
@@ -358,11 +358,11 @@ void UI::createAllWidgets() {
 	tgui::Slider::Ptr ViS = themeTG->load("Slider");
 	ViS->setPosition(50, 50);
 	ViS->setSize(700, 30);
-	ViS->setMaximum(options->modes.size()-1);
-	if (options->currentmode == -1)
+	ViS->setMaximum(options.modes.size()-1);
+	if (options.currentmode == -1)
 		ViS->setValue(0);
 	else
-		ViS->setValue(options->currentmode);
+		ViS->setValue(options.currentmode);
 	ViS->connect("ValueChanged", &UI::vidSlide, this);
 	ViS->disable();
 	VidOpt->add(ViS, "VMSlider");
@@ -370,7 +370,7 @@ void UI::createAllWidgets() {
 	tgui::Label::Ptr SvL = themeTG->load("Label");
 	SvL->setPosition(340, 90);
 	sf::String cvmname;
-	cvmname = to_string(options->modes[ViS->getValue()].width) + "x" + to_string(options->modes[ViS->getValue()].height);
+	cvmname = to_string(options.modes[ViS->getValue()].width) + "x" + to_string(options.modes[ViS->getValue()].height);
 	SvL->setText(cvmname);
 	VidOpt->add(SvL, "VideoMode");
 
@@ -379,7 +379,7 @@ void UI::createAllWidgets() {
 	FsC->setText("Fullscreen");
 	FsC->connect("Checked Unchecked", &UI::fsChecked, this);
 	VidOpt->add(FsC, "Fullscreen");
-	if (options->fullscreen) {
+	if (options.fullscreen) {
 		FsC->check();
 		ViS->enable();
 	}
@@ -387,14 +387,14 @@ void UI::createAllWidgets() {
 	tgui::CheckBox::Ptr VsC = themeTG->load("CheckBox");
 	VsC->setPosition(380, 130);
 	VsC->setText("VSync");
-	if (options->vSync)
+	if (options.vSync)
 		VsC->check();
 	VidOpt->add(VsC, "vSync");
 
 	tgui::CheckBox::Ptr PoC = themeTG->load("CheckBox");
 	PoC->setPosition(580, 130);
 	PoC->setText("Performance output");
-	if (options->performanceOutput)
+	if (options.performanceOutput)
 		PoC->check();
 	VidOpt->add(PoC, "performanceOutput");
 
@@ -407,7 +407,7 @@ void UI::createAllWidgets() {
 	FdE->setPosition(170, 230);
 	FdE->setSize(70, 30);
 	FdE->setInputValidator(tgui::EditBox::Validator::UInt);
-	FdE->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
+	FdE->setText(to_string(1000000/options.frameDelay.asMicroseconds()));
 	VidOpt->add(FdE, "FrameDelay");
 
 	tgui::Label::Ptr IdL = themeTG->load("Label");
@@ -419,7 +419,7 @@ void UI::createAllWidgets() {
 	IdE->setPosition(460, 230);
 	IdE->setSize(110, 30);
 	IdE->setInputValidator(tgui::EditBox::Validator::UInt);
-	IdE->setText(to_string(1000000/options->inputDelay.asMicroseconds()));
+	IdE->setText(to_string(1000000/options.inputDelay.asMicroseconds()));
 	VidOpt->add(IdE, "InputDelay");
 
 	tgui::Button::Ptr AvB = themeBB->load("Button");
@@ -446,7 +446,7 @@ void UI::createAllWidgets() {
 	EsC->setText("Sound Enabled");
 	EsC->connect("Checked Unchecked", &UI::sndChecked, this);
 	SndOpt->add(EsC, "sndCheck");
-	if (options->sound)
+	if (options.sound)
 		EsC->check();
 
 	tgui::Slider::Ptr MvS = themeTG->load("Slider");
@@ -454,7 +454,7 @@ void UI::createAllWidgets() {
 	MvS->setSize(700,30);
 	MvS->setMaximum(100);
 	MvS->connect("ValueChanged", &UI::volSlide, this, 1);
-	MvS->setValue(options->MusicVolume);
+	MvS->setValue(options.MusicVolume);
 	SndOpt->add(MvS);
 
 	tgui::Label::Ptr MvL = themeTG->load("Label");
@@ -467,7 +467,7 @@ void UI::createAllWidgets() {
 	EvS->setSize(700,30);
 	EvS->setMaximum(100);
 	EvS->connect("ValueChanged", &UI::volSlide, this, 2);
-	EvS->setValue(options->EffectVolume);
+	EvS->setValue(options.EffectVolume);
 	SndOpt->add(EvS);
 
 	tgui::Label::Ptr EvL = themeTG->load("Label");
@@ -480,7 +480,7 @@ void UI::createAllWidgets() {
 	CvS->setSize(700,30);
 	CvS->setMaximum(100);
 	CvS->connect("ValueChanged", &UI::volSlide, this, 3);
-	CvS->setValue(options->ChatVolume);
+	CvS->setValue(options.ChatVolume);
 	SndOpt->add(CvS);
 
 	tgui::Label::Ptr CvL = themeTG->load("Label");
@@ -574,9 +574,10 @@ void UI::createAllWidgets() {
 	tgui::Tab::Ptr LoT = themeBB->load("Tab"); // Online play Tab
 	LoT->add("Rooms");
 	LoT->add("Lobby");
+	LoT->add("Tournaments");
 	LoT->add("Create room");
 	LoT->add("Back");
-	LoT->setTabHeight(60);
+	LoT->setTabHeight(50);
 	LoT->setPosition(50, 20);
 	LoT->select(0);
 	LoT->connect("TabSelected", &UI::opTabSelect, this);
@@ -591,13 +592,8 @@ void UI::createAllWidgets() {
 	RoP->setBackgroundColor(sf::Color(255,255,255,0));
 	gui.add(RoP, "Rooms");
 
-	tgui::Scrollbar::Ptr RoS = themeTG->load("Scrollbar");
-	RoS->setSize(30, 490);
-	RoS->setPosition(400, 5);
-	RoS->setMaximum(0);
-	RoS->setLowValue(1);
-	RoS->connect("ValueChanged", &UI::roomScrolled, this);
-	RoP->add(RoS, "RoomScroll");
+	sf::Rect<int> pos(0,0,450,500);
+	roomList.create(RoP, pos, this);
 
 	tgui::Panel::Ptr LoP = tgui::Panel::create(); // Lobby Panel
 	LoP->setPosition(0,100);
@@ -617,6 +613,15 @@ void UI::createAllWidgets() {
 	SlE->connect("ReturnKeyPressed", &UI::sendMsg, this, "Lobby");
 	SlE->connect("Focused Unfocused", &UI::chatFocus, this, std::bind(&tgui::Widget::isFocused, SlE));
 	LoP->add(SlE, "slChatBox");
+
+	tgui::Panel::Ptr ToP = tgui::Panel::create(); // Tournaments Panel
+	ToP->setPosition(0,100);
+	ToP->setSize(960, 500);
+	ToP->hide();
+	ToP->setBackgroundColor(sf::Color(255,255,255,0));
+	gui.add(ToP, "Tournaments");
+
+	tournamentList.create(ToP, pos, this);
 
 	tgui::Panel::Ptr CrP = tgui::Panel::create(); // Create room panel
 	CrP->setPosition(0,100);
@@ -690,6 +695,7 @@ void UI::createAllWidgets() {
 	QmL->setTextSize(32);
 	QmL->setTextColor(sf::Color::Red);
 	QmL->hide();
+	QmL->disable(false);
 	gui.add(QmL, "QuickMsg");
 
 	tgui::Button::Ptr DbG = themeBB->load("Button");

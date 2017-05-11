@@ -2,6 +2,9 @@
 #define GAMEFIELD_H
 
 #include <SFML/Graphics.hpp>
+#include "pieces.h"
+
+class Resources;
 
 class gameField {
 public:
@@ -17,7 +20,7 @@ public:
 
     sf::String name;
 
-    gameField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font);
+    gameField(Resources& _resources);
     gameField(const gameField& field);
 
     void clear();
@@ -42,19 +45,15 @@ class obsField : public gameField {
 public:
     obsField(const obsField& field);
     
-    obsField(sf::Sprite* tilep, sf::Sprite* backgroundp, sf::Font& font1, sf::Font& font2);
+    obsField(Resources& _resources);
 
+    Resources& resources;
     sf::Uint16 id;
-    short nextpiece;
-    short nprot;
-    short npcol;
+    sf::Uint8 nextpiece, nprot, npcol;
     short scale;
-    short posX, posY;
-    sf::Uint8 grid[4][4];
-    bool mouseover;
-    sf::Uint8 datacount;
-    bool away;
-    sf::Uint8 position;
+    basePieces piece;
+    bool mouseover, away;
+    sf::Uint8 datacount, position;
 
     sf::Text comboText, pendingText, bpmText;
 
@@ -66,6 +65,10 @@ public:
     void drawPiece();
     bool setComboTimer(sf::Uint8 count);
     void drawText();
+    void drawNextPiece();
+    void drawGhostPiece();
+    void updatePiece();
+    bool possible();
 };
 
 #endif

@@ -19,80 +19,31 @@ using namespace std;
 
 #define CLIENT_VERSION 2
 
-bool loadError(sf::String error) {
-    if (error == "OK")
-        return false;
-    sf::RenderWindow window;
-    window.create(sf::VideoMode(500, 400), "SpeedBlocks");
-    window.clear();
-    tgui::Gui gui(window);
-    tgui::Label::Ptr errorMsg = tgui::Label::create();
-    errorMsg->setText("Failed to load resources " + error + "\nSee that the file is there or reinstall the game.\n\nPress any key to quit.");
-    errorMsg->setTextColor(sf::Color::White);
-    errorMsg->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    errorMsg->setTextSize(35);
-    errorMsg->setSize(500,400);
-    gui.add(errorMsg);
-    gui.draw();
-    window.display();
-
-    sf::Event event;
-    while (1) {
-        window.waitEvent(event);
-        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::Closed)
-            break;
-    }
-    return true;
-}
-
 int main()
 {
     // Initializing classes and loading resources
+    Resources resources;
+    if (!resources.init())
+        return 0;
 
-    sf::Font typewriter, printFont;
-    if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf")) {
-        loadError("media/Kingthings Trypewriter 2.ttf");
-        return false;
-    }
-    if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf")) {
-        loadError("media/F25_Bank_Printer.ttf");
-        return false;
-    }
-
-    textures textureBase;
-    if (loadError(textureBase.loadTextures()))
-        return false;
-
-    network net;
-
-    soundBank sounds;
-    if (loadError(sounds.loadSounds()))
-        return false;
-
-    gamePlay game(&textureBase, &sounds, printFont, &typewriter);
-
-    game.field.setName(game.options.name);
-
-    sounds.setEffectVolume(game.options.EffectVolume);
-    sounds.setMusicVolume(game.options.MusicVolume);
-    sounds.setChatVolume(game.options.ChatVolume);
+    gamePlay game(resources);
 
     sf::RenderWindow window;
-    if (game.options.fullscreen)
-        window.create(game.options.modes[game.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+    if (resources.options.fullscreen)
+        window.create(resources.options.modes[resources.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
     if (!window.isOpen()) {
         window.create(sf::VideoMode(960, 600), "SpeedBlocks");
         //window.create(sf::VideoMode(544, 340), "SpeedBlocks");
-        game.options.fullscreen=false;
-        game.options.currentmode=-1;
+        resources.options.fullscreen=false;
+        resources.options.currentmode=-1;
     }
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
     window.setKeyRepeatEnabled(false);
-    if (game.options.vSync)
+    if (resources.options.vSync)
         window.setVerticalSyncEnabled(true);
 
-    UI gui(window, typewriter, printFont, game.options, sounds, game, net, textureBase);
+    UI gui(window, game);
     gui.clientVersion = CLIENT_VERSION;
 
     gui.gui.setView(view);
@@ -115,7 +66,7 @@ int main()
             gui.handleEvent(event);
 
         if (gui.playonline)
-            while (net.receiveData())
+            while (resources.net.receiveData())
                 gui.handlePacket();
 
         gui.delayCheck();
@@ -168,7 +119,7 @@ int main()
                 game.preDrawMe=false;
             }
             nextDraw+=game.options.frameDelay;
-            window.draw(textureBase.background);
+            window.draw(resources.gfx.background);
             if (gui.gamestate == CountDown || gui.gamestate == Game || gui.gamestate == GameOver || gui.gamestate == Replay) {
                 window.draw( game.field.sprite );
                 gui.drawFields();

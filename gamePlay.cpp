@@ -12,11 +12,11 @@ using namespace std;
 
 #define PI 3.14159265
 
-gamePlay::gamePlay(textures* texy, soundBank* soundy, sf::Font& font1, sf::Font* font2) : field(texy->tile, &texy->fieldBackground, font1){
-	sounds=soundy;
-
-	font=font2;
-
+gamePlay::gamePlay(Resources& _resources) :
+field(_resources),
+options(_resources.options),
+resources(_resources)
+{
 	nextpiece=0;
 
 	ddelay=sf::seconds(1);
@@ -47,27 +47,29 @@ gamePlay::gamePlay(textures* texy, soundBank* soundy, sf::Font& font1, sf::Font*
 	pendingTextVal=0;
 	bpmTextVal=0;
 
-	comboText.setFont(*font);
+	field.setName(options.name);
+
+	comboText.setFont(resources.gfx.typewriter);
 	comboText.setCharacterSize(48);
 	comboText.setColor(sf::Color::White);
 	comboText.setPosition(360,270);
-	pendingText.setFont(*font);
+	pendingText.setFont(resources.gfx.typewriter);
 	pendingText.setCharacterSize(48);
 	pendingText.setColor(sf::Color::White);
 	pendingText.setPosition(360,500);
-	countdownText.setFont(*font);
+	countdownText.setFont(resources.gfx.typewriter);
 	countdownText.setCharacterSize(96);
 	countdownText.setColor(sf::Color::White);
 	countdownText.setPosition(110,210);
-	bpmText.setFont(*font);
+	bpmText.setFont(resources.gfx.typewriter);
 	bpmText.setCharacterSize(48);
 	bpmText.setColor(sf::Color::White);
 	bpmText.setPosition(360, 400);
-	awayText.setFont(*font);
+	awayText.setFont(resources.gfx.typewriter);
 	awayText.setCharacterSize(52);
 	awayText.setColor(sf::Color::White);
 	awayText.setPosition(110,110);
-	positionText.setFont(*font);
+	positionText.setFont(resources.gfx.typewriter);
 	positionText.setCharacterSize(48);
 	positionText.setColor(sf::Color::White);
 	positionText.setPosition(110,330);
@@ -143,16 +145,15 @@ void gamePlay::mDKey() {
 }
 
 bool gamePlay::possible() {
-	bool possible = true;
 	for (int x=0; x<4; x++)
 		for (int y=0; y<4; y++)
 			if (piece.grid[y][x]) {
 				if (piece.posX+x<0 || piece.posX+x>9 || piece.posY+y<0 || piece.posY+y>21)
-					possible = false;
+					return false;
 				if (field.square[piece.posY+y][piece.posX+x])
-					possible = false;
+					return false;
 			}
-	return possible;
+	return true;
 }
 
 bool gamePlay::mRight() {
@@ -543,7 +544,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	if (lines.x==0) {
 		comboTime-=sf::milliseconds(200);
 		if (options.sound) {
-			sounds->pieceDrop();
+			resources.sounds.pieceDrop();
 		}
 		return;
 	}
@@ -574,7 +575,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		}
 	}
 	if (options.sound) {
-		sounds->lineClear();
+		resources.sounds.lineClear();
 	}
 	linesSent+=lines.x;
 
@@ -595,21 +596,21 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 
 void gamePlay::playComboSound(sf::Uint8 combo) {
 	if (combo==5)
-		sounds->combo5();
+		resources.sounds.combo5();
 	else if (combo==8)
-		sounds->combo8();
+		resources.sounds.combo8();
 	else if (combo==11)
-		sounds->combo11();
+		resources.sounds.combo11();
 	else if (combo==13)
-		sounds->combo13();
+		resources.sounds.combo13();
 	else if (combo==15)
-		sounds->combo15();
+		resources.sounds.combo15();
 	else if (combo==17)
-		sounds->combo17();
+		resources.sounds.combo17();
 	else if (combo==19)
-		sounds->combo19();
+		resources.sounds.combo19();
 	else if (combo==21)
-		sounds->combo21();
+		resources.sounds.combo21();
 }
 
 void gamePlay::addGarbage(short add) {
@@ -626,7 +627,7 @@ void gamePlay::addGarbage(short add) {
 	pendingTextVal=total;
 
 	if (options.sound)
-		sounds->garbAdd();
+		resources.sounds.garbAdd();
 }
 
 void gamePlay::pushGarbage() {
@@ -735,7 +736,7 @@ bool gamePlay::countDown() {
 			else if (countDowncount==3)
 				countdownText.setString("1");
 			if (options.sound)
-				sounds->startBeep1();
+				resources.sounds.startBeep1();
 			preDraw();
 			if (recorder.rec)
 				addRecEvent(7, 4-countDowncount);
@@ -743,7 +744,7 @@ bool gamePlay::countDown() {
 		}
 		else {
 			if (options.sound)
-				sounds->startBeep2();
+				resources.sounds.startBeep2();
 			if (recorder.rec)
 				addRecEvent(7, 0);
 			return true;
@@ -759,9 +760,9 @@ void gamePlay::countDown(short c) {
 	countdownText.setString(to_string(c));
 	if (options.sound) {
 		if (c)
-			sounds->startBeep1();
+			resources.sounds.startBeep1();
 		else
-			sounds->startBeep2();
+			resources.sounds.startBeep2();
 	}
 	preDraw();
 	if (recorder.rec)
@@ -934,9 +935,9 @@ bool gamePlay::playReplay() {
 				sf::Vector2i lines = field.clearlines();
 				if (options.sound) {
 					if (lines.x == 0)
-						sounds->pieceDrop();
+						resources.sounds.pieceDrop();
 					else
-						sounds->lineClear();
+						resources.sounds.lineClear();
 				}
 
 				updateReplayText(event);
@@ -965,9 +966,9 @@ bool gamePlay::playReplay() {
 				countdownText.setString(to_string(event.pending));
 				if (options.sound) {
 					if (event.pending)
-						sounds->startBeep1();
+						resources.sounds.startBeep1();
 					else
-						sounds->startBeep2();
+						resources.sounds.startBeep2();
 				}
 
 				if (event.pending)

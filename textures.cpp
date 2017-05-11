@@ -1,5 +1,6 @@
 #include "textures.h"
 #include <SFML/Graphics.hpp>
+#include <TGUI/TGUI.hpp>
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -39,5 +40,50 @@ sf::String textures::loadTextures() {
     if (!backgroundTexture.loadFromFile(resourcePath() + "media/background.png"))
         return "media/background.png";
     background.setTexture(backgroundTexture);
+
+    if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf"))
+        return "media/Kingthings Trypewriter 2.ttf";
+    if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf"))
+        return "media/F25_Bank_Printer.ttf";
+    
     return "OK";
+}
+
+bool loadError(sf::String error) {
+    if (error == "OK")
+        return false;
+    sf::RenderWindow window;
+    window.create(sf::VideoMode(500, 400), "SpeedBlocks");
+    window.clear();
+    tgui::Gui gui(window);
+    tgui::Label::Ptr errorMsg = tgui::Label::create();
+    errorMsg->setText("Failed to load resources " + error + "\nSee that the file is there or reinstall the game.\n\nPress any key to quit.");
+    errorMsg->setTextColor(sf::Color::White);
+    errorMsg->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+    errorMsg->setTextSize(35);
+    errorMsg->setSize(500,400);
+    gui.add(errorMsg);
+    gui.draw();
+    window.display();
+
+    sf::Event event;
+    while (1) {
+        window.waitEvent(event);
+        if (event.type == sf::Event::KeyPressed || event.type == sf::Event::Closed)
+            break;
+    }
+    return true;
+}
+
+bool Resources::init() {
+    if (loadError(gfx.loadTextures()))
+        return false;
+    if (loadError(sounds.loadSounds()))
+        return false;
+
+    sounds.setEffectVolume(options.EffectVolume);
+    sounds.setMusicVolume(options.MusicVolume);
+    sounds.setChatVolume(options.ChatVolume);
+
+    return true;
 }

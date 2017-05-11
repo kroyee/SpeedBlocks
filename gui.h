@@ -3,6 +3,7 @@
 
 #include <TGUI/TGUI.hpp>
 #include "packetcompress.h"
+#include "ScrollList.h"
 
 class optionSet;
 class soundBank;
@@ -10,6 +11,7 @@ class gamePlay;
 class network;
 class PacketCompress;
 class textures;
+class Resources;
 
 class obsField;
 
@@ -33,25 +35,23 @@ enum GameStates { MainMenu, CountDown, Game, GameOver, Replay };
 
 class UI {
 public:
-	UI(sf::RenderWindow&, sf::Font&, sf::Font&, optionSet&, soundBank&, gamePlay&, network&, textures&);
+	UI(sf::RenderWindow& window_, gamePlay& game_);
 
 	tgui::Font typewriter;
 	tgui::Font printFont2;
-	sf::Font* printFont;
-	sf::Font* typewriterSF;
 
 	tgui::Gui gui;
 	tgui::Theme::Ptr themeTG;
 	tgui::Theme::Ptr themeBB;
 
 	std::vector<privChat> privChats;
-	std::list<playRoom> playRooms;
+	ScrollList roomList;
+	ScrollList tournamentList;
 
-	optionSet* options;
-	soundBank* sounds;
-	gamePlay* game;
-	network* net;
-	textures* textureBase;
+	Resources& resources;
+	optionSet& options;
+	gamePlay& game;
+	network& net;
 
 	sf::RenderWindow* window;
 
@@ -62,7 +62,6 @@ public:
 	bool updPieces;
 	bool chatFocused;
 	bool inroom;
-	bool disconnect;
 	bool away;
 
 	sf::Keyboard::Key* key;
@@ -118,11 +117,8 @@ public:
 	void Training();
 	void setGameState(GameStates state);
 
-	void addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint16 id);
-	void removeRoom(sf::Uint16 id);
-	void removeAllRooms();
-	void setRoomPos();
-	void roomScrolled(int i);
+	void makeRoomList();
+	void addRoom();
 	void joinRoom(sf::Uint16);
 
 	void Chat();
@@ -134,7 +130,7 @@ public:
 	void sendMsg(const sf::String& to, const sf::String& msg);
 	void chatFocus(bool i);
 
-	void scoreRow(sf::String&&, short, short, short, short, short, float, short, short, short);
+	void scoreRow();
 	void clearScore();
 
 	void ausY();
@@ -146,11 +142,12 @@ public:
 
 	void login(const sf::String&, const sf::String&, sf::Uint8);
 	void closeLogin();
+	void disconnect();
 
 	void bugReport();
 	void minimize(tgui::ChildWindow::Ptr);
 	void close(tgui::ChildWindow::Ptr);
-	void sendReport(sf::String, sf::String, sf::String, sf::String, tgui::ChildWindow::Ptr);
+	void sendReport(tgui::ChildWindow::Ptr);
 
 	void createRoom(const sf::String&, const sf::String&);
 
@@ -169,6 +166,8 @@ public:
 	sf::Time gamedata;
 	sf::Uint8 gamedatacount;
 	sf::Uint16 myId;
+
+	sf::String unknown;
 
 	void addField(obsField& field);
 	void removeField(sf::Uint16 id);
@@ -202,7 +201,7 @@ public:
 	void goAway();
 	void unAway();
 
-	sf::String getName(sf::Uint16);
+	const sf::String& getName(sf::Uint16);
 
 	void delayCheck();
 

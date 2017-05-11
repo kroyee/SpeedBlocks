@@ -21,14 +21,14 @@ public:
 
 class gamePlay {
 public:
-	gamePlay(textures* texy, soundBank* soundy, sf::Font& font1, sf::Font* font2);
+	gamePlay(Resources& _resources);
 
 	gameField field;
 	basePieces piece;
 	basePieces basepiece[7];
-	optionSet options;
+	optionSet& options;
 
-	soundBank* sounds;
+	Resources& resources;
 
 	randomizer rander;
 
@@ -89,7 +89,6 @@ public:
 
 	sf::ConvexShape comboTimer;
 
-	sf::Font* font;
 	sf::Text comboText;
 	sf::Text pendingText;
 	sf::Text countdownText;

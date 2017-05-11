@@ -5,13 +5,13 @@
 
 class basePieces {
 public:
+	basePieces();
 	sf::Uint8 grid[4][4];
 
 	sf::Uint8 rotation;
 	sf::Uint8 current_rotation;
 
-	short posX;
-	short posY;
+	sf::Int8 posX, posY;
 
 	short lpiece;
 

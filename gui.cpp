@@ -13,19 +13,15 @@ using namespace std;
 #include "EmptyResourcePath.h"
 #endif
 
-UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
-    optionSet& options_, soundBank& sounds_, gamePlay& game_, network& net_,
-    textures& textureBase_)
-    : typewriter(font1),
-      printFont2(font2),
-      printFont(&font2),
-      typewriterSF(&font1),
+UI::UI(sf::RenderWindow& window_,
+	gamePlay& game_)
+    : typewriter(game_.resources.gfx.typewriter),
+      printFont2(game_.resources.gfx.printFont),
       gui(window_),
-      options(&options_),
-      sounds(&sounds_),
-      game(&game_),
-      net(&net_),
-      textureBase(&textureBase_),
+      resources(game_.resources),
+      options(game_.options),
+      game(game_),
+      net(game_.resources.net),
       window(&window_),
       training(false),
       playonline(false),
@@ -34,7 +30,6 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       updPieces(false),
       chatFocused(false),
       inroom(false),
-      disconnect(false),
       away(false),
       key(nullptr),
       linesSent(0),
@@ -51,9 +46,10 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
       scaleup(0),
       gamedata(sf::seconds(0)),
       gamedatacount(0),
-      myId(0) {
+      myId(0),
+      unknown("Unknown") {
 
-    compressor.game=game;
+    compressor.game=&game;
 
 	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
@@ -63,34 +59,39 @@ UI::UI(sf::RenderWindow& window_, sf::Font& font1, sf::Font& font2,
 	createAllWidgets();
 
 
-	performanceLabel.setFont(*printFont);
+	performanceLabel.setFont(resources.gfx.printFont);
 	performanceLabel.setCharacterSize(10);
 	performanceLabel.setColor(sf::Color::White);
 	performanceLabel.setPosition(846,2);
 	performanceLabel.setString("LFT IPS  FPS MS");
 
-	ping.setFont(*printFont);
+	ping.setFont(resources.gfx.printFont);
 	ping.setCharacterSize(12);
 	ping.setColor(sf::Color::Black);
 	ping.setPosition(932,12);
 	ping.setString("0");
-	frameRate.setFont(*printFont);
+	frameRate.setFont(resources.gfx.printFont);
 	frameRate.setCharacterSize(12);
 	frameRate.setColor(sf::Color::Black);
 	frameRate.setPosition(902,12);
-	inputRate.setFont(*printFont);
+	inputRate.setFont(resources.gfx.printFont);
 	inputRate.setCharacterSize(12);
 	inputRate.setColor(sf::Color::Black);
 	inputRate.setPosition(872,12);
-	longestFrame.setFont(*printFont);
+	longestFrame.setFont(resources.gfx.printFont);
 	longestFrame.setCharacterSize(12);
 	longestFrame.setColor(sf::Color::Black);
 	longestFrame.setPosition(849,12);
 }
 
-void UI::sendReport(sf::String happened, sf::String expected, sf::String reproduce, sf::String contact, tgui::ChildWindow::Ptr win) {
+void UI::sendReport(tgui::ChildWindow::Ptr win) {
 	CURL *curl;
 	CURLcode res;
+
+	sf::String happened = win->get<tgui::TextBox>("happened")->getText();
+	sf::String expected = win->get<tgui::TextBox>("expected")->getText();
+	sf::String reproduce = win->get<tgui::TextBox>("reproduce")->getText();
+	sf::String contact = win->get<tgui::TextBox>("contact")->getText();
 
 	sf::String postfield = "{\"happening\":\"" + happened + "\",\"supposed\":\"" + expected + "\",\"reproduce\":\"" + reproduce + "\",\"contact\":\"" + contact + "\"}";
 	cout << postfield.toAnsiString().c_str() << endl;
@@ -154,7 +155,7 @@ void UI::bugReport() {
 	tgui::TextBox::Ptr WhT = themeBB->load("TextBox");
 	WhT->setPosition(5, 40);
 	WhT->setSize(390, 80);
-	ChW->add(WhT);
+	ChW->add(WhT, "happened");
 
 	tgui::Label::Ptr WhL2 = themeBB->load("Label");
 	WhL2->setPosition(10, 125);
@@ -164,7 +165,7 @@ void UI::bugReport() {
 	tgui::TextBox::Ptr WhT2 = themeBB->load("TextBox");
 	WhT2->setPosition(5, 160);
 	WhT2->setSize(390, 80);
-	ChW->add(WhT2);
+	ChW->add(WhT2, "expected");
 
 	tgui::Label::Ptr WhL3 = themeBB->load("Label");
 	WhL3->setPosition(10, 245);
@@ -174,7 +175,7 @@ void UI::bugReport() {
 	tgui::TextBox::Ptr WhT3 = themeBB->load("TextBox");
 	WhT3->setPosition(5, 280);
 	WhT3->setSize(390, 80);
-	ChW->add(WhT3);
+	ChW->add(WhT3, "reproduce");
 
 	tgui::Label::Ptr WhL4 = themeBB->load("Label");
 	WhL4->setPosition(10, 365);
@@ -184,13 +185,13 @@ void UI::bugReport() {
 	tgui::TextBox::Ptr WhT4 = themeBB->load("TextBox");
 	WhT4->setPosition(5, 400);
 	WhT4->setSize(390, 40);
-	ChW->add(WhT4);
+	ChW->add(WhT4, "contact");
 
 	tgui::Button::Ptr send = themeBB->load("Button");
 	send->setPosition(170, 445);
 	send->setSize(60, 30);
 	send->setText("Send");
-	send->connect("Pressed", &UI::sendReport, this, std::bind(&tgui::TextBox::getText, WhT), std::bind(&tgui::TextBox::getText, WhT2), std::bind(&tgui::TextBox::getText, WhT3), std::bind(&tgui::TextBox::getText, WhT4), ChW);
+	send->connect("Pressed", &UI::sendReport, this, ChW);
 	ChW->add(send);
 }
 
@@ -214,30 +215,32 @@ void UI::minimize(tgui::ChildWindow::Ptr win) {
 		win->setSize(win->getSize().x, 0);
 }
 
-void UI::addRoom(const sf::String& name, sf::Uint8 curr, sf::Uint8 max, sf::Uint16 id) {
-	playRoom newroom;
-	playRooms.push_back(newroom);
-	playRooms.back().name = name;
-	playRooms.back().currentPlayers = curr;
-	playRooms.back().maxPlayers = max;
-	playRooms.back().button = themeTG->load("Button");
-	playRooms.back().button->setText(name);
-	playRooms.back().button->setSize(300, 100);
-	playRooms.back().button->connect("Pressed", &UI::joinRoom, this, id);
-	gui.get<tgui::Panel>("Rooms")->add(playRooms.back().button);
+void UI::makeRoomList() {
+	sf::Uint8 roomCount;
 
-	playRooms.back().label = themeTG->load("Label");
-	playRooms.back().label->setText(to_string(curr) + "/" + to_string(max) + " players");
+	net.packet >> roomCount;
+	roomList.removeAllItems();
 
-	playRooms.back().id = id;
+	for (int i=0; i<roomCount; i++)
+		addRoom();
+}
 
-	setRoomPos();
+void UI::addRoom() {
+	sf::String name;
+	sf::Uint8 maxPlayers, currentPlayers;
+	sf::Uint16 id;
+	net.packet >> id >> name >> currentPlayers >> maxPlayers;
+	sf::String roomlabel = to_string(currentPlayers);
+	if (maxPlayers)
+		roomlabel += "/" + to_string(maxPlayers);
+	roomlabel+= " players";
+	roomList.addItem(name, roomlabel, id);
 }
 
 void UI::joinRoom(sf::Uint16 id) {
 	sendPacket0(id);
 	away=false;
-	game->autoaway=false;
+	game.autoaway=false;
 }
 
 void UI::leaveRoom() {
@@ -246,68 +249,27 @@ void UI::leaveRoom() {
 	setGameState(MainMenu);
 }
 
-void UI::removeRoom(sf::Uint16 id) {
-	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
-		if (it->id == id) {
-			cout << "removing room " << it->name.toAnsiString() << " as " << it->id << endl;
-			gui.get<tgui::Panel>("Rooms")->remove(it->button);
-			it = playRooms.erase(it);
-			setRoomPos();
-			return;
-		}
-	}
-}
-
-void UI::removeAllRooms() {
-	while (playRooms.size() > 0)
-		playRooms.pop_front();
-}
-
-void UI::setRoomPos() {
-	short height = playRooms.size() * 120 + 10;
-	if (height > 500) {
-		height-=500;
-		height/=30;
-		height++;
-		gui.get<tgui::Scrollbar>("RoomScroll", 1)->setMaximum(height);
-	}
-	else
-		gui.get<tgui::Scrollbar>("RoomScroll", 1)->setMaximum(0);
-	short scrollpos = gui.get<tgui::Scrollbar>("RoomScroll", 1)->getValue();
-	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
-		int i = std::distance(playRooms.begin(), it);
-		it->button->setPosition(50, i*120 - scrollpos*30 + 10);
-	}
-}
-
-void UI::roomScrolled(int c) {
-	for (auto it = playRooms.begin(); it != playRooms.end(); it++) {
-		int i = std::distance(playRooms.begin(), it);
-		it->button->setPosition(50, i*120 - c*30 + 10);
-	}
-}
-
 void UI::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
 	if (guest && !name.getSize())
 		return;
 	gui.get("MainMenu")->hide();
 	gui.get("Login")->hide();
 	gui.get("Connecting")->show();
-	window->draw(textureBase->background); //Update the screen so a block on connect will show the connecting screen
+	window->draw(resources.gfx.background); //Update the screen so a block on connect will show the connecting screen
 	gui.draw();
 	window->display();
-	net->serverAdd = gui.get<tgui::EditBox>("IPAddr", true)->getText().toAnsiString();
-	if (net->connect() == sf::Socket::Done) {
-		net->udpSock.unbind();
-		net->udpSock.bind(sf::Socket::AnyPort);
-		net->localUdpPort = net->udpSock.getLocalPort();
+	net.serverAdd = gui.get<tgui::EditBox>("IPAddr", true)->getText().toAnsiString();
+	if (net.connect() == sf::Socket::Done) {
+		net.udpSock.unbind();
+		net.udpSock.bind(sf::Socket::AnyPort);
+		net.localUdpPort = net.udpSock.getLocalPort();
 		sendPacket2(name, pass, guest);
 		playonline=true;
 		if (guest)
-			game->field.setName(name);
+			game.field.setName(name);
 	}
 	else {
-		net->disconnect();
+		net.disconnect();
 		quickMsg("Could not connect to server");
 		gui.get("Connecting")->hide();
 		gui.get("Login")->show();
@@ -329,7 +291,7 @@ void UI::playOnline() {
 void UI::Training() {
 	training=true;
 	setGameState(CountDown);
-    game->startCountdown();
+    game.startCountdown();
 }
 
 void UI::setGameState(GameStates state) {
@@ -361,10 +323,10 @@ void UI::setGameState(GameStates state) {
 			mainMenu();
 	}
 	else if (state == CountDown) {
-        game->sRKey();
-        game->sLKey();
-        game->sDKey();
-        game->gameover=false;
+        game.sRKey();
+        game.sLKey();
+        game.sDKey();
+        game.gameover=false;
 	}
 	else if (state == Game) {
 		linesSent=0;
@@ -372,18 +334,18 @@ void UI::setGameState(GameStates state) {
         linesBlocked=0;
         gamedatacount=0;
 		gamedata=sf::seconds(0);
-        game->startGame();
+        game.startGame();
 	}
 	else if (state == GameOver) {
-        if (game->autoaway)
+        if (game.autoaway)
             goAway();
-        if (game->sendgameover)
+        if (game.sendgameover)
             sendGameOver();
-        if (game->winner)
+        if (game.winner)
             sendGameWinner();
 	}
 	else if (state == Replay) {
-		game->startReplay();
+		game.startReplay();
 	}
 
 	gamestate = state;
@@ -392,30 +354,45 @@ void UI::setGameState(GameStates state) {
 void UI::opTabSelect(const std::string& tab) {
 	if (tab == "Rooms") {
 		gui.get("Rooms")->show();
+		gui.get("Tournaments")->hide();
 		gui.get("ServerLobby")->hide();
 		gui.get("CreateRoom")->hide();
 	}
 	else if (tab == "Lobby") {
 		gui.get("ServerLobby")->show();
 		gui.get("Rooms")->hide();
+		gui.get("Tournaments")->hide();
+		gui.get("CreateRoom")->hide();
+	}
+	else if (tab == "Tournaments") {
+		gui.get("Tournaments")->show();
+		gui.get("Rooms")->hide();
+		gui.get("ServerLobby")->hide();
 		gui.get("CreateRoom")->hide();
 	}
 	else if (tab == "Create room") {
 		gui.get("ServerLobby")->hide();
 		gui.get("Rooms")->hide();
+		gui.get("Tournaments")->hide();
 		gui.get("CreateRoom")->show();
 	}
 	else if (tab == "Back") {
 		gui.get("ServerLobby")->hide();
 		gui.get("Rooms")->hide();
+		gui.get("Tournaments")->hide();
 		gui.get("opTab")->hide();
 		gui.get("CreateRoom")->hide();
 		gui.get("MainMenu")->show();
-		net->disconnect();
-		playonline=false;
-		ping.setString("0");
-		pingColor=255;
+		disconnect();
 	}
+}
+
+void UI::disconnect() {
+	net.disconnect();
+	playonline=false;
+	udpConfirmed=false;
+	ping.setString("0");
+	pingColor=255;
 }
 
 void UI::ausY() {
@@ -474,7 +451,7 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		spamCount+=2000;
 		return;
 	}
-	sf::String postmsg = game->field.name + ": " + msg;
+	sf::String postmsg = game.field.name + ": " + msg;
 	gui.get<tgui::EditBox>("ChatBox", 1)->setText("");
 	gui.get<tgui::EditBox>("slChatBox", 1)->setText("");
 
@@ -531,12 +508,18 @@ void UI::privMsg(const sf::String& name, const sf::String& msg) {
 	privChats[create].chatBox->addLine(name + ": " + msg);
 }
 
-void UI::scoreRow(sf::String&& name, short score, short rank, short bpm, short combo, short sent, float adj, short spm, short received, short blocked) {
+void UI::scoreRow() {
+	sf::Uint8 combo, rank, position;
+	sf::Uint16 id, sent, received, blocked, bpm, spm, score;
+	float adj;
+
+	net.packet >> id >> combo >> sent >> received >> blocked >> bpm >> spm >> rank >> position >> score >> adj;
+
 	sf::String rounding = to_string((int)adj); //A bit messy-looking way of rounding float to 1 decimal
 	rounding += "." + to_string((int)((adj - (int)adj)*10));
 
 	tgui::Label::Ptr label = themeTG->load("Label");
-	label->setText(name);
+	label->setText(getName(id));
 	label->setPosition(5, scoreRows*30+5);
 	label->setTextSize(14);
 	gui.get<tgui::Panel>("Score")->add(label);
@@ -679,16 +662,16 @@ void UI::otabSelect(std::string tab) {
 		gui.get("GenOpt")->hide();
 		gui.get("SndOpt")->hide();
 		adjPieces=false;
-		if (options->fullscreen)
+		if (options.fullscreen)
 			gui.get<tgui::CheckBox>("Fullscreen", 1)->check();
 		else
 			gui.get<tgui::CheckBox>("Fullscreen", 1)->uncheck();
-		if (options->vSync)
+		if (options.vSync)
 			gui.get<tgui::CheckBox>("vSync", 1)->check();
 		else
 			gui.get<tgui::CheckBox>("vSync", 1)->uncheck();
-		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000/options->frameDelay.asMicroseconds()));
-		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options->inputDelay.asMicroseconds()));
+		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000/options.frameDelay.asMicroseconds()));
+		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options.inputDelay.asMicroseconds()));
 	}
 	else if (tab == "Sound") {
 		gui.get("VidOpt")->hide();
@@ -708,28 +691,28 @@ void UI::otabSelect(std::string tab) {
 
 void UI::volSlide(short i, short vol) {
 	if (i == 1) {
-		options->MusicVolume = vol;
-		sounds->setMusicVolume(vol);
+		options.MusicVolume = vol;
+		resources.sounds.setMusicVolume(vol);
 	}
 	else if (i == 2) {
-		options->EffectVolume = vol;
-		sounds->setEffectVolume(vol);
+		options.EffectVolume = vol;
+		resources.sounds.setEffectVolume(vol);
 	}
 	else if (i == 3) {
-		options->ChatVolume = vol;
-		sounds->setChatVolume(vol);
+		options.ChatVolume = vol;
+		resources.sounds.setChatVolume(vol);
 	}
 }
 
 void UI::sndChecked(bool i) {
-	if (gui.get<tgui::CheckBox>("sndCheck", 1)->isChecked())
-		options->sound = true;
+	if (i)
+		options.sound = true;
 	else
-		options->sound = false;
+		options.sound = false;
 }
 
 void UI::fsChecked(bool i) {
-	if (gui.get<tgui::CheckBox>("Fullscreen", 1)->isChecked())
+	if (i)
 		gui.get("VMSlider", 1)->enable();
 	else
 		gui.get("VMSlider", 1)->disable();
@@ -737,53 +720,53 @@ void UI::fsChecked(bool i) {
 
 void UI::applyVideo() {
 	if (gui.get<tgui::CheckBox>("Fullscreen", 1)->isChecked()) {
-		if (options->currentmode == -1 || options->currentmode != gui.get<tgui::Slider>("VMSlider", 1)->getValue()) {
-			options->currentmode = gui.get<tgui::Slider>("VMSlider", 1)->getValue();
+		if (options.currentmode == -1 || options.currentmode != gui.get<tgui::Slider>("VMSlider", 1)->getValue()) {
+			options.currentmode = gui.get<tgui::Slider>("VMSlider", 1)->getValue();
 			window->close();
-			window->create(options->modes[options->currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+			window->create(options.modes[options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
 			window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-			options->fullscreen=true;
+			options.fullscreen=true;
 		}
 	}
-	else if (options->currentmode != -1) {
+	else if (options.currentmode != -1) {
 		window->close();
 		window->create(sf::VideoMode(960, 600), "SpeedBlocks");
-		options->currentmode = -1;
+		options.currentmode = -1;
 		window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-		options->fullscreen=false;
+		options.fullscreen=false;
 	}
 
 	if (gui.get<tgui::CheckBox>("vSync", 1)->isChecked()) {
-		options->vSync = true;
+		options.vSync = true;
 		window->setVerticalSyncEnabled(true);
 	}
 	else {
-		options->vSync = false;
+		options.vSync = false;
 		window->setVerticalSyncEnabled(false);
 	}
 
 	if (gui.get<tgui::CheckBox>("performanceOutput", 1)->isChecked())
-		options->performanceOutput = true;
+		options.performanceOutput = true;
 	else
-		options->performanceOutput = false;
+		options.performanceOutput = false;
 
 	std::string fd = gui.get<tgui::EditBox>("FrameDelay", 1)->getText();
 	short value=0;
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		options->frameDelay = sf::microseconds(1000000/value);
+		options.frameDelay = sf::microseconds(1000000/value);
 	value=0;
 	fd = gui.get<tgui::EditBox>("InputDelay", 1)->getText();
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		options->inputDelay = sf::microseconds(1000000/value);
+		options.inputDelay = sf::microseconds(1000000/value);
 }
 
 void UI::vidSlide(short i) {
 	sf::String name;
-	name = to_string(options->modes[i].width) + "x" + to_string(options->modes[i].height);
+	name = to_string(options.modes[i].width) + "x" + to_string(options.modes[i].height);
 	gui.get<tgui::Label>("VideoMode", 1)->setText(name);
 }
 
@@ -861,53 +844,53 @@ void UI::putKey(sf::Event& event) {
         	gui.get("GenOpt", true)->enable();
         	setkey=false;
 
-		if (event.key.code == options->left) {
-			options->left = sf::Keyboard::Unknown;
+		if (event.key.code == options.left) {
+			options.left = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindLeft", true)->setText("");
 		}
 
-		if (event.key.code == options->right) {
-			options->right = sf::Keyboard::Unknown;
+		if (event.key.code == options.right) {
+			options.right = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindRight", true)->setText("");
 		}
 
-		if (event.key.code == options->down) {
-			options->down = sf::Keyboard::Unknown;
+		if (event.key.code == options.down) {
+			options.down = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindDown", true)->setText("");
 		}
 
-		if (event.key.code == options->rcw) {
-			options->rcw = sf::Keyboard::Unknown;
+		if (event.key.code == options.rcw) {
+			options.rcw = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindRCW", true)->setText("");
 		}
 
-		if (event.key.code == options->rccw) {
-			options->rccw = sf::Keyboard::Unknown;
+		if (event.key.code == options.rccw) {
+			options.rccw = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindRCCW", true)->setText("");
 		}
 
-		if (event.key.code == options->r180) {
-			options->r180 = sf::Keyboard::Unknown;
+		if (event.key.code == options.r180) {
+			options.r180 = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindR180", true)->setText("");
 		}
 
-		if (event.key.code == options->hd) {
-			options->hd = sf::Keyboard::Unknown;
+		if (event.key.code == options.hd) {
+			options.hd = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindHD", true)->setText("");
 		}
 
-		if (event.key.code == options->chat) {
-			options->chat = sf::Keyboard::Unknown;
+		if (event.key.code == options.chat) {
+			options.chat = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindChat", true)->setText("");
 		}
 
-		if (event.key.code == options->score) {
-			options->score = sf::Keyboard::Unknown;
+		if (event.key.code == options.score) {
+			options.score = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindScore", true)->setText("");
 		}
 
-		if (event.key.code == options->away) {
-			options->away = sf::Keyboard::Unknown;
+		if (event.key.code == options.away) {
+			options.away = sf::Keyboard::Unknown;
 			gui.get<tgui::Button>("BindAway", true)->setText("");
 		}
 
@@ -920,8 +903,8 @@ void UI::putKey(sf::Event& event) {
 }
 
 void UI::changeName(const sf::String& name) {
-	options->name = name;
-	game->field.setName(name);
+	options.name = name;
+	game.field.setName(name);
 }
 
 void UI::drawPerformanceOutput() {
@@ -953,20 +936,20 @@ void UI::drawPerformanceOutput() {
 }
 
 void UI::rotPiece(short i) {
-	options->piecerotation[i]++;
-	if (options->piecerotation[i]>3)
-		options->piecerotation[i]=0;
-	piece[i].setRotation(options->piecerotation[i]*90);
-	game->updateBasePieces();
+	options.piecerotation[i]++;
+	if (options.piecerotation[i]>3)
+		options.piecerotation[i]=0;
+	piece[i].setRotation(options.piecerotation[i]*90);
+	game.updateBasePieces();
 }
 
 void UI::colPiece(short i) {
-	if (options->basepiece[i].tile+1>7)
-        options->setPieceColor(i, 1);
+	if (options.basepiece[i].tile+1>7)
+        options.setPieceColor(i, 1);
     else
-        options->setPieceColor(i, options->basepiece[i].tile+1);
-	piece[i].setColor(pColor(options->basepiece[i].tile));
-	game->updateBasePieces();
+        options.setPieceColor(i, options.basepiece[i].tile+1);
+	piece[i].setColor(pColor(options.basepiece[i].tile));
+	game.updateBasePieces();
 }
 
 sf::Color pColor(short i) {
@@ -994,7 +977,7 @@ void UI::initSprites() {
 	sf::RenderTexture rendtex;
 	rendtex.create(120,120);
 
-	std::vector<short> value = options->pieceArray();
+	std::vector<short> value = options.pieceArray();
 
 	for (int p=0; p<7; p++) {
 		rendtex.clear(sf::Color(255,255,255,0));
@@ -1010,9 +993,9 @@ void UI::initSprites() {
 			piece[p].setTexture(texture[p]);
 			piece[p].setScale(0.8, 0.8);
 			piece[p].setPosition(115*p+50, 360+50);
-			piece[p].setColor(pColor(options->basepiece[p].tile));
+			piece[p].setColor(pColor(options.basepiece[p].tile));
 			piece[p].setOrigin(60,60);
-			piece[p].setRotation(options->piecerotation[p]*90);
+			piece[p].setRotation(options.piecerotation[p]*90);
 		}
 		else {
 			for (int x=0; x<3; x++)
@@ -1026,9 +1009,9 @@ void UI::initSprites() {
 			piece[p].setTexture(texture[p]);
 			piece[p].setScale(0.8, 0.8);
 			piece[p].setPosition(115*p+50, 360+50);
-			piece[p].setColor(pColor(options->basepiece[p].tile));
+			piece[p].setColor(pColor(options.basepiece[p].tile));
 			piece[p].setOrigin(60,60);
-			piece[p].setRotation(options->piecerotation[p]*90);
+			piece[p].setRotation(options.piecerotation[p]*90);
 		}
 	}
 }
