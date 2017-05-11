@@ -120,7 +120,7 @@ int main()
             }
             nextDraw+=game.options.frameDelay;
             window.draw(resources.gfx.background);
-            if (gui.gamestate == CountDown || gui.gamestate == Game || gui.gamestate == GameOver || gui.gamestate == Replay) {
+            if (gui.gamestate != MainMenu) {
                 window.draw( game.field.sprite );
                 gui.drawFields();
             }
@@ -135,7 +135,10 @@ int main()
         }
         current = frameClock.getElapsedTime();
         if (game.options.inputDelay - (current - lastFrame) > sf::microseconds(200))
-            sf::sleep(game.options.inputDelay - (current - lastFrame));
+            sf::sleep(game.options.inputDelay - (current - lastFrame) - sf::microseconds(100));
+        while (game.options.inputDelay - (current - lastFrame) > sf::microseconds(0)) {
+            current = frameClock.getElapsedTime();
+        }
         if (nextDraw < current)
             nextDraw=current;
 
@@ -148,22 +151,9 @@ int main()
             frameCount++;
 
             if (current-secCount > sf::seconds(1)) {
-                gui.frameRate.setString(to_string(frameRate));
-                gui.frameRateColor = 255;
-                if (frameRate < 40)
-                    gui.frameRateColor = 0;
-                else if (frameRate < 100)
-                    gui.frameRateColor = (frameRate-40)*4.25;
-                gui.inputRate.setString(to_string(frameCount));
-                gui.inputRateColor = 255;
-                if (frameCount < 255)
-                    gui.inputRateColor = frameCount;
-                gui.longestFrame.setString(to_string(longestFrame.asMilliseconds()));
-                gui.longestFrameColor = 255;
-                if (longestFrame.asMilliseconds() > 21)
-                    gui.longestFrameColor = 0;
-                else if (longestFrame.asMilliseconds() > 4)
-                    gui.longestFrameColor = 255 - (longestFrame.asMilliseconds() - 4) * 15;
+                gui.setFrameRate(frameRate);
+                gui.setInputRate(frameCount);
+                gui.setLongestFrame(longestFrame);
                 frameRate=0;
                 frameCount=0;
                 longestFrame=sf::seconds(0);

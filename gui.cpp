@@ -19,7 +19,7 @@ UI::UI(sf::RenderWindow& window_,
       printFont2(game_.resources.gfx.printFont),
       gui(window_),
       resources(game_.resources),
-      options(game_.options),
+      options(game_.resources.options),
       game(game_),
       net(game_.resources.net),
       window(&window_),
@@ -671,7 +671,7 @@ void UI::otabSelect(std::string tab) {
 		else
 			gui.get<tgui::CheckBox>("vSync", 1)->uncheck();
 		gui.get<tgui::EditBox>("FrameDelay", 1)->setText(to_string(1000000/options.frameDelay.asMicroseconds()));
-		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(options.inputDelay.asMicroseconds()));
+		gui.get<tgui::EditBox>("InputDelay", 1)->setText(to_string(1000000/options.inputDelay.asMicroseconds()));
 	}
 	else if (tab == "Sound") {
 		gui.get("VidOpt")->hide();
@@ -905,6 +905,50 @@ void UI::putKey(sf::Event& event) {
 void UI::changeName(const sf::String& name) {
 	options.name = name;
 	game.field.setName(name);
+}
+
+void UI::setFrameRate(int fr) {
+	frameRate.setString(to_string(fr));
+    if (fr < 40)
+        frameRateColor = 0;
+    else if (fr < 100)
+        frameRateColor = (fr-40)*4.25;
+    else
+    	frameRateColor = 255;
+}
+
+void UI::setInputRate(int fc) {
+	inputRate.setString(to_string(fc));
+    if (fc > 999) {
+        inputRate.setCharacterSize(9);
+        inputRate.setPosition(872,14);
+    }
+    else {
+        inputRate.setCharacterSize(12);
+        inputRate.setPosition(872,12);
+    }
+    if (fc < 255)
+        inputRateColor = fc;
+    else
+    	inputRateColor = 255;
+}
+
+void UI::setLongestFrame(sf::Time& lf) {
+	longestFrame.setString(to_string(lf.asMilliseconds()));
+    if (lf.asMilliseconds() > 21)
+        longestFrameColor = 0;
+    else if (lf.asMilliseconds() > 4)
+        longestFrameColor = 255 - (lf.asMilliseconds() - 4) * 15;
+    else
+    	longestFrameColor = 255;
+}
+
+void UI::setPing(sf::Time& pingResult) {
+	ping.setString(to_string(pingResult.asMilliseconds()));
+	if (pingResult.asMilliseconds() > 255)
+		pingColor = 0;
+	else
+		pingColor = 255-pingResult.asMilliseconds();
 }
 
 void UI::drawPerformanceOutput() {

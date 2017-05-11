@@ -151,6 +151,10 @@ public:
 
 	void createRoom(const sf::String&, const sf::String&);
 
+	void setFrameRate(int fr);
+	void setInputRate(int fc);
+	void setLongestFrame(sf::Time& lf);
+	void setPing(sf::Time& pingResult);
 	void drawPerformanceOutput();
 
 	//GameFIeldDrawer stuff

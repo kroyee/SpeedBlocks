@@ -96,7 +96,7 @@ void PacketCompress::compress() {
 	addBits(game->piece.current_rotation, 2);
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
-	addBits(game->options.piecerotation[game->nextpiece], 2);
+	addBits(game->resources.options.piecerotation[game->nextpiece], 2);
 	addBits(game->comboTextVal, 5);
 	addBits(game->pendingTextVal, 8);
 	sf::Uint8 tmp;

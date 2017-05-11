@@ -667,12 +667,8 @@ void UI::handlePacket() {
 			sf::Uint16 clientid;
 			net.packet >> clientid >> pingId;
 			if (pingId == pingIdCount) {
-				sf::Time tmp = delayClock.getElapsedTime() - pingTime;
-				ping.setString(to_string(tmp.asMilliseconds()));
-				if (tmp.asMilliseconds() > 255)
-					pingColor = 0;
-				else
-					pingColor = 255-tmp.asMilliseconds();
+				sf::Time pingResult = delayClock.getElapsedTime() - pingTime;
+				setPing(pingResult);
 				pingReturned=true;
 			}
 		}
