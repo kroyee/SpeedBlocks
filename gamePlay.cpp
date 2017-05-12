@@ -73,6 +73,11 @@ resources(_resources)
 	positionText.setCharacterSize(48);
 	positionText.setColor(sf::Color::White);
 	positionText.setPosition(110,330);
+	pressEnterText.setFont(resources.gfx.typewriter);
+	pressEnterText.setCharacterSize(17);
+	pressEnterText.setColor(sf::Color::White);
+	pressEnterText.setPosition(10,500);
+	pressEnterText.setString("press Enter to start practice");
 
 	updateBasePieces();
 }
@@ -724,6 +729,7 @@ void gamePlay::startCountdown() {
 	comboStart=sf::seconds(0);
 	comboTime=sf::seconds(0);
 	comboCount=0;
+	position=0;
 	setComboTimer();
 	lKeyTime=sf::seconds(0);
 	rKeyTime=sf::seconds(0);
@@ -786,10 +792,6 @@ bool gamePlay::gameOver() {
 		bpmText.setString(to_string(bpm));
 		bpmTextVal=bpm;
 
-		field.drawField();
-
-		drawNextPiece();
-
 	    if (winner)
 	    	countdownText.setString("Winner");
 	    else
@@ -797,9 +799,7 @@ bool gamePlay::gameOver() {
 		countdownText.setPosition(50,250);
 		countdownText.setCharacterSize(48);
 
-		drawText();
-
-		field.texture.display();
+		drawGameOver();
 		return true;
 	}
 	return false;
@@ -837,6 +837,7 @@ void gamePlay::drawText() {
 	field.texture.draw(positionText);
 	field.texture.draw(countdownText);
 	field.texture.draw(awayText);
+	field.texture.draw(pressEnterText);
 	drawGameText();
 }
 

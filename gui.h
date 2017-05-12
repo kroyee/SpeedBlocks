@@ -31,7 +31,7 @@ public:
 	tgui::Label::Ptr label;
 };
 
-enum GameStates { MainMenu, CountDown, Game, GameOver, Replay };
+enum GameStates { MainMenu, CountDown, Game, GameOver, Replay, Practice };
 
 class UI {
 public:

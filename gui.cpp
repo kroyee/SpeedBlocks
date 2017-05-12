@@ -307,6 +307,11 @@ void UI::setGameState(GameStates state) {
     		gui.get("GameFields")->show();
 		}
 	}
+	else if (gamestate == Practice) {
+		game.sendgameover = false;
+		game.winner = false;
+		game.autoaway = false;
+	}
 
 	if (state == MainMenu) { // Set depending on what state we are going into
 		if (playonline) {
@@ -328,7 +333,7 @@ void UI::setGameState(GameStates state) {
         game.sDKey();
         game.gameover=false;
 	}
-	else if (state == Game) {
+	else if (state == Game || state == Practice) {
 		linesSent=0;
         garbageCleared=0;
         linesBlocked=0;

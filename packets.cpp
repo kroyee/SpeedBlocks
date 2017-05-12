@@ -107,13 +107,17 @@ void UI::sendPacket99() {
 	net.sendUDP();
 }
 
-// Sends the current gamestate to server, ALSO USES packetid 101!!!
 void UI::sendPacket100() {
-	compressor.compress();
+	if (gamestate == CountDown) {
+		sf::Uint8 tmp = game.piece.piece;
+		game.piece.piece = 7; // makes the current piece not draw on other players screen (since it's countdown)
+		compressor.compress();
+		game.piece.piece = tmp;
+	}
+	else
+		compressor.compress();
 	net.packet.clear();
 	sf::Uint8 packetid = 100;
-	if (gamestate == CountDown)
-		packetid = 101;
 	net.packet << packetid << myId << gamedatacount;
 	gamedatacount++;
 	for (int i=0; i<compressor.tmpcount; i++)

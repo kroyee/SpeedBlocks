@@ -211,7 +211,7 @@ void UI::gameInput(sf::Event& event) {
                 game.lKey=false;
         }
 	}
-	else if (gamestate == Game) {
+	else if (gamestate == Game || gamestate == Practice) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
             if (event.key.code == options.right)
                 game.mRKey();
@@ -239,10 +239,16 @@ void UI::gameInput(sf::Event& event) {
 	}
 	else if (gamestate == GameOver) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
-            if (event.key.code == sf::Keyboard::Return && !playonline) {
-                setGameState(CountDown);
-                game.startCountdown();
-                game.gameover=false;
+            if (event.key.code == sf::Keyboard::Return) {
+            	if (playonline) {
+            		game.gameover=false;
+            		setGameState(Practice);
+            	}
+            	else {
+	                setGameState(CountDown);
+	                game.startCountdown();
+	                game.gameover=false;
+            	}
             }
         }
 	}
@@ -441,7 +447,6 @@ void UI::handlePacket() {
 			game.rander.reset();
 			game.startCountdown();
 			game.countDown(countdown);
-			game.position=0;
 			resetOppFields();
 			setGameState(CountDown);
 			gamedatacount=251;
@@ -494,7 +499,8 @@ void UI::handlePacket() {
 	            gui.get("Rooms")->hide();
 				game.field.clear();
 				game.countdownText.setString("");
-				game.preDraw();
+				game.position=0;
+				game.drawGameOver();
 			}
 			else if (joinok == 2)
 				quickMsg("Room is full");

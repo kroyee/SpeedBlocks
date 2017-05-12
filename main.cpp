@@ -102,6 +102,14 @@ int main()
                 if (game.playReplay())
                     gui.setGameState(GameOver);
             break;
+
+            case Practice:
+                game.delayCheck();
+
+                if (game.gameOver())
+                    gui.setGameState(GameOver);
+            break;
+
             default:
             break;
         }
@@ -110,7 +118,7 @@ int main()
 
         current = frameClock.getElapsedTime();
         if (current > nextDraw || game.options.vSync) {
-            if (game.drawMe && (gui.gamestate == Game || gui.gamestate == Replay)) {
+            if (game.drawMe && (gui.gamestate == Game || gui.gamestate == Replay || gui.gamestate == Practice)) {
                 game.draw();
                 game.drawMe=false;
             }

@@ -95,6 +95,7 @@ public:
 	sf::Text bpmText;
 	sf::Text awayText;
 	sf::Text positionText;
+	sf::Text pressEnterText;
 
 	sf::Uint8 comboTextVal, pendingTextVal;
 	sf::Uint16 bpmTextVal;
