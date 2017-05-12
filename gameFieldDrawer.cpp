@@ -127,8 +127,8 @@ void UI::drawOppField(obsField& field) {
 void UI::drawFields() {
 	if (!gui.get("GameFields")->isVisible())
 		return;
-	for (auto &&it : fields)
-		window->draw(it.sprite);
+	for (auto&& field : fields)
+		window->draw(field.sprite);
 	if (scaleup) {
 		scaleup->scale += sclock.restart().asMilliseconds() / 5;
 		if (scaleup->scale > 100)

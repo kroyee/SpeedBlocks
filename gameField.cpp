@@ -115,6 +115,8 @@ void obsField::preDrawField() {
 }
 
 void obsField::drawPiece() {
+    if (piece.piece == 7)
+        return;
     for (int y=0; y<4; y++)
         for (int x=0; x<4; x++)
             if (piece.grid[y][x] != 0)
@@ -138,6 +140,8 @@ void obsField::drawNextPiece() {
 }
 
 void obsField::drawGhostPiece() {
+    if (piece.piece == 7)
+        return;
     if (resources.options.ghostpiece) {
         short posY = piece.posY;
         while (possible()) { piece.mdown(); }
@@ -230,10 +234,7 @@ obsField::obsField(const obsField& field) : gameField(field), resources(field.re
 
     setComboTimer(0);
 
-    for (int x=0; x<4; x++)
-        for (int y=0; y<4; y++) {
-            piece.grid[y][x]=1;
-        }
+    piece.piece = 7;
 }
 
 obsField::obsField(Resources& _resources) : gameField(_resources), resources(_resources) {
@@ -246,9 +247,9 @@ obsField::obsField(Resources& _resources) : gameField(_resources), resources(_re
     positionText.setCharacterSize(48);
     positionText.setPosition(130, 220);
 
-    comboText.setFont(_resources.gfx.printFont); comboText.setString("0");
-    pendingText.setFont(_resources.gfx.printFont); pendingText.setString("0");
-    bpmText.setFont(_resources.gfx.printFont); bpmText.setString("0");
+    comboText.setFont(_resources.gfx.typewriter); comboText.setString("0");
+    pendingText.setFont(_resources.gfx.typewriter); pendingText.setString("0");
+    bpmText.setFont(_resources.gfx.typewriter); bpmText.setString("0");
     comboText.setCharacterSize(48);
     comboText.setColor(sf::Color::White);
     comboText.setPosition(360,270);
@@ -262,7 +263,5 @@ obsField::obsField(Resources& _resources) : gameField(_resources), resources(_re
     comboTimer.setPosition(315, 240);
     comboTimer.setFillColor(sf::Color(255,0,0));
 
-    for (int x=0; x<4; x++)
-        for (int y=0; y<4; y++)
-            piece.grid[y][x]=1;
+    piece.piece=7;
 }
