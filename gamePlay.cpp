@@ -380,8 +380,15 @@ void gamePlay::delayCheck() {
 		dclock.restart();
 	}
 
-	if (iclock.getElapsedTime() > idelay && ddelay > sf::milliseconds(100)) {
-		ddelay-=sf::milliseconds(10);
+	if (iclock.getElapsedTime() > idelay) {
+		if (ddelay > sf::milliseconds(200))
+			ddelay-=sf::milliseconds(10);
+		else if (ddelay > sf::milliseconds(100))
+			ddelay-=sf::milliseconds(5);
+		else if (ddelay > sf::milliseconds(50))
+			ddelay-=sf::milliseconds(2);
+		else if (ddelay > sf::milliseconds(10))
+			ddelay-=sf::milliseconds(1);
 		iclock.restart();
 	}
 
