@@ -55,8 +55,7 @@ Please read the following before you start working on something.
 # Server
 You can find the server [here](https://github.com/kroyee/SpeedBlocks-server)
 
-We currently have a VPS running a test-server in Oslo. Connect to it with hostname: darn.site
-You can only connect with guest account at the moment.
+The server is running on a VPS in Stockholm. To play with an account sign up on the [forum](https://speedblocks.se/forum) and use the username and password in the game client.
 	
 # Donation
 We are currently collecting money for a VPS server solution. This costs around €50-100 per year.
