@@ -363,6 +363,7 @@ void UI::opTabSelect(const std::string& tab) {
 		gui.get("Rooms")->hide();
 		gui.get("Tournaments")->hide();
 		gui.get("CreateRoom")->hide();
+		gui.get("slChatBox", 1)->focus();
 	}
 	else if (tab == "Tournaments") {
 		gui.get("Tournaments")->show();

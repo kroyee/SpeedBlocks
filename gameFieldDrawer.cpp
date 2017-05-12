@@ -138,6 +138,7 @@ void UI::drawFields() {
 		if (add>0) {
 			scaleup->sprite.setScale(currentR+add*scaleup->scale, currentR+add*scaleup->scale);
 			window->draw(scaleup->sprite);
+			window->draw(scaleup->sprite);
 		}
 	}
 }
@@ -491,7 +492,6 @@ void UI::handlePacket() {
 	            gui.get("GameFields")->show();
 	            gui.get("opTab")->hide();
 	            gui.get("Rooms")->hide();
-	            game.makeNewPiece();
 				game.field.clear();
 				game.countdownText.setString("");
 				game.preDraw();

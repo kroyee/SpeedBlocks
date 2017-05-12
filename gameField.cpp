@@ -163,7 +163,6 @@ bool obsField::possible() {
                 if (square[piece.posY+y][piece.posX+x])
                     return false;
             }
-    cout << (int)piece.posY << endl;
     return true;
 }
 
