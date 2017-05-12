@@ -21,14 +21,10 @@ public:
 	sf::String name;
 };
 
-class playRoom {
+class clientInfo {
 public:
-	sf::String name;
-	sf::Uint8 currentPlayers;
-	sf::Uint8 maxPlayers;
 	sf::Uint16 id;
-	tgui::Button::Ptr button;
-	tgui::Label::Ptr label;
+	sf::String name;
 };
 
 enum GameStates { MainMenu, CountDown, Game, GameOver, Replay, Practice };
@@ -47,6 +43,8 @@ public:
 	std::vector<privChat> privChats;
 	ScrollList roomList;
 	ScrollList tournamentList;
+
+	std::list<clientInfo> clientList;
 
 	Resources& resources;
 	optionSet& options;
@@ -120,6 +118,11 @@ public:
 	void makeRoomList();
 	void addRoom();
 	void joinRoom(sf::Uint16);
+
+	void makeClientList();
+	void makeLobbyList();
+	void addClient();
+	void removeClient();
 
 	void Chat();
 	void Score();

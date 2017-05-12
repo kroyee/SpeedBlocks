@@ -225,6 +225,48 @@ void UI::makeRoomList() {
 		addRoom();
 }
 
+void UI::makeClientList() {
+	clientInfo client;
+	sf::Uint16 clientCount;
+
+	net.packet >> clientCount;
+
+	for (int i=0; i<clientCount; i++) {
+		net.packet >> client.id >> client.name;
+		clientList.push_back(client);
+	}
+
+	makeLobbyList();
+}
+
+void UI::makeLobbyList() {
+	gui.get<tgui::ListBox>("LobbyList", 1)->removeAllItems();
+	for (auto&& client : clientList)
+		gui.get<tgui::ListBox>("LobbyList", 1)->addItem(client.name);
+}
+
+void UI::addClient() {
+	clientInfo client;
+
+	net.packet >> client.id >> client.name;
+	clientList.push_back(client);
+
+	gui.get<tgui::ListBox>("LobbyList", 1)->addItem(client.name);
+}
+
+void UI::removeClient() {
+	sf::Uint16 id;
+
+	net.packet >> id;
+
+	for (auto it = clientList.begin(); it != clientList.end(); it++)
+		if (it->id == id) {
+			gui.get<tgui::ListBox>("LobbyList", 1)->removeItem(it->name);
+			clientList.erase(it);
+			break;
+		}
+}
+
 void UI::addRoom() {
 	sf::String name;
 	sf::Uint8 maxPlayers, currentPlayers;

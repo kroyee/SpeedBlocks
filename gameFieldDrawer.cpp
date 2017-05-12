@@ -435,6 +435,7 @@ void UI::handlePacket() {
 			lobbyMsg("Server", welcomeMsg);
 
 			makeRoomList();
+			makeClientList();
 		}
 		break;
 		case 1://Start countdown
@@ -666,6 +667,12 @@ void UI::handlePacket() {
 		break;
 		case 19: // UDP-port was established by server
 			udpConfirmed=true;
+		break;
+		case 20: // Another client connected to the server
+			addClient();
+		break;
+		case 21: // Another client left the server
+			removeClient();
 		break;
 		case 102: // Ping packet returned from server
 		{

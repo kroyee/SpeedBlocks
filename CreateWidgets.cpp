@@ -604,15 +604,21 @@ void UI::createAllWidgets() {
 
 	tgui::ChatBox::Ptr SlC = themeBB->load("ChatBox");
 	SlC->setPosition(5, 5);
-	SlC->setSize(950, 455);
+	SlC->setSize(750, 455);
 	LoP->add(SlC, "Lobby2");
 
 	tgui::EditBox::Ptr SlE = themeTG->load("EditBox");
 	SlE->setPosition(5, 465);
-	SlE->setSize(950, 30);
+	SlE->setSize(750, 30);
 	SlE->connect("ReturnKeyPressed", &UI::sendMsg, this, "Lobby");
 	SlE->connect("Focused Unfocused", &UI::chatFocus, this, std::bind(&tgui::Widget::isFocused, SlE));
 	LoP->add(SlE, "slChatBox");
+
+	tgui::ListBox::Ptr PlL = themeBB->load("ListBox");
+	PlL->setPosition(760, 5);
+	PlL->setSize(190, 490);
+	PlL->getRenderer()->setTextColor(sf::Color::Black);
+	LoP->add(PlL, "LobbyList");
 
 	tgui::Panel::Ptr ToP = tgui::Panel::create(); // Tournaments Panel
 	ToP->setPosition(0,100);
