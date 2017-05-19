@@ -125,7 +125,7 @@ void UI::drawOppField(obsField& field) {
 }
 
 void UI::drawFields() {
-	if (!gui.get("GameFields")->isVisible())
+	if (!gameplayUI.GameFields->isVisible())
 		return;
 	for (auto&& field : fields)
 		window->draw(field.sprite);
@@ -141,15 +141,6 @@ void UI::drawFields() {
 			window->draw(scaleup->sprite);
 		}
 	}
-}
-
-const sf::String& UI::getName(sf::Uint16 id) {
-	if (id == myId)
-		return game.field.name;
-	for (auto&& field : fields)
-		if (field.id == id)
-			return field.name;
-	return unknown;
 }
 
 void UI::goAway() {
@@ -173,12 +164,16 @@ void UI::handleEvent(sf::Event& event) {
 	gameInput(event);
 	windowEvents(event);
 	
-	if (setkey)
-		putKey(event);
-	enlargePlayfield(event);
+	if (gameOptions.SelectKey->isVisible())
+		gameOptions.putKey(event);
+	
+	if (gameplayUI.isVisible())
+		enlargePlayfield(event);
 	keyEvents(event);
-	roomList.scrolled(event);
-	tournamentList.scrolled(event);
+	if (onlineplayUI.isVisible()) {
+		onlineplayUI.roomList.scrolled(event);
+		onlineplayUI.tournamentList.scrolled(event);
+	}
 
 	gui.handleEvent(event);
 }
@@ -278,7 +273,7 @@ void UI::resizeWindow(sf::Event& event) {
 }
 
 void UI::enlargePlayfield(sf::Event& event) {
-	if (gui.get("GameFields")->isVisible()) {
+	if (gameplayUI.GameFields->isVisible()) {
 		if (event.type == sf::Event::MouseMoved) {
 			sf::Vector2f pos = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
 			sf::FloatRect box;
@@ -317,30 +312,30 @@ void UI::enlargePlayfield(sf::Event& event) {
 void UI::keyEvents(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
-			if (gui.get("Login")->isVisible()) {
-				closeLogin();
+			if (loginBox.isVisible()) {
+				loginBox.closeLogin();
 			}
-			else if (gui.get("MainMenu")->isVisible()) {
-				if (gui.get("AUS")->isVisible()) {
-					gui.get("AUS")->hide();
-					gui.get("MainMenu")->enable();
+			else if (mainMenu.isVisible()) {
+				if (areYouSure.isVisible()) {
+					areYouSure.hide();
+					mainMenu.enable();
 				}
 				else {
-					gui.get<tgui::Label>("AUSL", 1)->setText("Do you want to quit?");
-					gui.get("AUS")->show();
-					gui.get("MainMenu")->disable();
+					areYouSure.label->setText("Do you want to quit?");
+					areYouSure.show();
+					mainMenu.disable();
 				}
 			}
-			else if (gui.get("OptTab")->isVisible())
-				gui.get<tgui::Tab>("OptTab")->select("Back");
-			else if (gui.get("opTab")->isVisible())
-				gui.get<tgui::Tab>("opTab")->select("Back");
-			else if (gui.get("InGameTab")->isVisible()) {
-				if (gui.get("AUS")->isVisible())
-					gui.get("AUS")->hide();
+			else if (gameOptions.isVisible())
+				gameOptions.otab->select("Back");
+			else if (onlineplayUI.isVisible())
+				onlineplayUI.opTab->select("Back");
+			else if (gameplayUI.isVisible()) {
+				if (areYouSure.isVisible())
+					areYouSure.hide();
 				else {
-					gui.get<tgui::Label>("AUSL", 1)->setText("Leave this game?");
-					gui.get("AUS")->show();
+					areYouSure.label->setText("Leave this game?");
+					areYouSure.show();
 				}
 			}
 		}
@@ -391,21 +386,18 @@ void UI::handlePacket() {
 	switch ((int)net.packetid) {
 		case 255: //Disconnected from server
 			disconnect();
-			gui.get("opTab")->hide();
-			gui.get("Rooms")->hide();
-			gui.get("ServerLobby")->hide();
-			gui.get("AUS")->hide();
-			gui.get("Connecting")->hide();
-			gui.get("MainMenu")->enable();
-			gui.get("Login")->hide();
+			onlineplayUI.hide();
+			areYouSure.hide();
+			connectingScreen.hide();
+			mainMenu.enable();
+			loginBox.hide();
 			inroom=false;
 			playonline=false;
-			ping.setString("0");
+			performanceOutput.ping->hide();
 			setGameState(MainMenu);
 			quickMsg("Disconnected from server");
 		break;
 		case 100: //Game data
-		case 101:
 		{
 			sf::Uint16 clientid;
 			sf::Uint8 datacount;
@@ -432,10 +424,12 @@ void UI::handlePacket() {
 
 			net.packet >> myId >> welcomeMsg;
 
-			lobbyMsg("Server", welcomeMsg);
+			gameplayUI.Lobby->addLine("Server: " + welcomeMsg);
+			onlineplayUI.Lobby->addLine("Server: " + welcomeMsg);
 
-			makeRoomList();
-			makeClientList();
+			onlineplayUI.makeRoomList();
+			onlineplayUI.makeClientList();
+			performanceOutput.ping->show();
 		}
 		break;
 		case 1://Start countdown
@@ -493,11 +487,9 @@ void UI::handlePacket() {
 				}
 				inroom=true;
 				setGameState(GameOver);
-				gui.get("InGameTab")->show();
-				gui.get<tgui::Tab>("InGameTab")->select(0);
-	            gui.get("GameFields")->show();
-	            gui.get("opTab")->hide();
-	            gui.get("Rooms")->hide();
+				gameplayUI.show();
+				gameplayUI.InGameTab->select(0);
+	            onlineplayUI.hide();
 				game.field.clear();
 				game.countdownText.setString("");
 				game.position=0;
@@ -538,9 +530,9 @@ void UI::handlePacket() {
 		{
 			sf::Uint8 count;
 			net.packet >> count;
-			clearScore();
+			gameplayUI.clearScore();
 			for (int i=0; i<count; i++)
-				scoreRow();
+				gameplayUI.scoreRow();
 		}
 		break;
 		case 9: // Auth result
@@ -551,18 +543,16 @@ void UI::handlePacket() {
 				sf::String name;
 				net.packet >> name >> myId;
 				game.field.setName(name);
-				gui.get("Connecting")->hide();
-				gui.get("opTab")->show();
-				gui.get("Rooms")->show();
-				gui.get<tgui::Tab>("opTab")->select(0);
-				gui.get("MainMenu")->enable();
+				connectingScreen.hide();
+				onlineplayUI.show();
+				onlineplayUI.opTab->select(0);
+				mainMenu.enable();
 			}
 			else if (success == 2) {
-				gui.get("Connecting")->hide();
-				gui.get("opTab")->show();
-				gui.get("Rooms")->show();
-				gui.get<tgui::Tab>("opTab")->select(0);
-				gui.get("MainMenu")->enable();
+				connectingScreen.hide();
+				onlineplayUI.show();
+				onlineplayUI.opTab->select(0);
+				mainMenu.enable();
 			}
 			else {
 				disconnect();
@@ -572,10 +562,10 @@ void UI::handlePacket() {
 					quickMsg("Name already in use");
 				else
 					quickMsg("Authentication failed");
-				gui.get("Connecting")->hide();
-				gui.get("MainMenu")->show();
-				gui.get("Login")->show();
-				ping.setString("0");
+				connectingScreen.hide();
+				mainMenu.show();
+				loginBox.show();
+				performanceOutput.ping->hide();
 			}
 		}
 		break;
@@ -601,17 +591,7 @@ void UI::handlePacket() {
 		}
 		break;
 		case 12: // Incoming chat msg
-		{
-			sf::String from, msg;
-			sf::Uint8 type;
-			net.packet >> type >> from >> msg;
-			if (type == 3)
-				privMsg(from, msg);
-			else if (type == 2)
-				lobbyMsg(from, msg);
-			else
-				roomMsg(from, msg);
-		}
+			getMsg();
 		break;
 		case 13: // Another player went away
 		{
@@ -653,36 +633,36 @@ void UI::handlePacket() {
 		break;
 		case 16: // Server sending room list
 			// This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
-			makeRoomList();
+			onlineplayUI.makeRoomList();
 		break;
 		case 17: // New room created
-			addRoom();
+			onlineplayUI.addRoom();
 		break;
 		case 18: // Room was removed
 		{
 			sf::Uint16 id;
 			net.packet >> id;
-			roomList.removeItem(id);
+			onlineplayUI.roomList.removeItem(id);
 		}
 		break;
 		case 19: // UDP-port was established by server
 			udpConfirmed=true;
 		break;
 		case 20: // Another client connected to the server
-			addClient();
+			onlineplayUI.addClient();
 		break;
 		case 21: // Another client left the server
-			removeClient();
+			onlineplayUI.removeClient();
 		break;
 		case 102: // Ping packet returned from server
 		{
 			sf::Uint8 pingId;
 			sf::Uint16 clientid;
 			net.packet >> clientid >> pingId;
-			if (pingId == pingIdCount) {
-				sf::Time pingResult = delayClock.getElapsedTime() - pingTime;
-				setPing(pingResult);
-				pingReturned=true;
+			if (pingId == performanceOutput.pingIdCount) {
+				sf::Time pingResult = delayClock.getElapsedTime() - performanceOutput.pingTime;
+				performanceOutput.setPing(pingResult.asMilliseconds());
+				performanceOutput.pingReturned=true;
 			}
 		}
 		break;

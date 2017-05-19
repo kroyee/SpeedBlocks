@@ -1,17 +1,22 @@
 #include "ScrollList.h"
 #include "gui.h"
-#include <iostream>
-using std::cout;
-using std::endl;
 
-void ScrollList::create(tgui::Panel::Ptr parentPanel, sf::Rect<int> _pos, UI* _ui) {
+void ScrollList::create(sf::Rect<int> _pos, UI* _ui) {
+	createBase(_pos, _ui);
 	pos = _pos;
-	ui = _ui;
-	panel = tgui::Panel::create();
-	panel->setPosition(pos.left, pos.top);
-	panel->setSize(pos.width, pos.height);
-	panel->setBackgroundColor(sf::Color(255,255,255,0));
-	parentPanel->add(panel);
+
+	scroll = ui->themeTG->load("Scrollbar");
+	scroll->setSize(30, pos.height-10);
+	scroll->setPosition(pos.width-35, 5);
+	scroll->setMaximum(0);
+	scroll->setLowValue(1);
+	scroll->connect("ValueChanged", &ScrollList::listScrolled, this);
+	panel->add(scroll);
+}
+
+void ScrollList::create(sf::Rect<int> _pos, UI* _ui, tgui::Panel::Ptr parentPanel) {
+	createBase(_pos, _ui, parentPanel);
+	pos = _pos;
 
 	scroll = ui->themeTG->load("Scrollbar");
 	scroll->setSize(30, pos.height-10);
@@ -46,7 +51,6 @@ void ScrollList::addItem(const sf::String& name, const sf::String& labelStr, sf:
 void ScrollList::removeItem(sf::Uint16 id) {
 	for (auto it = items.begin(); it != items.end(); it++) {
 		if (it->id == id) {
-			cout << "removing item " << it->name.toAnsiString() << " as " << it->id << endl;
 			panel->remove(it->button);
 			panel->remove(it->label);
 			it = items.erase(it);
@@ -57,6 +61,10 @@ void ScrollList::removeItem(sf::Uint16 id) {
 }
 
 void ScrollList::removeAllItems() {
+	for (auto&& item : items) {
+		panel->remove(item.button);
+		panel->remove(item.label);
+	}
 	items.clear();
 }
 
@@ -85,11 +93,12 @@ void ScrollList::scrolled(sf::Event& event) {
 	if (panel->isVisible())
 		if (event.type == sf::Event::MouseWheelScrolled)
 			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
-				if (!scroll->isFocused()) {
-					short cur = scroll->getValue();
-					cur-=event.mouseWheelScroll.delta;
-					if (cur<0)
-						cur=0;
-					scroll->setValue(cur);
-				}
+				if (mouseOver(panel, event.mouseWheelScroll.x, event.mouseWheelScroll.y))
+					if (!mouseOver(scroll, event.mouseWheelScroll.x, event.mouseWheelScroll.y)) {
+						short cur = scroll->getValue();
+						cur-=event.mouseWheelScroll.delta;
+						if (cur<0)
+							cur=0;
+						scroll->setValue(cur);
+					}
 }

@@ -1,7 +1,7 @@
 #ifndef SCROLLLIST_H
 #define SCROLLLIST_H
 
-#include <TGUI/TGUI.hpp>
+#include "guiBase.h"
 
 class UI;
 
@@ -13,15 +13,14 @@ public:
 	tgui::Label::Ptr label;
 };
 
-class ScrollList {
+class ScrollList : public guiBase {
 public:
 	std::list<ListItem> items;
 	tgui::Scrollbar::Ptr scroll;
-	tgui::Panel::Ptr panel;
 	sf::Rect<int> pos;
-	UI* ui;
 
-	void create(tgui::Panel::Ptr parentPanel, sf::Rect<int> _pos, UI* _ui);
+	void create(sf::Rect<int> _pos, UI* _ui);
+	void create(sf::Rect<int> _pos, UI* _ui, tgui::Panel::Ptr parentPanel);
 	void addItem(const sf::String& name, const sf::String& labelStr, sf::Uint16 id);
 	void removeItem(sf::Uint16 id);
 	void removeAllItems();

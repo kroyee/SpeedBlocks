@@ -132,12 +132,10 @@ int main()
                 window.draw( game.field.sprite );
                 gui.drawFields();
             }
-            if (gui.adjPieces)
+            if (gui.gameOptions.GenOpt->isVisible())
                 for (int i=0; i<7; i++)
-                    window.draw(gui.piece[i]);
+                    window.draw(gui.gameOptions.piece[i]);
             gui.gui.draw();
-            if (game.options.performanceOutput)
-                gui.drawPerformanceOutput();
             window.display();
             frameRate++;
         }
@@ -159,9 +157,9 @@ int main()
             frameCount++;
 
             if (current-secCount > sf::seconds(1)) {
-                gui.setFrameRate(frameRate);
-                gui.setInputRate(frameCount);
-                gui.setLongestFrame(longestFrame);
+                gui.performanceOutput.setFrameRate(frameRate);
+                gui.performanceOutput.setInputRate(frameCount);
+                gui.performanceOutput.setLongestFrame(longestFrame);
                 frameRate=0;
                 frameCount=0;
                 longestFrame=sf::seconds(0);
