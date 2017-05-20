@@ -1,5 +1,5 @@
 #include "gameField.h"
-#include "textures.h"
+#include "Resources.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 using std::cout;

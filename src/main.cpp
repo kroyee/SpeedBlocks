@@ -1,19 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "gamePlay.h"
-#include "textures.h"
-#include "sounds.h"
 #include "gui.h"
-#include "network.h"
-#include "packetcompress.h"
 #include <iostream> // just here for quick and simple error testing, remove if you want
-#include <TGUI/TGUI.hpp>
-#include <sstream>
-
-#ifdef __APPLE__
-#include "ResourcePath.hpp"
-#else
-#include "EmptyResourcePath.h"
-#endif
 
 using std::cout;
 using std::endl;

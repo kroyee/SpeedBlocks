@@ -4,10 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <deque>
 #include "pieces.h"
-#include "optionSet.h"
 #include "randomizer.h"
 #include "gameField.h"
-#include "textures.h"
+#include "Resources.h"
 #include "Recording.h"
 
 class soundBank;

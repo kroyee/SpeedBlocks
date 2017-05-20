@@ -1,6 +1,6 @@
 #include "PerformanceOutput.h"
 #include "gui.h"
-#include "textures.h"
+#include "Resources.h"
 using std::to_string;
 
 void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
