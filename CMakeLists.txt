@@ -24,10 +24,10 @@ endif()
 add_definitions(-DSFML_NO_DEPRECATED_WARNINGS)
 
 set(EXECUTABLE_NAME SpeedBlocks)
-file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/*.cpp ${CMAKE_SOURCE_DIR}/*.h  ${CMAKE_SOURCE_DIR}/*.hpp ${CMAKE_SOURCE_DIR}/gui/*.cpp ${CMAKE_SOURCE_DIR}/gui/*.h)
+file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h  ${CMAKE_SOURCE_DIR}/src/gui/*.cpp ${CMAKE_SOURCE_DIR}/src/gui/*.h  ${CMAKE_SOURCE_DIR}/src/resources/*.cpp ${CMAKE_SOURCE_DIR}/src/resources/*.h  ${CMAKE_SOURCE_DIR}/src/gameplay/*.cpp ${CMAKE_SOURCE_DIR}/src/gameplay/*.h)
 add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES})
 
-target_include_directories(SpeedBlocks PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/gui)
+target_include_directories(SpeedBlocks PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/gui ${CMAKE_SOURCE_DIR}/src/resources ${CMAKE_SOURCE_DIR}/src/gameplay)
 
 add_custom_target(run
     COMMAND ${EXECUTABLE_NAME}
