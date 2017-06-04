@@ -1,6 +1,7 @@
 #include "OnlineplayUI.h"
 #include "gui.h"
 #include "network.h"
+#include "MainMenu.h"
 using std::to_string;
 
 void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
@@ -48,6 +49,8 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	ServerLobby->add(LobbyList);
 
 	tournamentList.create(pos, gui, panel);
+	pos.width = 960;
+	tournamentPanel.create(pos, gui, panel);
 
 	CreateRoom = tgui::Panel::create();
 	CreateRoom->setPosition(0,100);
@@ -93,6 +96,7 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		tournamentList.hide();
 		ServerLobby->hide();
 		CreateRoom->hide();
+		tournamentPanel.hide();
 	}
 	else if (tab == "Lobby") {
 		ServerLobby->show();
@@ -100,6 +104,7 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		tournamentList.hide();
 		CreateRoom->hide();
 		ChatBox->focus();
+		tournamentPanel.hide();
 	}
 	else if (tab == "Tournaments") {
 		tournamentList.show();
@@ -112,10 +117,11 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		roomList.hide();
 		tournamentList.hide();
 		CreateRoom->show();
+		tournamentPanel.hide();
 	}
 	else if (tab == "Back") {
 		hide();
-		gui->mainMenu.show();
+		gui->mainMenu->show();
 		gui->disconnect();
 	}
 }
@@ -191,4 +197,34 @@ void OnlineplayUI::removeClient() {
 			clientList.erase(it);
 			break;
 		}
+}
+
+void OnlineplayUI::makeTournamentList() {
+	sf::Uint8 tournamentCount;
+
+	gui->net.packet >> tournamentCount;
+	tournamentList.removeAllItems();
+
+	for (int i=0; i<tournamentCount; i++)
+		addTournament();
+}
+
+void OnlineplayUI::addTournament() {
+	sf::String name;
+	sf::Uint8 status;
+	sf::Uint16 id, players;
+	gui->net.packet >> id >> name >> status >> players;
+	sf::String label;
+	if (status == 0)
+		label = "Sign Up - ";
+	else if (status == 1)
+		label = "Pending - ";
+	else if (status == 2)
+		label = "Started - ";
+	else if (status == 3)
+		label = "Finished - ";
+	else
+		label = "? - ";
+	label += to_string(players) + " players";
+	tournamentList.addItem(name, label, id);
 }

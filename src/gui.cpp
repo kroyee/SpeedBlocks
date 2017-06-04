@@ -2,6 +2,15 @@
 #include "sounds.h"
 #include "gamePlay.h"
 #include "network.h"
+#include "MainMenu.h"
+#include "LoginBox.h"
+#include "GameOptions.h"
+#include "Connecting.h"
+#include "GameplayUI.h"
+#include "OnlineplayUI.h"
+#include "AreYouSure.h"
+#include "PerformanceOutput.h"
+#include "BugReport.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -43,25 +52,33 @@ UI::UI(sf::RenderWindow& window_,
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
 
 	sf::Rect<int> pos(0,0,960,600);
-	mainMenu.create(pos, this);
-	mainMenu.show();
+	mainMenu = new Menu;
+	mainMenu->create(pos, this);
+	mainMenu->show();
 
-	gameOptions.create(pos, this);
-	gameplayUI.create(pos, this);
-	onlineplayUI.create(pos, this);
+	gameOptions = new GameOptions;
+	gameOptions->create(pos, this);
+	gameplayUI = new GameplayUI;
+	gameplayUI->create(pos, this);
+	onlineplayUI = new OnlineplayUI;
+	onlineplayUI->create(pos, this);
 
 	pos.left=280; pos.top=150; pos.width=400; pos.height=300;
-	loginBox.create(pos, this);
+	loginBox = new LoginBox;
+	loginBox->create(pos, this);
 
 	pos.left=330; pos.top=250; pos.width=300; pos.height=100;
-	connectingScreen.create(pos, this);
+	connectingScreen = new Connecting;
+	connectingScreen->create(pos, this);
 
-	areYouSure.create(pos, this);
+	areYouSure = new AreYouSure;
+	areYouSure->create(pos, this);
 
 	pos.left=847; pos.top=0; pos.width=113; pos.height=28;
-	performanceOutput.create(pos, this);
+	performanceOutput = new PerformanceOutput;
+	performanceOutput->create(pos, this);
 	if (options.performanceOutput)
-		performanceOutput.show();
+		performanceOutput->show();
 
 	QuickMsg = themeTG->load("Label");
 	QuickMsg->setPosition(0,10);
@@ -73,7 +90,20 @@ UI::UI(sf::RenderWindow& window_,
 	QuickMsg->disable(false);
 	tGui.add(QuickMsg);
 
-	bugReport.create(pos, this);
+	bugReport = new BugReport;
+	bugReport->create(pos, this);
+}
+
+UI::~UI() {
+	delete bugReport;
+	delete areYouSure;
+	delete performanceOutput;
+	delete connectingScreen;
+	delete loginBox;
+	delete onlineplayUI;
+	delete gameplayUI;
+	delete gameOptions;
+	delete mainMenu;
 }
 
 void UI::joinRoom(sf::Uint16 id) {
@@ -90,29 +120,33 @@ void UI::leaveRoom() {
 
 void UI::setGameState(GameStates state) {
 	if (gamestate == MainMenu) { // Reset depending on what state we come from
-		mainMenu.hide();
-		onlineplayUI.hide();
+		mainMenu->hide();
+		onlineplayUI->hide();
 		if (state != MainMenu) {
-			gameplayUI.show();
-			gameplayUI.InGameTab->select(0);
+			gameplayUI->show();
+			gameplayUI->InGameTab->select(0);
 		}
 	}
 	else if (gamestate == Practice) {
 		game.sendgameover = false;
 		game.winner = false;
 		game.autoaway = false;
+		if (state == GameOver) {
+			game.field.text.away=false;
+			game.field.text.ready=true;
+			game.draw();
+		}
 	}
 
 	if (state == MainMenu) { // Set depending on what state we are going into
+		removeAllFields();
 		if (playonline) {
-			onlineplayUI.show();
-			onlineplayUI.opTab->select(0);
-			gameplayUI.hide();
-			removeAllFields();
+			onlineplayUI->show();
+			gameplayUI->hide();
 		}
 		else {
-			gameplayUI.hide();
-			mainMenu.show();
+			gameplayUI->hide();
+			mainMenu->show();
 		}
 	}
 	else if (state == CountDown) {
@@ -127,6 +161,14 @@ void UI::setGameState(GameStates state) {
         linesBlocked=0;
         gamedatacount=0;
 		gamedata=sf::seconds(0);
+		if (state == Practice) {
+			if (!game.field.text.ready)
+				ready();
+			if (away)
+				unAway();
+		}
+		game.field.clear();
+		game.showPressEnterText=false;
         game.startGame();
 	}
 	else if (state == GameOver) {
@@ -148,7 +190,7 @@ void UI::disconnect() {
 	net.disconnect();
 	playonline=false;
 	udpConfirmed=false;
-	performanceOutput.ping->hide();
+	performanceOutput->ping->hide();
 }
 
 void UI::quickMsg(const sf::String& msg) {
@@ -172,11 +214,11 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 	if (!msg.getSize())
 		return;
 	if (spamCount>7000) {
-		gameplayUI.Chat->get<tgui::ChatBox>(to)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
+		gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
 		if (to == "Lobby")
-			onlineplayUI.Lobby->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
-		gameplayUI.ChatBox->setText("");
-		onlineplayUI.ChatBox->setText("");
+			onlineplayUI->Lobby->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
+		gameplayUI->ChatBox->setText("");
+		onlineplayUI->ChatBox->setText("");
 		spamCount=12000;
 		return;
 	}
@@ -185,20 +227,20 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		sf::String privto = msg.substring(3, until-3);
 		sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
 		sendPacket10(privto, privmsg);
-		gameplayUI.ChatBox->setText("");
-		onlineplayUI.ChatBox->setText("");
+		gameplayUI->ChatBox->setText("");
+		onlineplayUI->ChatBox->setText("");
 		spamCount+=2000;
 		return;
 	}
-	sf::String postmsg = game.field.name + ": " + msg;
-	gameplayUI.ChatBox->setText("");
-	onlineplayUI.ChatBox->setText("");
+	sf::String postmsg = game.field.text.name + ": " + msg;
+	gameplayUI->ChatBox->setText("");
+	onlineplayUI->ChatBox->setText("");
 
 	for (unsigned int i=0; i<msg.getSize(); i++)
 		if (msg[i] != ' ') {
-			gameplayUI.Chat->get<tgui::ChatBox>(to)->addLine(postmsg, sf::Color(200, 200, 50));
+			gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine(postmsg, sf::Color(200, 200, 50));
 			if (to == "Lobby")
-				onlineplayUI.Lobby->addLine(postmsg, sf::Color(200, 200, 50));
+				onlineplayUI->Lobby->addLine(postmsg, sf::Color(200, 200, 50));
 			sendPacket10(to, msg);
 			spamCount+=2000;
 			return;
@@ -211,48 +253,48 @@ void UI::getMsg() {
 	net.packet >> type >> name >> msg;
 	if (type == 3) { // Private msg
 		short create=-1;
-		for (size_t i = 0; i < gameplayUI.privChats.size(); i++)
-			if (gameplayUI.privChats[i].name == name) {
+		for (size_t i = 0; i < gameplayUI->privChats.size(); i++)
+			if (gameplayUI->privChats[i].name == name) {
 				create=i;
 			}
 		if (create == -1) {
 			PrivChat newchat;
 			newchat.name=name;
-			gameplayUI.privChats.push_back(move(newchat));
-			create=gameplayUI.privChats.size()-1;
+			gameplayUI->privChats.push_back(move(newchat));
+			create=gameplayUI->privChats.size()-1;
 
 
-			gameplayUI.privChats[create].chatBox = themeBB->load("ChatBox");
-			gameplayUI.privChats[create].chatBox->setPosition(5, 35);
-			gameplayUI.privChats[create].chatBox->setSize(480, 475);
-			gameplayUI.privChats[create].chatBox->hide();
-			gameplayUI.Chat->add(gameplayUI.privChats[create].chatBox, name);
-			int tmp = gameplayUI.ChatTab->getSelectedIndex();
-			gameplayUI.ChatTab->add(name);
-			gameplayUI.ChatTab->select(tmp);
+			gameplayUI->privChats[create].chatBox = themeBB->load("ChatBox");
+			gameplayUI->privChats[create].chatBox->setPosition(5, 35);
+			gameplayUI->privChats[create].chatBox->setSize(480, 475);
+			gameplayUI->privChats[create].chatBox->hide();
+			gameplayUI->Chat->add(gameplayUI->privChats[create].chatBox, name);
+			int tmp = gameplayUI->ChatTab->getSelectedIndex();
+			gameplayUI->ChatTab->add(name);
+			gameplayUI->ChatTab->select(tmp);
 		}
-		gameplayUI.privChats[create].chatBox->addLine(name + ": " + msg);
+		gameplayUI->privChats[create].chatBox->addLine(name + ": " + msg);
 	}
 	else if (type == 2) { // Lobby msg
-		gameplayUI.Lobby->addLine(name + ": " + msg);
-		onlineplayUI.Lobby->addLine(name + ": " + msg);
+		gameplayUI->Lobby->addLine(name + ": " + msg);
+		onlineplayUI->Lobby->addLine(name + ": " + msg);
 	}
 	else // Room msg
-		gameplayUI.Room->addLine(name + ": " + msg);
+		gameplayUI->Room->addLine(name + ": " + msg);
 }
 
 void UI::Chat() {
-	if (gameplayUI.Chat->isVisible())
-		gameplayUI.InGameTab->select(0);
+	if (gameplayUI->Chat->isVisible())
+		gameplayUI->InGameTab->select(0);
 	else
-		gameplayUI.InGameTab->select(2);
+		gameplayUI->InGameTab->select(2);
 }
 
 void UI::Score() {
-	if (gameplayUI.Score->isVisible())
-		gameplayUI.InGameTab->select(0);
+	if (gameplayUI->Score->isVisible())
+		gameplayUI->InGameTab->select(0);
 	else if (!chatFocused)
-		gameplayUI.InGameTab->select(1);
+		gameplayUI->InGameTab->select(1);
 }
 
 void UI::delayCheck() {
@@ -267,12 +309,12 @@ void UI::delayCheck() {
 				udpPortTime = currentTime;
 				sendPacket99();
 			}
-		if (currentTime - performanceOutput.pingTime > sf::seconds(1)) {
-			if (!performanceOutput.pingReturned)
-				performanceOutput.setPing(999);
-			performanceOutput.pingTime = currentTime;
-			performanceOutput.pingIdCount++;
-			sendPacket102(performanceOutput.pingIdCount);
+		if (currentTime - performanceOutput->pingTime > sf::seconds(1)) {
+			if (!performanceOutput->pingReturned)
+				performanceOutput->setPing(999);
+			performanceOutput->pingTime = currentTime;
+			performanceOutput->pingIdCount++;
+			sendPacket102(performanceOutput->pingIdCount);
 		}
 	}
 

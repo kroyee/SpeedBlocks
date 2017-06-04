@@ -198,9 +198,9 @@ void GameplayUI::clearScore() {
 
 const sf::String& GameplayUI::getName(sf::Uint16 id) {
 	if (id == gui->myId)
-		return gui->game.field.name;
+		return gui->game.field.text.name;
 	for (auto&& field : gui->fields)
 		if (field.id == id)
-			return field.name;
+			return field.text.name;
 	return unknown;
 }

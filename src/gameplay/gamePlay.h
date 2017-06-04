@@ -23,7 +23,6 @@ public:
 	gamePlay(Resources& _resources);
 
 	gameField field;
-	basePieces piece;
 	basePieces basepiece[7];
 	optionSet& options;
 
@@ -33,12 +32,10 @@ public:
 
 	Recording recorder;
 
-	sf::Clock dclock;
-	sf::Clock iclock;
-	sf::Clock keyclock;
+	sf::Clock gameclock;
 
-	sf::Time ddelay;
-	sf::Time idelay;
+	sf::Time dropDelay, dropDelayTime;
+	sf::Time increaseDropDelay, increaseDropDelayTime;
 
 	sf::Time rKeyTime;
 	sf::Time lKeyTime;
@@ -74,30 +71,19 @@ public:
 	std::deque<sf::Time> bpmCount;
 
 	sf::Uint8 nextpiece;
-	sf::Uint8 position;
+
+	sf::Text pressEnterText;
+	bool showPressEnterText;
 
 	bool gameover;
 	bool sendgameover;
 	bool winner;
 	bool autoaway;
-	bool drawMe, preDrawMe;
+	bool drawMe;
 
 	bool rKey;
 	bool lKey;
 	bool dKey;
-
-	sf::ConvexShape comboTimer;
-
-	sf::Text comboText;
-	sf::Text pendingText;
-	sf::Text countdownText;
-	sf::Text bpmText;
-	sf::Text awayText;
-	sf::Text positionText;
-	sf::Text pressEnterText;
-
-	sf::Uint8 comboTextVal, pendingTextVal;
-	sf::Uint16 bpmTextVal;
 
 	void startGame();
 
@@ -109,23 +95,16 @@ public:
 	void sLKey() { lKey=false; }
 	void sDKey() { dKey=false; }
 
-	bool possible();
-
-	bool mRight();
-	bool mLeft();
-	bool mDown();
 	void hd();
 	void rcw();
 	void rccw();
 	void r180();
-	bool kickTest();
 
 	void addPiece();
 	void makeNewPiece();
 	void copyPiece(sf::Uint8 np);
 
 	void draw();
-	void preDraw();
 
 	void delayCheck();
 
@@ -141,7 +120,6 @@ public:
 	void clearGarbage();
 
 	bool setComboTimer();
-	void setComboTimerCount(sf::Uint8 count);
 
 	void startCountdown();
 	bool countDown();

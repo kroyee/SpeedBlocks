@@ -6,22 +6,23 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-gameField::gameField(Resources& _resources) {
-    nameTag.setFont(_resources.gfx.typewriter);
-    nameTag.setCharacterSize(32);
+gameField::gameField(Resources& _resources) : resources(_resources), text(_resources) {
     texture.create(440, 600);
+    text.texture = &texture;
     sprite.setTexture(texture.getTexture());
-    tile = _resources.gfx.tile;
-    background = &_resources.gfx.fieldBackground;
+    tile = resources.gfx.tile;
+
+    piece.piece=7;
 }
 
-gameField::gameField(const gameField& field) {
+gameField::gameField(const gameField& field) : resources(field.resources), text(field.resources) {
     texture.create(440, 600);
+    text.texture = &texture;
     sprite.setTexture(texture.getTexture());
     tile = field.tile;
-    background = field.background;
-    name = field.name;
-    nameTag = field.nameTag;
+
+    piece.piece = 7;
+
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++)
             square[y][x] = field.square[y][x];
@@ -31,17 +32,18 @@ void gameField::clear() {
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++)
             square[y][x] = 0;
-    return;
+    text.clear();
+    piece.piece=7;
 }
 
 void gameField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
-    texture.draw(*background);
-
+    texture.draw(resources.gfx.fieldBackground);
+    
     drawSquares();
-
-    texture.draw(nameTag);
-    texture.display();
+    drawPiece();
+    drawGhostPiece();
+    text.drawText();
 }
 
 void gameField::drawSquares() {
@@ -51,6 +53,138 @@ void gameField::drawSquares() {
                 tile[square[y][x]-1].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30));
                 texture.draw(tile[square[y][x]-1]);
             }
+}
+
+void gameField::drawPiece() {
+    if (piece.piece == 7)
+        return;
+    for (int y=0; y<4; y++)
+        for (int x=0; x<4; x++)
+            if (piece.grid[y][x] != 0)
+                if (piece.posY+y > 3) {
+                    tile[piece.tile-1].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+                    texture.draw(tile[piece.tile-1]);
+                }
+}
+
+void gameField::drawGhostPiece() {
+    if (piece.piece == 7)
+        return;
+    if (resources.options.ghostpiece) {
+        short posY = piece.posY;
+        while (possible()) { piece.mdown(); }
+        piece.mup();
+        for (int y=0; y<4; y++)
+            for (int x=0; x<4; x++)
+                if (piece.grid[y][x] != 0)
+                    if (piece.posY+y > 3) {
+                        tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+                        texture.draw(tile[piece.tile+7]);
+                    }
+
+        piece.posY = posY;
+    }
+}
+
+bool gameField::possible() {
+    for (int x=0; x<4; x++)
+        for (int y=0; y<4; y++)
+            if (piece.grid[y][x]) {
+                if (piece.posX+x<0 || piece.posX+x>9 || piece.posY+y<0 || piece.posY+y>21)
+                    return false;
+                if (square[piece.posY+y][piece.posX+x])
+                    return false;
+            }
+    return true;
+}
+
+bool gameField::mRight() {
+    piece.mright();
+    if (possible())
+        return true;
+
+    piece.mleft();
+    return false;
+}
+
+bool gameField::mLeft() {
+    piece.mleft();
+    if (possible())
+        return true;
+    
+    piece.mright();
+    return false;
+}
+
+bool gameField::mDown() {
+    piece.mdown();
+    if (possible())
+        return true;
+
+    piece.mup();
+    return false;
+}
+
+void gameField::hd() {
+    while (possible()) { piece.mdown(); }
+    piece.mup();
+}
+
+bool gameField::rcw() {
+    piece.rcw();
+    if (possible())
+        return true;
+    if (kickTest())
+        return true;
+
+    piece.posX-=2;
+    piece.rccw();
+    return false;
+}
+
+bool gameField::rccw() {
+    piece.rccw();
+    if (possible())
+        return true;
+    if (kickTest())
+        return true;
+
+    piece.posX-=2;
+    piece.rcw();
+    return false;
+}
+
+bool gameField::r180() {
+    piece.rccw();
+    piece.rccw();
+    if (possible())
+        return true;
+    if (kickTest())
+        return true;
+
+    piece.posX-=2;
+    piece.rcw();
+    piece.rcw();
+    return false;
+}
+
+bool gameField::kickTest() {
+    piece.posX--; if (possible()) return true;
+    piece.posX+=2; if (possible()) return true;
+    piece.posX--; piece.posY++; if (possible()) return true;
+    piece.posX--; if (possible()) return true;
+    piece.posX+=2; if (possible()) return true;
+    piece.posX-=3; piece.posY--; if (possible()) return true;
+    piece.posX+=4; if (possible()) return true;
+
+    return false;
+}
+
+void gameField::addPiece() {
+    for (int x=0; x<4; x++)
+        for (int y=0; y<4; y++)
+            if (piece.grid[y][x])
+                square[piece.posY+y][piece.posX+x]=piece.tile;
 }
 
 void gameField::removeline(short y) {
@@ -86,36 +220,16 @@ sf::Vector2i gameField::clearlines () {
     return linescleared;
 }
 
-void gameField::setName(const sf::String& n) {
-    name = n;
-    nameTag.setString(n);
-    short x = (310-nameTag.getLocalBounds().width)/2;
-    if (x<0)
-        x=0;
-    nameTag.setPosition(x, 555);
-}
-
 void obsField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
-    texture.draw(*background);
+    texture.draw(resources.gfx.fieldBackground);
     
     drawSquares();
     drawPiece();
     drawGhostPiece();
-    drawText();
+    drawNextPiece();
+    text.drawText();
     texture.display();
-}
-
-void obsField::drawPiece() {
-    if (piece.piece == 7)
-        return;
-    for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (piece.grid[y][x] != 0)
-                if (piece.posY+y > 3) {
-                    tile[piece.tile-1].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
-                    texture.draw(tile[piece.tile-1]);
-                }
 }
 
 void obsField::drawNextPiece() {
@@ -131,78 +245,6 @@ void obsField::drawNextPiece() {
         resources.options.basepiece[nextpiece].rccw();
 }
 
-void obsField::drawGhostPiece() {
-    if (piece.piece == 7)
-        return;
-    if (resources.options.ghostpiece) {
-        short posY = piece.posY;
-        while (possible()) { piece.mdown(); }
-        piece.mup();
-        for (int y=0; y<4; y++)
-            for (int x=0; x<4; x++)
-                if (piece.grid[y][x] != 0)
-                    if (piece.posY+y > 3) {
-                        tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
-                        texture.draw(tile[piece.tile+7]);
-                    }
-
-        piece.posY = posY;
-    }
-}
-
-bool obsField::possible() {
-    for (int x=0; x<4; x++)
-        for (int y=0; y<4; y++)
-            if (piece.grid[y][x]) {
-                if (piece.posX+x<0 || piece.posX+x>9 || piece.posY+y<0 || piece.posY+y>21)
-                    return false;
-                if (square[piece.posY+y][piece.posX+x])
-                    return false;
-            }
-    return true;
-}
-
-#define PI 3.14159265
-bool obsField::setComboTimer(sf::Uint8 count) {
-    if (count>100)
-        count=100;
-    if (comboTimer.getPointCount() == static_cast<unsigned int>(count+2))
-        return false;
-    comboTimer.setPointCount(count+2);
-
-    comboTimer.setPoint(0, sf::Vector2f(60, 60));
-    for (int x=1; x<(count+2); x++)
-        comboTimer.setPoint(x, sf::Vector2f(60 + 60*cos((PI*2)/100 * (x-26)), 60 + 60*sin((PI*2)/100 * (x-26) )));
-
-    return true;
-}
-
-void obsField::drawText() {
-    if (position == 0)
-        positionText.setString("");
-    else if (position == 1)
-        positionText.setString("1st");
-    else if (position == 2)
-        positionText.setString("2nd");
-    else if (position == 3)
-        positionText.setString("3rd");
-    else
-        positionText.setString(to_string((int)position) + "th");
-
-    if (away)
-        awayText.setString("Away");
-    else
-        awayText.setString("");
-
-    texture.draw(awayText);
-    texture.draw(positionText);
-    texture.draw(nameTag);
-    texture.draw(comboTimer);
-    texture.draw(comboText);
-    texture.draw(pendingText);
-    texture.draw(bpmText);
-}
-
 void obsField::updatePiece() {
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
@@ -211,49 +253,16 @@ void obsField::updatePiece() {
             else
                 piece.grid[y][x] = 0;
         }
+    piece.lpiece = resources.options.basepiece[piece.piece].lpiece;
     piece.current_rotation = 0;
     while (piece.current_rotation != piece.rotation)
         piece.rcw();
 }
 
-obsField::obsField(const obsField& field) : gameField(field), resources(field.resources) {
-    id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0; away=false; position=0;
-    positionText=field.positionText; awayText=field.awayText;
-    comboText=field.comboText; pendingText=field.pendingText; bpmText=field.bpmText;
-
-    comboTimer.setPosition(315, 240);
-    comboTimer.setFillColor(sf::Color(255,0,0));
-
-    setComboTimer(0);
-
-    piece.piece = 7;
+obsField::obsField(const obsField& field) : gameField(field) {
+    id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0;
 }
 
-obsField::obsField(Resources& _resources) : gameField(_resources), resources(_resources) {
-    id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0; away=false; position=0;
-
-    awayText.setFont(_resources.gfx.printFont);
-    awayText.setCharacterSize(48);
-    awayText.setPosition(110, 150);
-    positionText.setFont(_resources.gfx.printFont);
-    positionText.setCharacterSize(48);
-    positionText.setPosition(130, 220);
-
-    comboText.setFont(_resources.gfx.typewriter); comboText.setString("0");
-    pendingText.setFont(_resources.gfx.typewriter); pendingText.setString("0");
-    bpmText.setFont(_resources.gfx.typewriter); bpmText.setString("0");
-    comboText.setCharacterSize(48);
-    comboText.setColor(sf::Color::White);
-    comboText.setPosition(360,270);
-    pendingText.setCharacterSize(48);
-    pendingText.setColor(sf::Color::White);
-    pendingText.setPosition(360,500);
-    bpmText.setCharacterSize(48);
-    bpmText.setColor(sf::Color::White);
-    bpmText.setPosition(360, 400);
-
-    comboTimer.setPosition(315, 240);
-    comboTimer.setFillColor(sf::Color(255,0,0));
-
-    piece.piece=7;
+obsField::obsField(Resources& _resources) : gameField(_resources) {
+    id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0;
 }

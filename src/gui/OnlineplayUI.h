@@ -3,6 +3,7 @@
 
 #include "guiBase.h"
 #include "ScrollList.h"
+#include "TournamentUI.h"
 
 class UI;
 
@@ -24,7 +25,11 @@ public:
 	ScrollList roomList;
 	ScrollList tournamentList;
 
+	TournamentUI tournamentPanel;
+
 	std::list<clientInfo> clientList;
+
+	sf::Uint8 backTo;
 
 	void create(sf::Rect<int> _pos, UI* _gui);
 
@@ -38,6 +43,9 @@ public:
 	void makeLobbyList();
 	void addClient();
 	void removeClient();
+
+	void makeTournamentList();
+	void addTournament();
 };
 
 #endif
