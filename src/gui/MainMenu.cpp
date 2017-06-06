@@ -1,6 +1,8 @@
 #include "MainMenu.h"
 #include "gui.h"
 #include "gamePlay.h"
+#include "LoginBox.h"
+#include "GameOptions.h"
 
 void Menu::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
@@ -44,7 +46,7 @@ void Menu::create(sf::Rect<int> _pos, UI* _gui) {
 
 void Menu::playOnline() {
 	disable();
-	gui->loginBox.open();
+	gui->loginBox->open();
 }
 
 void Menu::Training() {
@@ -54,8 +56,8 @@ void Menu::Training() {
 
 void Menu::Options() {
 	hide();
-	gui->gameOptions.show();
-	gui->gameOptions.otab->select(0);
+	gui->gameOptions->show();
+	gui->gameOptions->otab->select(0);
 }
 
 void Menu::quitGame() {

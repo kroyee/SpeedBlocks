@@ -2,6 +2,8 @@
 #include "gui.h"
 #include "gamePlay.h"
 #include "optionSet.h"
+#include "MainMenu.h"
+#include "PerformanceOutput.h"
 using std::to_string;
 
 #ifdef __APPLE__
@@ -116,64 +118,76 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	GenOpt->add(BindRCCW);
 
 	tgui::Label::Ptr R1L = gui->themeTG->load("Label");
-	R1L->setPosition(350, 63);
+	R1L->setPosition(200, 63);
 	R1L->setSize(140, 30);
 	R1L->setText("Rotate 180");
 	R1L->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(R1L);
 	BindR180 = gui->themeTG->load("Button");
-	BindR180->setPosition(500, 60);
+	BindR180->setPosition(350, 60);
 	BindR180->connect("pressed", &GameOptions::setKey, this, BindR180, std::ref(gui->options.r180));
 	BindR180->setText(SFKeyToString(gui->options.r180));
 	GenOpt->add(BindR180);
 
 	tgui::Label::Ptr HdL = gui->themeTG->load("Label");
-	HdL->setPosition(350, 103);
+	HdL->setPosition(200, 103);
 	HdL->setSize(140, 30);
 	HdL->setText("Hard Drop");
 	HdL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(HdL);
 	BindHD = gui->themeTG->load("Button");
-	BindHD->setPosition(500, 100);
+	BindHD->setPosition(350, 100);
 	BindHD->connect("pressed", &GameOptions::setKey, this, BindHD, std::ref(gui->options.hd));
 	BindHD->setText(SFKeyToString(gui->options.hd));
 	GenOpt->add(BindHD);
 
 	tgui::Label::Ptr ChL = gui->themeTG->load("Label");
-	ChL->setPosition(400, 143);
+	ChL->setPosition(250, 143);
 	ChL->setSize(90, 30);
 	ChL->setText("Chat");
 	ChL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ChL);
 	BindChat = gui->themeTG->load("Button");
-	BindChat->setPosition(500, 140);
+	BindChat->setPosition(350, 140);
 	BindChat->connect("pressed", &GameOptions::setKey, this, BindChat, std::ref(gui->options.chat));
 	BindChat->setText(SFKeyToString(gui->options.chat));
 	GenOpt->add(BindChat);
 
 	tgui::Label::Ptr ScL = gui->themeTG->load("Label");
-	ScL->setPosition(400, 183);
+	ScL->setPosition(250, 183);
 	ScL->setSize(90, 30);
 	ScL->setText("Score");
 	ScL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ScL);
 	BindScore = gui->themeTG->load("Button");
-	BindScore->setPosition(500, 180);
+	BindScore->setPosition(350, 180);
 	BindScore->connect("pressed", &GameOptions::setKey, this, BindScore, std::ref(gui->options.score));
 	BindScore->setText(SFKeyToString(gui->options.score));
 	GenOpt->add(BindScore);
 
 	tgui::Label::Ptr AwL = gui->themeTG->load("Label");
-	AwL->setPosition(400, 223);
+	AwL->setPosition(250, 223);
 	AwL->setSize(90, 30);
 	AwL->setText("Away");
 	AwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(AwL);
 	BindAway = gui->themeTG->load("Button");
-	BindAway->setPosition(500, 220);
+	BindAway->setPosition(350, 220);
 	BindAway->connect("pressed", &GameOptions::setKey, this, BindAway, std::ref(gui->options.away));
 	BindAway->setText(SFKeyToString(gui->options.away));
 	GenOpt->add(BindAway);
+
+	tgui::Label::Ptr ReL = gui->themeTG->load("Label");
+	ReL->setPosition(500, 63);
+	ReL->setSize(90, 30);
+	ReL->setText("Ready");
+	ReL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+	GenOpt->add(ReL);
+	BindReady = gui->themeTG->load("Button");
+	BindReady->setPosition(600, 60);
+	BindReady->connect("pressed", &GameOptions::setKey, this, BindReady, std::ref(gui->options.ready));
+	BindReady->setText(SFKeyToString(gui->options.ready));
+	GenOpt->add(BindReady);
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
 	tgui::Button::Ptr Cc[7];
@@ -205,7 +219,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	Re1->setSize(70, 30);
 	Re1->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re1->setText(to_string(gui->options.repeatDelay.asMilliseconds()));
-	Re1->connect("TextChanged", &optionSet::setDelay, gui->options, 1);
+	Re1->connect("TextChanged", &optionSet::setDelay, &gui->options, 1);
 	GenOpt->add(Re1);
 
 	tgui::EditBox::Ptr Re2 = gui->themeTG->load("EditBox");
@@ -213,7 +227,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	Re2->setSize(70, 30);
 	Re2->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re2->setText(to_string(gui->options.repeatSpeed.asMilliseconds()));
-	Re2->connect("TextChanged", &optionSet::setDelay, gui->options, 2);
+	Re2->connect("TextChanged", &optionSet::setDelay, &gui->options, 2);
 	GenOpt->add(Re2);
 
 	tgui::Label::Ptr Rl2 = gui->themeTG->load("Label");
@@ -227,7 +241,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	Re3->setSize(70, 30);
 	Re3->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re3->setText(to_string(gui->options.repeatDelayDown.asMilliseconds()));
-	Re3->connect("TextChanged", &optionSet::setDelay, gui->options, 3);
+	Re3->connect("TextChanged", &optionSet::setDelay, &gui->options, 3);
 	GenOpt->add(Re3);
 
 	tgui::EditBox::Ptr Re4 = gui->themeTG->load("EditBox");
@@ -235,7 +249,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	Re4->setSize(70, 30);
 	Re4->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re4->setText(to_string(gui->options.repeatSpeedDown.asMilliseconds()));
-	Re4->connect("TextChanged", &optionSet::setDelay, gui->options, 4);
+	Re4->connect("TextChanged", &optionSet::setDelay, &gui->options, 4);
 	GenOpt->add(Re4);
 
 	VidOpt = tgui::Panel::create(); // Video Options
@@ -411,7 +425,7 @@ void GameOptions::otabSelect(std::string tab) {
 		SndOpt->show();
 	}
 	else if (tab == "Back") {
-		gui->mainMenu.show();
+		gui->mainMenu->show();
 		otab->select(1);
 		hide();
 	}
@@ -419,7 +433,7 @@ void GameOptions::otabSelect(std::string tab) {
 
 void GameOptions::changeName(const sf::String& name) {
 	gui->options.name = name;
-	gui->game.field.setName(name);
+	gui->game.field.text.setName(name);
 }
 
 void GameOptions::vidSlide(short i) {
@@ -471,11 +485,11 @@ void GameOptions::applyVideo() {
 
 	if (performanceOutput->isChecked()) {
 		gui->options.performanceOutput = true;
-		gui->performanceOutput.show();
+		gui->performanceOutput->show();
 	}
 	else {
 		gui->options.performanceOutput = false;
-		gui->performanceOutput.hide();
+		gui->performanceOutput->hide();
 	}
 
 	std::string fd = FrameDelay->getText();
@@ -572,6 +586,11 @@ void GameOptions::putKey(sf::Event& event) {
 			if (event.key.code == gui->options.away) {
 				gui->options.away = sf::Keyboard::Unknown;
 				BindAway->setText("");
+			}
+
+			if (event.key.code == gui->options.ready) {
+				gui->options.ready = sf::Keyboard::Unknown;
+				BindReady->setText("");
 			}
 
 

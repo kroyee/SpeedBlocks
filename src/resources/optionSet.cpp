@@ -27,6 +27,7 @@ void optionSet::loadStandardOptions() {
 		chat = sf::Keyboard::LControl;
 		score = sf::Keyboard::LShift;
 		away = sf::Keyboard::F4;
+		ready = sf::Keyboard::F5;
 
 		ghostpiece = true;
 		fullscreen = false;
@@ -101,6 +102,7 @@ void optionSet::loadOptions() {
 			else if (keyword == "chat") chat = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "score") score = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "away") away = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "ready") ready = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "ghostpiece") ghostpiece = stoi(line);
 			else if (keyword == "fullscreen") fullscreen = stoi(line);
 			else if (keyword == "repeatdelay") repeatDelay = sf::milliseconds(stoi(line));
@@ -129,7 +131,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=40)
+	if (countset!=41)
 		success = 0;
 
 	if (!success)
@@ -153,6 +155,7 @@ void optionSet::saveOptions() {
 		file << "chat=" << chat << endl;
 		file << "score=" << score << endl;
 		file << "away=" << away << endl;
+		file << "ready=" << ready << endl;
 		file << "ghostpiece=" << ghostpiece << endl;
 		file << "fullscreen=" << fullscreen << endl;
 		file << "repeatdelay=" << repeatDelay.asMilliseconds() << endl;
@@ -240,12 +243,6 @@ void optionSet::setDelay(short i, sf::String string) {
 		repeatDelayDown = sf::milliseconds(value);
 	else if (i == 4)
 		repeatSpeedDown = sf::milliseconds(value);
-	else if (i == 5) {
-		if (value)
-			frameDelay = sf::milliseconds(1000/value);
-	}
-	else if (i == 6)
-		inputDelay = sf::microseconds(value);
 }
 
 std::vector<short> optionSet::pieceArray() {

@@ -1,6 +1,8 @@
 #include "MainMenu.h"
 #include "gui.h"
 #include "gamePlay.h"
+#include "AreYouSure.h"
+#include "MainMenu.h"
 
 void AreYouSure::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
@@ -42,5 +44,5 @@ void AreYouSure::ausY() {
 
 void AreYouSure::ausN() {
 	hide();
-	gui->mainMenu.enable();
+	gui->mainMenu->enable();
 }

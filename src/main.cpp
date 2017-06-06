@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "gamePlay.h"
 #include "gui.h"
+#include "GameOptions.h"
+#include "PerformanceOutput.h"
 #include <iostream> // just here for quick and simple error testing, remove if you want
 
 using std::cout;
@@ -63,10 +65,8 @@ int main()
         switch (gui.gamestate) {
             case CountDown:
                 if (!gui.playonline)
-                    if (game.countDown()) {
-                        game.startGame();
-                        gui.gamestate = Game;
-                    }
+                    if (game.countDown())
+                        gui.setGameState(Game);
 
                 if (game.gameOver())
                     gui.setGameState(GameOver);
@@ -111,19 +111,15 @@ int main()
                 game.draw();
                 game.drawMe=false;
             }
-            if (game.preDrawMe && gui.gamestate == Replay) {
-                game.preDraw();
-                game.preDrawMe=false;
-            }
             nextDraw+=game.options.frameDelay;
             window.draw(resources.gfx.background);
             if (gui.gamestate != MainMenu) {
                 window.draw( game.field.sprite );
                 gui.drawFields();
             }
-            if (gui.gameOptions.GenOpt->isVisible())
+            if (gui.gameOptions->GenOpt->isVisible())
                 for (int i=0; i<7; i++)
-                    window.draw(gui.gameOptions.piece[i]);
+                    window.draw(gui.gameOptions->piece[i]);
             gui.tGui.draw();
             window.display();
             frameRate++;
@@ -146,9 +142,9 @@ int main()
             frameCount++;
 
             if (current-secCount > sf::seconds(1)) {
-                gui.performanceOutput.setFrameRate(frameRate);
-                gui.performanceOutput.setInputRate(frameCount);
-                gui.performanceOutput.setLongestFrame(longestFrame);
+                gui.performanceOutput->setFrameRate(frameRate);
+                gui.performanceOutput->setInputRate(frameCount);
+                gui.performanceOutput->setLongestFrame(longestFrame);
                 frameRate=0;
                 frameCount=0;
                 longestFrame=sf::seconds(0);

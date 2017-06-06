@@ -1,6 +1,7 @@
 #include "OnlineplayUI.h"
 #include "gui.h"
 #include "network.h"
+#include "MainMenu.h"
 using std::to_string;
 
 void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
@@ -48,6 +49,85 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	ServerLobby->add(LobbyList);
 
 	tournamentList.create(pos, gui, panel);
+	pos.width = 960;
+	tournamentPanel.create(pos, gui, panel);
+
+	tournamentSidePanel = tgui::Panel::create();
+	tournamentSidePanel->setPosition(460,100);
+	tournamentSidePanel->setSize(400,500);
+	tournamentSidePanel->setBackgroundColor(sf::Color(255,255,255,0));
+	tournamentSidePanel->hide();
+	panel->add(tournamentSidePanel);
+
+	tgui::Button::Ptr widget0 = gui->themeTG->load("Button");
+	widget0->setPosition(20,20);
+	widget0->setSize(320,75);
+	widget0->setText("Create Tournament");
+	widget0->connect("pressed", &OnlineplayUI::createTournamentPressed, this);
+	tournamentSidePanel->add(widget0);
+
+	tgui::Button::Ptr widget1 = gui->themeTG->load("Button");
+	widget1->setPosition(20,250);
+	widget1->setSize(120,40);
+	widget1->setText("Refresh");
+	widget1->connect("pressed", &OnlineplayUI::refreshTournamentPressed, this);
+	tournamentSidePanel->add(widget1);
+
+	createTournamentPanel = tgui::Panel::create();
+	createTournamentPanel->setPosition(0,100);
+	createTournamentPanel->setSize(960,500);
+	createTournamentPanel->setBackgroundColor(sf::Color(255,255,255,0));
+	createTournamentPanel->hide();
+	panel->add(createTournamentPanel);
+
+	tgui::Label::Ptr widget2 = gui->themeTG->load("Label");
+	widget2->setPosition(70,40);
+	widget2->setText("Tournament name");
+	widget2->setTextSize(18);
+	createTournamentPanel->add(widget2);
+
+	tgui::Label::Ptr widget3 = gui->themeTG->load("Label");
+	widget3->setPosition(87,100);
+	widget3->setText("Sets");
+	widget3->setTextSize(18);
+	createTournamentPanel->add(widget3);
+
+	tgui::Label::Ptr widget4 = gui->themeTG->load("Label");
+	widget4->setPosition(340,100);
+	widget4->setText("Rounds");
+	widget4->setTextSize(18);
+	createTournamentPanel->add(widget4);
+
+	tournamentName = gui->themeTG->load("EditBox");
+	tournamentName->setPosition(255,37);
+	tournamentName->setSize(260,30);
+	createTournamentPanel->add(tournamentName);
+
+	sets = gui->themeTG->load("EditBox");
+	sets->setPosition(140,97);
+	sets->setSize(90,30);
+	sets->setInputValidator(tgui::EditBox::Validator::UInt);
+	createTournamentPanel->add(sets);
+
+	rounds = gui->themeTG->load("EditBox");
+	rounds->setPosition(420,97);
+	rounds->setSize(90,30);
+	rounds->setInputValidator(tgui::EditBox::Validator::UInt);
+	createTournamentPanel->add(rounds);
+
+	tgui::Button::Ptr widget6 = gui->themeTG->load("Button");
+	widget6->setPosition(229,173);
+	widget6->setSize(140,40);
+	widget6->setText("Create");
+	widget6->connect("pressed", &OnlineplayUI::createTournament, this);
+	createTournamentPanel->add(widget6);
+
+	tgui::Button::Ptr widget7 = gui->themeTG->load("Button");
+	widget7->setPosition(400,173);
+	widget7->setSize(140,40);
+	widget7->setText("Back");
+	widget7->connect("pressed", &OnlineplayUI::back, this);
+	createTournamentPanel->add(widget7);
 
 	CreateRoom = tgui::Panel::create();
 	CreateRoom->setPosition(0,100);
@@ -89,35 +169,39 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 
 void OnlineplayUI::opTabSelect(const std::string& tab) {
 	if (tab == "Rooms") {
+		hideAllPanels();
 		roomList.show();
-		tournamentList.hide();
-		ServerLobby->hide();
-		CreateRoom->hide();
 	}
 	else if (tab == "Lobby") {
+		hideAllPanels();
 		ServerLobby->show();
-		roomList.hide();
-		tournamentList.hide();
-		CreateRoom->hide();
 		ChatBox->focus();
 	}
 	else if (tab == "Tournaments") {
+		hideAllPanels();
 		tournamentList.show();
-		roomList.hide();
-		ServerLobby->hide();
-		CreateRoom->hide();
+		tournamentSidePanel->show();
 	}
 	else if (tab == "Create room") {
-		ServerLobby->hide();
-		roomList.hide();
-		tournamentList.hide();
+		hideAllPanels();
 		CreateRoom->show();
 	}
 	else if (tab == "Back") {
 		hide();
-		gui->mainMenu.show();
+		gui->mainMenu->show();
 		gui->disconnect();
 	}
+}
+
+void OnlineplayUI::hideAllPanels(bool keepTournamentOpen) {
+	ServerLobby->hide();
+	roomList.hide();
+	tournamentList.hide();
+	CreateRoom->hide();
+	if (!keepTournamentOpen)
+		tournamentPanel.hide();
+	tournamentSidePanel->hide();
+	createTournamentPanel->hide();
 }
 
 void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplayers) {
@@ -191,4 +275,71 @@ void OnlineplayUI::removeClient() {
 			clientList.erase(it);
 			break;
 		}
+}
+
+void OnlineplayUI::makeTournamentList() {
+	sf::Uint8 tournamentCount;
+
+	gui->net.packet >> tournamentCount;
+	tournamentList.removeAllItems();
+
+	for (int i=0; i<tournamentCount; i++)
+		addTournament();
+}
+
+void OnlineplayUI::addTournament() {
+	sf::String name;
+	sf::Uint8 status;
+	sf::Uint16 id, players;
+	gui->net.packet >> id >> name >> status >> players;
+	sf::String label;
+	if (status == 0)
+		label = "Sign Up - ";
+	else if (status == 1)
+		label = "Pending - ";
+	else if (status == 2)
+		label = "Started - ";
+	else if (status == 3)
+		label = "Finished - ";
+	else
+		label = "? - ";
+	label += to_string(players) + " players";
+	tournamentList.addItem(name, label, id);
+}
+
+void OnlineplayUI::createTournamentPressed() {
+	hideAllPanels();
+	createTournamentPanel->show();
+}
+
+void OnlineplayUI::refreshTournamentPressed() {
+	gui->sendPacket20();
+}
+
+void OnlineplayUI::back() {
+	if (createTournamentPanel->isVisible()) {
+		hideAllPanels();
+		tournamentList.show();
+		tournamentSidePanel->show();
+	}
+}
+
+void OnlineplayUI::createTournament() {
+	if (!tournamentName->getText().getSize() || !sets->getText().getSize() || !rounds->getText().getSize())
+		return;
+	sf::Uint8 setcount = stoi(sets->getText().toAnsiString());
+	sf::Uint8 roundcount = stoi(rounds->getText().toAnsiString());
+	gui->net.packet.clear();
+	gui->net.packet << (sf::Uint8)21 << tournamentName->getText() << setcount << roundcount;
+	gui->net.sendTCP();
+	back();
+	refreshTournamentPressed();
+}
+
+void OnlineplayUI::alertMsg(const sf::Uint16 id1) {
+	sf::String msg = "Tournament game ready";
+	for (auto&& tournament : tournamentList.items)
+		if (tournament.id == id1)
+			msg += " in " + tournament.name;
+	gui->quickMsg(msg);
 }

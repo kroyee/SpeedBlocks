@@ -88,24 +88,24 @@ void PacketCompress::compress() {
 		}
 	}
 	sf::Uint8 posx=0, posy=0;
-	posx = game->piece.posX+2; posy = game->piece.posY;
+	posx = game->field.piece.posX+2; posy = game->field.piece.posY;
 	addBits(posx, 4);
 	addBits(posy, 5);
-	addBits(game->piece.piece, 3);
-	addBits(game->piece.tile, 3);
-	addBits(game->piece.current_rotation, 2);
+	addBits(game->field.piece.piece, 3);
+	addBits(game->field.piece.tile, 3);
+	addBits(game->field.piece.current_rotation, 2);
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
 	addBits(game->resources.options.piecerotation[game->nextpiece], 2);
-	addBits(game->comboTextVal, 5);
-	addBits(game->pendingTextVal, 8);
+	addBits(game->field.text.combo, 5);
+	addBits(game->field.text.pending, 8);
 	sf::Uint8 tmp;
-	if (game->bpmTextVal > 255)
+	if (game->field.text.bpm > 255)
 		tmp=255;
 	else
-		tmp = game->bpmTextVal;
+		tmp = game->field.text.bpm;
 	addBits(tmp, 8);
-	tmp = game->comboTimer.getPointCount()-2;
+	tmp = game->field.text.comboTimer.getPointCount()-2;
 	addBits(tmp, 7);
 }
 
@@ -138,10 +138,10 @@ void PacketCompress::copy() {
 	field->nextpiece = nextpiece;
 	field->npcol = npcol;
 	field->nprot = nprot;
-	field->bpmText.setString(to_string(bpmText));
-	field->pendingText.setString(to_string(pendingText));
-	field->comboText.setString(to_string(comboText));
-	field->setComboTimer(comboTimerCount);
+	field->text.setBpm(bpmText);
+	field->text.setPending(pendingText);
+	field->text.setCombo(comboText);
+	field->text.setComboTimer(comboTimerCount);
 }
 
 bool PacketCompress::validate() {

@@ -2,6 +2,14 @@
 #include "optionSet.h"
 #include "gamePlay.h"
 #include "network.h"
+#include "MainMenu.h"
+#include "LoginBox.h"
+#include "GameOptions.h"
+#include "Connecting.h"
+#include "GameplayUI.h"
+#include "OnlineplayUI.h"
+#include "AreYouSure.h"
+#include "PerformanceOutput.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -22,8 +30,7 @@ void UI::removeField(sf::Uint16 id) {
 }
 
 void UI::removeAllFields() {
-	while (fields.size())
-		fields.pop_front();
+	fields.clear();
 }
 
 void UI::updateField(obsField& field) {
@@ -107,10 +114,7 @@ void UI::calFieldPos() {
 
 void UI::resetOppFields() {
 	for (auto&& field : fields) {
-		field.position=0;
 		field.datacount=250;
-		field.piece.posX=0;
-		field.piece.posY=0;
 		field.clear();
 		drawOppField(field);
 	}
@@ -123,7 +127,7 @@ void UI::drawOppField(obsField& field) {
 }
 
 void UI::drawFields() {
-	if (!gameplayUI.GameFields->isVisible())
+	if (!gameplayUI->GameFields->isVisible())
 		return;
 	for (auto&& field : fields)
 		window->draw(field.sprite);
@@ -135,7 +139,12 @@ void UI::drawFields() {
 		add = (maxRat-currentR)/100;
 		if (add>0) {
 			scaleup->sprite.setScale(currentR+add*scaleup->scale, currentR+add*scaleup->scale);
-			window->draw(scaleup->sprite);
+			sf::FloatRect pos = scaleup->sprite.getGlobalBounds();
+			sf::RectangleShape blackback;
+			blackback.setPosition(pos.left, pos.top);
+			blackback.setSize({pos.width, pos.height});
+			blackback.setFillColor(sf::Color::Black);
+			window->draw(blackback);
 			window->draw(scaleup->sprite);
 		}
 	}
@@ -146,31 +155,45 @@ void UI::goAway() {
 	sendPacket8();
 	game.gameover=true;
 	game.sendgameover=true;
-	game.awayText.setString("Away");
-	game.drawGameOver();
+	game.field.text.away=true;
+	game.draw();
 }
 
 void UI::unAway() {
 	away=false;
 	game.autoaway=false;
 	sendPacket9();
-	game.awayText.setString("");
-	game.drawGameOver();
+	game.field.text.away=false;
+	game.draw();
+}
+
+void UI::ready() {
+	if (game.field.text.ready) {
+		sendPacket13();
+		game.field.text.ready=false;
+	}
+	else {
+		sendPacket12();
+		game.field.text.ready=true;
+	}
+	game.draw();
 }
 
 void UI::handleEvent(sf::Event& event) {
 	gameInput(event);
 	windowEvents(event);
 	
-	if (gameOptions.SelectKey->isVisible())
-		gameOptions.putKey(event);
+	if (gameOptions->SelectKey->isVisible())
+		gameOptions->putKey(event);
 	
-	if (gameplayUI.isVisible())
+	if (gameplayUI->isVisible())
 		enlargePlayfield(event);
+
 	keyEvents(event);
-	if (onlineplayUI.isVisible()) {
-		onlineplayUI.roomList.scrolled(event);
-		onlineplayUI.tournamentList.scrolled(event);
+
+	if (onlineplayUI->isVisible()) {
+		onlineplayUI->roomList.scrolled(event);
+		onlineplayUI->tournamentList.scrolled(event);
 	}
 
 	tGui.handleEvent(event);
@@ -243,6 +266,8 @@ void UI::gameInput(sf::Event& event) {
 	                game.gameover=false;
             	}
             }
+            else if (event.key.code == options.ready)
+            	ready();
         }
 	}
 }
@@ -271,7 +296,7 @@ void UI::resizeWindow(sf::Event& event) {
 }
 
 void UI::enlargePlayfield(sf::Event& event) {
-	if (gameplayUI.GameFields->isVisible()) {
+	if (gameplayUI->GameFields->isVisible()) {
 		if (event.type == sf::Event::MouseMoved) {
 			sf::Vector2f pos = window->mapPixelToCoords(sf::Mouse::getPosition(*window));
 			sf::FloatRect box;
@@ -310,30 +335,30 @@ void UI::enlargePlayfield(sf::Event& event) {
 void UI::keyEvents(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed) {
 		if (event.key.code == sf::Keyboard::Escape) {
-			if (loginBox.isVisible()) {
-				loginBox.closeLogin();
+			if (loginBox->isVisible()) {
+				loginBox->closeLogin();
 			}
-			else if (mainMenu.isVisible()) {
-				if (areYouSure.isVisible()) {
-					areYouSure.hide();
-					mainMenu.enable();
+			else if (mainMenu->isVisible()) {
+				if (areYouSure->isVisible()) {
+					areYouSure->hide();
+					mainMenu->enable();
 				}
 				else {
-					areYouSure.label->setText("Do you want to quit?");
-					areYouSure.show();
-					mainMenu.disable();
+					areYouSure->label->setText("Do you want to quit?");
+					areYouSure->show();
+					mainMenu->disable();
 				}
 			}
-			else if (gameOptions.isVisible())
-				gameOptions.otab->select("Back");
-			else if (onlineplayUI.isVisible())
-				onlineplayUI.opTab->select("Back");
-			else if (gameplayUI.isVisible()) {
-				if (areYouSure.isVisible())
-					areYouSure.hide();
+			else if (gameOptions->isVisible())
+				gameOptions->otab->select("Back");
+			else if (onlineplayUI->isVisible())
+				onlineplayUI->opTab->select("Back");
+			else if (gameplayUI->isVisible()) {
+				if (areYouSure->isVisible())
+					areYouSure->hide();
 				else {
-					areYouSure.label->setText("Leave this game?");
-					areYouSure.show();
+					areYouSure->label->setText("Leave this game?");
+					areYouSure->show();
 				}
 			}
 		}
@@ -341,7 +366,7 @@ void UI::keyEvents(sf::Event& event) {
 }
 
 void UI::sendGameData() {
-	sf::Time tmp = game.keyclock.getElapsedTime();
+	sf::Time tmp = game.gameclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
 		sendPacket100();
@@ -384,14 +409,14 @@ void UI::handlePacket() {
 	switch ((int)net.packetid) {
 		case 255: //Disconnected from server
 			disconnect();
-			onlineplayUI.hide();
-			areYouSure.hide();
-			connectingScreen.hide();
-			mainMenu.enable();
-			loginBox.hide();
+			onlineplayUI->hide();
+			areYouSure->hide();
+			connectingScreen->hide();
+			mainMenu->enable();
+			loginBox->hide();
 			inroom=false;
 			playonline=false;
-			performanceOutput.ping->hide();
+			performanceOutput->ping->hide();
 			setGameState(MainMenu);
 			quickMsg("Disconnected from server");
 		break;
@@ -422,12 +447,12 @@ void UI::handlePacket() {
 
 			net.packet >> myId >> welcomeMsg;
 
-			gameplayUI.Lobby->addLine("Server: " + welcomeMsg);
-			onlineplayUI.Lobby->addLine("Server: " + welcomeMsg);
+			gameplayUI->Lobby->addLine("Server: " + welcomeMsg);
+			onlineplayUI->Lobby->addLine("Server: " + welcomeMsg);
 
-			onlineplayUI.makeRoomList();
-			onlineplayUI.makeClientList();
-			performanceOutput.ping->show();
+			onlineplayUI->makeRoomList();
+			onlineplayUI->makeClientList();
+			performanceOutput->ping->show();
 		}
 		break;
 		case 1://Start countdown
@@ -480,23 +505,20 @@ void UI::handlePacket() {
 				for (int c=0; c<playersinroom; c++) {
 					net.packet >> playerid >> name;
 					newfield.id = playerid;
-					newfield.setName(name);
 					addField(newfield);
+					fields.back().text.setName(name);
 				}
 				inroom=true;
 				setGameState(GameOver);
-				gameplayUI.show();
-				gameplayUI.InGameTab->select(0);
-	            onlineplayUI.hide();
 				game.field.clear();
-				game.countdownText.setString("");
-				game.position=0;
-				game.drawGameOver();
+				game.draw();
 			}
 			else if (joinok == 2)
 				quickMsg("Room is full");
-			else
+			else if (joinok == 3)
 				quickMsg("Please wait for server to get your user-data");
+			else
+				quickMsg("This is not your game");
 		}
 		break;
 		case 4: //Another player joined room
@@ -505,8 +527,8 @@ void UI::handlePacket() {
 			obsField newfield(resources);
 			newfield.clear();
 			net.packet >> newfield.id >> name;
-			newfield.setName(name);
 			addField(newfield);
+			fields.back().text.setName(name);
 		}
 		break;
 		case 5: //Another player left the room
@@ -528,9 +550,9 @@ void UI::handlePacket() {
 		{
 			sf::Uint8 count;
 			net.packet >> count;
-			gameplayUI.clearScore();
+			gameplayUI->clearScore();
 			for (int i=0; i<count; i++)
-				gameplayUI.scoreRow();
+				gameplayUI->scoreRow();
 		}
 		break;
 		case 9: // Auth result
@@ -540,17 +562,17 @@ void UI::handlePacket() {
 			if (success == 1) {
 				sf::String name;
 				net.packet >> name >> myId;
-				game.field.setName(name);
-				connectingScreen.hide();
-				onlineplayUI.show();
-				onlineplayUI.opTab->select(0);
-				mainMenu.enable();
+				game.field.text.setName(name);
+				connectingScreen->hide();
+				onlineplayUI->show();
+				onlineplayUI->opTab->select(0);
+				mainMenu->enable();
 			}
 			else if (success == 2) {
-				connectingScreen.hide();
-				onlineplayUI.show();
-				onlineplayUI.opTab->select(0);
-				mainMenu.enable();
+				connectingScreen->hide();
+				onlineplayUI->show();
+				onlineplayUI->opTab->select(0);
+				mainMenu->enable();
 			}
 			else {
 				disconnect();
@@ -560,10 +582,10 @@ void UI::handlePacket() {
 					quickMsg("Name already in use");
 				else
 					quickMsg("Authentication failed");
-				connectingScreen.hide();
-				mainMenu.show();
-				loginBox.show();
-				performanceOutput.ping->hide();
+				connectingScreen->hide();
+				mainMenu->show();
+				loginBox->show();
+				performanceOutput->ping->hide();
 			}
 		}
 		break;
@@ -583,9 +605,8 @@ void UI::handlePacket() {
 			net.packet >> seed;
 			game.rander.seedHole(seed);
 			game.rander.reset();
-			game.position=0;
-			game.countdownText.setString("");
-			game.drawGameOver();
+			game.field.clear();
+			game.draw();
 		}
 		break;
 		case 12: // Incoming chat msg
@@ -597,7 +618,7 @@ void UI::handlePacket() {
 			net.packet >> id;
 			for (auto&& field : fields)
 				if (field.id == id) {
-					field.away=true;
+					field.text.away=true;
 					drawOppField(field);
 				}
 		}
@@ -608,7 +629,7 @@ void UI::handlePacket() {
 			net.packet >> id;
 			for (auto&& field : fields)
 				if (field.id == id) {
-					field.away=false;
+					field.text.away=false;
 					drawOppField(field);
 				}
 		}
@@ -620,49 +641,107 @@ void UI::handlePacket() {
 			net.packet >> id >> position;
 			for (auto&& field : fields)
 				if (field.id == id) {
-					field.position = position;
+					field.text.setPosition(position);
 					drawOppField(field);
 				}
 			if (id == myId) {
-				game.position = position;
-				game.drawGameOver();
+				game.field.text.setPosition(position);
+				game.draw();
 			}
 		}
 		break;
 		case 16: // Server sending room list
 			// This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
-			onlineplayUI.makeRoomList();
+			onlineplayUI->makeRoomList();
 		break;
 		case 17: // New room created
-			onlineplayUI.addRoom();
+			onlineplayUI->addRoom();
 		break;
 		case 18: // Room was removed
 		{
 			sf::Uint16 id;
 			net.packet >> id;
-			onlineplayUI.roomList.removeItem(id);
+			onlineplayUI->roomList.removeItem(id);
 		}
 		break;
 		case 19: // UDP-port was established by server
 			udpConfirmed=true;
 		break;
 		case 20: // Another client connected to the server
-			onlineplayUI.addClient();
+			onlineplayUI->addClient();
 		break;
 		case 21: // Another client left the server
-			onlineplayUI.removeClient();
+			onlineplayUI->removeClient();
+		break;
+		case 22: // Get tournament list
+			onlineplayUI->makeTournamentList();
+		break;
+		case 23: // Get tournament info
+			onlineplayUI->tournamentPanel.getInfo(myId);
+		break;
+		case 24: // Get tournament game standings
+			game.field.text.setResults(myId);
+			game.draw();
+		break;
+		case 25: // Players is ready
+		{
+			sf::Uint16 clientid;
+			net.packet >> clientid;
+			for (auto&& field : fields)
+				if (field.id == clientid) {
+					field.text.ready=true;
+					field.drawField();
+				}
+		}
+		break;
+		case 26: // Player is not ready
+		{
+			sf::Uint16 clientid;
+			net.packet >> clientid;
+			for (auto&& field : fields)
+				if (field.id == clientid) {
+					field.text.ready=false;
+					field.drawField();
+				}
+		}
+		break;
+		case 27: // Tournament update
+			onlineplayUI->tournamentPanel.getUpdate(myId);
 		break;
 		case 102: // Ping packet returned from server
 		{
 			sf::Uint8 pingId;
 			sf::Uint16 clientid;
 			net.packet >> clientid >> pingId;
-			if (pingId == performanceOutput.pingIdCount) {
-				sf::Time pingResult = delayClock.getElapsedTime() - performanceOutput.pingTime;
-				performanceOutput.setPing(pingResult.asMilliseconds());
-				performanceOutput.pingReturned=true;
+			if (pingId == performanceOutput->pingIdCount) {
+				sf::Time pingResult = delayClock.getElapsedTime() - performanceOutput->pingTime;
+				performanceOutput->setPing(pingResult.asMilliseconds());
+				performanceOutput->pingReturned=true;
 			}
 		}
+		break;
+		case 254: // Signal packet
+			handleSignal();
+		break;
+	}
+}
+
+void UI::handleSignal() {
+	sf::Uint8 signalId;
+	sf::Uint16 id1, id2;
+
+	net.packet >> signalId;
+	if (!net.packet.endOfPacket())
+		net.packet >> id1;
+	if (!net.packet.endOfPacket())
+		net.packet >> id2;
+
+	switch (signalId) {
+		case 0:
+			quickMsg("Not enough players to start tournament");
+		break;
+		case 1: // A tournament game is ready
+			onlineplayUI->alertMsg(id1);
 		break;
 	}
 }

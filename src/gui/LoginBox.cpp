@@ -2,6 +2,8 @@
 #include "gui.h"
 #include "network.h"
 #include "gamePlay.h"
+#include "MainMenu.h"
+#include "Connecting.h"
 
 void LoginBox::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
@@ -72,32 +74,37 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui) {
 void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
 	if (guest && !name.getSize())
 		return;
-	gui->mainMenu.hide();
+	gui->mainMenu->hide();
 	hide();
-	gui->connectingScreen.show();
+	gui->connectingScreen->show();
 	gui->window->draw(gui->resources.gfx.background); //Update the screen so a block on connect will show the connecting screen
 	gui->tGui.draw();
 	gui->window->display();
 	if (gui->net.connect() == sf::Socket::Done) {
 		gui->net.udpSock.unbind();
 		gui->net.udpSock.bind(sf::Socket::AnyPort);
-		gui->net.localUdpPort = gui->net.udpSock.getLocalPort();
-		gui->sendPacket2(name, pass, guest);
+		sf::String hash;
+		if (!guest) {
+			hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass, 1);
+			gui->sendPacket2(hash, guest);
+		}
+		else {
+			gui->sendPacket2(name, guest);
+			gui->game.field.text.setName(name);
+		}
 		gui->playonline=true;
-		if (guest)
-			gui->game.field.setName(name);
 	}
 	else {
 		gui->net.disconnect();
 		gui->quickMsg("Could not connect to server");
-		gui->connectingScreen.hide();
+		gui->connectingScreen->hide();
 		show();
-		gui->mainMenu.show();
+		gui->mainMenu->show();
 	}
 }
 
 void LoginBox::closeLogin() {
-	gui->mainMenu.enable();
+	gui->mainMenu->enable();
 	hide();
 }
 

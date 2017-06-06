@@ -31,6 +31,7 @@ public:
 	tgui::Button::Ptr BindChat;
 	tgui::Button::Ptr BindScore;
 	tgui::Button::Ptr BindAway;
+	tgui::Button::Ptr BindReady;
 
 	sf::Keyboard::Key* key;
 	tgui::Button::Ptr button;

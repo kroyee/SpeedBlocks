@@ -16,10 +16,10 @@ void UI::sendPacket1() {
 	net.sendTCP();
 }
 
-void UI::sendPacket2(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
+void UI::sendPacket2(const sf::String& hashorname, sf::Uint8 guest) {
 	sf::Uint8 packetid = 2;
 	net.packet.clear();
-	net.packet << packetid << clientVersion << guest << name << pass;
+	net.packet << packetid << clientVersion << guest << hashorname;
 	net.sendTCP();
 }
 
@@ -100,6 +100,77 @@ void UI::sendPacket11(const sf::String& name, sf::Uint8 maxPlayers) {
 	net.sendTCP();
 }
 
+void UI::sendPacket12() {
+	sf::Uint8 packetid = 12;
+	net.packet.clear();
+	net.packet << packetid;
+	net.sendTCP();
+}
+
+void UI::sendPacket13() {
+	sf::Uint8 packetid = 13;
+	net.packet.clear();
+	net.packet << packetid;
+	net.sendTCP();
+}
+
+//Sign up for tournament
+void UI::sendPacket14(sf::Uint16 id) {
+	sf::Uint8 packetid = 14;
+	net.packet.clear();
+	net.packet << packetid << id;
+	net.sendTCP();
+}
+
+//Withdraw from tournament
+void UI::sendPacket15(sf::Uint16 id) {
+	sf::Uint8 packetid = 15;
+	net.packet.clear();
+	net.packet << packetid << id;
+	net.sendTCP();
+}
+
+//Close signup of tournament
+void UI::sendPacket16(sf::Uint16 id) {
+	sf::Uint8 packetid = 16;
+	net.packet.clear();
+	net.packet << packetid << id;
+	net.sendTCP();
+}
+
+//Start tournament
+void UI::sendPacket17(sf::Uint16 id) {
+	sf::Uint8 packetid = 17;
+	net.packet.clear();
+	net.packet << packetid << id;
+	net.sendTCP();
+}
+
+//Join tournament game
+void UI::sendPacket18(sf::Uint16 tournamentId, sf::Uint16 gameId) {
+	sf::Uint8 packetid = 18;
+	net.packet.clear();
+	net.packet << packetid << tournamentId << gameId;
+	net.sendTCP();
+}
+
+//Tournament-panel close (no longer need updates from torunament)
+void UI::sendPacket19(sf::Uint16 tournamentId) {
+	sf::Uint8 packetid = 19;
+	net.packet.clear();
+	net.packet << packetid << tournamentId;
+	net.sendTCP();
+}
+
+void UI::sendPacket20() {
+	sf::Uint8 packetid = 20;
+	net.packet.clear();
+	net.packet << packetid;
+	net.sendTCP();
+}
+
+// packet 21: Create a new tournament
+
 void UI::sendPacket99() {
 	sf::Uint8 packetid = 99;
 	net.packet.clear();
@@ -109,10 +180,10 @@ void UI::sendPacket99() {
 
 void UI::sendPacket100() {
 	if (gamestate == CountDown) {
-		sf::Uint8 tmp = game.piece.piece;
-		game.piece.piece = 7; // makes the current piece not draw on other players screen (since it's countdown)
+		sf::Uint8 tmp = game.field.piece.piece;
+		game.field.piece.piece = 7; // makes the current piece not draw on other players screen (since it's countdown)
 		compressor.compress();
-		game.piece.piece = tmp;
+		game.field.piece.piece = tmp;
 	}
 	else
 		compressor.compress();
