@@ -113,7 +113,7 @@ void UI::joinRoom(sf::Uint16 id) {
 }
 
 void UI::leaveRoom() {
-	sendPacket1();
+	net.sendSignal(1);
 	inroom=false;
 	setGameState(MainMenu);
 }

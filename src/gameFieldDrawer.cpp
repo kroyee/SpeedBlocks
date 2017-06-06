@@ -720,5 +720,28 @@ void UI::handlePacket() {
 			}
 		}
 		break;
+		case 254: // Signal packet
+			handleSignal();
+		break;
+	}
+}
+
+void UI::handleSignal() {
+	sf::Uint8 signalId;
+	sf::Uint16 id1, id2;
+
+	net.packet >> signalId;
+	if (!net.packet.endOfPacket())
+		net.packet >> id1;
+	if (!net.packet.endOfPacket())
+		net.packet >> id2;
+
+	switch (signalId) {
+		case 0:
+			quickMsg("Not enough players to start tournament");
+		break;
+		case 1: // A tournament game is ready
+			onlineplayUI->alertMsg(id1);
+		break;
 	}
 }

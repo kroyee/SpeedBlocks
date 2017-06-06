@@ -16,10 +16,10 @@ void UI::sendPacket1() {
 	net.sendTCP();
 }
 
-void UI::sendPacket2(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
+void UI::sendPacket2(const sf::String& hashorname, sf::Uint8 guest) {
 	sf::Uint8 packetid = 2;
 	net.packet.clear();
-	net.packet << packetid << clientVersion << guest << name << pass;
+	net.packet << packetid << clientVersion << guest << hashorname;
 	net.sendTCP();
 }
 
@@ -154,13 +154,22 @@ void UI::sendPacket18(sf::Uint16 tournamentId, sf::Uint16 gameId) {
 	net.sendTCP();
 }
 
-//Tournament-panel close (no longer need updated from torunament)
+//Tournament-panel close (no longer need updates from torunament)
 void UI::sendPacket19(sf::Uint16 tournamentId) {
 	sf::Uint8 packetid = 19;
 	net.packet.clear();
 	net.packet << packetid << tournamentId;
 	net.sendTCP();
 }
+
+void UI::sendPacket20() {
+	sf::Uint8 packetid = 20;
+	net.packet.clear();
+	net.packet << packetid;
+	net.sendTCP();
+}
+
+// packet 21: Create a new tournament
 
 void UI::sendPacket99() {
 	sf::Uint8 packetid = 99;

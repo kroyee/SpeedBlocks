@@ -126,6 +126,7 @@ public:
 	void scrollBar(sf::Event& event);
 
 	void handlePacket();
+	void handleSignal();
 
 	void sendGameData();
 	void sendGameOver();
@@ -141,7 +142,7 @@ public:
 	//Send packet functions
 	void sendPacket0(sf::Uint16 id);
 	void sendPacket1();
-	void sendPacket2(const sf::String& name, const sf::String& pass, sf::Uint8 guest);
+	void sendPacket2(const sf::String& hashorname, sf::Uint8 guest);
 	void sendPacket3();
 	void sendPacket4();
 	void sendPacket5(sf::Uint8 amount);
@@ -159,6 +160,7 @@ public:
 	void sendPacket17(sf::Uint16 id);
 	void sendPacket18(sf::Uint16 tournamentId, sf::Uint16 gameId);
 	void sendPacket19(sf::Uint16 tournamentId);
+	void sendPacket20();
 	void sendPacket99();
 	void sendPacket100();
 	void sendPacket102(sf::Uint8 pingId);

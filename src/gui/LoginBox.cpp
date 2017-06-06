@@ -83,11 +83,16 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 	if (gui->net.connect() == sf::Socket::Done) {
 		gui->net.udpSock.unbind();
 		gui->net.udpSock.bind(sf::Socket::AnyPort);
-		gui->net.localUdpPort = gui->net.udpSock.getLocalPort();
-		gui->sendPacket2(name, pass, guest);
-		gui->playonline=true;
-		if (guest)
+		sf::String hash;
+		if (!guest) {
+			hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass, 1);
+			gui->sendPacket2(hash, guest);
+		}
+		else {
+			gui->sendPacket2(name, guest);
 			gui->game.field.text.setName(name);
+		}
+		gui->playonline=true;
 	}
 	else {
 		gui->net.disconnect();

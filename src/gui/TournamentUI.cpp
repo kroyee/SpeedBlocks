@@ -104,12 +104,24 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	startTournament->connect("pressed", &TournamentUI::startTournamentPressed, this);
 	signUp->add(startTournament);
 
+	tgui::Button::Ptr signUpBack = gui->themeTG->load("Button");
+	signUpBack->setPosition(50,450);
+	signUpBack->setSize(100,45);
+	signUpBack->setText("Back");
+	signUpBack->connect("pressed", &TournamentUI::goBack, this);
+	signUp->add(signUpBack);
+
 	bracket = tgui::Panel::create();
 	bracket->setPosition(0,0);
 	bracket->setSize(960,500);
 	bracket->setBackgroundColor(sf::Color(255,255,255,0));
 	bracket->hide();
 	panel->add(bracket);
+
+	bBack = gui->themeTG->load("Button");
+	bBack->setText("Back");
+	bBack->setSize(60, 30);
+	bBack->connect("pressed", &TournamentUI::goBack, this);
 
 	bStartTournament = gui->themeTG->load("Button");
 	bStartTournament->setText("Start!");
@@ -252,38 +264,37 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 
 void TournamentUI::getInfo(sf::Uint16 _myId) {
 	myId = _myId;
-	gui->net.packet >> id >> rounds >> sets;
+	double timetostart;
+	gui->net.packet >> id >> rounds >> sets >> timetostart;
+	startingTime = timetostart;
+	status=0;
 	getParticipants();
 	getModerators();
 	getStatus();
 	gRounds->setText(to_string(rounds));
 	gSets->setText(to_string(sets));
 
-	gui->onlineplayUI->tournamentList.hide();
+	gui->onlineplayUI->hideAllPanels(true);
 	show();
-	if (status == 0) {
+	gameInfo->hide();
+	bracket->show();
+	if (status == 0 || status == 4) {
 		signUp->show();
 		bracket->hide();
 		gameInfo->hide();
-		tStartingTime->setText("started by moderator");
+		if (startingTime)
+			tStartingTime->setText(asctime(localtime(&startingTime)));
+		else
+			tStartingTime->setText("started by moderator");
 		tRounds->setText(to_string(rounds));
 		tSets->setText(to_string(sets));
-		tStatus->setText("Sign up open");
-		if (moderator) {
-			closeSign->show();
-			startTournament->show();
-		}
-		else{
-			closeSign->hide();
-			startTournament->hide();
-		}
+		if (status == 0)
+			tStatus->setText("Sign up open");
+		else
+			tStatus->setText("Aborted");
 	}
-	else {
+	else
 		getBracket();
-		signUp->hide();
-		bracket->show();
-		gameInfo->hide();
-	}
 }
 
 void TournamentUI::getUpdate(sf::Uint16 _myId) {
@@ -297,19 +308,11 @@ void TournamentUI::getUpdate(sf::Uint16 _myId) {
 		getParticipants();
 	else if (part == 1)
 		getModerators();
-	else if (part == 2) {
+	else if (part == 2)
 		getStatus();
-		setStatusText();
-		setStartButton();
-	}
 	else if (part == 3) {
-		gui->net.packet >> status;
+		getStatus();
 		getBracket();
-		if (signUp->isVisible()) {
-			signUp->hide();
-			bracket->show();
-			gameInfo->hide();
-		}
 	}
 	else if (part == 4) {
 		sf::Uint16 gameId;
@@ -359,6 +362,8 @@ void TournamentUI::getParticipants() {
 		if (newplayer.id == myId)
 			signUpButton->setText("Withdraw");
 	}
+
+	setStatusText();
 }
 
 void TournamentUI::getModerators() {
@@ -375,6 +380,8 @@ void TournamentUI::getModerators() {
 
 void TournamentUI::getStatus() {
 	gui->net.packet >> status;
+	setStatusText();
+	setModeratorButtons();
 }
 
 void TournamentUI::getBracket() {
@@ -414,6 +421,11 @@ void TournamentUI::getBracket() {
 		games.push_back(newgame);
 	}
 	makeBracket();
+	if (signUp->isVisible()) {
+		signUp->hide();
+		bracket->show();
+		gameInfo->hide();
+	}
 }
 
 void TournamentUI::getResult(TGame& game) {
@@ -536,10 +548,13 @@ void TournamentUI::makeBracket() {
 
 	setStatusText();
 	bracket->add(bStatus);
-	bStartTournament->setPosition(bStatus->getPosition().x - 80, bStatus->getPosition().y - 10);
+
+	bBack->setPosition(bStatus->getPosition().x - 80, bStatus->getPosition().y - 10);
+	bracket->add(bBack);
+
+	bStartTournament->setPosition(bBack->getPosition().x - 80, bBack->getPosition().y);
 	bStartTournament->setText("Start!");
 	bracket->add(bStartTournament);
-	setStartButton();
 }
 
 void TournamentUI::setButtonColors() {
@@ -578,18 +593,46 @@ void TournamentUI::setStatusText() {
 			bWinner->setText("Winner: " + games.front().player2_name);
 		bWinner->show();
 	}
+	else if (status == 4)
+		statustext += "Aborted";
 	else
 		statustext += "?";
 
 	bStatus->setText(statustext);
 	bStatus->setPosition(bracket->getSize().x-bStatus->getSize().x-10, bracket->getSize().y-30);
+
+	for (auto&& item : gui->onlineplayUI->tournamentList.items)
+		if (item.id == id) {
+			sf::String label;
+			if (status == 0)
+				label = "Sign Up - ";
+			else if (status == 1)
+				label = "Pending - ";
+			else if (status == 2)
+				label = "Started - ";
+			else if (status == 3)
+				label = "Finished - ";
+			else if (status == 4)
+				label = "Aborted - ";
+			else
+				label = "? - ";
+			label += to_string(players) + " players";
+			item.label->setText(label);
+			return;
+		}
 }
 
-void TournamentUI::setStartButton() {
-	if (moderator && status < 2)
+void TournamentUI::setModeratorButtons() {
+	if (moderator && status < 2 && startingTime == 0) {
+		closeSign->show();
+		startTournament->show();
 		bStartTournament->show();
-	else
+	}
+	else {
 		bStartTournament->hide();
+		closeSign->hide();
+		startTournament->hide();
+	}
 }
 
 void TournamentUI::signUpPressed() {
@@ -665,8 +708,15 @@ void TournamentUI::playPressed(TGame& game) {
 }
 
 void TournamentUI::goBack() {
-	gameInfo->hide();
-	bracket->show();
+	if (gameInfo->isVisible()) {
+		gameInfo->hide();
+		bracket->show();
+	}
+	else {
+		hide();
+		gui->onlineplayUI->tournamentList.show();
+		gui->onlineplayUI->tournamentSidePanel->show();
+	}
 }
 
 void TournamentUI::hide() {

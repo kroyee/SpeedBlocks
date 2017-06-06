@@ -54,6 +54,7 @@ public:
 	tgui::Panel::Ptr bracket;
 	tgui::Label::Ptr bStatus;
 	tgui::Label::Ptr bWinner;
+	tgui::Button::Ptr bBack;
 	tgui::Button::Ptr bStartTournament;
 
 	tgui::Panel::Ptr gameInfo;
@@ -88,7 +89,7 @@ public:
 	void makeBracket();
 	void setButtonColors();
 	void setStatusText();
-	void setStartButton();
+	void setModeratorButtons();
 	void setGameStatus(TGame& game);
 	void setGameResults(TGame& game);
 
