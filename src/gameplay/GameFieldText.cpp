@@ -1,5 +1,6 @@
 #include "GameFieldText.h"
 #include "Resources.h"
+#include <cmath>
 using std::to_string;
 
 GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
