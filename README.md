@@ -7,9 +7,7 @@ This game tries to be the unofficial successor of Cultris II since the developme
 Version 2.4.2 is used by this project and it's highly recommended not to use an older version.
 
 - [TGUI](https://tgui.eu/)
-The game runs fine with the stable 0.7.3 except for a minor bug with when window
-is rezised to a none-standard ratio. If you want it to remove this bug you need the
-latest master from TGUIs github repo
+Version 0.7.4 or a higher 0.7.x version is required.
 
 - [curl](https://curl.haxx.se/libcurl/)
 
