@@ -6,12 +6,16 @@
 #include "sounds.h"
 #include "optionSet.h"
 
+enum GameStates { MainMenu, CountDown, Game, GameOver, Replay, Practice };
+
 class Resources {
 public:
 	optionSet options;
 	textures gfx;
 	soundBank sounds;
 	network net;
+
+	GameStates gamestate;
 
 	bool init();
 };

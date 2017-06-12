@@ -2,6 +2,7 @@
 #define TEXTURES_H
 
 #include <SFML/Graphics.hpp>
+#include <TGUI/TGUI.hpp>
 
 class textures {
 public:

@@ -36,7 +36,7 @@ public:
 
 	std::list<clientInfo> clientList;
 
-	sf::Uint8 backTo;
+	sf::Time updateRoomListTime;
 
 	void create(sf::Rect<int> _pos, UI* _gui);
 

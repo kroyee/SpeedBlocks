@@ -45,6 +45,20 @@ sf::String textures::loadTextures() {
         return "media/Kingthings Trypewriter 2.ttf";
     if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf"))
         return "media/F25_Bank_Printer.ttf";
+
+    /*themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
+    tgui::Label::Ptr test;
+    try {
+        test = themeTG->load("Label");
+    } catch (tgui::Exception) {
+        return "media/TransparentGrey.txt";
+    }
+    themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
+    try {
+        test = themeBB->load("Label");
+    } catch (tgui::Exception) {
+        return "media/BabyBlue.txt";
+    }*/
     
     return "OK";
 }

@@ -126,11 +126,8 @@ public:
 	void countDown(short);
 
 	bool gameOver();
-	void drawGameOver();
 
-	void drawText();
 	void drawNextPiece();
-	void drawGameText();
 
 	void addRecEvent(sf::Uint8 type, sf::Uint8 value);
 	void startReplay();

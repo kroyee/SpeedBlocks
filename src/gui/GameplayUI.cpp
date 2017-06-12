@@ -69,7 +69,7 @@ void GameplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	ChatBox = gui->themeTG->load("EditBox");
 	ChatBox->setPosition(5, 520);
 	ChatBox->setSize(480, 30);
-	ChatBox->connect("ReturnKeyPressed", &UI::sendMsg, gui, std::bind(&tgui::Tab::getSelected, ChatTab));
+	ChatBox->connect("ReturnKeyPressed", &UI::chatMsg, gui, std::bind(&tgui::Tab::getSelected, ChatTab));
 	ChatBox->connect("Focused Unfocused", &UI::chatFocus, gui, std::bind(&tgui::Widget::isFocused, ChatBox));
 	Chat->add(ChatBox);
 }

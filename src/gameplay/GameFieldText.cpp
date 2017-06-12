@@ -182,6 +182,13 @@ void GameFieldText::setResults(sf::Uint16 myId) {
         p1_rounds.setString("Game Over");
         p2_rounds.setString("");
     }
+    p1_rounds.setPosition(340,260);
+}
+
+void GameFieldText::setWaitTime(sf::Uint16 time) {
+    p1_rounds.setPosition(330,260);
+    p1_rounds.setString("WO in " + to_string(time) + "min");
+    p2_rounds.setString("");
 }
 
 void GameFieldText::clear() {

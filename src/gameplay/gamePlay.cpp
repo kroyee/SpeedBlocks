@@ -130,8 +130,8 @@ void gamePlay::hd() {
 	field.hd();
 	addPiece();
 	sendLines(field.clearlines());
-	makeNewPiece();
 	dropDelayTime = gameclock.getElapsedTime();
+	makeNewPiece();
 }
 
 void gamePlay::rcw() {
@@ -285,17 +285,6 @@ void gamePlay::delayCheck() {
 		}
 	}
 
-	if (lockdown && gameclock.getElapsedTime() > lockDownTime) {
-		if (!field.mDown()) {
-			addPiece();
-			sendLines(field.clearlines());
-			makeNewPiece();
-			drawMe=true;
-		}
-		else
-			lockdown=false;
-	}
-
 	if (gameclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
 		float durationMultiplyer = 1 + (float)gameclock.getElapsedTime().asSeconds() / 60.0 * 0.1;
 		sf::Uint16 comboLinesSent = comboCount * pow(1.15, comboCount) * durationMultiplyer;
@@ -360,6 +349,17 @@ void gamePlay::delayCheck() {
 			pushGarbage();
 			drawMe=true;
 		}
+
+	if (lockdown && gameclock.getElapsedTime() > lockDownTime) {
+		if (!field.mDown()) {
+			addPiece();
+			sendLines(field.clearlines());
+			drawMe=true;
+			makeNewPiece();
+		}
+		else
+			lockdown=false;
+	}
 
 	if (recorder.rec)
 		if (recorder.timer.getElapsedTime() - recorder.events.back().time > sf::milliseconds(100))
@@ -547,7 +547,6 @@ void gamePlay::startCountdown() {
 		makeNewPiece();
 	}
 	field.piece.piece=7;
-	showPressEnterText=false;
 	comboStart=sf::seconds(0);
 	comboTime=sf::seconds(0);
 	comboCount=0;
@@ -598,8 +597,6 @@ void gamePlay::countDown(short c) {
 bool gamePlay::gameOver() {
 	if (!gameover)
 		return false;
-
-	showPressEnterText=true;
 
 	if (comboCount>maxCombo)
 		maxCombo=comboCount;

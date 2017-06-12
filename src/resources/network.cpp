@@ -5,7 +5,7 @@
 using std::cout;
 using std::endl;
 
-network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
+network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -26,6 +26,20 @@ void network::sendSignal(sf::Uint8 signalId, sf::Uint16 id1, sf::Uint16 id2) {
 	if (id2)
 		packet << id2;
 	sendTCP();
+}
+
+void network::sendUdpConfirm(sf::Uint16 id) {
+	sf::Uint8 packetid = 99;
+	packet.clear();
+	packet << packetid << id;
+	sendUDP();
+}
+
+void network::sendPing(sf::Uint16 myId, sf::Uint8 pingId) {
+	packet.clear();
+	sf::Uint8 packetid = 102;
+	packet << packetid << myId << pingId;
+	sendUDP();
 }
 
 struct MemoryStruct {

@@ -1,5 +1,7 @@
 #include "ScrollList.h"
 #include "gui.h"
+using std::cout;
+using std::endl;
 
 void ScrollList::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);

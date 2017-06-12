@@ -47,6 +47,7 @@ public:
     void setCombo(const sf::Uint8 _combo);
     void setPending(const sf::Uint8 _pending);
     void setResults(sf::Uint16 myId);
+    void setWaitTime(sf::Uint16 time);
 
     void clear();
 

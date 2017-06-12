@@ -1,0 +1,63 @@
+//////////////////////////////////////////////////////////////
+//															//
+//					Packet list 							//
+//															//
+//////////////////////////////////////////////////////////////
+
+// 2 - send login request
+
+// 3 - send game over data
+
+// 4 - send winner data
+
+// 10 - send chat msg
+
+// 11 - create new room
+
+// 21: Create a new tournament
+
+////////////// UDP PACKETS ////////////////
+
+// 99 - confirm UDP port with server
+
+// 100 - game state
+
+// 102 - ping packet
+
+//////////////////////////////////////////////////////////////
+//															//
+//					Signal list 							//
+//															//
+//////////////////////////////////////////////////////////////
+
+// 0 - join room/tournament request, id1 = room/tournament
+
+// 1 - left room
+
+// 2 - lines sent, id1 = amount
+
+// 3 - garbage cleared, id1 = amount
+
+// 4 - lines blocked, id1 = amount
+
+// 5 - away
+
+// 6 - not away
+
+// 7 - ready
+
+// 8 - not ready
+
+// 9 - sign up for tournament, id1 = tournamentId
+
+// 10 - withdraw from tournament, id1 = tournamentId
+
+// 11 - close signup for tournament, id1 = tournamentId
+
+// 12 - start tournament, id1 = tournamentId
+
+// 13 - join tournament game, id1 = tournamentId, id2 = gameId
+
+// 14 - closed tournament panel and no longer need updates, id1 = tournamentId
+
+// 15 - refresh tournament list

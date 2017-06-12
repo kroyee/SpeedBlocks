@@ -26,6 +26,8 @@ public:
 	void sendTCP();
 	void sendUDP();
 	void sendSignal(sf::Uint8 signalId, sf::Uint16 id1 = 0, sf::Uint16 id2 = 0);
+	void sendUdpConfirm(sf::Uint16);
+	void sendPing(sf::Uint16 myId, sf::Uint8 pingId);
 
 	sf::String sendCurlPost(const sf::String& URL, const sf::String& postData, sf::Uint8 type);
 

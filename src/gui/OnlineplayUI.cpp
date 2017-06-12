@@ -3,6 +3,8 @@
 #include "network.h"
 #include "MainMenu.h"
 using std::to_string;
+using std::cout;
+using std::endl;
 
 void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
@@ -38,7 +40,7 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	ChatBox = gui->themeTG->load("EditBox");
 	ChatBox->setPosition(5, 465);
 	ChatBox->setSize(750, 30);
-	ChatBox->connect("ReturnKeyPressed", &UI::sendMsg, gui, "Lobby");
+	ChatBox->connect("ReturnKeyPressed", &UI::chatMsg, gui, "Lobby");
 	ChatBox->connect("Focused Unfocused", &UI::chatFocus, gui, std::bind(&tgui::Widget::isFocused, ChatBox));
 	ServerLobby->add(ChatBox);
 
@@ -209,7 +211,10 @@ void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplaye
 		return;
 	if (!maxplayers.getSize())
 		return;
-	gui->sendPacket11(name, stoi(maxplayers.toAnsiString()) );
+	sf::Uint8 packetid = 11;
+	gui->net.packet.clear();
+	gui->net.packet << packetid << name << (sf::Uint8)stoi(maxplayers.toAnsiString());
+	gui->net.sendTCP();
 	opTab->select(0);
 }
 
@@ -236,6 +241,8 @@ void OnlineplayUI::addRoom() {
 }
 
 void OnlineplayUI::makeClientList() {
+	LobbyList->removeAllItems();
+	clientList.clear();
 	clientInfo client;
 	sf::Uint16 clientCount;
 
@@ -301,6 +308,8 @@ void OnlineplayUI::addTournament() {
 		label = "Started - ";
 	else if (status == 3)
 		label = "Finished - ";
+	else if (status == 4)
+		label = "Aborted - ";
 	else
 		label = "? - ";
 	label += to_string(players) + " players";
@@ -313,7 +322,7 @@ void OnlineplayUI::createTournamentPressed() {
 }
 
 void OnlineplayUI::refreshTournamentPressed() {
-	gui->sendPacket20();
+	gui->net.sendSignal(15);
 }
 
 void OnlineplayUI::back() {

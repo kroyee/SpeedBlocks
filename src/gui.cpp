@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "sounds.h"
+#include "optionSet.h"
 #include "gamePlay.h"
 #include "network.h"
 #include "MainMenu.h"
@@ -39,7 +40,8 @@ UI::UI(sf::RenderWindow& window_,
       linesBlocked(0),
       clientVersion(0),
       udpConfirmed(false),
-      gamestate(MainMenu),
+      gamestate(game_.resources.gamestate),
+      //gamestate(MainMenu),
       spamCount(0),
       scaleup(0),
       gamedata(sf::seconds(0)),
@@ -48,7 +50,7 @@ UI::UI(sf::RenderWindow& window_,
 
     compressor.game=&game;
 
-	themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
+    themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
 	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
 
 	sf::Rect<int> pos(0,0,960,600);
@@ -107,7 +109,7 @@ UI::~UI() {
 }
 
 void UI::joinRoom(sf::Uint16 id) {
-	sendPacket0(id);
+	net.sendSignal(0, id);
 	away=false;
 	game.autoaway=false;
 }
@@ -134,7 +136,6 @@ void UI::setGameState(GameStates state) {
 		if (state == GameOver) {
 			game.field.text.away=false;
 			game.field.text.ready=true;
-			game.draw();
 		}
 	}
 
@@ -154,6 +155,8 @@ void UI::setGameState(GameStates state) {
         game.sLKey();
         game.sDKey();
         game.gameover=false;
+        game.showPressEnterText=false;
+        game.draw();
 	}
 	else if (state == Game || state == Practice) {
 		linesSent=0;
@@ -178,6 +181,9 @@ void UI::setGameState(GameStates state) {
             sendGameOver();
         if (game.winner)
             sendGameWinner();
+        game.showPressEnterText=true;
+        game.field.text.setCountdown(0);
+        game.draw();
 	}
 	else if (state == Replay) {
 		game.startReplay();
@@ -210,7 +216,7 @@ void UI::chatFocus(bool i) {
 	}
 }
 
-void UI::sendMsg(const sf::String& to, const sf::String& msg) {
+void UI::chatMsg(const sf::String& to, const sf::String& msg) {
 	if (!msg.getSize())
 		return;
 	if (spamCount>7000) {
@@ -226,7 +232,7 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 		short until = msg.find(' ', 3);
 		sf::String privto = msg.substring(3, until-3);
 		sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
-		sendPacket10(privto, privmsg);
+		sendMsg(privto, privmsg);
 		gameplayUI->ChatBox->setText("");
 		onlineplayUI->ChatBox->setText("");
 		spamCount+=2000;
@@ -241,10 +247,31 @@ void UI::sendMsg(const sf::String& to, const sf::String& msg) {
 			gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine(postmsg, sf::Color(200, 200, 50));
 			if (to == "Lobby")
 				onlineplayUI->Lobby->addLine(postmsg, sf::Color(200, 200, 50));
-			sendPacket10(to, msg);
+			sendMsg(to, msg);
 			spamCount+=2000;
 			return;
 		}
+}
+
+void UI::sendMsg(const sf::String& to, const sf::String& msg) {
+	sf::Uint8 packetid = 10;
+	net.packet.clear();
+	net.packet << packetid;
+	if (to == "Room") {
+		packetid = 1;
+		net.packet << packetid << msg;
+		net.sendTCP();
+	}
+	else if (to == "Lobby") {
+		packetid = 2;
+		net.packet << packetid << msg;
+		net.sendTCP();
+	}
+	else {
+		packetid = 3;
+		net.packet << packetid << to << msg;
+		net.sendTCP();
+	}
 }
 
 void UI::getMsg() {
@@ -307,15 +334,21 @@ void UI::delayCheck() {
 		if (!udpConfirmed)
 			if (currentTime - udpPortTime > sf::milliseconds(500)) {
 				udpPortTime = currentTime;
-				sendPacket99();
+				net.sendUdpConfirm(myId);
 			}
 		if (currentTime - performanceOutput->pingTime > sf::seconds(1)) {
 			if (!performanceOutput->pingReturned)
 				performanceOutput->setPing(999);
 			performanceOutput->pingTime = currentTime;
 			performanceOutput->pingIdCount++;
-			sendPacket102(performanceOutput->pingIdCount);
+			net.sendPing(myId, performanceOutput->pingIdCount);
 		}
+		if (onlineplayUI->isVisible())
+			if (onlineplayUI->roomList.isVisible())
+				if (currentTime - onlineplayUI->updateRoomListTime > sf::seconds(5)) {
+					onlineplayUI->updateRoomListTime = currentTime;
+					net.sendSignal(16);
+				}
 	}
 
 	sf::Time tmp = currentTime - spamTime;

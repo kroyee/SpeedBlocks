@@ -489,14 +489,14 @@ void TournamentUI::makeBracket() {
 
 		game.player1 = gui->themeTG->load("Label");
 		game.player1->setPosition(buttonx+5, buttony);
-		game.player1->setSize(90, 25);
+		game.player1->setSize(140, 25);
 		game.player1->setText(game.player1_name);
 		game.player1->disable(false);
 		bracket->add(game.player1);
 
 		game.player2 = gui->themeTG->load("Label");
 		game.player2->setPosition(buttonx+5, buttony+25);
-		game.player2->setSize(90, 25);
+		game.player2->setSize(140, 25);
 		game.player2->setText(game.player2_name);
 		game.player2->disable(false);
 		bracket->add(game.player2);
@@ -637,17 +637,17 @@ void TournamentUI::setModeratorButtons() {
 
 void TournamentUI::signUpPressed() {
 	if (signUpButton->getText() == "Sign Up!")
-		gui->sendPacket14(id);
+		gui->net.sendSignal(9, id);
 	else
-		gui->sendPacket15(id);
+		gui->net.sendSignal(10, id);
 }
 
 void TournamentUI::closeSignPressed() {
-	gui->sendPacket16(id);
+	gui->net.sendSignal(11, id);
 }
 
 void TournamentUI::startTournamentPressed() {
-	gui->sendPacket17(id);
+	gui->net.sendSignal(12, id);
 }
 
 void TournamentUI::gamePressed(TGame& game) {
@@ -704,7 +704,7 @@ void TournamentUI::setGameResults(TGame& game) {
 }
 
 void TournamentUI::playPressed(TGame& game) {
-	gui->sendPacket18(id, game.id);
+	gui->net.sendSignal(13, id, game.id);
 }
 
 void TournamentUI::goBack() {
@@ -720,6 +720,6 @@ void TournamentUI::goBack() {
 }
 
 void TournamentUI::hide() {
-	gui->sendPacket19(id);
+	gui->net.sendSignal(14, id);
 	panel->hide();
 }

@@ -4,6 +4,7 @@
 #include "gamePlay.h"
 #include "MainMenu.h"
 #include "Connecting.h"
+#include "OnlineplayUI.h"
 
 void LoginBox::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
@@ -86,13 +87,14 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 		sf::String hash;
 		if (!guest) {
 			hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass, 1);
-			gui->sendPacket2(hash, guest);
+			sendLogin(hash, guest);
 		}
 		else {
-			gui->sendPacket2(name, guest);
+			sendLogin(name, guest);
 			gui->game.field.text.setName(name);
 		}
 		gui->playonline=true;
+		gui->onlineplayUI->updateRoomListTime = gui->delayClock.getElapsedTime() + sf::seconds(5);
 	}
 	else {
 		gui->net.disconnect();
@@ -111,4 +113,11 @@ void LoginBox::closeLogin() {
 void LoginBox::open() {
 	panel->show();
 	LiE1->focus();
+}
+
+void LoginBox::sendLogin(const sf::String& hashorname, sf::Uint8 guest) {
+	sf::Uint8 packetid = 2;
+	gui->net.packet.clear();
+	gui->net.packet << packetid << gui->clientVersion << guest << hashorname;
+	gui->net.sendTCP();
 }

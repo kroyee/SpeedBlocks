@@ -152,7 +152,7 @@ void UI::drawFields() {
 
 void UI::goAway() {
 	away=true;
-	sendPacket8();
+	net.sendSignal(5);
 	game.gameover=true;
 	game.sendgameover=true;
 	game.field.text.away=true;
@@ -162,18 +162,18 @@ void UI::goAway() {
 void UI::unAway() {
 	away=false;
 	game.autoaway=false;
-	sendPacket9();
+	net.sendSignal(6);
 	game.field.text.away=false;
 	game.draw();
 }
 
 void UI::ready() {
 	if (game.field.text.ready) {
-		sendPacket13();
+		net.sendSignal(8);
 		game.field.text.ready=false;
 	}
 	else {
-		sendPacket12();
+		net.sendSignal(7);
 		game.field.text.ready=true;
 	}
 	game.draw();
@@ -369,37 +369,63 @@ void UI::sendGameData() {
 	sf::Time tmp = game.gameclock.getElapsedTime();
 	if (tmp>gamedata) {
 		gamedata=tmp+sf::milliseconds(100);
-		sendPacket100();
+		sendGameState();
 	}
 
 	if (game.linesSent > linesSent) {
 		sf::Uint8 amount = game.linesSent-linesSent;
-		sendPacket5(amount);
+		net.sendSignal(2, amount);
 		linesSent = game.linesSent;
 	}
 
 	if (game.garbageCleared > garbageCleared) {
 		sf::Uint8 amount = game.garbageCleared-garbageCleared;
-		sendPacket6(amount);
+		net.sendSignal(3, amount);
 		garbageCleared = game.garbageCleared;
 	}
 
 	if (game.linesBlocked > linesBlocked) {
 		sf::Uint8 amount = game.linesBlocked-linesBlocked;
-		sendPacket7(amount);
+		net.sendSignal(4, amount);
 		linesBlocked = game.linesBlocked;
 	}
 }
 
+void UI::sendGameState() {
+	if (gamestate == CountDown) {
+		sf::Uint8 tmp = game.field.piece.piece;
+		game.field.piece.piece = 7; // makes the current piece not draw on other players screen (since it's countdown)
+		compressor.compress();
+		game.field.piece.piece = tmp;
+	}
+	else
+		compressor.compress();
+	net.packet.clear();
+	sf::Uint8 packetid = 100;
+	net.packet << packetid << myId << gamedatacount;
+	gamedatacount++;
+	for (int i=0; i<compressor.tmpcount; i++)
+		net.packet << compressor.tmp[i];
+	if (compressor.bitcount>0)
+		net.packet << compressor.tmp[compressor.tmpcount];
+	net.sendUDP();
+}
+
 void UI::sendGameOver() {
-	sendPacket3();
+	sf::Uint8 packetid = 3;
+	net.packet.clear();
+	net.packet << packetid << game.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked << game.bpm << game.linesPerMinute;
+	net.sendTCP();
 	game.sendgameover=false;
 
-	sendPacket100();
+	sendGameState();
 }
 
 void UI::sendGameWinner() {
-	sendPacket4();
+	sf::Uint8 packetid = 4;
+	net.packet.clear();
+	net.packet << packetid << game.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked << game.bpm << game.linesPerMinute;
+	net.sendTCP();
 	game.winner=false;
 }
 
@@ -455,39 +481,6 @@ void UI::handlePacket() {
 			performanceOutput->ping->show();
 		}
 		break;
-		case 1://Start countdown
-		{
-			sf::Uint8 countdown;
-			sf::Uint16 seed1, seed2;
-			net.packet >> countdown >> seed1 >> seed2;
-			game.rander.seedPiece(seed1);
-			game.rander.seedHole(seed2);
-			game.rander.reset();
-			game.startCountdown();
-			game.countDown(countdown);
-			resetOppFields();
-			setGameState(CountDown);
-			gamedatacount=251;
-			sendPacket100();
-		}
-		break;
-		case 2://Countdown
-		{
-			if (gamestate != CountDown)
-				setGameState(CountDown);
-			if (!game.rander.total)
-				game.startCountdown();
-			sf::Uint8 countdown;
-			net.packet >> countdown;
-			game.countDown(countdown);
-			if (!countdown)
-				setGameState(Game);
-			else {
-				gamedatacount=255-countdown;
-				sendPacket100();
-			}
-		}
-		break;
 		case 3://Join room ok/no
 		{
 			sf::Uint8 joinok;
@@ -530,21 +523,6 @@ void UI::handlePacket() {
 			addField(newfield);
 			fields.back().text.setName(name);
 		}
-		break;
-		case 5: //Another player left the room
-		{
-			sf::Uint16 removeid;
-			net.packet >> removeid;
-			removeField(removeid);
-		}
-		break;
-		case 6: //Round ended
-			game.gameover=true;
-		break;
-		case 7: //Round ended and you where the winner
-			game.gameover=true;
-			game.winner=true;
-			game.autoaway=false;
 		break;
 		case 8: // Round score data
 		{
@@ -589,66 +567,8 @@ void UI::handlePacket() {
 			}
 		}
 		break;
-		case 10: //Garbage received
-		{
-			sf::Uint8 amount;
-			net.packet >> amount;
-			game.addGarbage(amount);
-		}
-		break;
-		case 11: //Server telling me to reset my oppfields. This is the same as Packet 1, but when client is away.
-		{
-			resetOppFields();
-			sf::Uint16 seed;
-			net.packet >> seed;
-			game.rander.seedPiece(seed);
-			net.packet >> seed;
-			game.rander.seedHole(seed);
-			game.rander.reset();
-			game.field.clear();
-			game.draw();
-		}
-		break;
 		case 12: // Incoming chat msg
 			getMsg();
-		break;
-		case 13: // Another player went away
-		{
-			sf::Uint16 id;
-			net.packet >> id;
-			for (auto&& field : fields)
-				if (field.id == id) {
-					field.text.away=true;
-					drawOppField(field);
-				}
-		}
-		break; // Another player came back
-		case 14:
-		{
-			sf::Uint16 id;
-			net.packet >> id;
-			for (auto&& field : fields)
-				if (field.id == id) {
-					field.text.away=false;
-					drawOppField(field);
-				}
-		}
-		break;
-		case 15: // Server reported the position of a player
-		{
-			sf::Uint16 id;
-			sf::Uint8 position;
-			net.packet >> id >> position;
-			for (auto&& field : fields)
-				if (field.id == id) {
-					field.text.setPosition(position);
-					drawOppField(field);
-				}
-			if (id == myId) {
-				game.field.text.setPosition(position);
-				game.draw();
-			}
-		}
 		break;
 		case 16: // Server sending room list
 			// This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
@@ -663,9 +583,6 @@ void UI::handlePacket() {
 			net.packet >> id;
 			onlineplayUI->roomList.removeItem(id);
 		}
-		break;
-		case 19: // UDP-port was established by server
-			udpConfirmed=true;
 		break;
 		case 20: // Another client connected to the server
 			onlineplayUI->addClient();
@@ -682,28 +599,6 @@ void UI::handlePacket() {
 		case 24: // Get tournament game standings
 			game.field.text.setResults(myId);
 			game.draw();
-		break;
-		case 25: // Players is ready
-		{
-			sf::Uint16 clientid;
-			net.packet >> clientid;
-			for (auto&& field : fields)
-				if (field.id == clientid) {
-					field.text.ready=true;
-					field.drawField();
-				}
-		}
-		break;
-		case 26: // Player is not ready
-		{
-			sf::Uint16 clientid;
-			net.packet >> clientid;
-			for (auto&& field : fields)
-				if (field.id == clientid) {
-					field.text.ready=false;
-					field.drawField();
-				}
-		}
 		break;
 		case 27: // Tournament update
 			onlineplayUI->tournamentPanel.getUpdate(myId);
@@ -742,6 +637,102 @@ void UI::handleSignal() {
 		break;
 		case 1: // A tournament game is ready
 			onlineplayUI->alertMsg(id1);
+		break;
+		case 2: // Not allowed if logged in as guest
+			quickMsg("You can't do that as guest, register at https://speedblocks.se");
+		break;
+		case 3: // Update on waiting time until WO in tournament game
+			game.field.text.setWaitTime(id1);
+			game.draw();
+		break;
+		case 4: //Start countdown
+			game.rander.seedPiece(id1);
+			game.rander.seedHole(id2);
+			game.rander.reset();
+			game.startCountdown();
+			game.countDown(3);
+			resetOppFields();
+			setGameState(CountDown);
+			gamedatacount=251;
+			sendGameState();
+		break;
+		case 5: //Countdown ongoing
+			if (gamestate != CountDown)
+				setGameState(CountDown);
+			if (!game.rander.total)
+				game.startCountdown();
+			game.countDown(id1);
+			if (!id1)
+				setGameState(Game);
+			else {
+				gamedatacount=255-id1;
+				sendGameState();
+			}
+		break;
+		case 6: //Another player left the room
+			removeField(id1);
+		break;
+		case 7: //Round ended
+			if (gamestate != Practice)
+				game.gameover=true;
+		break;
+		case 8: //Round ended and you where the winner
+			game.gameover=true;
+			game.winner=true;
+			game.autoaway=false;
+		break;
+		case 9: //Garbage received
+			game.addGarbage(id1);
+		break;
+		case 10: //Server telling me to reset my oppfields. This is the same as Packet 1, but when client is away.
+			resetOppFields();
+			game.rander.seedPiece(id1);
+			game.rander.seedHole(id2);
+			game.rander.reset();
+			game.field.clear();
+			game.draw();
+		break;
+		case 11: // Another player went away
+			for (auto&& field : fields)
+				if (field.id == id1) {
+					field.text.away=true;
+					drawOppField(field);
+				}
+		break; // Another player came back
+		case 12:
+			for (auto&& field : fields)
+				if (field.id == id1) {
+					field.text.away=false;
+					drawOppField(field);
+				}
+		break;
+		case 13: // Server reported the position of a player
+			for (auto&& field : fields)
+				if (field.id == id1) {
+					field.text.setPosition(id2);
+					drawOppField(field);
+				}
+			if (id1 == myId) {
+				game.field.text.setPosition(id2);
+				game.draw();
+			}
+		break;
+		case 14: // UDP-port was established by server
+			udpConfirmed=true;
+		break;
+		case 15: // Players is ready
+			for (auto&& field : fields)
+				if (field.id == id1) {
+					field.text.ready=true;
+					field.drawField();
+				}
+		break;
+		case 16: // Player is not ready
+			for (auto&& field : fields)
+				if (field.id == id1) {
+					field.text.ready=false;
+					field.drawField();
+				}
 		break;
 	}
 }
