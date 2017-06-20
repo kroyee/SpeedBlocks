@@ -44,8 +44,6 @@ public:
 	sf::Time comboStart;
 	sf::Time comboTime;
 
-	sf::Time garbageDelay;
-
 	sf::Time countDownTime;
 	short countDowncount;
 
@@ -60,6 +58,7 @@ public:
 	sf::Uint16 linesBlocked;
 	sf::Uint16 bpm;
 	sf::Uint16 garbageCleared;
+	sf::Uint16 linesCleared;
 	
 	sf::Uint16 oldbpm[10];
 	sf::Uint8 oldbpmCount;

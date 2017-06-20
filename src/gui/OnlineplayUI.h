@@ -4,6 +4,7 @@
 #include "guiBase.h"
 #include "ScrollList.h"
 #include "TournamentUI.h"
+#include "ChallengesUI.h"
 
 class UI;
 
@@ -26,6 +27,8 @@ public:
 	ScrollList tournamentList;
 
 	TournamentUI tournamentPanel;
+
+	ChallengesUI challengesUI;
 
 	tgui::Panel::Ptr tournamentSidePanel;
 

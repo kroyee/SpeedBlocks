@@ -35,6 +35,7 @@ public:
 	void chattabSelect(const std::string& tab);
 	void scoreRow();
 	void clearScore();
+	void show();
 
 	const sf::String& getName(sf::Uint16 id);
 };

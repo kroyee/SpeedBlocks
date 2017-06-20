@@ -3,12 +3,13 @@
 #include "gui.h"
 #include "GameOptions.h"
 #include "PerformanceOutput.h"
+#include "ReplayUI.h"
 #include <iostream> // just here for quick and simple error testing, remove if you want
 
 using std::cout;
 using std::endl;
 
-#define CLIENT_VERSION 3
+#define CLIENT_VERSION 4
 
 int main()
 {
@@ -90,6 +91,7 @@ int main()
             case Replay:
                 if (game.playReplay())
                     gui.setGameState(GameOver);
+                gui.replayUI->update();
             break;
 
             case Practice:

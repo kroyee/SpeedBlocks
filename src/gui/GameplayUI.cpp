@@ -204,3 +204,8 @@ const sf::String& GameplayUI::getName(sf::Uint16 id) {
 			return field.text.name;
 	return unknown;
 }
+
+void GameplayUI::show() {
+	panel->show();
+	Room->removeAllLines();
+}

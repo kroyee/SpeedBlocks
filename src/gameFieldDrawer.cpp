@@ -10,6 +10,7 @@
 #include "OnlineplayUI.h"
 #include "AreYouSure.h"
 #include "PerformanceOutput.h"
+#include "ChallengesGameUI.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -194,6 +195,7 @@ void UI::handleEvent(sf::Event& event) {
 	if (onlineplayUI->isVisible()) {
 		onlineplayUI->roomList.scrolled(event);
 		onlineplayUI->tournamentList.scrolled(event);
+		onlineplayUI->challengesUI.challengeList.scrolled(event);
 	}
 
 	tGui.handleEvent(event);
@@ -258,7 +260,10 @@ void UI::gameInput(sf::Event& event) {
             if (event.key.code == sf::Keyboard::Return) {
             	if (playonline) {
             		game.gameover=false;
-            		setGameState(Practice);
+            		if (gameplayUI->isVisible())
+            			setGameState(Practice);
+            		else if (challengesGameUI->isVisible())
+            			ready();
             	}
             	else {
 	                setGameState(CountDown);
@@ -266,7 +271,7 @@ void UI::gameInput(sf::Event& event) {
 	                game.gameover=false;
             	}
             }
-            else if (event.key.code == options.ready)
+            else if (event.key.code == options.ready && playonline)
             	ready();
         }
 	}
@@ -361,6 +366,14 @@ void UI::keyEvents(sf::Event& event) {
 					areYouSure->show();
 				}
 			}
+			else if (challengesGameUI->isVisible()) {
+				if (areYouSure->isVisible())
+					areYouSure->hide();
+				else {
+					areYouSure->label->setText("Leave this challenge?");
+					areYouSure->show();
+				}
+			}
 		}
 	}
 }
@@ -424,7 +437,9 @@ void UI::sendGameOver() {
 void UI::sendGameWinner() {
 	sf::Uint8 packetid = 4;
 	net.packet.clear();
-	net.packet << packetid << game.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked << game.bpm << game.linesPerMinute;
+	net.packet << packetid << game.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked;
+	net.packet << game.bpm << game.linesPerMinute << (sf::Uint32)game.recorder.duration.asMilliseconds();
+	net.packet << (sf::Uint16)game.pieceCount;
 	net.sendTCP();
 	game.winner=false;
 }
@@ -440,6 +455,7 @@ void UI::handlePacket() {
 			connectingScreen->hide();
 			mainMenu->enable();
 			loginBox->hide();
+			challengesGameUI->hide();
 			inroom=false;
 			playonline=false;
 			performanceOutput->ping->hide();
@@ -481,6 +497,12 @@ void UI::handlePacket() {
 			performanceOutput->ping->show();
 		}
 		break;
+		case 1:
+			receiveRecording();
+		break;
+		case 2:
+			onlineplayUI->challengesUI.makeList();
+		break;
 		case 3://Join room ok/no
 		{
 			sf::Uint8 joinok;
@@ -503,6 +525,7 @@ void UI::handlePacket() {
 				}
 				inroom=true;
 				setGameState(GameOver);
+				game.pressEnterText.setString("press Enter to start practice");
 				game.field.clear();
 				game.draw();
 			}
@@ -510,8 +533,19 @@ void UI::handlePacket() {
 				quickMsg("Room is full");
 			else if (joinok == 3)
 				quickMsg("Please wait for server to get your user-data");
-			else
+			else if (joinok == 4)
 				quickMsg("This is not your game");
+			else if (joinok > 5) {
+				inroom=true;
+				setGameState(GameOver);
+				gameplayUI->hide();
+				game.pressEnterText.setString("press Enter to start challenge");
+				game.field.clear();
+				game.draw();
+				challengesGameUI->show();
+				challengesGameUI->showPanel(joinok);
+				challengesGameUI->clear();
+			}
 		}
 		break;
 		case 4: //Another player joined room
@@ -524,6 +558,23 @@ void UI::handlePacket() {
 			fields.back().text.setName(name);
 		}
 		break;
+		case 5:
+			onlineplayUI->challengesUI.makeLeaderboard();
+		break;
+		case 6:
+		{
+			sf::String text;
+			net.packet >> text;
+			quickMsg("You improved your score from " + text);
+			game.recorder.sendRecording(net, onlineplayUI->challengesUI.selectedId);
+		}
+		break;
+		case 7:
+		{
+			sf::String text;
+			net.packet >> text;
+			quickMsg("Your score of " + text);
+		}
 		case 8: // Round score data
 		{
 			sf::Uint8 count;
@@ -571,7 +622,6 @@ void UI::handlePacket() {
 			getMsg();
 		break;
 		case 16: // Server sending room list
-			// This is not being used yet, but you could put a "refresh" button in the lobby for the furture?
 			onlineplayUI->makeRoomList();
 		break;
 		case 17: // New room created
@@ -655,6 +705,14 @@ void UI::handleSignal() {
 			setGameState(CountDown);
 			gamedatacount=251;
 			sendGameState();
+			if (challengesGameUI->isVisible()) {
+				challengesGameUI->clear();
+				if (challengesGameUI->cheesePanel->isVisible()) {
+					for (int i=0; i<9; i++)
+						game.addGarbageLine(game.rander.getHole());
+					game.draw();
+				}
+			}
 		break;
 		case 5: //Countdown ongoing
 			if (gamestate != CountDown)

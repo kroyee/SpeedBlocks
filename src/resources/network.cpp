@@ -5,7 +5,7 @@
 using std::cout;
 using std::endl;
 
-network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
+network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -18,13 +18,13 @@ network::~network() {
 void network::sendTCP() { while (tcpSock.send(packet) == sf::Socket::Partial) {} }
 void network::sendUDP() { udpSock.send(packet, serverAdd, udpPort); }
 
-void network::sendSignal(sf::Uint8 signalId, sf::Uint16 id1, sf::Uint16 id2) {
+void network::sendSignal(sf::Uint8 signalId, int id1, int id2) {
 	packet.clear();
 	packet << (sf::Uint8)254 << signalId;
-	if (id1)
-		packet << id1;
-	if (id2)
-		packet << id2;
+	if (id1 > -1)
+		packet << (sf::Uint16)id1;
+	if (id2 > -1)
+		packet << (sf::Uint16)id2;
 	sendTCP();
 }
 

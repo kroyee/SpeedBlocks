@@ -25,7 +25,7 @@ public:
 	void disconnect() { udpSock.unbind(); tcpSock.disconnect(); }
 	void sendTCP();
 	void sendUDP();
-	void sendSignal(sf::Uint8 signalId, sf::Uint16 id1 = 0, sf::Uint16 id2 = 0);
+	void sendSignal(sf::Uint8 signalId, int id1 = -1, int id2 = -1);
 	void sendUdpConfirm(sf::Uint16);
 	void sendPing(sf::Uint16 myId, sf::Uint8 pingId);
 

@@ -22,6 +22,8 @@ class OnlineplayUI;
 class AreYouSure;
 class PerformanceOutput;
 class BugReport;
+class ChallengesGameUI;
+class ReplayUI;
 
 class obsField;
 
@@ -44,6 +46,8 @@ public:
 	PerformanceOutput* performanceOutput;
 	BugReport* bugReport;
 	tgui::Label::Ptr QuickMsg;
+	ChallengesGameUI* challengesGameUI;
+	ReplayUI* replayUI;
 
 	Resources& resources;
 	optionSet& options;
@@ -86,6 +90,7 @@ public:
 	void chatFocus(bool i);
 
 	void quickMsg(const sf::String& msg);
+	void receiveRecording();
 
 	void disconnect();
 

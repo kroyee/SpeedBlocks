@@ -1,7 +1,7 @@
 #ifndef RECORDING_H
 #define RECORDING_H
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 
 // List of types for RecordingEvent:
 // 1 : Piece moved/rotated
@@ -13,6 +13,8 @@
 // 7 : Countdown, pending holds the current count
 // 100 : Start of recording
 // 101 : End of recording
+
+class network;
 
 class RecordingEvent {
 public:
@@ -36,11 +38,15 @@ public:
 	bool rec, halt;
 
 	void clear();
-	void start();
+	void start(sf::Uint8[22][10]);
 	void stop();
 	void jumpTo(sf::Uint32 startTime);
 	void addEvent(RecordingEvent& event);
-	void save();
+	void save(std::string filename="");
+	void load(std::string filename);
+
+	void sendRecording(network& net, sf::Uint16 type);
+	void receiveRecording(network& net);
 };
 
 #endif

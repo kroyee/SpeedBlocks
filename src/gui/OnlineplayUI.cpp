@@ -14,6 +14,7 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	opTab->add("Lobby");
 	opTab->add("Tournaments");
 	opTab->add("Create room");
+	opTab->add("Challenges");
 	opTab->add("Back");
 	opTab->setTabHeight(50);
 	opTab->setPosition(50, 20);
@@ -167,6 +168,8 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	CrB->setSize(100, 40);
 	CrB->connect("Pressed", &OnlineplayUI::createRoom, this, std::bind(&tgui::EditBox::getText, NorE), std::bind(&tgui::EditBox::getText, NopE));
 	CreateRoom->add(CrB);
+
+	challengesUI.create(pos, gui, panel);
 }
 
 void OnlineplayUI::opTabSelect(const std::string& tab) {
@@ -188,6 +191,10 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		hideAllPanels();
 		CreateRoom->show();
 	}
+	else if (tab == "Challenges") {
+		hideAllPanels();
+		challengesUI.show();
+	}
 	else if (tab == "Back") {
 		hide();
 		gui->mainMenu->show();
@@ -204,6 +211,7 @@ void OnlineplayUI::hideAllPanels(bool keepTournamentOpen) {
 		tournamentPanel.hide();
 	tournamentSidePanel->hide();
 	createTournamentPanel->hide();
+	challengesUI.hide();
 }
 
 void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplayers) {

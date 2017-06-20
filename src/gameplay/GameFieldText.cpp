@@ -155,7 +155,7 @@ void GameFieldText::setCombo(const sf::Uint8 _combo) {
 void GameFieldText::setPending(const sf::Uint8 _pending) {
 	if (pending != _pending) {
 		pending = _pending;
-		comboText.setString(to_string(pending));
+		pendingText.setString(to_string(pending));
 	}
 }
 

@@ -12,6 +12,8 @@
 #include "AreYouSure.h"
 #include "PerformanceOutput.h"
 #include "BugReport.h"
+#include "ChallengesGameUI.h"
+#include "ReplayUI.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -62,8 +64,14 @@ UI::UI(sf::RenderWindow& window_,
 	gameOptions->create(pos, this);
 	gameplayUI = new GameplayUI;
 	gameplayUI->create(pos, this);
+	challengesGameUI = new ChallengesGameUI;
+	challengesGameUI->create(pos, this);
 	onlineplayUI = new OnlineplayUI;
 	onlineplayUI->create(pos, this);
+
+	pos.left=465; pos.top=530; pos.width=490; pos.height=70;
+	replayUI = new ReplayUI;
+	replayUI->create(pos, this);
 
 	pos.left=280; pos.top=150; pos.width=400; pos.height=300;
 	loginBox = new LoginBox;
@@ -106,6 +114,8 @@ UI::~UI() {
 	delete gameplayUI;
 	delete gameOptions;
 	delete mainMenu;
+	delete challengesGameUI;
+	delete replayUI;
 }
 
 void UI::joinRoom(sf::Uint16 id) {
@@ -141,9 +151,12 @@ void UI::setGameState(GameStates state) {
 
 	if (state == MainMenu) { // Set depending on what state we are going into
 		removeAllFields();
+		game.field.clear();
 		if (playonline) {
 			onlineplayUI->show();
 			gameplayUI->hide();
+			challengesGameUI->hide();
+			replayUI->hide();
 		}
 		else {
 			gameplayUI->hide();
@@ -169,8 +182,8 @@ void UI::setGameState(GameStates state) {
 				ready();
 			if (away)
 				unAway();
+			game.field.clear();
 		}
-		game.field.clear();
 		game.showPressEnterText=false;
         game.startGame();
 	}
@@ -181,11 +194,15 @@ void UI::setGameState(GameStates state) {
             sendGameOver();
         if (game.winner)
             sendGameWinner();
-        game.showPressEnterText=true;
+        if (gamestate != Replay)
+        	game.showPressEnterText=true;
+        else
+        	replayUI->pauseTime=sf::seconds(0);
         game.field.text.setCountdown(0);
         game.draw();
 	}
 	else if (state == Replay) {
+		game.showPressEnterText=false;
 		game.startReplay();
 	}
 
@@ -220,9 +237,9 @@ void UI::chatMsg(const sf::String& to, const sf::String& msg) {
 	if (!msg.getSize())
 		return;
 	if (spamCount>7000) {
-		gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
+		gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(235, 130, 0));
 		if (to == "Lobby")
-			onlineplayUI->Lobby->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(200, 200, 50));
+			onlineplayUI->Lobby->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(235, 130, 0));
 		gameplayUI->ChatBox->setText("");
 		onlineplayUI->ChatBox->setText("");
 		spamCount=12000;
@@ -244,9 +261,9 @@ void UI::chatMsg(const sf::String& to, const sf::String& msg) {
 
 	for (unsigned int i=0; i<msg.getSize(); i++)
 		if (msg[i] != ' ') {
-			gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine(postmsg, sf::Color(200, 200, 50));
+			gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine(postmsg, sf::Color(235, 130, 0));
 			if (to == "Lobby")
-				onlineplayUI->Lobby->addLine(postmsg, sf::Color(200, 200, 50));
+				onlineplayUI->Lobby->addLine(postmsg, sf::Color(235, 130, 0));
 			sendMsg(to, msg);
 			spamCount+=2000;
 			return;
@@ -324,6 +341,19 @@ void UI::Score() {
 		gameplayUI->InGameTab->select(1);
 }
 
+void UI::receiveRecording() {
+	sf::Uint16 type;
+	net.packet >> type;
+	game.recorder.receiveRecording(net);
+	setGameState(Replay);
+	if (type >= 20000) {
+		gameplayUI->hide();
+		challengesGameUI->show();
+		challengesGameUI->showPanel(type-19994);
+		replayUI->show();
+	}
+}
+
 void UI::delayCheck() {
 	sf::Time currentTime = delayClock.getElapsedTime();
 	if (QuickMsg->isVisible())
@@ -349,6 +379,8 @@ void UI::delayCheck() {
 					onlineplayUI->updateRoomListTime = currentTime;
 					net.sendSignal(16);
 				}
+		if (challengesGameUI->isVisible() && (gamestate == Game || gamestate == Replay))
+			challengesGameUI->update();
 	}
 
 	sf::Time tmp = currentTime - spamTime;

@@ -9,6 +9,8 @@
 #include <deque>
 #include <string>
 using std::to_string;
+using std::cout;
+using std::endl;
 
 #define PI 3.14159265
 
@@ -30,6 +32,7 @@ showPressEnterText(true)
 	maxCombo=0;
 	linesRecieved=0;
 	garbageCleared=0;
+	linesCleared=0;
 
 	gameover=false;
 	sendgameover=false;
@@ -52,9 +55,11 @@ showPressEnterText(true)
 }
 
 void gamePlay::startGame() {
-	field.clear();
+	//field.clear();
+	recorder.start(field.square);
 	makeNewPiece();
 	drawMe=true;
+	garbage.clear();
 	gameclock.restart();
 	comboStart=sf::seconds(0);
 	comboTime=sf::seconds(0);
@@ -65,6 +70,7 @@ void gamePlay::startGame() {
 	linesSent=0;
 	linesRecieved=0;
 	garbageCleared=0;
+	linesCleared=0;
 	maxCombo=0;
 	linesBlocked=0;
 	pieceCount=0;
@@ -397,6 +403,7 @@ void gamePlay::updateBasePieces() {
 
 void gamePlay::sendLines(sf::Vector2i lines) {
 	garbageCleared+=lines.y;
+	linesCleared+=lines.x;
 	short tmplines=lines.x;
 	if (lines.x==0) {
 		comboTime-=sf::milliseconds(200);
@@ -407,7 +414,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	else if (lines.x==1) {
 		if (garbage.size())
-			garbage.front().delay = gameclock.getElapsedTime()+sf::milliseconds(1500);
+			garbage.front().delay += sf::milliseconds(500);
 		lines.x--;
 	}
 	else {
@@ -416,11 +423,14 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		for (int i=0; i<tmplines-1; i++)
 			if (garbage.size()) {
 				garbage.front().count--;
-				if (garbage.front().count == 0)
+				if (garbage.front().count == 0) {
+					sf::Time delaytime = garbage.front().delay;
 					garbage.pop_front();
+					garbage.front().delay = delaytime;
+				}
 				lines.x--;
 				linesBlocked++;
-				garbage.front().delay = gameclock.getElapsedTime()+sf::milliseconds(1500);
+				garbage.front().delay += sf::milliseconds(500);
 				blocked=true;
 			}
 		short total=0;
@@ -488,7 +498,9 @@ void gamePlay::pushGarbage() {
 	garbage.front().delay+=sf::milliseconds(500);
 	if (garbage.front().count == 0) {
 		garbage.pop_front();
-		garbage.front().delay=gameclock.getElapsedTime()+sf::milliseconds(500);
+		sf::Time delaytime = gameclock.getElapsedTime()+sf::milliseconds(500);
+		if (delaytime > garbage.front().delay)
+			garbage.front().delay=delaytime;
 	}
 
 	short total=0;
@@ -552,8 +564,7 @@ void gamePlay::startCountdown() {
 	comboCount=0;
 	lKeyTime=sf::seconds(0);
 	rKeyTime=sf::seconds(0);
-	while (garbage.size())
-		garbage.pop_front();
+	garbage.clear();
 	draw();
 	if (recorder.rec)
 		addRecEvent(7, 3);
@@ -597,6 +608,8 @@ void gamePlay::countDown(short c) {
 bool gamePlay::gameOver() {
 	if (!gameover)
 		return false;
+
+	recorder.stop();
 
 	if (comboCount>maxCombo)
 		maxCombo=comboCount;
@@ -686,7 +699,14 @@ bool gamePlay::playReplay() {
 		auto&& event = recorder.events[recorder.currentEvent];
 		switch (event.type) {
 			case 100:
+				gameclock.restart();
+				pieceCount=0;
+				linesCleared=0;
+				garbageCleared=0;
 				field.clear();
+				for (int y=0; y<22; y++)
+					for (int x=0; x<10; x++)
+						field.square[y][x] = recorder.starting_position[y][x];
 			break;
 			case 101:
 				recorder.halt=true;
@@ -714,6 +734,9 @@ bool gamePlay::playReplay() {
 				field.piece.posY = event.y;
 				addPiece();
 				sf::Vector2i lines = field.clearlines();
+				linesCleared+=lines.x;
+				garbageCleared+=lines.y;
+				pieceCount++;
 				if (options.sound) {
 					if (lines.x == 0)
 						resources.sounds.pieceDrop();

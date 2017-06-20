@@ -4,6 +4,8 @@
 //															//
 //////////////////////////////////////////////////////////////
 
+// 1 - send replay
+
 // 2 - send login request
 
 // 3 - send game over data
@@ -61,3 +63,9 @@
 // 14 - closed tournament panel and no longer need updates, id1 = tournamentId
 
 // 15 - refresh tournament list
+
+// 16 - refresh room list
+
+// 17 - play challenge, id1=challenge id
+
+// 18 - watch challenge replay, id1=challenge id, id2=slot
