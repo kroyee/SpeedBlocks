@@ -31,6 +31,7 @@ public:
 	ChallengesUI challengesUI;
 
 	tgui::Panel::Ptr tournamentSidePanel;
+	tgui::Panel::Ptr roomSidePanel;
 
 	tgui::Panel::Ptr createTournamentPanel;
 	tgui::EditBox::Ptr tournamentName;
@@ -54,6 +55,8 @@ public:
 	void makeLobbyList();
 	void addClient();
 	void removeClient();
+
+	void createRoomPressed();
 
 	void makeTournamentList();
 	void addTournament();

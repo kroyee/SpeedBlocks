@@ -34,7 +34,7 @@ ExternalProject_Add(TGUI
     DEPENDS         SFML
     PREFIX          TGUI
     GIT_REPOSITORY  https://github.com/texus/TGUI.git
-    GIT_TAG         0.7.3
+    GIT_TAG         0.7.4
     CMAKE_ARGS      -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
                     -DSFML_ROOT=${SFML_ROOT}
 )

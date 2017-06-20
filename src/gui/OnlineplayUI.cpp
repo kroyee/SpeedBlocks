@@ -13,7 +13,6 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	opTab->add("Rooms");
 	opTab->add("Lobby");
 	opTab->add("Tournaments");
-	opTab->add("Create room");
 	opTab->add("Challenges");
 	opTab->add("Back");
 	opTab->setTabHeight(50);
@@ -25,6 +24,20 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 
 	sf::Rect<int> pos(0,100,450,500);
 	roomList.create(pos, gui, panel);
+
+	roomSidePanel = tgui::Panel::create();
+	roomSidePanel->setPosition(460,100);
+	roomSidePanel->setSize(400,500);
+	roomSidePanel->setBackgroundColor(sf::Color(255,255,255,0));
+	roomSidePanel->hide();
+	panel->add(roomSidePanel);
+
+	tgui::Button::Ptr widget8 = gui->themeTG->load("Button");
+	widget8->setPosition(20,20);
+	widget8->setSize(320,75);
+	widget8->setText("Create Room");
+	widget8->connect("pressed", &OnlineplayUI::createRoomPressed, this);
+	roomSidePanel->add(widget8);
 
 	ServerLobby = tgui::Panel::create();
 	ServerLobby->setPosition(0,100);
@@ -176,6 +189,7 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 	if (tab == "Rooms") {
 		hideAllPanels();
 		roomList.show();
+		roomSidePanel->show();
 	}
 	else if (tab == "Lobby") {
 		hideAllPanels();
@@ -212,6 +226,7 @@ void OnlineplayUI::hideAllPanels(bool keepTournamentOpen) {
 	tournamentSidePanel->hide();
 	createTournamentPanel->hide();
 	challengesUI.hide();
+	roomSidePanel->hide();
 }
 
 void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplayers) {
@@ -223,7 +238,9 @@ void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplaye
 	gui->net.packet.clear();
 	gui->net.packet << packetid << name << (sf::Uint8)stoi(maxplayers.toAnsiString());
 	gui->net.sendTCP();
-	opTab->select(0);
+	hideAllPanels();
+	roomList.show();
+	roomSidePanel->show();
 }
 
 void OnlineplayUI::makeRoomList() {
@@ -322,6 +339,11 @@ void OnlineplayUI::addTournament() {
 		label = "? - ";
 	label += to_string(players) + " players";
 	tournamentList.addItem(name, label, id);
+}
+
+void OnlineplayUI::createRoomPressed() {
+	hideAllPanels();
+	CreateRoom->show();
 }
 
 void OnlineplayUI::createTournamentPressed() {
