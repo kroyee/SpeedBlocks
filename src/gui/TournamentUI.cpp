@@ -587,11 +587,13 @@ void TournamentUI::setStatusText() {
 		statustext += "Started";
 	else if (status == 3) {
 		statustext += "Finished";
-		if (games.front().result.p1_sets > games.front().result.p2_sets)
-			bWinner->setText("Winner: " + games.front().player1_name);
-		else
-			bWinner->setText("Winner: " + games.front().player2_name);
-		bWinner->show();
+		if (games.size()) {
+			if (games.front().result.p1_sets > games.front().result.p2_sets)
+				bWinner->setText("Winner: " + games.front().player1_name);
+			else
+				bWinner->setText("Winner: " + games.front().player2_name);
+			bWinner->show();
+		}
 	}
 	else if (status == 4)
 		statustext += "Aborted";
