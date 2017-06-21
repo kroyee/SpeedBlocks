@@ -13,6 +13,10 @@ gameField::gameField(Resources& _resources) : resources(_resources), text(_resou
     tile = resources.gfx.tile;
 
     piece.piece=7;
+
+    for (int y=0; y<22; y++)
+        for (int x=0; x<10; x++)
+            square[y][x] = 0;
 }
 
 gameField::gameField(const gameField& field) : resources(field.resources), text(field.resources) {

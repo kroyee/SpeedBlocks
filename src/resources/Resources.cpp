@@ -33,6 +33,8 @@ bool Resources::init() {
     if (loadError(sounds.loadSounds()))
         return false;
 
+    gamestate = MainMenu;
+
     sounds.setEffectVolume(options.EffectVolume);
     sounds.setMusicVolume(options.MusicVolume);
     sounds.setChatVolume(options.ChatVolume);
