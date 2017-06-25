@@ -200,6 +200,12 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	joinButton->setText("Play");
 	gameInfo->add(joinButton);
 
+	gSpectate = gui->themeTG->load("Button");
+	gSpectate->setPosition(280,340);
+	gSpectate->setSize(130, 35);
+	gSpectate->setText("Spectate");
+	gameInfo->add(gSpectate);
+
 	gStartingTime = gui->themeTG->load("EditBox");
 	gStartingTime->setPosition(230,100);
 	gStartingTime->setSize(240,30);
@@ -663,10 +669,16 @@ void TournamentUI::gamePressed(TGame& game) {
 
 	joinButton->disconnectAll();
 	joinButton->connect("pressed", &TournamentUI::playPressed, this, std::ref(game));
-	if ((game.status == 2 || game.status == 3) && (game.player1_id == myId || game.player2_id == myId))
+	gSpectate->disconnectAll();
+	gSpectate->connect("pressed", &TournamentUI::spectate, this, std::ref(game));
+	if ((game.status == 2 || game.status == 3) && (game.player1_id == myId || game.player2_id == myId)) {
 		joinButton->show();
-	else
+		gSpectate->hide();
+	}
+	else {
 		joinButton->hide();
+		gSpectate->show();
+	}
 
 	setGameResults(game);
 
@@ -719,6 +731,10 @@ void TournamentUI::goBack() {
 		gui->onlineplayUI->tournamentList.show();
 		gui->onlineplayUI->tournamentSidePanel->show();
 	}
+}
+
+void TournamentUI::spectate(TGame& game) {
+	gui->net.sendSignal(19, id, game.id);
 }
 
 void TournamentUI::hide() {

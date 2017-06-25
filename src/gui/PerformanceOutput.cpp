@@ -8,6 +8,11 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	pingIdCount=0;
 	pingReturned=false;
 
+	longestFrame=sf::seconds(0);
+	secCount=sf::seconds(0);
+	frameCount=0;
+	frameRate=0;
+
 	longest = gui->themeTG->load("Label");
 	longest->setAutoSize(false);
 	longest->setPosition(0,13);
@@ -99,6 +104,24 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	pingHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	pingHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(pingHeader);
+}
+
+void PerformanceOutput::update(sf::Time current, sf::Time lastFrame) {
+	if (gui->options.performanceOutput) {
+        if (current-lastFrame > longestFrame)
+            longestFrame = current-lastFrame;
+        frameCount++;
+
+        if (current-secCount > sf::seconds(1)) {
+            setFrameRate(frameRate);
+            setInputRate(frameCount);
+            setLongestFrame(longestFrame);
+            frameRate=0;
+            frameCount=0;
+            longestFrame=sf::seconds(0);
+            secCount=current;
+        }
+    }
 }
 
 void PerformanceOutput::setFrameRate(int fr) {

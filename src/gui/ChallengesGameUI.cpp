@@ -177,10 +177,10 @@ void ChallengesGameUI::hideAllPanels() {
 	cheesePanel->hide();
 }
 
-void ChallengesGameUI::showPanel(sf::Uint8 whichPanel) {
+void ChallengesGameUI::showPanel(sf::Uint16 whichPanel) {
 	hideAllPanels();
-	if (whichPanel == 6)
+	if (whichPanel == 20000)
 		racePanel->show();
-	else if (whichPanel == 7)
+	else if (whichPanel == 20001)
 		cheesePanel->show();
 }

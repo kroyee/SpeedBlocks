@@ -20,7 +20,12 @@ public:
 	sf::Uint8 pingIdCount;
 	sf::Time pingTime;
 
+	sf::Time longestFrame, secCount;
+    int frameCount, frameRate;
+
 	void create(sf::Rect<int> _pos, UI* _gui);
+
+	void update(sf::Time current, sf::Time lastFrame);
 
 	void setFrameRate(int fr);
 	void setInputRate(int fc);

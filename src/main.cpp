@@ -41,12 +41,10 @@ int main()
     gui.tGui.setView(view);
 
     sf::Clock frameClock;
-    sf::Time current=sf::seconds(0), nextDraw=sf::seconds(0);
-
-    sf::Time lastFrame=sf::seconds(0), longestFrame=sf::seconds(0), secCount=sf::seconds(0);
-    int frameCount=0, frameRate=0;
+    sf::Time current=sf::seconds(0), lastFrame=sf::seconds(0), nextDraw=sf::seconds(0), nextUpdate=sf::seconds(0);
 
     game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
+    game.rander.seedHole(time(NULL));
 
     // The main-loop
 
@@ -115,44 +113,29 @@ int main()
             }
             nextDraw+=game.options.frameDelay;
             window.draw(resources.gfx.background);
-            if (gui.gamestate != MainMenu) {
+            if (gui.gamestate != MainMenu)
                 window.draw( game.field.sprite );
-                gui.drawFields();
-            }
+            if (gui.gameFieldDrawer.isVisible())
+                gui.gameFieldDrawer.drawFields();
             if (gui.gameOptions->GenOpt->isVisible())
                 for (int i=0; i<7; i++)
                     window.draw(gui.gameOptions->piece[i]);
             gui.tGui.draw();
             window.display();
-            frameRate++;
+            gui.performanceOutput->frameRate++;
         }
-        current = frameClock.getElapsedTime();
-        if (game.options.inputDelay - (current - lastFrame) > sf::microseconds(200))
-            sf::sleep(game.options.inputDelay - (current - lastFrame) - sf::microseconds(100));
-        while (game.options.inputDelay - (current - lastFrame) > sf::microseconds(0)) {
-            current = frameClock.getElapsedTime();
+        if (frameClock.getElapsedTime() < nextUpdate) {
+            sf::sleep(nextUpdate - frameClock.getElapsedTime() - sf::microseconds(50));
+            while (frameClock.getElapsedTime() < nextUpdate) {}
         }
+        nextUpdate += game.options.inputDelay;
+        if (nextUpdate < current)
+            nextUpdate = current;
         if (nextDraw < current)
             nextDraw=current;
 
-        // Performance output
+        gui.performanceOutput->update(frameClock.getElapsedTime(), lastFrame);
 
-        if (game.options.performanceOutput) {
-            current = frameClock.getElapsedTime();
-            if (current-lastFrame > longestFrame)
-                longestFrame = current-lastFrame;
-            frameCount++;
-
-            if (current-secCount > sf::seconds(1)) {
-                gui.performanceOutput->setFrameRate(frameRate);
-                gui.performanceOutput->setInputRate(frameCount);
-                gui.performanceOutput->setLongestFrame(longestFrame);
-                frameRate=0;
-                frameCount=0;
-                longestFrame=sf::seconds(0);
-                secCount=current;
-            }
-        }
         lastFrame=current;
     }
 

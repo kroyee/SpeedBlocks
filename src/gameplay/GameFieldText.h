@@ -17,12 +17,6 @@ class GameFieldText {
     sf::Text countdownText;
     sf::Text bpmText;
     sf::Text gameOverText;
-    sf::Text sets;
-    sf::Text rounds;
-    sf::Text p1_sets;
-    sf::Text p2_sets;
-    sf::Text p1_rounds;
-    sf::Text p2_rounds;
 public:
     sf::RenderTexture* texture;
     
@@ -31,7 +25,7 @@ public:
     sf::Uint8 combo, pending;
     sf::Uint16 bpm;
     sf::Int8 position, countdown, gameover;
-    bool away, ready, results;
+    bool away, ready;
 
     sf::String name;
 
@@ -46,8 +40,6 @@ public:
     void setBpm(const sf::Uint16 _bpm);
     void setCombo(const sf::Uint8 _combo);
     void setPending(const sf::Uint8 _pending);
-    void setResults(sf::Uint16 myId);
-    void setWaitTime(sf::Uint16 time);
 
     void clear();
 

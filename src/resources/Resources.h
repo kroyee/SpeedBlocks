@@ -6,7 +6,7 @@
 #include "sounds.h"
 #include "optionSet.h"
 
-enum GameStates { MainMenu, CountDown, Game, GameOver, Replay, Practice };
+enum GameStates { MainMenu, CountDown, Game, GameOver, Replay, Practice, Spectating };
 
 class Resources {
 public:

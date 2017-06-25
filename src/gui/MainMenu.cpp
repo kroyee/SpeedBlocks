@@ -3,6 +3,7 @@
 #include "gamePlay.h"
 #include "LoginBox.h"
 #include "GameOptions.h"
+#include "GameStandings.h"
 
 void Menu::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
@@ -51,7 +52,7 @@ void Menu::playOnline() {
 
 void Menu::Training() {
 	gui->setGameState(CountDown);
-    gui->game.startCountdown();
+	gui->game.startCountdown();
 }
 
 void Menu::Options() {

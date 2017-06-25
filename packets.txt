@@ -69,3 +69,7 @@
 // 17 - play challenge, id1=challenge id
 
 // 18 - watch challenge replay, id1=challenge id, id2=slot
+
+// 19 - spectate room, id1=room id
+
+// 20 - stop spectating room, id1=room id

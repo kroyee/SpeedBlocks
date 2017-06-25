@@ -36,43 +36,12 @@ GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
     gameOverText.setPosition(50,250);
     gameOverText.setCharacterSize(48);
 
-    sets.setFont(resources.gfx.typewriter);
-    sets.setCharacterSize(24);
-    sets.setColor(sf::Color::White);
-    sets.setPosition(355,180);
-    sets.setString("Sets");
-    rounds.setFont(resources.gfx.typewriter);
-    rounds.setCharacterSize(24);
-    rounds.setColor(sf::Color::White);
-    rounds.setPosition(340,230);
-    rounds.setString("Rounds");
-    p1_sets.setFont(resources.gfx.typewriter);
-    p1_sets.setCharacterSize(18);
-    p1_sets.setColor(sf::Color::White);
-    p1_sets.setPosition(340,210);
-    p1_sets.setString("0");
-    p2_sets.setFont(resources.gfx.typewriter);
-    p2_sets.setCharacterSize(18);
-    p2_sets.setColor(sf::Color::White);
-    p2_sets.setPosition(410,210);
-    p2_sets.setString("0");
-    p1_rounds.setFont(resources.gfx.typewriter);
-    p1_rounds.setCharacterSize(18);
-    p1_rounds.setColor(sf::Color::White);
-    p1_rounds.setPosition(340,260);
-    p1_rounds.setString("0");
-    p2_rounds.setFont(resources.gfx.typewriter);
-    p2_rounds.setCharacterSize(18);
-    p2_rounds.setColor(sf::Color::White);
-    p2_rounds.setPosition(410,260);
-    p2_rounds.setString("0");
-
     comboTimer.setPosition(315, 290);
     comboTimer.setFillColor(sf::Color(255,0,0));
     setComboTimer(0);
 
     combo = 0; pending = 0; bpm = 0; position = 0; countdown = 0; gameover = 0;
-    away = false; ready = false; results = false;
+    away = false; ready = false;
 }
 
 GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resources) {
@@ -85,7 +54,7 @@ GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resourc
     setComboTimer(0);
 
     combo = 0; pending = 0; bpm = 0; position = 0; countdown = 0; gameover = 0;
-    away = false; ready = false; results = false;
+    away = false; ready = false;
 }
 
 void GameFieldText::setName(const sf::String& n) {
@@ -159,38 +128,6 @@ void GameFieldText::setPending(const sf::Uint8 _pending) {
 	}
 }
 
-void GameFieldText::setResults(sf::Uint16 myId) {
-    results = true;
-    sf::Uint8 _p1_sets, _p2_sets, _p1_rounds, _p2_rounds;
-    sf::Uint16 p1_id, p2_id;
-    resources.net.packet >> p1_id >> p2_id >> _p1_sets >> _p2_sets >> _p1_rounds >> _p2_rounds;
-
-    if (p1_id == myId) {
-        p1_sets.setString(to_string(_p1_sets));
-        p2_sets.setString(to_string(_p2_sets));
-        p1_rounds.setString(to_string(_p1_rounds));
-        p2_rounds.setString(to_string(_p2_rounds));
-    }
-    else {
-        p2_sets.setString(to_string(_p1_sets));
-        p1_sets.setString(to_string(_p2_sets));
-        p2_rounds.setString(to_string(_p1_rounds));
-        p1_rounds.setString(to_string(_p2_rounds));
-    }
-
-    if (_p1_rounds == 255) {
-        p1_rounds.setString("Game Over");
-        p2_rounds.setString("");
-    }
-    p1_rounds.setPosition(340,260);
-}
-
-void GameFieldText::setWaitTime(sf::Uint16 time) {
-    p1_rounds.setPosition(330,260);
-    p1_rounds.setString("WO in " + to_string(time) + "min");
-    p2_rounds.setString("");
-}
-
 void GameFieldText::clear() {
     setComboTimer(0);
     setCombo(0);
@@ -219,13 +156,4 @@ void GameFieldText::drawText() {
     texture->draw(comboText);
     texture->draw(pendingText);
     texture->draw(bpmText);
-
-    if (results) {
-        texture->draw(sets);
-        texture->draw(rounds);
-        texture->draw(p1_sets);
-        texture->draw(p2_sets);
-        texture->draw(p1_rounds);
-        texture->draw(p2_rounds);
-    }
 }

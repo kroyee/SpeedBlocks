@@ -62,6 +62,7 @@ public:
 	tgui::EditBox::Ptr player1;
 	tgui::EditBox::Ptr player2;
 	tgui::Button::Ptr joinButton;
+	tgui::Button::Ptr gSpectate;
 	tgui::EditBox::Ptr gStartingTime;
 	tgui::EditBox::Ptr gSets;
 	tgui::EditBox::Ptr gRounds;
@@ -100,6 +101,7 @@ public:
 	void gamePressed(TGame& game);
 	void playPressed(TGame& game);
 	void goBack();
+	void spectate(TGame& game);
 
 	void hide();
 };

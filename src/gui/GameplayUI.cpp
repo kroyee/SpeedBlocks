@@ -77,16 +77,19 @@ void GameplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 void GameplayUI::igtabSelect(const std::string& tab) {
 	if (tab == "GameFields") {
 		GameFields->show();
+		gui->gameFieldDrawer.show();
 		Score->hide();
 		Chat->hide();
 	}
 	else if (tab == "Score") {
 		GameFields->hide();
+		gui->gameFieldDrawer.hide();
 		Score->show();
 		Chat->hide();
 	}
 	else if (tab == "Chat") {
 		GameFields->hide();
+		gui->gameFieldDrawer.hide();
 		Score->hide();
 		Chat->show();
 		ChatBox->focus();
@@ -199,7 +202,7 @@ void GameplayUI::clearScore() {
 const sf::String& GameplayUI::getName(sf::Uint16 id) {
 	if (id == gui->myId)
 		return gui->game.field.text.name;
-	for (auto&& field : gui->fields)
+	for (auto&& field : gui->gameFieldDrawer.fields)
 		if (field.id == id)
 			return field.text.name;
 	return unknown;
@@ -208,4 +211,6 @@ const sf::String& GameplayUI::getName(sf::Uint16 id) {
 void GameplayUI::show() {
 	panel->show();
 	Room->removeAllLines();
+	InGameTab->select(0);
+	gui->gameFieldDrawer.show();
 }

@@ -4,6 +4,7 @@
 #include <TGUI/TGUI.hpp>
 #include "packetcompress.h"
 #include "Resources.h"
+#include "GameFieldDrawer.h"
 
 class optionSet;
 class soundBank;
@@ -24,6 +25,7 @@ class PerformanceOutput;
 class BugReport;
 class ChallengesGameUI;
 class ReplayUI;
+class GameStandings;
 
 class obsField;
 
@@ -48,6 +50,7 @@ public:
 	tgui::Label::Ptr QuickMsg;
 	ChallengesGameUI* challengesGameUI;
 	ReplayUI* replayUI;
+	GameStandings* gameStandings;
 
 	Resources& resources;
 	optionSet& options;
@@ -58,7 +61,6 @@ public:
 
 	bool playonline;
 	bool chatFocused;
-	bool inroom;
 	bool away;
 
 	sf::Uint16 linesSent, garbageCleared, linesBlocked;
@@ -94,31 +96,12 @@ public:
 
 	void disconnect();
 
-	//GameFIeldDrawer stuff
-
-	std::list<obsField> fields;
-
-	sf::Clock sclock;
-	obsField* scaleup;
-
-	float currentR;
+	GameFieldDrawer gameFieldDrawer;
 
 	PacketCompress compressor;
 	sf::Time gamedata;
 	sf::Uint8 gamedatacount;
 	sf::Uint16 myId;
-
-	void addField(obsField& field);
-	void removeField(sf::Uint16 id);
-	void updateField(obsField& field);
-	void calFieldPos();
-
-	void removeAllFields();
-
-	void resetOppFields();
-
-	void drawOppField(obsField& field);
-	void drawFields();
 
 	void handleEvent(sf::Event& event);
 
@@ -126,7 +109,6 @@ public:
 	void windowEvents(sf::Event& event);
 	void resizeWindow(sf::Event& event);
 	
-	void enlargePlayfield(sf::Event& event);
 	void keyEvents(sf::Event& event);
 	void scrollBar(sf::Event& event);
 

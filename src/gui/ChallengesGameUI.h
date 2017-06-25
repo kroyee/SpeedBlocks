@@ -24,7 +24,7 @@ public:
 	void update();
 	sf::String displayTime(const sf::Time& time);
 	void hideAllPanels();
-	void showPanel(sf::Uint8 whichPanel);
+	void showPanel(sf::Uint16 whichPanel);
 };
 
 #endif

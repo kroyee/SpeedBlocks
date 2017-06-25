@@ -56,7 +56,7 @@ public:
 
     sf::Uint16 id;
     sf::Uint8 nextpiece, nprot, npcol;
-    short scale;
+    float scale;
     bool mouseover;
     sf::Uint8 datacount;
 
