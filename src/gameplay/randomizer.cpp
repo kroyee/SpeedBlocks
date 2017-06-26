@@ -2,7 +2,7 @@
 
 short randomizer::getPiece() {
 	short returnpiece=0;
-	float piece = piece_dist(piece_gen);
+	float piece = piece_dist(piece_gen)*1000;
 	for (int i=0; i<7; i++) {
 		piece-=cogP[i];
 		if (piece < 0) {
@@ -29,7 +29,7 @@ void randomizer::seedPiece(short seedNr) {
 }
 
 short randomizer::getHole() {
-	return hole_dist(hole_gen);
+	return hole_dist(hole_gen)*10;
 }
 
 void randomizer::seedHole(short seedNr) {

@@ -721,7 +721,7 @@ void UI::handlePacket() {
 		{
 			sf::Uint16 joinok;
 			net.packet >> joinok;
-			if (joinok == 1 || 1000) {
+			if (joinok == 1 || joinok == 1000) {
 				sf::Uint8 playersinroom;
 				sf::Uint16 playerid, seed1, seed2;
 				net.packet >> seed1 >> seed2 >> playersinroom;

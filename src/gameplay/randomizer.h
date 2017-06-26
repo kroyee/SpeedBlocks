@@ -3,19 +3,48 @@
 
 #include <random>
 
+template <typename T>
+class UniformRealDistribution
+{
+ public:
+    typedef T result_type;
+
+ public:
+    UniformRealDistribution(T _a = 0.0, T _b = 1.0)
+        :m_a(_a),
+         m_b(_b)
+    {}
+
+    void reset() {}
+
+    template <class Generator>
+    T operator()(Generator &_g)
+    {
+        double dScale = (m_b - m_a) / ((T)(_g.max() - _g.min()) + (T)1); 
+        return (_g() - _g.min()) * dScale  + m_a;
+    }
+
+    T a() const {return m_a;}
+    T b() const {return m_b;}
+
+ protected:
+    T       m_a;
+    T       m_b;
+};
+
 class randomizer {
 public:
-	randomizer() : hole_dist(0, 9), piece_dist(0, 999) { reset(); }
+	randomizer() { reset(); }
 	short noP[7];
 	short total;
 
 	float cogP[7];
 
 	std::mt19937 hole_gen;
-    std::uniform_int_distribution<> hole_dist;
+    UniformRealDistribution<float> hole_dist;
 
     std::mt19937 piece_gen;
-    std::uniform_int_distribution<> piece_dist;
+    UniformRealDistribution<float> piece_dist;
 
     short getHole();
     void seedHole(short seedNr);
