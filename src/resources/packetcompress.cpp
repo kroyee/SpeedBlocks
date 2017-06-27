@@ -37,6 +37,7 @@ void PacketCompress::extract() {
 	getBits(pendingText, 8);
 	getBits(bpmText, 8);
 	getBits(comboTimerCount, 7);
+	getBits(countdown, 2);
 }
 
 void PacketCompress::getBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -107,6 +108,12 @@ void PacketCompress::compress() {
 	addBits(tmp, 8);
 	tmp = game->field.text.comboTimer.getPointCount()-2;
 	addBits(tmp, 7);
+	tmp = game->field.text.countdown;
+	addBits(tmp, 2);
+	if (!countdown) {
+		tmp = game->gameclock.getElapsedTime().asMilliseconds()/100;
+		addBits(tmp, 8);
+	}
 }
 
 void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {
@@ -142,6 +149,7 @@ void PacketCompress::copy() {
 	field->text.setPending(pendingText);
 	field->text.setCombo(comboText);
 	field->text.setComboTimer(comboTimerCount);
+	field->text.setCountdown(countdown);
 }
 
 bool PacketCompress::validate() {
@@ -165,6 +173,8 @@ bool PacketCompress::validate() {
 		return false;
 	if (nprot > 3)
 		return false;
+	if (countdown > 3)
+		countdown = 0;
 
 	return true;
 }

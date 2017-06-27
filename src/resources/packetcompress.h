@@ -21,6 +21,7 @@ public:
 	sf::Uint8 nextpiece, npcol, nprot;
 	sf::Uint8 comboText, pendingText, bpmText;
 	sf::Uint8 comboTimerCount;
+	sf::Uint8 countdown;
 
 	void compress();
 	void extract();
