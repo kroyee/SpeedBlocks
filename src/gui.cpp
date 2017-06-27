@@ -151,9 +151,13 @@ void UI::setGameState(GameStates state) {
 			game.field.text.ready=true;
 		}
 	}
-	else if (gamestate == Spectating)
+	else if (gamestate == Spectating) {
 		if (state != Spectating)
 			net.sendSignal(20);
+	}
+	else if (gamestate == Replay) {
+		replayUI->playPause->setText("Play");
+	}
 
 	if (state == MainMenu) { // Set depending on what state we are going into
 		gameFieldDrawer.removeAllFields();
@@ -361,7 +365,7 @@ void UI::receiveRecording() {
 	if (type >= 20000) {
 		gameplayUI->hide();
 		challengesGameUI->show();
-		challengesGameUI->showPanel(type-19994);
+		challengesGameUI->showPanel(type);
 		replayUI->show();
 	}
 }
@@ -385,12 +389,18 @@ void UI::delayCheck() {
 			performanceOutput->pingIdCount++;
 			net.sendPing(myId, performanceOutput->pingIdCount);
 		}
-		if (onlineplayUI->isVisible())
+		if (onlineplayUI->isVisible()) {
 			if (onlineplayUI->roomList.isVisible())
 				if (currentTime - onlineplayUI->updateRoomListTime > sf::seconds(5)) {
 					onlineplayUI->updateRoomListTime = currentTime;
 					net.sendSignal(16);
 				}
+			if (onlineplayUI->tournamentList.isVisible())
+				if (currentTime - onlineplayUI->updateTournamentListTime > sf::seconds(5)) {
+					onlineplayUI->updateTournamentListTime = currentTime;
+					net.sendSignal(15);
+				}
+		}
 		if (challengesGameUI->isVisible() && (gamestate == Game || gamestate == Replay))
 			challengesGameUI->update();
 	}
@@ -448,6 +458,7 @@ void UI::handleEvent(sf::Event& event) {
 		onlineplayUI->roomList.scrolled(event);
 		onlineplayUI->tournamentList.scrolled(event);
 		onlineplayUI->challengesUI.challengeList.scrolled(event);
+		onlineplayUI->challengesUI.scrolled(event);
 	}
 
 	tGui.handleEvent(event);
@@ -937,8 +948,13 @@ void UI::handleSignal() {
 			if (challengesGameUI->isVisible()) {
 				challengesGameUI->clear();
 				if (challengesGameUI->cheesePanel->isVisible()) {
-					for (int i=0; i<9; i++)
-						game.addGarbageLine(game.rander.getHole());
+					int lastHole=10, nextHole=10;
+					for (int i=0; i<9; i++) {
+						while (nextHole == lastHole)
+							nextHole = game.rander.getHole();
+						game.addGarbageLine(nextHole);
+						lastHole=nextHole;
+					}
 					game.draw();
 				}
 			}

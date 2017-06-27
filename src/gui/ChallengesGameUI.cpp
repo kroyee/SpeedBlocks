@@ -39,12 +39,12 @@ void ChallengesGameUI::create(sf::Rect<int> _pos, UI* _ui) {
 	widget3->setTextSize(30);
 	racePanel->add(widget3);
 
-	tgui::Button::Ptr widget4 = gui->themeTG->load("Button");
-	widget4->setPosition(153,311);
-	widget4->setSize(200,40);
-	widget4->setText("Start challenge");
-	widget4->connect("pressed", &UI::ready, gui);
-	racePanel->add(widget4);
+	startChallenge = gui->themeTG->load("Button");
+	startChallenge->setPosition(153,311);
+	startChallenge->setSize(200,40);
+	startChallenge->setText("Start challenge");
+	startChallenge->connect("pressed", &UI::ready, gui);
+	racePanel->add(startChallenge);
 
 	raceTimeElapsed = gui->themeTG->load("EditBox");
 	raceTimeElapsed->setPosition(280,87);
@@ -94,12 +94,7 @@ void ChallengesGameUI::create(sf::Rect<int> _pos, UI* _ui) {
 	widget8->setTextSize(30);
 	cheesePanel->add(widget8);
 
-	tgui::Button::Ptr widget9 = gui->themeTG->load("Button");
-	widget9->setPosition(153,311);
-	widget9->setSize(200,40);
-	widget9->setText("Start challenge");
-	widget9->connect("pressed", &UI::ready, gui);
-	cheesePanel->add(widget9);
+	cheesePanel->add(startChallenge);
 
 	cheeseTimeElapsed = gui->themeTG->load("EditBox");
 	cheeseTimeElapsed->setPosition(280,87);
@@ -179,6 +174,7 @@ void ChallengesGameUI::hideAllPanels() {
 
 void ChallengesGameUI::showPanel(sf::Uint16 whichPanel) {
 	hideAllPanels();
+	startChallenge->show();
 	if (whichPanel == 20000)
 		racePanel->show();
 	else if (whichPanel == 20001)

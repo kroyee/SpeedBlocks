@@ -293,7 +293,7 @@ void gamePlay::delayCheck() {
 
 	if (gameclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
 		float durationMultiplyer = 1 + (float)gameclock.getElapsedTime().asSeconds() / 60.0 * 0.1;
-		sf::Uint16 comboLinesSent = comboCount * pow(1.15, comboCount) * durationMultiplyer;
+		sf::Uint16 comboLinesSent = comboCount * pow(1.125, comboCount) * durationMultiplyer;
 
 		bool blocked=false;
 		for (int i=0; i<comboLinesSent; i++)
@@ -449,7 +449,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		comboTime=sf::seconds(0);
 	}
 	comboCount++;
-	comboTime+=sf::seconds((1.0/comboCount) + ((tmplines+1)/2.0)*(1.5/comboCount));
+	comboTime+=sf::seconds((0.9/comboCount) + ((tmplines+1)/2.0)*(1.4/comboCount));
 
 	if (options.sound)
 		playComboSound(comboCount);
@@ -609,13 +609,14 @@ bool gamePlay::gameOver() {
 	if (!gameover)
 		return false;
 
-	recorder.stop();
-
 	if (comboCount>maxCombo)
 		maxCombo=comboCount;
 	linesPerMinute = (((float)linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
 	bpm = (int)(pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
 	field.text.setBpm(bpm);
+
+	addRecEvent(5, 0);
+	recorder.stop();
 
     if (winner)
     	field.text.setGameover(2);

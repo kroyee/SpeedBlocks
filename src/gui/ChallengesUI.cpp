@@ -2,6 +2,7 @@
 #include "gui.h"
 using std::cout;
 using std::endl;
+using std::to_string;
 
 void ChallengesUI::create(sf::Rect<int> _pos, UI* _ui, tgui::Panel::Ptr parentPanel) {
 	createBase(_pos, _ui, parentPanel);
@@ -24,17 +25,17 @@ void ChallengesUI::create(sf::Rect<int> _pos, UI* _ui, tgui::Panel::Ptr parentPa
 	leaderPanel->add(title);
 
 	scrollPanel = tgui::Panel::create();
-	scrollPanel->setPosition(50,60);
-	scrollPanel->setSize(420,400);
+	scrollPanel->setPosition(0,60);
+	scrollPanel->setSize(470,360);
 	scrollPanel->setBackgroundColor(sf::Color(255,255,255,0));
 	leaderPanel->add(scrollPanel);
 
 	scroll = gui->themeTG->load("Scrollbar");
-	scroll->setSize(30, 440);
+	scroll->setSize(30, 360);
 	scroll->setPosition(470, 60);
 	scroll->setMaximum(2);
 	scroll->setLowValue(1);
-	//scroll->connect("ValueChanged", &ScrollList::listScrolled, this);
+	scroll->connect("ValueChanged", &ChallengesUI::listScrolled, this);
 	leaderPanel->add(scroll);
 
 	playChallenge = gui->themeTG->load("Button");
@@ -59,54 +60,86 @@ void ChallengesUI::makeList() {
 }
 
 void ChallengesUI::makeLeaderboard() {
+	sf::String oldTitle = title->getText();
+	int scrollpos = scroll->getValue();
+
 	leaderPanel->removeAllWidgets();
 	leaderPanel->add(title);
 	leaderPanel->add(scroll);
 	leaderPanel->add(scrollPanel);
 	leaderPanel->add(playChallenge);
 	leaderPanel->show();
-	sf::Uint8 columns;
 	gui->net.packet >> selectedId >> columns;
 	for (auto&& chall : challengeList.items)
 		if (chall.id == selectedId)
 			title->setText(chall.name);
 
-	sf::Uint16* width = new sf::Uint16[columns];
-	for (int i=0; i<columns; i++)
+	width[0] = 0;
+	columns++;
+	for (int i=1; i<columns; i++) {
 		gui->net.packet >> width[i];
+		width[i]+=50;
+	}
+
+	tgui::Label::Ptr position = gui->themeTG->load("Label");
+	position->setPosition(0, 40);
+	position->setText("#");
+	position->setTextSize(16);
+	leaderPanel->add(position);
 
 	sf::String string;
-	for (int i=0; i<columns; i++) {
+	for (int i=1; i<columns; i++) {
 		gui->net.packet >> string;
 		tgui::Label::Ptr label = gui->themeTG->load("Label");
-		label->setPosition(width[i]+50, 40);
+		label->setPosition(width[i], 40);
 		label->setText(string);
 		label->setTextSize(16);
 		leaderPanel->add(label);
 	}
 
 	scrollPanel->removeAllWidgets();
-	sf::Uint8 count;
-	gui->net.packet >> count;
-	for (sf::Uint16 c=0; c<count; c++) {
-		for (sf::Uint8 i=0; i<columns; i++) {
+	rows.clear();
+	ChallengesRow row;
+	gui->net.packet >> itemsInScrollPanel;
+	for (sf::Uint16 c=0; c<itemsInScrollPanel; c++) {
+
+		row.label[0] = gui->themeTG->load("Label");
+		row.label[0]->setPosition(0, c*30+7);
+		row.label[0]->setText(to_string(c+1));
+		row.label[0]->setTextSize(14);
+		scrollPanel->add(row.label[0]);
+
+		for (sf::Uint8 i=1; i<columns; i++) {
 			gui->net.packet >> string;
-			tgui::Label::Ptr label = gui->themeTG->load("Label");
-			label->setPosition(width[i], c*30+7);
-			label->setText(string);
-			label->setTextSize(14);
-			scrollPanel->add(label);
+			row.label[i] = gui->themeTG->load("Label");
+			row.label[i]->setPosition(width[i], c*30+7);
+			row.label[i]->setText(string);
+			row.label[i]->setTextSize(14);
+			scrollPanel->add(row.label[i]);
 		}
-		tgui::Button::Ptr button = gui->themeTG->load("Button");
-		button->setText("View");
-		button->setPosition(350, c*30+5);
-		button->setSize(45, 20);
-		button->connect("pressed", &ChallengesUI::viewReplay, this, c);
-		scrollPanel->add(button);
+		row.button = gui->themeTG->load("Button");
+		row.button->setText("View");
+		row.button->setPosition(400, c*30+5);
+		row.button->setSize(45, 20);
+		row.button->connect("pressed", &ChallengesUI::viewReplay, this, c);
+		rows.push_back(row);
+		scrollPanel->add(row.button);
 		scrollPanel->show();
 	}
 
-	delete[] width;
+	int height = itemsInScrollPanel*30+7;
+	if (height <= scrollPanel->getSize().y)
+		scroll->setMaximum(0);
+	else {
+		height-=scrollPanel->getSize().y;
+		height/=30;
+		height++;
+		scroll->setMaximum(height);
+	}
+
+	scroll->setValue(0);
+	if (oldTitle == title->getText())
+		scroll->setValue(scrollpos);
 }
 
 void ChallengesUI::play() {
@@ -120,4 +153,26 @@ void ChallengesUI::show() {
 
 void ChallengesUI::viewReplay(sf::Uint16 slot) {
 	gui->net.sendSignal(18, selectedId, slot);
+}
+
+void ChallengesUI::listScrolled(int scrollpos) {
+	for (auto it = rows.begin(); it != rows.end(); it++) {
+		int i = std::distance(rows.begin(), it);
+		it->button->setPosition(400, i*30+5 - scrollpos*30);
+		for (sf::Uint8 c=0; c<columns; c++)
+			it->label[c]->setPosition(width[c], i*30+7 - scrollpos*30);
+	}
+}
+
+void ChallengesUI::scrolled(sf::Event& event) {
+	if (leaderPanel->isVisible())
+		if (event.type == sf::Event::MouseWheelScrolled)
+			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
+				if (mouseOver(scrollPanel, event.mouseWheelScroll.x, event.mouseWheelScroll.y)) {
+					short cur = scroll->getValue();
+					cur-=event.mouseWheelScroll.delta;
+					if (cur<0)
+						cur=0;
+					scroll->setValue(cur);
+				}
 }

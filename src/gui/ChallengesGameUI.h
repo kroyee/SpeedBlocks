@@ -7,6 +7,8 @@ class UI;
 
 class ChallengesGameUI : public guiBase {
 public:
+	tgui::Button::Ptr startChallenge;
+
 	tgui::Panel::Ptr racePanel;
 	tgui::EditBox::Ptr raceTimeElapsed;
 	tgui::EditBox::Ptr raceLinesRemaining;

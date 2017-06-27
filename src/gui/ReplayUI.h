@@ -20,8 +20,12 @@ public:
 
 	sf::Time pauseTime;
 
+	sf::String nameBackup;
+	bool backup;
+
 	void create(sf::Rect<int> _pos, UI* _ui);
 	void show(bool showTournamentControls=false);
+	void hide();
 
 	void update();
 	void seek(sf::Vector2f mouse);

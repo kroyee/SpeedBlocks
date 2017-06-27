@@ -82,13 +82,6 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	widget0->connect("pressed", &OnlineplayUI::createTournamentPressed, this);
 	tournamentSidePanel->add(widget0);
 
-	tgui::Button::Ptr widget1 = gui->themeTG->load("Button");
-	widget1->setPosition(20,250);
-	widget1->setSize(120,40);
-	widget1->setText("Refresh");
-	widget1->connect("pressed", &OnlineplayUI::refreshTournamentPressed, this);
-	tournamentSidePanel->add(widget1);
-
 	createTournamentPanel = tgui::Panel::create();
 	createTournamentPanel->setPosition(0,100);
 	createTournamentPanel->setSize(960,500);
@@ -351,10 +344,6 @@ void OnlineplayUI::createTournamentPressed() {
 	createTournamentPanel->show();
 }
 
-void OnlineplayUI::refreshTournamentPressed() {
-	gui->net.sendSignal(15);
-}
-
 void OnlineplayUI::back() {
 	if (createTournamentPanel->isVisible()) {
 		hideAllPanels();
@@ -372,7 +361,7 @@ void OnlineplayUI::createTournament() {
 	gui->net.packet << (sf::Uint8)21 << tournamentName->getText() << setcount << roundcount;
 	gui->net.sendTCP();
 	back();
-	refreshTournamentPressed();
+	updateTournamentListTime -= sf::seconds(5);
 }
 
 void OnlineplayUI::alertMsg(const sf::Uint16 id1) {

@@ -316,7 +316,7 @@ void Recording::receiveRecording(network& net) {
 
 	RecordingEvent event;
 	sf::Uint32 eventTime;
-	while (true) {
+	while (!net.packet.endOfPacket()) {
 		net.packet >> event.type;
 		switch (event.type) {
 			case 100:
@@ -351,14 +351,16 @@ void Recording::receiveRecording(network& net) {
 				net.packet >> event.pending >> eventTime;
 				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
 			break;
+			case 200:
+				net.packet >> name;
+				return;
+			break;
 			default:
 			break;
 		}
 		event.time = sf::milliseconds(eventTime);
 		events.push_back(event);
-		if (event.type == 101) {
+		if (event.type == 101)
 			duration=event.time;
-			return;
-		}
 	}
 }

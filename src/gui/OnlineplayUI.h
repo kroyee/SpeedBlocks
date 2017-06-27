@@ -40,7 +40,7 @@ public:
 
 	std::list<clientInfo> clientList;
 
-	sf::Time updateRoomListTime;
+	sf::Time updateRoomListTime, updateTournamentListTime;
 
 	void create(sf::Rect<int> _pos, UI* _gui);
 
@@ -62,7 +62,6 @@ public:
 	void addTournament();
 
 	void createTournamentPressed();
-	void refreshTournamentPressed();
 
 	void createTournament();
 

@@ -1,6 +1,7 @@
 #include "ReplayUI.h"
 #include "gui.h"
 #include "gamePlay.h"
+#include "ChallengesGameUI.h"
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -76,6 +77,7 @@ void ReplayUI::show(bool showTournamentControls) {
 		setForward->show();
 		gameBack->show();
 		gameForward->show();
+		backup=false;
 	}
 	else {
 		sets->hide();
@@ -84,11 +86,25 @@ void ReplayUI::show(bool showTournamentControls) {
 		setForward->hide();
 		gameBack->hide();
 		gameForward->hide();
+		nameBackup = gui->game.field.text.name;
+		gui->game.field.text.setName(gui->game.recorder.name);
+		backup=true;
 	}
 	panel->show();
 	seekbar->setMaximum(gui->game.recorder.duration.asSeconds());
 	timeTotal->setText(displayTime(gui->game.recorder.duration.asSeconds()+1));
 	playPause->setText("Pause");
+
+	if (gui->challengesGameUI->isVisible())
+		gui->challengesGameUI->startChallenge->hide();
+}
+
+void ReplayUI::hide() {
+	if (backup) {
+		backup=false;
+		gui->game.field.text.setName(nameBackup);
+	}
+	panel->hide();
 }
 
 void ReplayUI::update() {
