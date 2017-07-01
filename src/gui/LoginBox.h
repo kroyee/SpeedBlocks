@@ -13,6 +13,7 @@ public:
 	void closeLogin();
 	void open();
 	void sendLogin(const sf::String& hashorname, sf::Uint8 guest);
+	void regPressed();
 };
 
 #endif

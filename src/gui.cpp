@@ -520,7 +520,7 @@ void UI::gameInput(sf::Event& event) {
 	}
 	else if (gamestate == GameOver) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
-            if (event.key.code == sf::Keyboard::Return) {
+            if (event.key.code == sf::Keyboard::Return && !areYouSure->isVisible()) {
             	if (playonline) {
             		game.gameover=false;
             		if (gameplayUI->isVisible())
@@ -601,13 +601,18 @@ void UI::keyEvents(sf::Event& event) {
 				}
 			}
 		}
+		else if (event.key.code == sf::Keyboard::Return)
+			if (areYouSure->isVisible())
+				areYouSure->ausY();
 	}
 }
 
 void UI::sendGameData() {
 	sf::Time tmp = game.gameclock.getElapsedTime();
 	if (tmp>gamedata) {
-		gamedata=tmp+sf::milliseconds(100);
+		gamedata+=sf::milliseconds(100);
+		if (gamedata < tmp)
+			gamedata=tmp+sf::milliseconds(100);
 		sendGameState();
 	}
 
@@ -670,6 +675,14 @@ void UI::sendGameWinner() {
 	game.winner=false;
 }
 
+void UI::iGotKicked(sf::Uint16 reason) {
+	if (reason == 1)
+		quickMsg("Kicked: game Clock out of sync");
+	else
+		quickMsg("Kicked from room for unknown reason");
+	setGameState(MainMenu);
+}
+
 void UI::handlePacket() {
 	if (net.packetid <100)
 		cout << "Packet id: " << (int)net.packetid << endl;
@@ -682,6 +695,7 @@ void UI::handlePacket() {
 			mainMenu->enable();
 			loginBox->hide();
 			challengesGameUI->hide();
+			replayUI->hide();
 			playonline=false;
 			performanceOutput->ping->hide();
 			setGameState(MainMenu);
@@ -898,6 +912,7 @@ void UI::handlePacket() {
 			sf::Uint16 clientid;
 			net.packet >> clientid >> pingId;
 			if (pingId == performanceOutput->pingIdCount) {
+				net.sendUDP();
 				sf::Time pingResult = delayClock.getElapsedTime() - performanceOutput->pingTime;
 				performanceOutput->setPing(pingResult.asMilliseconds());
 				performanceOutput->pingReturned=true;
@@ -1040,6 +1055,9 @@ void UI::handleSignal() {
 					field.text.ready=false;
 					field.drawField();
 				}
+		break;
+		case 17: // Got kicked from room
+			iGotKicked(id1);
 		break;
 	}
 }

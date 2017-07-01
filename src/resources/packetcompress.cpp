@@ -111,8 +111,11 @@ void PacketCompress::compress() {
 	tmp = game->field.text.countdown;
 	addBits(tmp, 2);
 	if (!countdown) {
-		tmp = game->gameclock.getElapsedTime().asMilliseconds()/100;
-		addBits(tmp, 8);
+		sf::Uint16 timevalue = game->gameclock.getElapsedTime().asMilliseconds();
+		sf::Uint8 smallpart = timevalue % 256;
+		sf::Uint8 bigpart = (timevalue - smallpart) / 256;
+		addBits(smallpart, 8);
+		addBits(bigpart, 8);
 	}
 }
 

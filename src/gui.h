@@ -94,6 +94,8 @@ public:
 	void quickMsg(const sf::String& msg);
 	void receiveRecording();
 
+	void iGotKicked(sf::Uint16 reason);
+
 	void disconnect();
 
 	GameFieldDrawer gameFieldDrawer;
