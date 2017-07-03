@@ -35,6 +35,9 @@ int main()
     if (resources.options.vSync)
         window.setVerticalSyncEnabled(true);
 
+    window.setIcon(128, 128, resources.gfx.icon->getPixelsPtr());
+    delete resources.gfx.icon;
+
     UI gui(window, game);
     gui.clientVersion = CLIENT_VERSION;
 

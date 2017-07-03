@@ -46,6 +46,10 @@ sf::String textures::loadTextures() {
     if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf"))
         return "media/F25_Bank_Printer.ttf";
 
+    icon = new sf::Image;
+    if (!icon->loadFromFile(resourcePath() + "media/icon.png"))
+        return "media/icon.png";
+
     /*themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
     tgui::Label::Ptr test;
     try {

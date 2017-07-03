@@ -15,6 +15,8 @@ public:
     sf::Texture backgroundTexture;
     sf::Sprite background;
 
+    sf::Image* icon;
+
     sf::Font typewriter, printFont;
 
     sf::String loadTextures();
