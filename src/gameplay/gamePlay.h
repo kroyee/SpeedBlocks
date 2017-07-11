@@ -8,6 +8,7 @@
 #include "gameField.h"
 #include "Resources.h"
 #include "Recording.h"
+#include "BPMCount.h"
 
 class soundBank;
 
@@ -31,6 +32,8 @@ public:
 	randomizer rander;
 
 	Recording recorder;
+
+	BPMCount bpmCounter;
 
 	sf::Clock gameclock;
 
@@ -60,14 +63,9 @@ public:
 	sf::Uint16 garbageCleared;
 	sf::Uint16 linesCleared;
 	
-	sf::Uint16 oldbpm[10];
-	sf::Uint8 oldbpmCount;
-	sf::Time bpmMeasureTiming;
 	short pieceCount;
 
 	std::deque<garbageClass> garbage;
-
-	std::deque<sf::Time> bpmCount;
 
 	sf::Uint8 nextpiece;
 
@@ -99,7 +97,7 @@ public:
 	void rccw();
 	void r180();
 
-	void addPiece();
+	void addPiece(const sf::Time&);
 	void makeNewPiece();
 	void copyPiece(sf::Uint8 np);
 

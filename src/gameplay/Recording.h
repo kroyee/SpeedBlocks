@@ -29,12 +29,12 @@ class Recording {
 public:
 	sf::Uint8 starting_position[22][10];
 	std::vector<RecordingEvent> events;
-	sf::Time duration, startAt;
+	sf::Time duration, startAt, comboSet;
 	sf::String name;
 	sf::Clock timer;
 	sf::Uint32 currentEvent;
 
-	sf::Uint8 prevCombo;
+	sf::Uint8 prevCombo, comboTimer, lastComboTimer;
 	bool rec, halt;
 
 	void clear();

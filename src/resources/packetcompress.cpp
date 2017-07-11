@@ -1,7 +1,10 @@
 #include "packetcompress.h"
 #include "gamePlay.h"
+#include "Recording.h"
 #include <iostream>
 using std::to_string;
+using std::cout;
+using std::endl;
 
 void PacketCompress::extract() {
 	tmpcount=0;
@@ -119,7 +122,7 @@ void PacketCompress::compress() {
 	}
 }
 
-void PacketCompress::addBits(sf::Uint8& byte, sf::Uint8 bits) {
+void PacketCompress::addBits(const sf::Uint8& byte, sf::Uint8 bits) {
 	tmp[tmpcount] = tmp[tmpcount] | byte<<bitcount;
 	bitcount+=bits;
 	if (bitcount>7) {
@@ -180,4 +183,185 @@ bool PacketCompress::validate() {
 		countdown = 0;
 
 	return true;
+}
+
+void PacketCompress::compressReplay(Recording& replay, sf::Packet& packet) {
+	clear();
+	tmpcount=0;
+	bitcount=0;
+	sf::Uint8 counter = 0;
+	int y, endy;
+	for (endy=21; endy>=0; endy--) {
+		if (replay.starting_position[endy][0]==8 || replay.starting_position[endy][1]==8)
+			counter++;
+		else
+			break;
+	}
+	addBits(counter, 5);
+	for (y=21; y>endy; y--)
+		for (sf::Uint8 x=0; x<10; x++)
+			if (replay.starting_position[y][x] == 0) {
+				addBits(x, 4);
+				break;
+			}
+	for (int x=0; x<10; x++) {
+		counter=0;
+		for (y=0; y<=endy; y++) {
+			if (!replay.starting_position[y][x])
+				counter++;
+			else
+				break;
+		}
+		addBits(counter, 5);
+		for (; y<=endy; y++) {
+			addBits(replay.starting_position[y][x], 3);
+		}
+	}
+
+	dumpTmp(packet);
+	for (auto&& event : replay.events) {
+		switch(event.type) {
+			case 100:
+				addBits(0, 3); addTimeStamp(event.time);
+			break;
+			case 101:
+				addBits(3, 3); addTimeStamp(event.time);
+			break;
+			case 1:
+				addBits(event.type, 3); addBits(event.piece, 3); addBits(event.rotation, 2); addBits(event.color, 3);
+				addBits(event.x+2, 4); addBits(event.y, 5); addTimeStamp(event.time);
+			break;
+			case 2:
+				addBits(event.type, 3); addBits(event.piece, 3); addBits(event.rotation, 2); addBits(event.color, 3);
+				addBits(event.x+2, 4); addBits(event.y, 5); addTimeStamp(event.time);
+			break;
+			case 4:
+				addBits(event.type, 3); addBits(event.x, 4); addTimeStamp(event.time);
+			break;
+			case 5:
+				addBits(event.type, 3); addTimeStamp(event.time);
+				addBits(event.pending, 8); addBits(event.combo, 5); addBits(event.comboTimer, 7);
+			break;
+			case 6:
+				addBits(event.type, 3); addBits(event.piece, 3); addTimeStamp(event.time);
+			break;
+			case 7:
+				addBits(event.type, 3); addBits(event.pending, 2); addTimeStamp(event.time);
+			break;
+		}
+		dumpTmp(packet);
+	}
+	if (bitcount != 0)
+		packet << tmp[0];
+}
+
+void PacketCompress::dumpTmp(sf::Packet& packet) {
+	for (int i=0; i<tmpcount; i++)
+		packet << tmp[i];
+	sf::Uint8 backup = tmp[tmpcount];
+	clear();
+	tmpcount=0;
+	tmp[0] = backup;
+}
+
+void PacketCompress::addTimeStamp(sf::Time& stamp) {
+	sf::Uint16 timevalue = stamp.asMilliseconds() % 2048;
+	sf::Uint8 smallpart = timevalue % 256;
+	sf::Uint8 bigpart = (timevalue - smallpart) / 256;
+	addBits(smallpart, 8);
+	addBits(bigpart, 3);
+}
+
+void PacketCompress::getTimeStamp(sf::Time& stamp) {
+	sf::Uint32 timevalue;
+	sf::Uint8 smallpart, bigpart;
+	getBits(smallpart, 8);
+	getBits(bigpart, 3);
+	timevalue = smallpart + bigpart * 256;
+	while (timevalue<lastTime)
+		timevalue+=2048;
+	lastTime = timevalue;
+	stamp = sf::milliseconds(timevalue);
+}
+
+void PacketCompress::extractReplay(Recording& replay, sf::Packet& packet) {
+	replay.clear();
+	clear();
+	tmpcount=100;
+	bitcount=0;
+
+	loadTmp(packet);
+
+	sf::Uint8 counter=0;
+	sf::Uint8 endy=0;
+	sf::Uint8 temp=0;
+	int y;
+	getBits(endy, 5);
+	for (int c=0; c<endy; c++) {
+		for (int x=0; x<10; x++)
+			replay.starting_position[21-c][x]=8;
+		getBits(temp, 4);
+		replay.starting_position[21-c][temp]=0;
+	}
+	for (int x=0; x<10; x++) {
+		counter=0;
+		getBits(counter, 5);
+		for (y=0; y<counter; y++)
+			replay.starting_position[y][x]=0;
+		for (; y<22-endy; y++)
+			getBits(replay.starting_position[y][x], 3);
+	}
+
+	RecordingEvent event;
+	lastTime=0;
+	while (true) {
+		loadTmp(packet);
+		getBits(event.type, 3);
+		switch (event.type) {
+			case 0:
+				event.type=100;
+				getTimeStamp(event.time);
+			break;
+			case 3:
+				event.type=101;
+				getTimeStamp(event.time);
+			break;
+			case 1:
+				getBits(event.piece, 3); getBits(event.rotation, 2); getBits(event.color, 3);
+				getBits(temp, 4); event.x=temp-2; getBits(temp, 5); event.y=temp; getTimeStamp(event.time);
+			break;
+			case 2:
+				getBits(event.piece, 3); getBits(event.rotation, 2); getBits(event.color, 3);
+				getBits(temp, 4); event.x=temp-2; getBits(temp, 5); event.y=temp; getTimeStamp(event.time);
+			break;
+			case 4:
+				getBits(temp, 4); event.x=temp; getTimeStamp(event.time);
+			break;
+			case 5:
+				getTimeStamp(event.time);
+				getBits(event.pending, 8); getBits(event.combo, 5); getBits(event.comboTimer, 7);
+			break;
+			case 6:
+				getBits(event.piece, 3); getTimeStamp(event.time);
+			break;
+			case 7:
+				getBits(event.pending, 2); getTimeStamp(event.time);
+			break;
+			default:
+			break;
+		}
+		replay.events.push_back(event);
+		if (event.type == 101) {
+			replay.duration=event.time;
+			return;
+		}
+	}
+}
+
+void PacketCompress::loadTmp(sf::Packet& packet) {
+	for (int i=tmpcount; i<100; i++)
+		tmp[i-tmpcount] = tmp[i];
+	for (int i=0; !packet.endOfPacket() && 100-tmpcount+i<100; i++)
+		packet >> tmp[100-tmpcount+i];
+	tmpcount=0;
 }

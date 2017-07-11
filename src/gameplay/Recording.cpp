@@ -1,5 +1,6 @@
 #include "Recording.h"
 #include "network.h"
+#include "packetcompress.h"
 #include <iostream>
 #include <fstream>
 
@@ -265,102 +266,14 @@ void Recording::load(std::string filename) {
 void Recording::sendRecording(network& net, sf::Uint16 type) {
 	net.packet.clear();
 	net.packet << (sf::Uint8)1 << type;
-	for (int y=0; y<22; y++)
-		for (int x=0; x<10; x++)
-			net.packet << starting_position[y][x];
-	for (auto&& event : events) {
-		switch(event.type) {
-			case 100:
-				net.packet << event.type << (sf::Uint32)event.time.asMilliseconds();
-			break;
-			case 101:
-				net.packet << event.type << (sf::Uint32)event.time.asMilliseconds();
-			break;
-			case 1:
-				net.packet << event.type << event.piece << event.rotation << event.color;
-				net.packet << event.x << event.y << (sf::Uint32)event.time.asMilliseconds();
-				net.packet << event.pending << event.combo << event.comboTimer << event.bpm;
-			break;
-			case 2:
-				net.packet << event.type << event.piece << event.rotation << event.color;
-				net.packet << event.x << event.y << (sf::Uint32)event.time.asMilliseconds();
-				net.packet << event.pending << event.combo << event.comboTimer << event.bpm;
-			break;
-			case 4:
-				net.packet << event.type << event.x << (sf::Uint32)event.time.asMilliseconds();
-				net.packet << event.pending << event.combo << event.comboTimer << event.bpm;
-			break;
-			case 5:
-				net.packet << event.type << (sf::Uint32)event.time.asMilliseconds();
-				net.packet << event.pending << event.combo << event.comboTimer << event.bpm;
-			break;
-			case 6:
-				net.packet << event.type << event.piece << (sf::Uint32)event.time.asMilliseconds();
-				net.packet << event.pending << event.combo << event.comboTimer << event.bpm;
-			break;
-			case 7:
-				net.packet << event.type << event.pending << (sf::Uint32)event.time.asMilliseconds();
-				net.packet << event.pending << event.combo << event.comboTimer << event.bpm;
-			break;
-		}
-	}
+	PacketCompress compressor;
+	compressor.compressReplay(*this, net.packet);
 	net.sendTCP();
 }
 
 void Recording::receiveRecording(network& net) {
 	events.clear();
 
-	for (int y=0; y<22; y++)
-		for (int x=0; x<10; x++)
-			net.packet >> starting_position[y][x];
-
-	RecordingEvent event;
-	sf::Uint32 eventTime;
-	while (!net.packet.endOfPacket()) {
-		net.packet >> event.type;
-		switch (event.type) {
-			case 100:
-				net.packet >> eventTime;
-			break;
-			case 101:
-				net.packet >> eventTime;
-			break;
-			case 1:
-				net.packet >> event.piece >> event.rotation >> event.color;
-				net.packet >> event.x >> event.y >> eventTime;
-				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
-			break;
-			case 2:
-				net.packet >> event.piece >> event.rotation >> event.color;
-				net.packet >> event.x >> event.y >> eventTime;
-				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
-			break;
-			case 4:
-				net.packet >> event.x >> eventTime;
-				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
-			break;
-			case 5:
-				net.packet >> eventTime;
-				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
-			break;
-			case 6:
-				net.packet >> event.piece >> eventTime;
-				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
-			break;
-			case 7:
-				net.packet >> event.pending >> eventTime;
-				net.packet >> event.pending >> event.combo >> event.comboTimer >> event.bpm;
-			break;
-			case 200:
-				net.packet >> name;
-				return;
-			break;
-			default:
-			break;
-		}
-		event.time = sf::milliseconds(eventTime);
-		events.push_back(event);
-		if (event.type == 101)
-			duration=event.time;
-	}
+	PacketCompress compressor;
+	compressor.extractReplay(*this, net.packet);
 }

@@ -55,7 +55,6 @@ showPressEnterText(true)
 }
 
 void gamePlay::startGame() {
-	//field.clear();
 	recorder.start(field.square);
 	makeNewPiece();
 	drawMe=true;
@@ -65,7 +64,6 @@ void gamePlay::startGame() {
 	comboTime=sf::seconds(0);
 	dropDelay=sf::seconds(1);
 	dropDelayTime=sf::seconds(0);
-	bpmMeasureTiming=sf::seconds(0);
 	comboCount=0;
 	linesSent=0;
 	linesRecieved=0;
@@ -74,12 +72,11 @@ void gamePlay::startGame() {
 	maxCombo=0;
 	linesBlocked=0;
 	pieceCount=0;
-	oldbpmCount=0;
 	autoaway=true;
 	lockdown=false;
-	for (int i=0; i<10; i++)
-		oldbpm[i]=0;
-	bpmCount.clear();
+	bpmCounter.clear();
+	if (recorder.rec)
+		addRecEvent(5, 0);
 }
 
 void gamePlay::mRKey() {
@@ -134,7 +131,7 @@ void gamePlay::hd() {
 	autoaway=false;
 	drawMe=true;
 	field.hd();
-	addPiece();
+	addPiece(gameclock.getElapsedTime());
 	sendLines(field.clearlines());
 	dropDelayTime = gameclock.getElapsedTime();
 	makeNewPiece();
@@ -164,10 +161,12 @@ void gamePlay::r180() {
 			addRecEvent(1, 0);
 }
 
-void gamePlay::addPiece() {
+void gamePlay::addPiece(const sf::Time& _time) {
 	if (recorder.rec)
 		addRecEvent(2, 0);
 	field.addPiece();
+	pieceCount++;
+	bpmCounter.addPiece(_time);
 }
 
 void gamePlay::makeNewPiece() {
@@ -176,12 +175,10 @@ void gamePlay::makeNewPiece() {
 	nextpiece = rander.getPiece();
 	lockdown=false;
 	if (!field.possible()) {
-		addPiece();
+		addPiece(gameclock.getElapsedTime());
 		gameover=true;
 		sendgameover=true;
 	}
-	pieceCount++;
-	bpmCount.push_front(gameclock.getElapsedTime());
 
 	if (recorder.rec) {
 		addRecEvent(1, 0);
@@ -323,27 +320,11 @@ void gamePlay::delayCheck() {
 		drawMe=true;
 	}
 
-	if (gameclock.getElapsedTime() > bpmMeasureTiming) {
-		bpmMeasureTiming=gameclock.getElapsedTime()+sf::milliseconds(100);
-		sf::Uint16 tmpbpm = bpm;
-		while (bpmCount.size()) {
-			if (gameclock.getElapsedTime()>bpmCount.back()+sf::seconds(5))
-				bpmCount.pop_back();
-			else
-				break;
-		}
-		oldbpm[oldbpmCount] = bpmCount.size()*12;
-		float total=0;
-		for(int i=0; i<10; i++)
-			total+=oldbpm[i];
-		bpm=total/10;
-		if (bpm!=tmpbpm) {
-			field.text.setBpm(bpm);
-			drawMe=true;
-		}
-		oldbpmCount++;
-		if (oldbpmCount==10)
-			oldbpmCount=0;
+	sf::Uint16 newbpm = bpmCounter.calcBpm(gameclock.getElapsedTime());
+	if (newbpm != bpm) {
+		field.text.setBpm(newbpm);
+		bpm = newbpm;
+		drawMe=true;
 	}
 
 
@@ -358,7 +339,7 @@ void gamePlay::delayCheck() {
 
 	if (lockdown && gameclock.getElapsedTime() > lockDownTime) {
 		if (!field.mDown()) {
-			addPiece();
+			addPiece(gameclock.getElapsedTime());
 			sendLines(field.clearlines());
 			drawMe=true;
 			makeNewPiece();
@@ -366,10 +347,6 @@ void gamePlay::delayCheck() {
 		else
 			lockdown=false;
 	}
-
-	if (recorder.rec)
-		if (recorder.timer.getElapsedTime() - recorder.events.back().time > sf::milliseconds(100))
-			addRecEvent(5, 0);
 }
 
 void gamePlay::setPieceOrientation() {
@@ -456,6 +433,9 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 
 	setComboTimer();
 	field.text.setCombo(comboCount);
+	
+	if (recorder.rec)
+		addRecEvent(5, 0);
 }
 
 void gamePlay::playComboSound(sf::Uint8 combo) {
@@ -488,6 +468,9 @@ void gamePlay::addGarbage(short add) {
 		total+=garbage[x].count;
 
 	field.text.setPending(total);
+
+	if (recorder.rec)
+		addRecEvent(5, 0);
 
 	if (options.sound)
 		resources.sounds.garbAdd();
@@ -698,6 +681,9 @@ bool gamePlay::playReplay() {
 	sf::Time currentTime = recorder.timer.getElapsedTime() + recorder.startAt;
 	for ( ; currentTime>recorder.events[recorder.currentEvent].time; recorder.currentEvent++) {
 		auto&& event = recorder.events[recorder.currentEvent];
+
+		bpmCounter.calcBpm(event.time);
+
 		switch (event.type) {
 			case 100:
 				gameclock.restart();
@@ -708,10 +694,16 @@ bool gamePlay::playReplay() {
 				for (int y=0; y<22; y++)
 					for (int x=0; x<10; x++)
 						field.square[y][x] = recorder.starting_position[y][x];
+				pieceCount=0;
+				bpmCounter.clear();
+				recorder.comboSet=sf::seconds(0);
+				recorder.lastComboTimer=10;
+				recorder.comboTimer=0;
 			break;
 			case 101:
 				recorder.halt=true;
 				drawMe=true;
+				field.text.setBpm((int)(pieceCount / ((float)(event.time.asSeconds()))*60.0));
 				return false;
 			break;
 			case 1:
@@ -721,8 +713,6 @@ bool gamePlay::playReplay() {
 				field.piece.tile = event.color;
 				field.piece.posX = event.x;
 				field.piece.posY = event.y;
-
-				updateReplayText(event);
 				drawMe = true;
 			break;
 			case 2:
@@ -733,26 +723,21 @@ bool gamePlay::playReplay() {
 				field.piece.tile = event.color;
 				field.piece.posX = event.x;
 				field.piece.posY = event.y;
-				addPiece();
+				addPiece(event.time);
 				sf::Vector2i lines = field.clearlines();
 				linesCleared+=lines.x;
 				garbageCleared+=lines.y;
-				pieceCount++;
 				if (options.sound) {
 					if (lines.x == 0)
 						resources.sounds.pieceDrop();
 					else
 						resources.sounds.lineClear();
 				}
-
-				updateReplayText(event);
 				drawMe = true;
 			}
 			break;
 			case 4:
 				addGarbageLine(event.x);
-
-				updateReplayText(event);
 				drawMe=true;
 			break;
 			case 5:
@@ -761,8 +746,6 @@ bool gamePlay::playReplay() {
 			break;
 			case 6:
 				nextpiece = event.piece;
-
-				updateReplayText(event);
 				drawMe=true;
 			break;
 			case 7:
@@ -777,18 +760,29 @@ bool gamePlay::playReplay() {
 			break;
 		}
 	}
+	field.text.setBpm(bpmCounter.calcBpm(currentTime));
+	sf::Int16 timer = recorder.comboTimer-(((currentTime-recorder.comboSet).asMilliseconds()/6.0)/10.0);
+	if (timer<0)
+		timer=0;
+	if (timer != recorder.lastComboTimer) {
+		field.text.setComboTimer(timer);
+		recorder.lastComboTimer = timer;
+		drawMe=true;
+	}
 	return false;
 }
 
 void gamePlay::updateReplayText(RecordingEvent& event) {
-	field.text.setBpm(event.bpm);
 	field.text.setCombo(event.combo);
 	field.text.setPending(event.pending);
 
 	field.text.setComboTimer(event.comboTimer);
 
-	if (event.combo != recorder.prevCombo)
+	if (event.combo != recorder.prevCombo) {
 		if (options.sound)
 			playComboSound(event.combo);
+		recorder.comboSet = event.time;
+		recorder.comboTimer = event.comboTimer;
+	}
 	recorder.prevCombo = event.combo;
 }

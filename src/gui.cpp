@@ -1059,5 +1059,8 @@ void UI::handleSignal() {
 		case 17: // Got kicked from room
 			iGotKicked(id1);
 		break;
+		case 18: // Can't join Hero room if not rank 0
+			quickMsg("You need to reach rank 0 to join the Hero room");
+		break;
 	}
 }
