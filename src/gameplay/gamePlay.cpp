@@ -195,7 +195,7 @@ void gamePlay::copyPiece(sf::Uint8 np) {
 	field.piece.piece=basepiece[np].piece;
 	field.piece.current_rotation=basepiece[np].current_rotation;
 	field.piece.posX = 3;
-	field.piece.posY = 2;
+	field.piece.posY = 0;
 }
 
 void gamePlay::draw() {
