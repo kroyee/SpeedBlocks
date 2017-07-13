@@ -431,6 +431,8 @@ void UI::unAway() {
 }
 
 void UI::ready() {
+	if (gamestate != GameOver)
+		return;
 	if (game.field.text.ready) {
 		net.sendSignal(8);
 		game.field.text.ready=false;
@@ -561,6 +563,7 @@ void UI::resizeWindow(sf::Event& event) {
     }
     window->setView(view);
     tGui.setView(view);
+    window->clear(sf::Color(0,0,0));
 }
 
 void UI::keyEvents(sf::Event& event) {

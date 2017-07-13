@@ -10,6 +10,7 @@ using std::cout;
 using std::endl;
 
 #define CLIENT_VERSION 5
+//#define DEBUG_SIZE
 
 int main()
 {
@@ -21,14 +22,19 @@ int main()
     gamePlay game(resources);
 
     sf::RenderWindow window;
-    if (resources.options.fullscreen)
-        window.create(resources.options.modes[resources.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
-    if (!window.isOpen()) {
-        window.create(sf::VideoMode(960, 600), "SpeedBlocks");
-        //window.create(sf::VideoMode(544, 340), "SpeedBlocks");
-        resources.options.fullscreen=false;
-        resources.options.currentmode=-1;
-    }
+
+    #ifndef DEBUG_SIZE
+        if (resources.options.fullscreen)
+            window.create(resources.options.modes[resources.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+        if (!window.isOpen()) {
+            window.create(sf::VideoMode(960, 600), "SpeedBlocks");
+            //window.create(sf::VideoMode(544, 340), "SpeedBlocks");
+            resources.options.fullscreen=false;
+            resources.options.currentmode=-1;
+        }
+    #else
+        window.create(sf::VideoMode(560,350), "SpeedBlocks");
+    #endif
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
     window.setKeyRepeatEnabled(false);
@@ -116,7 +122,7 @@ int main()
             }
             nextDraw+=game.options.frameDelay;
             window.draw(resources.gfx.background);
-            if (gui.gamestate != MainMenu)
+            if (gui.gamestate != MainMenu && gui.gamestate != Spectating)
                 window.draw( game.field.sprite );
             if (gui.gameFieldDrawer.isVisible())
                 gui.gameFieldDrawer.drawFields();
