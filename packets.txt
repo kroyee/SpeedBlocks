@@ -73,3 +73,7 @@
 // 19 - spectate room, id1=room id
 
 // 20 - stop spectating room, id1=room id
+
+// 21 - join Matchmaking
+
+// 22 - leave Matchmaking

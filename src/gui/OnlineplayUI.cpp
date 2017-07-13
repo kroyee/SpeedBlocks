@@ -39,6 +39,25 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	widget8->connect("pressed", &OnlineplayUI::createRoomPressed, this);
 	roomSidePanel->add(widget8);
 
+	matchButton = gui->themeTG->load("Button");
+	matchButton->setPosition(20, 200);
+	matchButton->setSize(320, 75);
+	matchButton->setText("Join 1vs1 matchmaking");
+	matchButton->connect("pressed", &OnlineplayUI::matchmakingPressed, this);
+	roomSidePanel->add(matchButton);
+
+	matchQueueing = gui->themeTG->load("Label");
+	matchQueueing->setPosition(50,290);
+	matchQueueing->setText("In queue: 0");
+	matchQueueing->setTextSize(18);
+	roomSidePanel->add(matchQueueing);
+
+	matchPlaying = gui->themeTG->load("Label");
+	matchPlaying->setPosition(220,290);
+	matchPlaying->setText("Playing: 0");
+	matchPlaying->setTextSize(18);
+	roomSidePanel->add(matchPlaying);
+
 	ServerLobby = tgui::Panel::create();
 	ServerLobby->setPosition(0,100);
 	ServerLobby->setSize(960, 500);
@@ -244,6 +263,11 @@ void OnlineplayUI::makeRoomList() {
 
 	for (int i=0; i<roomCount; i++)
 		addRoom();
+
+	sf::Uint16 inqueue, inplay;
+	gui->net.packet >> inqueue >> inplay;
+	matchQueueing->setText("In queue: " + to_string(inqueue));
+	matchPlaying->setText("Playing: " + to_string(inplay));
 }
 
 void OnlineplayUI::addRoom() {
@@ -342,6 +366,13 @@ void OnlineplayUI::createRoomPressed() {
 void OnlineplayUI::createTournamentPressed() {
 	hideAllPanels();
 	createTournamentPanel->show();
+}
+
+void OnlineplayUI::matchmakingPressed() {
+	if (matchButton->getText() == "Join 1vs1 matchmaking")
+		gui->net.sendSignal(21);
+	else
+		gui->net.sendSignal(22);
 }
 
 void OnlineplayUI::back() {

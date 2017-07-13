@@ -32,6 +32,9 @@ public:
 
 	tgui::Panel::Ptr tournamentSidePanel;
 	tgui::Panel::Ptr roomSidePanel;
+	tgui::Button::Ptr matchButton;
+	tgui::Label::Ptr matchQueueing;
+	tgui::Label::Ptr matchPlaying;
 
 	tgui::Panel::Ptr createTournamentPanel;
 	tgui::EditBox::Ptr tournamentName;
@@ -64,6 +67,8 @@ public:
 	void createTournamentPressed();
 
 	void createTournament();
+
+	void matchmakingPressed();
 
 	void alertMsg(const sf::Uint16 id1);
 

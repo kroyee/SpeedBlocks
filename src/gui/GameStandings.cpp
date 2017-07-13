@@ -88,6 +88,10 @@ void GameStandings::setResults() {
         p1_rounds->setText("Game Over");
         p2_rounds->setText("");
     }
+    if (_p1_sets == 255) {
+    	p1_sets->setText("Game Over");
+    	p2_sets->setText("");
+    }
     p1_rounds->setPosition(10,75);
     show();
 }

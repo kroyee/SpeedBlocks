@@ -230,6 +230,7 @@ void UI::disconnect() {
 	playonline=false;
 	udpConfirmed=false;
 	performanceOutput->ping->hide();
+	onlineplayUI->matchButton->setText("Join 1vs1 matchmaking");
 }
 
 void UI::quickMsg(const sf::String& msg) {
@@ -1064,6 +1065,19 @@ void UI::handleSignal() {
 		break;
 		case 18: // Can't join Hero room if not rank 0
 			quickMsg("You need to reach rank 0 to join the Hero room");
+		break;
+		case 19: // Joined matchmaking
+			onlineplayUI->matchButton->setText("Leave 1vs1 matchmaking");
+		break;
+		case 20: // Left matchmaking
+			onlineplayUI->matchButton->setText("Join 1vs1 matchmaking");
+		break;
+		case 21: // You left your match game and was removed from queue
+			quickMsg("You were removed from the matchmaking queue");
+			onlineplayUI->matchButton->setText("Join 1vs1 matchmaking");
+		break;
+		case 22: // Your left your match and are still in the queue
+			quickMsg("You are still in the matchmaking queue");
 		break;
 	}
 }
