@@ -864,7 +864,7 @@ void UI::handlePacket() {
 			else {
 				disconnect();
 				if (success == 3)
-					quickMsg("You have the wrong client version");
+					quickMsg("You have the wrong client version, check https://speedblocks.se for updates");
 				else if (success == 4)
 					quickMsg("Name already in use");
 				else

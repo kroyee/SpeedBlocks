@@ -48,6 +48,7 @@ public:
 	tgui::EditBox::Ptr tSets;
 	tgui::Button::Ptr signUpButton;
 	tgui::EditBox::Ptr tStatus;
+	tgui::EditBox::Ptr tGrade;
 	tgui::Button::Ptr closeSign;
 	tgui::Button::Ptr startTournament;
 
@@ -71,7 +72,7 @@ public:
 	tgui::EditBox::Ptr p1[7];
 	tgui::EditBox::Ptr p2[7];
 
-	sf::Uint8 sets, rounds, status;
+	sf::Uint8 sets, rounds, status, grade;
 	sf::Uint16 id, players;
 	sf::Uint16 myId;
 	bool moderator;

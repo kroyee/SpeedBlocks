@@ -90,6 +90,18 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	tStatus->disable();
 	signUp->add(tStatus);
 
+	tgui::Label::Ptr widget11 = gui->themeTG->load("Label");
+	widget11->setPosition(96,245);
+	widget11->setText("Grade");
+	widget11->setTextSize(18);
+	signUp->add(widget11);
+
+	tGrade = gui->themeTG->load("EditBox");
+	tGrade->setPosition(165,240);
+	tGrade->setSize(270,30);
+	tGrade->disable();
+	signUp->add(tGrade);
+
 	closeSign = gui->themeTG->load("Button");
 	closeSign->setPosition(195,390);
 	closeSign->setSize(210,45);
@@ -271,7 +283,7 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 void TournamentUI::getInfo(sf::Uint16 _myId) {
 	myId = _myId;
 	double timetostart;
-	gui->net.packet >> id >> rounds >> sets >> timetostart;
+	gui->net.packet >> id >> grade >> rounds >> sets >> timetostart;
 	startingTime = timetostart;
 	status=0;
 	getParticipants();
@@ -279,6 +291,17 @@ void TournamentUI::getInfo(sf::Uint16 _myId) {
 	getStatus();
 	gRounds->setText(to_string(rounds));
 	gSets->setText(to_string(sets));
+
+	if (grade == 1)
+		tGrade->setText("Grade A");
+	else if (grade == 2)
+		tGrade->setText("Grade B");
+	else if (grade == 3)
+		tGrade->setText("Grade C");
+	else if (grade == 4)
+		tGrade->setText("Grade D");
+	else
+		tGrade->setText("Grade E");
 
 	gui->onlineplayUI->hideAllPanels(true);
 	show();
