@@ -5,6 +5,7 @@
 #include <curl/curl.h>
 using std::cout;
 using std::endl;
+using std::to_string;
 
 void BugReport::create(sf::Rect<int> _pos, UI* _gui) {
 	gui = _gui;
@@ -81,9 +82,19 @@ void BugReport::sendReport() {
 	sf::String sreproduce = reproduce->getText();
 	sf::String scontact = contact->getText();
 
-	sf::String postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\"}";
+	#ifdef _WIN32
+		sf::String os = "Win";
+	#elif __APPLE__
+		sf::String os = "Mac";
+	#else
+		sf::String os = "Linux";
+	#endif
 
-	gui->net.sendCurlPost("https://speedblocks.spdns.org/bugs", postfield, 0);
+	sf::String version = to_string(gui->clientVersion);
+
+	sf::String postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
+
+	cout << gui->net.sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0).toAnsiString() << endl;
 	ChildWindow->hide();
 }
 
