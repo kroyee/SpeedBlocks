@@ -5,7 +5,7 @@
 using std::cout;
 using std::endl;
 
-network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
+network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -91,7 +91,7 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
 		struct curl_slist *headers = NULL;
 		if (type == 0) {
 			headers = curl_slist_append(headers, "Content-Type: application/json");
-			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+			//curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 		}
 		else
 			headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");

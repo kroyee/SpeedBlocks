@@ -25,11 +25,7 @@ showPressEnterText(true)
 	dropDelay=sf::seconds(1);
 	increaseDropDelay=sf::seconds(3);
 
-	comboTime=sf::seconds(0);
-
-	comboCount=0;
 	linesSent=0;
-	maxCombo=0;
 	linesRecieved=0;
 	garbageCleared=0;
 	linesCleared=0;
@@ -60,16 +56,13 @@ void gamePlay::startGame() {
 	drawMe=true;
 	garbage.clear();
 	gameclock.restart();
-	comboStart=sf::seconds(0);
-	comboTime=sf::seconds(0);
+	combo.clear();
 	dropDelay=sf::seconds(1);
 	dropDelayTime=sf::seconds(0);
-	comboCount=0;
 	linesSent=0;
 	linesRecieved=0;
 	garbageCleared=0;
 	linesCleared=0;
-	maxCombo=0;
 	linesBlocked=0;
 	pieceCount=0;
 	autoaway=true;
@@ -288,35 +281,11 @@ void gamePlay::delayCheck() {
 		}
 	}
 
-	if (gameclock.getElapsedTime() > comboStart+comboTime && comboCount!=0) {
-		float durationMultiplyer = 1 + (float)gameclock.getElapsedTime().asSeconds() / 60.0 * 0.1;
-		sf::Uint16 comboLinesSent = comboCount * pow(1.125, comboCount) * durationMultiplyer;
-
-		bool blocked=false;
-		for (int i=0; i<comboLinesSent; i++)
-			if (garbage.size()) {
-				garbage.front().count--;
-				if (garbage.front().count == 0)
-					garbage.pop_front();
-				comboLinesSent--;
-				linesBlocked++;
-				blocked=true;
-			}
-
-		if (blocked) {
-			garbage.front().delay = gameclock.getElapsedTime()+sf::milliseconds(1500);
-			short total=0;
-			for (unsigned int x=0; x<garbage.size(); x++)
-				total+=garbage[x].count;
-			field.text.setPending(total);
-		}
-
+	sf::Uint16 comboLinesSent = combo.check(gameclock.getElapsedTime());
+	if (comboLinesSent) {
+		comboLinesSent = garbage.block(comboLinesSent, gameclock.getElapsedTime(), false);
+		field.text.setPending(garbage.count());
 		linesSent += comboLinesSent;
-
-		if (comboCount>maxCombo)
-			maxCombo=comboCount;
-
-		comboCount = 0;
 		drawMe=true;
 	}
 
@@ -331,11 +300,10 @@ void gamePlay::delayCheck() {
 	if (setComboTimer())
 		drawMe=true;
 
-	if (garbage.size())
-		if (gameclock.getElapsedTime() > garbage.front().delay) {
-			pushGarbage();
-			drawMe=true;
-		}
+	if (garbage.check(gameclock.getElapsedTime())) {
+		pushGarbage();
+		drawMe=true;
+	}
 
 	if (lockdown && gameclock.getElapsedTime() > lockDownTime) {
 		if (!field.mDown()) {
@@ -381,58 +349,23 @@ void gamePlay::updateBasePieces() {
 void gamePlay::sendLines(sf::Vector2i lines) {
 	garbageCleared+=lines.y;
 	linesCleared+=lines.x;
-	short tmplines=lines.x;
 	if (lines.x==0) {
-		comboTime-=sf::milliseconds(200);
-		if (options.sound) {
+		combo.noClear();
+		if (options.sound)
 			resources.sounds.pieceDrop();
-		}
 		return;
 	}
-	else if (lines.x==1) {
-		if (garbage.size())
-			garbage.front().delay += sf::milliseconds(500);
-		lines.x--;
-	}
-	else {
-		lines.x--;
-		bool blocked=false;
-		for (int i=0; i<tmplines-1; i++)
-			if (garbage.size()) {
-				garbage.front().count--;
-				if (garbage.front().count == 0) {
-					sf::Time delaytime = garbage.front().delay;
-					garbage.pop_front();
-					garbage.front().delay = delaytime;
-				}
-				lines.x--;
-				linesBlocked++;
-				garbage.front().delay += sf::milliseconds(500);
-				blocked=true;
-			}
-		short total=0;
-		for (unsigned int x=0; x<garbage.size(); x++)
-			total+=garbage[x].count;
-		if (blocked)
-			field.text.setPending(total);
-	}
+	linesSent += garbage.block(lines.x-1, gameclock.getElapsedTime());
+	field.text.setPending(garbage.count());
+	combo.increase(gameclock.getElapsedTime(), lines.x);
+
 	if (options.sound) {
 		resources.sounds.lineClear();
+		playComboSound(combo.comboCount);
 	}
-	linesSent+=lines.x;
-
-	if (comboCount==0) {
-		comboStart=gameclock.getElapsedTime();
-		comboTime=sf::seconds(0);
-	}
-	comboCount++;
-	comboTime+=sf::seconds((0.9/comboCount) + ((tmplines+1)/2.0)*(1.4/comboCount));
-
-	if (options.sound)
-		playComboSound(comboCount);
 
 	setComboTimer();
-	field.text.setCombo(comboCount);
+	field.text.setCombo(combo.comboCount);
 	
 	if (recorder.rec)
 		addRecEvent(5, 0);
@@ -443,31 +376,26 @@ void gamePlay::playComboSound(sf::Uint8 combo) {
 		resources.sounds.combo5();
 	else if (combo==8)
 		resources.sounds.combo8();
-	else if (combo==11)
+	else if (combo==10)
 		resources.sounds.combo11();
-	else if (combo==13)
+	else if (combo==12)
 		resources.sounds.combo13();
-	else if (combo==15)
+	else if (combo==14)
 		resources.sounds.combo15();
-	else if (combo==17)
+	else if (combo==16)
 		resources.sounds.combo17();
-	else if (combo==19)
+	else if (combo==18)
 		resources.sounds.combo19();
-	else if (combo==21)
+	else if (combo==20)
 		resources.sounds.combo21();
 }
 
-void gamePlay::addGarbage(short add) {
-	garbageClass garb(add, gameclock.getElapsedTime()+sf::milliseconds(1500));
-	garbage.push_back(garb);
+void gamePlay::addGarbage(sf::Uint16 amount) {
+	garbage.add(amount, gameclock.getElapsedTime());
 
-	linesRecieved+=add;
+	linesRecieved+=amount;
 
-	short total=0;
-	for (unsigned int x=0; x<garbage.size(); x++)
-		total+=garbage[x].count;
-
-	field.text.setPending(total);
+	field.text.setPending(garbage.count());
 
 	if (recorder.rec)
 		addRecEvent(5, 0);
@@ -477,20 +405,7 @@ void gamePlay::addGarbage(short add) {
 }
 
 void gamePlay::pushGarbage() {
-	garbage.front().count--;
-	garbage.front().delay+=sf::milliseconds(500);
-	if (garbage.front().count == 0) {
-		garbage.pop_front();
-		sf::Time delaytime = gameclock.getElapsedTime()+sf::milliseconds(500);
-		if (delaytime > garbage.front().delay)
-			garbage.front().delay=delaytime;
-	}
-
-	short total=0;
-	for (unsigned int x=0; x<garbage.size(); x++)
-		total+=garbage[x].count;
-
-	field.text.setPending(total);
+	field.text.setPending(garbage.count());
 
 	sf::Uint8 hole = rander.getHole();
 	addGarbageLine(hole);
@@ -518,14 +433,7 @@ void gamePlay::addGarbageLine(sf::Uint8 hole) {
 }
 
 bool gamePlay::setComboTimer() {
-	sf::Time timeleft = comboStart + comboTime - gameclock.getElapsedTime();
-	short count = (timeleft.asMilliseconds()/6.0) / 10.0;
-	if (count>100)
-		count=100;
-
-	if (count<0)
-		count=0;
-
+	sf::Uint8 count = combo.timerCount(gameclock.getElapsedTime());
 	return field.text.setComboTimer(count);
 }
 
@@ -542,9 +450,7 @@ void gamePlay::startCountdown() {
 		makeNewPiece();
 	}
 	field.piece.piece=7;
-	comboStart=sf::seconds(0);
-	comboTime=sf::seconds(0);
-	comboCount=0;
+	combo.clear();
 	lKeyTime=sf::seconds(0);
 	rKeyTime=sf::seconds(0);
 	garbage.clear();
@@ -592,8 +498,6 @@ bool gamePlay::gameOver() {
 	if (!gameover)
 		return false;
 
-	if (comboCount>maxCombo)
-		maxCombo=comboCount;
 	linesPerMinute = (((float)linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
 	bpm = (int)(pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
 	field.text.setBpm(bpm);

@@ -616,7 +616,7 @@ void TournamentUI::setStatusText() {
 		statustext += "Started";
 	else if (status == 3) {
 		statustext += "Finished";
-		if (games.size()) {
+		if (!games.empty()) {
 			if (games.front().result.p1_sets > games.front().result.p2_sets)
 				bWinner->setText("Winner: " + games.front().player1_name);
 			else
@@ -629,6 +629,10 @@ void TournamentUI::setStatusText() {
 	else
 		statustext += "?";
 
+	if (status == 1)
+		signUpButton->show();
+	else
+		signUpButton->hide();
 	bStatus->setText(statustext);
 	bStatus->setPosition(bracket->getSize().x-bStatus->getSize().x-10, bracket->getSize().y-30);
 

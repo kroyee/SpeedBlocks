@@ -9,6 +9,8 @@
 #include "Resources.h"
 #include "Recording.h"
 #include "BPMCount.h"
+#include "Garbage.h"
+#include "Combo.h"
 
 class soundBank;
 
@@ -34,6 +36,8 @@ public:
 	Recording recorder;
 
 	BPMCount bpmCounter;
+	GarbageHandler garbage;
+	ComboCounter combo;
 
 	sf::Clock gameclock;
 
@@ -44,9 +48,6 @@ public:
 	sf::Time lKeyTime;
 	sf::Time dKeyTime;
 
-	sf::Time comboStart;
-	sf::Time comboTime;
-
 	sf::Time countDownTime;
 	short countDowncount;
 
@@ -55,8 +56,6 @@ public:
 
 	sf::Uint16 linesSent;
 	sf::Uint16 linesRecieved;
-	short comboCount;
-	sf::Uint8 maxCombo;
 	sf::Uint16 linesPerMinute;
 	sf::Uint16 linesBlocked;
 	sf::Uint16 bpm;
@@ -64,8 +63,6 @@ public:
 	sf::Uint16 linesCleared;
 	
 	short pieceCount;
-
-	std::deque<garbageClass> garbage;
 
 	sf::Uint8 nextpiece;
 
@@ -111,7 +108,7 @@ public:
 	void sendLines(sf::Vector2i lines);
 	void playComboSound(sf::Uint8 combo);
 
-	void addGarbage(short add);
+	void addGarbage(sf::Uint16 amount);
 	void pushGarbage();
 	void addGarbageLine(sf::Uint8 hole);
 	void clearGarbage();

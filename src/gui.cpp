@@ -662,7 +662,7 @@ void UI::sendGameState() {
 void UI::sendGameOver() {
 	sf::Uint8 packetid = 3;
 	net.packet.clear();
-	net.packet << packetid << game.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked << game.bpm << game.linesPerMinute;
+	net.packet << packetid << game.combo.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked << game.bpm << game.linesPerMinute;
 	net.sendTCP();
 	game.sendgameover=false;
 
@@ -672,7 +672,7 @@ void UI::sendGameOver() {
 void UI::sendGameWinner() {
 	sf::Uint8 packetid = 4;
 	net.packet.clear();
-	net.packet << packetid << game.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked;
+	net.packet << packetid << game.combo.maxCombo << game.linesSent << game.linesRecieved << game.linesBlocked;
 	net.packet << game.bpm << game.linesPerMinute << (sf::Uint32)game.recorder.duration.asMilliseconds();
 	net.packet << (sf::Uint16)game.pieceCount;
 	net.sendTCP();

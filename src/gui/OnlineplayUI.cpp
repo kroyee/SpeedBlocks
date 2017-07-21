@@ -2,6 +2,7 @@
 #include "gui.h"
 #include "network.h"
 #include "MainMenu.h"
+#include "gamePlay.h"
 using std::to_string;
 using std::cout;
 using std::endl;
@@ -259,10 +260,13 @@ void OnlineplayUI::makeRoomList() {
 	sf::Uint8 roomCount;
 
 	gui->net.packet >> roomCount;
+	auto scrollpos = roomList.scroll->getValue();
 	roomList.removeAllItems();
 
 	for (int i=0; i<roomCount; i++)
 		addRoom();
+
+	roomList.scroll->setValue(scrollpos);
 
 	sf::Uint16 inqueue, inplay;
 	gui->net.packet >> inqueue >> inplay;
@@ -302,6 +306,7 @@ void OnlineplayUI::makeLobbyList() {
 	LobbyList->removeAllItems();
 	for (auto&& client : clientList)
 		LobbyList->addItem(client.name);
+	LobbyList->addItem(gui->game.field.text.name);
 }
 
 void OnlineplayUI::addClient() {
@@ -330,10 +335,13 @@ void OnlineplayUI::makeTournamentList() {
 	sf::Uint8 tournamentCount;
 
 	gui->net.packet >> tournamentCount;
+	auto scrollpos = tournamentList.scroll->getValue();
 	tournamentList.removeAllItems();
 
 	for (int i=0; i<tournamentCount; i++)
 		addTournament();
+
+	tournamentList.scroll->setValue(scrollpos);
 }
 
 void OnlineplayUI::addTournament() {
