@@ -9,8 +9,8 @@
 using std::cout;
 using std::endl;
 
-#define CLIENT_VERSION 6
-//#define DEBUG_SIZE
+#define CLIENT_VERSION 7
+//#define DEBUG
 
 int main()
 {
@@ -23,7 +23,7 @@ int main()
 
     sf::RenderWindow window;
 
-    #ifndef DEBUG_SIZE
+    #ifndef DEBUG
         if (resources.options.fullscreen)
             window.create(resources.options.modes[resources.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
         if (!window.isOpen()) {
