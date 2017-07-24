@@ -1,4 +1,5 @@
 #include "Combo.h"
+#include <cmath>
 
 void ComboCounter::clear() {
 	comboStart=sf::seconds(0);

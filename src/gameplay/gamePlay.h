@@ -57,7 +57,6 @@ public:
 	sf::Uint16 linesSent;
 	sf::Uint16 linesRecieved;
 	sf::Uint16 linesPerMinute;
-	sf::Uint16 linesBlocked;
 	sf::Uint16 bpm;
 	sf::Uint16 garbageCleared;
 	sf::Uint16 linesCleared;

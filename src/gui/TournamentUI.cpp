@@ -629,7 +629,7 @@ void TournamentUI::setStatusText() {
 	else
 		statustext += "?";
 
-	if (status == 1)
+	if (status == 0)
 		signUpButton->show();
 	else
 		signUpButton->hide();

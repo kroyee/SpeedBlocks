@@ -63,7 +63,6 @@ void gamePlay::startGame() {
 	linesRecieved=0;
 	garbageCleared=0;
 	linesCleared=0;
-	linesBlocked=0;
 	pieceCount=0;
 	autoaway=true;
 	lockdown=false;
@@ -414,7 +413,12 @@ void gamePlay::pushGarbage() {
 		addRecEvent(4, hole);
 
 	if (!field.possible()) {
-		field.piece.mup();
+		if (field.piece.posY > 0)
+			field.piece.mup();
+		else {
+			gameover=true;
+			sendgameover=true;
+		}
 		if (!lockdown)
 			lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
 		lockdown=true;

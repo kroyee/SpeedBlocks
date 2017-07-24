@@ -9,7 +9,7 @@
 using std::cout;
 using std::endl;
 
-#define CLIENT_VERSION 7
+#define CLIENT_VERSION 8
 //#define DEBUG
 
 int main()

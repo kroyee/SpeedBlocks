@@ -6,12 +6,10 @@ using std::cout;
 using std::endl;
 
 #ifndef DEBUG
-#define ADDRESS 82.102.5.7
+network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
 #else
-#define ADRESSS localhost
+network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
 #endif
-
-network::network() : serverAdd("ADDRESS"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);
