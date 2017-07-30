@@ -5,6 +5,9 @@
 #include "PerformanceOutput.h"
 #include "ReplayUI.h"
 #include <iostream> // just here for quick and simple error testing, remove if you want
+#include "machineid.h"
+#include "AnimatedBackground.h"
+#include <string>
 
 using std::cout;
 using std::endl;
@@ -22,13 +25,13 @@ int main()
     gamePlay game(resources);
 
     sf::RenderWindow window;
+    AnimatedBackground background(7);
 
     #ifndef DEBUG
         if (resources.options.fullscreen)
             window.create(resources.options.modes[resources.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
         if (!window.isOpen()) {
             window.create(sf::VideoMode(960, 600), "SpeedBlocks");
-            //window.create(sf::VideoMode(544, 340), "SpeedBlocks");
             resources.options.fullscreen=false;
             resources.options.currentmode=-1;
         }
@@ -61,6 +64,7 @@ int main()
     {
         sf::Event event;
 
+        gui.dontForwardToChat=false;
         while (window.pollEvent(event))
             gui.handleEvent(event);
 
@@ -122,6 +126,7 @@ int main()
             }
             nextDraw+=game.options.frameDelay;
             window.draw(resources.gfx.background);
+            //background.draw(window, current);
             if (gui.gamestate != MainMenu && gui.gamestate != Spectating)
                 window.draw( game.field.sprite );
             if (gui.gameFieldDrawer.isVisible())

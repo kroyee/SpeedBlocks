@@ -5,11 +5,7 @@
 using std::cout;
 using std::endl;
 
-#ifndef DEBUG
-network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
-#else
 network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
-#endif
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);

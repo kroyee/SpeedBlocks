@@ -15,6 +15,7 @@ private:
 	std::list<Garbage> garbage;
 public:
 	sf::Uint16 linesBlocked;
+	sf::Time minRemaining;
 
 	sf::Uint16 count();
 	void clear();

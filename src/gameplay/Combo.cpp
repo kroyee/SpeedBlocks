@@ -14,7 +14,7 @@ void ComboCounter::increase(const sf::Time& t, sf::Uint8 amount) {
 		comboTime=sf::seconds(0);
 	}
 	comboCount++;
-	comboTime+=sf::seconds((0.8/comboCount) + ((amount+1)/2.0)*(1.3/comboCount));
+	comboTime+=sf::seconds((0.8/comboCount) + ((amount)/2.0)*(1.1/comboCount));
 
 	if (comboCount>maxCombo)
 		maxCombo=comboCount;

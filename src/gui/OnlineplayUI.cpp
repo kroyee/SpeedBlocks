@@ -306,7 +306,6 @@ void OnlineplayUI::makeLobbyList() {
 	LobbyList->removeAllItems();
 	for (auto&& client : clientList)
 		LobbyList->addItem(client.name);
-	LobbyList->addItem(gui->game.field.text.name);
 }
 
 void OnlineplayUI::addClient() {

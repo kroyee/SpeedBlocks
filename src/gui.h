@@ -62,6 +62,7 @@ public:
 	bool playonline;
 	bool chatFocused;
 	bool away;
+	bool dontForwardToChat;
 
 	sf::Uint16 linesSent, garbageCleared, linesBlocked;
 

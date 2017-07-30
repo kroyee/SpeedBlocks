@@ -347,8 +347,10 @@ void UI::getMsg() {
 void UI::Chat() {
 	if (gameplayUI->Chat->isVisible())
 		gameplayUI->InGameTab->select(0);
-	else
+	else {
 		gameplayUI->InGameTab->select(2);
+		dontForwardToChat=true;
+	}
 }
 
 void UI::Score() {
@@ -446,6 +448,8 @@ void UI::ready() {
 }
 
 void UI::handleEvent(sf::Event& event) {
+	if (event.type == sf::Event::TextEntered && dontForwardToChat)
+		return;
 	gameInput(event);
 	windowEvents(event);
 	
@@ -854,12 +858,14 @@ void UI::handlePacket() {
 				onlineplayUI->show();
 				onlineplayUI->opTab->select(0);
 				mainMenu->enable();
+				onlineplayUI->LobbyList->addItem(game.field.text.name);
 			}
 			else if (success == 2) {
 				connectingScreen->hide();
 				onlineplayUI->show();
 				onlineplayUI->opTab->select(0);
 				mainMenu->enable();
+				onlineplayUI->LobbyList->addItem(game.field.text.name);
 			}
 			else {
 				disconnect();
