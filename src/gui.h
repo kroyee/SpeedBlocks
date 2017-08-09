@@ -18,7 +18,6 @@ class Menu;
 class LoginBox;
 class GameOptions;
 class Connecting;
-class GameplayUI;
 class OnlineplayUI;
 class AreYouSure;
 class PerformanceOutput;
@@ -26,6 +25,12 @@ class BugReport;
 class ChallengesGameUI;
 class ReplayUI;
 class GameStandings;
+class ChatScreen;
+class SlideMenu;
+class ScoreScreen;
+class AnimatedBackground;
+class ServerUI;
+class AlertsUI;
 
 class obsField;
 
@@ -36,13 +41,11 @@ public:
 
 	tgui::Gui tGui;
 	tgui::Theme::Ptr themeTG;
-	tgui::Theme::Ptr themeBB;
 
 	Menu* mainMenu;
 	LoginBox* loginBox;
 	GameOptions* gameOptions;
 	Connecting* connectingScreen;
-	GameplayUI* gameplayUI;
 	OnlineplayUI* onlineplayUI;
 	AreYouSure* areYouSure;
 	PerformanceOutput* performanceOutput;
@@ -51,6 +54,12 @@ public:
 	ChallengesGameUI* challengesGameUI;
 	ReplayUI* replayUI;
 	GameStandings* gameStandings;
+	ChatScreen* chatScreen;
+	SlideMenu* slideMenu;
+	ScoreScreen* scoreScreen;
+	AnimatedBackground* animatedBackground;
+	ServerUI* serverUI;
+	AlertsUI* alertsUI;
 
 	Resources& resources;
 	optionSet& options;
@@ -62,7 +71,6 @@ public:
 	bool playonline;
 	bool chatFocused;
 	bool away;
-	bool dontForwardToChat;
 
 	sf::Uint16 linesSent, garbageCleared, linesBlocked;
 
@@ -70,14 +78,11 @@ public:
 
 	sf::Time quickMsgTime;
 	sf::Time udpPortTime;
-	sf::Time spamTime;
 	sf::Clock delayClock;
 
 	bool udpConfirmed;
 
 	GameStates& gamestate;
-
-	short spamCount;
 
 	void setGameState(GameStates state);
 
@@ -87,9 +92,6 @@ public:
 	void joinRoom(sf::Uint16);
 	void leaveRoom();
 
-	void getMsg();
-	void chatMsg(const sf::String& to, const sf::String& msg);
-	void sendMsg(const sf::String& to, const sf::String& msg);
 	void chatFocus(bool i);
 
 	void quickMsg(const sf::String& msg);
@@ -111,8 +113,9 @@ public:
 	void gameInput(sf::Event& event);
 	void windowEvents(sf::Event& event);
 	void resizeWindow(sf::Event& event);
+	void toggleFullscreen();
 	
-	void keyEvents(sf::Event& event);
+	bool keyEvents(sf::Event& event);
 	void scrollBar(sf::Event& event);
 
 	void handlePacket();
@@ -129,6 +132,12 @@ public:
 	void ready();
 
 	void delayCheck();
+
+	void darkTheme();
+	void lightTheme();
+	void setWidgetTextColor(sf::Color color);
+
+	void setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets);
 };
 
 #endif

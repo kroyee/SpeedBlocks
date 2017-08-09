@@ -8,38 +8,24 @@
 void Menu::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
 
-	tgui::Button::Ptr PO = gui->themeTG->load("Button");
-	PO->setSize(480, 100);
-	PO->setPosition(240, 100);
-	PO->setText("Play Online");
-	PO->setTextSize(72);
-	PO->setFont(gui->resources.gfx.typewriter);
-	PO->connect("pressed", &Menu::playOnline, this);
-	panel->add(PO);
+	tgui::Picture::Ptr logo = tgui::Picture::create(gui->resources.gfx.logoTexture);
+	logo->setPosition(0, -20);
+	panel->add(logo);
 
 	tgui::Button::Ptr Tr = gui->themeTG->load("Button");
-	Tr->setSize(360, 100);
-	Tr->setPosition(300, 220);
+	Tr->setSize(340, 80);
+	Tr->setPosition(60, 300);
 	Tr->setText("Training");
-	Tr->setTextSize(72);
+	Tr->setTextSize(68);
 	Tr->setFont(gui->resources.gfx.typewriter);
 	Tr->connect("pressed", &Menu::Training, this);
 	panel->add(Tr);
 
-	tgui::Button::Ptr Opt = gui->themeTG->load("Button");
-	Opt->setSize(310, 100);
-	Opt->setPosition(325, 340);
-	Opt->setText("Options");
-	Opt->setTextSize(72);
-	Opt->setFont(gui->resources.gfx.typewriter);
-	Opt->connect("pressed", &Menu::Options, this);
-	panel->add(Opt);
-
 	tgui::Button::Ptr Quit = gui->themeTG->load("Button");
-	Quit->setSize(180, 100);
-	Quit->setPosition(390, 460);
+	Quit->setSize(190, 80);
+	Quit->setPosition(135, 420);
 	Quit->setText("Quit");
-	Quit->setTextSize(72);
+	Quit->setTextSize(68);
 	Quit->setFont(gui->resources.gfx.typewriter);
 	Quit->connect("pressed", &Menu::quitGame, this);
 	panel->add(Quit);
@@ -56,9 +42,9 @@ void Menu::Training() {
 }
 
 void Menu::Options() {
-	hide();
-	gui->gameOptions->show();
-	gui->gameOptions->otab->select(0);
+	//hide();
+	//gui->gameOptions->show();
+	//gui->gameOptions->otab->select(0);
 }
 
 void Menu::quitGame() {

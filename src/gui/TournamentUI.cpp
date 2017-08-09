@@ -41,7 +41,7 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	widget3->setTextSize(18);
 	signUp->add(widget3);
 
-	playerList = gui->themeBB->load("ListBox");
+	playerList = gui->themeTG->load("ListBox");
 	playerList->setPosition(494,75);
 	playerList->setSize(180,430);
 	playerList->getRenderer()->setTextColor(sf::Color::White);

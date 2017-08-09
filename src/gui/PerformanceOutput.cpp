@@ -13,7 +13,7 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	frameCount=0;
 	frameRate=0;
 
-	longest = gui->themeTG->load("Label");
+	longest = tgui::Label::create();
 	longest->setAutoSize(false);
 	longest->setPosition(0,13);
 	longest->setSize(21,15);
@@ -36,7 +36,7 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	longestHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(longestHeader);
 
-	input = gui->themeTG->load("Label");
+	input = tgui::Label::create();
 	input->setAutoSize(false);
 	input->setPosition(23,13);
 	input->setSize(28,15);
@@ -59,7 +59,7 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	inputHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(inputHeader);
 
-	frame = gui->themeTG->load("Label");
+	frame = tgui::Label::create();
 	frame->setAutoSize(false);
 	frame->setPosition(53,13);
 	frame->setSize(28,15);
@@ -82,7 +82,7 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	frameHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(frameHeader);
 
-	ping = gui->themeTG->load("Label");
+	ping = tgui::Label::create();
 	ping->setAutoSize(false);
 	ping->setPosition(83,13);
 	ping->setSize(28,15);

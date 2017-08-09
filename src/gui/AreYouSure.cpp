@@ -1,40 +1,49 @@
-#include "MainMenu.h"
 #include "gui.h"
-#include "gamePlay.h"
 #include "AreYouSure.h"
-#include "MainMenu.h"
 
 void AreYouSure::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
-	panel->setBackgroundColor(sf::Color(50,50,50,200));
+	panel->setBackgroundColor(sf::Color(255,255,255,0));
+
+	tgui::Panel::Ptr box = gui->themeTG->load("Panel");
+	box->setPosition(330,250);
+	box->setSize(300,100);
+	panel->add(box);
 
 	label = gui->themeTG->load("Label");
 	label->setPosition(0, 20);
 	label->setSize(300, 50);
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	label->setText("Are you sure?");
-	panel->add(label);
+	box->add(label);
 
-	tgui::Button::Ptr AUSYB = gui->themeBB->load("Button");
+	tgui::Button::Ptr AUSYB = gui->themeTG->load("Button");
 	AUSYB->setText("Yes");
 	AUSYB->setPosition(50, 60);
 	AUSYB->setSize(75, 30);
 	AUSYB->setOpacity(0.7);
 	AUSYB->connect("Pressed", &AreYouSure::ausY, this);
-	panel->add(AUSYB);
+	box->add(AUSYB);
 
-	tgui::Button::Ptr AUSNB = gui->themeBB->load("Button");
+	tgui::Button::Ptr AUSNB = gui->themeTG->load("Button");
 	AUSNB->setText("No");
 	AUSNB->setPosition(175, 60);
 	AUSNB->setSize(75, 30);
 	AUSNB->setOpacity(0.7);
 	AUSNB->connect("Pressed", &AreYouSure::ausN, this);
-	panel->add(AUSNB);
+	box->add(AUSNB);
 }
 
 void AreYouSure::ausY() {
-	if (gui->playonline)
-		gui->leaveRoom();
+	if (gui->playonline) {
+		if (gui->gamestate != MainMenu)
+			gui->leaveRoom();
+		else {
+			((guiBase*)gui->onlineplayUI)->hide();
+			((guiBase*)gui->mainMenu)->show();
+			gui->disconnect();
+		}
+	}
 	else if (gui->gamestate == MainMenu)
 		gui->window->close();
 	else
@@ -44,5 +53,6 @@ void AreYouSure::ausY() {
 
 void AreYouSure::ausN() {
 	hide();
-	gui->mainMenu->enable();
+	((guiBase*)gui->mainMenu)->enable();
+	((guiBase*)gui->onlineplayUI)->enable();
 }

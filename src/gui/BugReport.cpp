@@ -7,73 +7,56 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-void BugReport::create(sf::Rect<int> _pos, UI* _gui) {
-	gui = _gui;
-	pos = _pos;
+void BugReport::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
+	createBase(_pos, _gui, parent);
+	join=false;
 
-	tgui::Button::Ptr DbG = gui->themeBB->load("Button");
-	DbG->setPosition(320, 565);
-	DbG->setSize(120, 32);
-	DbG->setText("Bug Report");
-	DbG->connect("Pressed", &BugReport::bugReport, this);
-	gui->tGui.add(DbG);
-
-	ChildWindow = gui->themeBB->load("ChildWindow");
-	ChildWindow->setTitleButtons(static_cast<tgui::ChildWindow::TitleButtons>(3));
-	ChildWindow->connect("Minimized", &BugReport::minimize, this);
-	ChildWindow->connect("Closed", &BugReport::close, this);
-	ChildWindow->setOpacity(0.95);
-	ChildWindow->setPosition(500, 40);
-	ChildWindow->setSize(400, 475);
-	ChildWindow->hide();
-	gui->tGui.add(ChildWindow);
-
-	tgui::Label::Ptr WhL = gui->themeBB->load("Label");
+	tgui::Label::Ptr WhL = gui->themeTG->load("Label");
 	WhL->setPosition(10, 5);
 	WhL->setText("What happened?");
-	ChildWindow->add(WhL);
+	panel->add(WhL);
 
-	happened = gui->themeBB->load("TextBox");
+	happened = gui->themeTG->load("TextBox");
 	happened->setPosition(5, 40);
-	happened->setSize(390, 80);
-	ChildWindow->add(happened);
+	happened->setSize(550, 80);
+	panel->add(happened);
 
-	tgui::Label::Ptr WhL2 = gui->themeBB->load("Label");
+	tgui::Label::Ptr WhL2 = gui->themeTG->load("Label");
 	WhL2->setPosition(10, 125);
 	WhL2->setText("What did you expect to happen?");
-	ChildWindow->add(WhL2);
+	panel->add(WhL2);
 
-	expected = gui->themeBB->load("TextBox");
+	expected = gui->themeTG->load("TextBox");
 	expected->setPosition(5, 160);
-	expected->setSize(390, 80);
-	ChildWindow->add(expected);
+	expected->setSize(550, 80);
+	panel->add(expected);
 
-	tgui::Label::Ptr WhL3 = gui->themeBB->load("Label");
+	tgui::Label::Ptr WhL3 = gui->themeTG->load("Label");
 	WhL3->setPosition(10, 245);
 	WhL3->setText("How can we reproduce this?");
-	ChildWindow->add(WhL3);
+	panel->add(WhL3);
 
-	reproduce = gui->themeBB->load("TextBox");
+	reproduce = gui->themeTG->load("TextBox");
 	reproduce->setPosition(5, 280);
-	reproduce->setSize(390, 80);
-	ChildWindow->add(reproduce);
+	reproduce->setSize(550, 80);
+	panel->add(reproduce);
 
-	tgui::Label::Ptr WhL4 = gui->themeBB->load("Label");
+	tgui::Label::Ptr WhL4 = gui->themeTG->load("Label");
 	WhL4->setPosition(10, 365);
 	WhL4->setText("How can we contact you with questions?");
-	ChildWindow->add(WhL4);
+	panel->add(WhL4);
 
-	contact = gui->themeBB->load("TextBox");
+	contact = gui->themeTG->load("TextBox");
 	contact->setPosition(5, 400);
-	contact->setSize(390, 40);
-	ChildWindow->add(contact);
+	contact->setSize(550, 40);
+	panel->add(contact);
 
-	tgui::Button::Ptr send = gui->themeBB->load("Button");
-	send->setPosition(170, 445);
+	tgui::Button::Ptr send = gui->themeTG->load("Button");
+	send->setPosition(250, 455);
 	send->setSize(60, 30);
 	send->setText("Send");
 	send->connect("Pressed", &BugReport::sendReport, this);
-	ChildWindow->add(send);
+	panel->add(send);
 }
 
 void BugReport::sendReport() {
@@ -94,21 +77,10 @@ void BugReport::sendReport() {
 
 	sf::String postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
 
-	cout << gui->net.sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0).toAnsiString() << endl;
-	ChildWindow->hide();
-}
+	t = std::thread([&]() { gui->net.sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0); join=true; });
 
-void BugReport::bugReport() {
-	ChildWindow->show();
-}
-
-void BugReport::close() {
-	ChildWindow->hide();
-}
-
-void BugReport::minimize() {
-	if (ChildWindow->getSize().y == 0)
-		ChildWindow->setSize(ChildWindow->getSize().x, 475);
-	else
-		ChildWindow->setSize(ChildWindow->getSize().x, 0);
+	happened->setText("");
+	expected->setText("");
+	reproduce->setText("");
+	contact->setText("");
 }

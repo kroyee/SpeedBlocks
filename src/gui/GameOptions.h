@@ -11,6 +11,7 @@ public:
 	tgui::Panel::Ptr GenOpt;
 	tgui::Panel::Ptr VidOpt;
 	tgui::Panel::Ptr SndOpt;
+	tgui::Panel::Ptr VisOpt;
 
 	tgui::CheckBox::Ptr Fullscreen;
 	tgui::CheckBox::Ptr vSync;
@@ -38,9 +39,10 @@ public:
 
 	sf::Texture texture[7];
 	sf::Sprite piece[7];
+	tgui::Canvas::Ptr canvas[7];
 
-	void create(sf::Rect<int> _pos, UI* _gui);
-	void otabSelect(std::string tab);
+	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel);
+	void show(sf::Uint8 index);
 	void changeName(const sf::String& name);
 	void vidSlide(short i);
 	void fsChecked(bool i);
@@ -53,6 +55,8 @@ public:
 	void rotPiece(short i);
 	void colPiece(short i);
 	void initSprites();
+
+	void setGhostPieceAlpha(sf::Uint8 alpha);
 };
 
 sf::String SFKeyToString(unsigned int keycode);

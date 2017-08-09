@@ -7,7 +7,9 @@
 #include <iostream> // just here for quick and simple error testing, remove if you want
 #include "machineid.h"
 #include "AnimatedBackground.h"
+#include "SlideMenu.h"
 #include <string>
+#include <cmath>
 
 using std::cout;
 using std::endl;
@@ -25,7 +27,6 @@ int main()
     gamePlay game(resources);
 
     sf::RenderWindow window;
-    AnimatedBackground background(7);
 
     #ifndef DEBUG
         if (resources.options.fullscreen)
@@ -33,7 +34,7 @@ int main()
         if (!window.isOpen()) {
             window.create(sf::VideoMode(960, 600), "SpeedBlocks");
             resources.options.fullscreen=false;
-            resources.options.currentmode=-1;
+            resources.options.currentmode=0;
         }
     #else
         window.create(sf::VideoMode(560,350), "SpeedBlocks");
@@ -52,11 +53,47 @@ int main()
 
     gui.tGui.setView(view);
 
+    game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
+    game.rander.seedHole(time(NULL));
+
     sf::Clock frameClock;
     sf::Time current=sf::seconds(0), lastFrame=sf::seconds(0), nextDraw=sf::seconds(0), nextUpdate=sf::seconds(0);
 
-    game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
-    game.rander.seedHole(time(NULL));
+    // Intro
+
+    bool intro=true;
+    while (intro) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::KeyPressed)
+                intro=false;
+            if (event.type == sf::Event::MouseButtonPressed)
+                intro=false;
+            if (event.type == sf::Event::Closed) {
+                window.close();
+                intro=false;
+            }
+        }
+        float timing = frameClock.getElapsedTime().asMilliseconds() / 100.0;
+        if (timing > 10) {
+            timing=10;
+            intro=false;
+        }
+        float posX = 300 - timing*30;
+        float posY = 280-12*pow(timing-5, 2);
+        float scale = 1.5 - timing*0.05;
+        if (posX < 0)
+            posX=0;
+        if (scale < 1)
+            scale=1;
+        resources.gfx.logo.setPosition(posX, posY);
+        resources.gfx.logo.setScale(scale, scale);
+        gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
+        window.draw(resources.gfx.logo);
+        window.display();
+
+        sf::sleep(sf::milliseconds(20));
+    }
 
     // The main-loop
 
@@ -64,7 +101,6 @@ int main()
     {
         sf::Event event;
 
-        gui.dontForwardToChat=false;
         while (window.pollEvent(event))
             gui.handleEvent(event);
 
@@ -125,15 +161,12 @@ int main()
                 game.drawMe=false;
             }
             nextDraw+=game.options.frameDelay;
-            window.draw(resources.gfx.background);
-            //background.draw(window, current);
+            //window.draw(resources.gfx.background);
+            gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
             if (gui.gamestate != MainMenu && gui.gamestate != Spectating)
                 window.draw( game.field.sprite );
             if (gui.gameFieldDrawer.isVisible())
                 gui.gameFieldDrawer.drawFields();
-            if (gui.gameOptions->GenOpt->isVisible())
-                for (int i=0; i<7; i++)
-                    window.draw(gui.gameOptions->piece[i]);
             gui.tGui.draw();
             window.display();
             gui.performanceOutput->frameRate++;

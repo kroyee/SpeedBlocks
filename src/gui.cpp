@@ -7,7 +7,6 @@
 #include "LoginBox.h"
 #include "GameOptions.h"
 #include "Connecting.h"
-#include "GameplayUI.h"
 #include "OnlineplayUI.h"
 #include "AreYouSure.h"
 #include "PerformanceOutput.h"
@@ -15,6 +14,12 @@
 #include "ChallengesGameUI.h"
 #include "ReplayUI.h"
 #include "GameStandings.h"
+#include "ChatScreen.h"
+#include "SlideMenu.h"
+#include "ScoreScreen.h"
+#include "AnimatedBackground.h"
+#include "AlertsUI.h"
+#include "ServerUI.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -43,26 +48,30 @@ UI::UI(sf::RenderWindow& window_,
       clientVersion(0),
       udpConfirmed(false),
       gamestate(game_.resources.gamestate),
-      spamCount(0),
       gameFieldDrawer(*this),
       gamedata(sf::seconds(0)),
       gamedatacount(0),
       myId(0) {
 
+    tGui.setFont(resources.gfx.standard);
+
     compressor.game=&game;
 
     themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
-	themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
+
+	animatedBackground = new AnimatedBackground(resources, 7);
 
 	sf::Rect<int> pos(0,0,960,600);
 	mainMenu = new Menu;
 	mainMenu->create(pos, this);
 	mainMenu->show();
 
-	gameOptions = new GameOptions;
-	gameOptions->create(pos, this);
-	gameplayUI = new GameplayUI;
-	gameplayUI->create(pos, this);
+	pos.left=500; pos.top=50; pos.width=450; pos.height=550;
+	loginBox = new LoginBox;
+	loginBox->create(pos, this, mainMenu->panel);
+	loginBox->show();
+
+	pos.left=0; pos.top=0; pos.width=960; pos.height=600;
 	challengesGameUI = new ChallengesGameUI;
 	challengesGameUI->create(pos, this);
 	onlineplayUI = new OnlineplayUI;
@@ -76,24 +85,17 @@ UI::UI(sf::RenderWindow& window_,
 	replayUI = new ReplayUI;
 	replayUI->create(pos, this);
 
-	pos.left=280; pos.top=150; pos.width=400; pos.height=300;
-	loginBox = new LoginBox;
-	loginBox->create(pos, this);
-
 	pos.left=330; pos.top=250; pos.width=300; pos.height=100;
 	connectingScreen = new Connecting;
 	connectingScreen->create(pos, this);
 
-	areYouSure = new AreYouSure;
-	areYouSure->create(pos, this);
-
-	pos.left=847; pos.top=0; pos.width=113; pos.height=28;
+	pos.left=807; pos.top=0; pos.width=113; pos.height=28;
 	performanceOutput = new PerformanceOutput;
 	performanceOutput->create(pos, this);
 	if (options.performanceOutput)
 		performanceOutput->show();
 
-	QuickMsg = themeTG->load("Label");
+	QuickMsg = tgui::Label::create();
 	QuickMsg->setPosition(0,10);
 	QuickMsg->setSize(960,90);
 	QuickMsg->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
@@ -103,8 +105,40 @@ UI::UI(sf::RenderWindow& window_,
 	QuickMsg->disable(false);
 	tGui.add(QuickMsg);
 
+	pos.left=440; pos.top=0; pos.width=480; pos.height=600;
+	chatScreen = new ChatScreen(pos, this);
+
+	pos.left=920; pos.top=0; pos.width=600; pos.height=600;
+	slideMenu = new SlideMenu(pos, this);
+	slideMenu->show();
+
+	gameOptions = new GameOptions;
+	pos.left=40; pos.top=40; pos.width=560; pos.height=560;
+	gameOptions->create(pos, this, slideMenu->panel);
+
 	bugReport = new BugReport;
-	bugReport->create(pos, this);
+	bugReport->create(pos, this, slideMenu->panel);
+
+	serverUI = new ServerUI;
+	serverUI->create(pos, this, slideMenu->panel);
+
+	alertsUI = new AlertsUI;
+	alertsUI->create(pos, this, slideMenu->panel);
+	alertsUI->show();
+
+	pos.left=30; pos.top=30; pos.width=860; pos.height=540;
+	scoreScreen = new ScoreScreen(pos, this);
+
+	pos.left=0; pos.top=0; pos.width=960; pos.height=600;
+	areYouSure = new AreYouSure;
+	areYouSure->create(pos, this);
+
+	if (options.theme == 1)
+		lightTheme();
+	else
+		darkTheme();
+
+	setOnChatFocus(tGui.getWidgets());
 }
 
 UI::~UI() {
@@ -114,12 +148,15 @@ UI::~UI() {
 	delete connectingScreen;
 	delete loginBox;
 	delete onlineplayUI;
-	delete gameplayUI;
 	delete gameOptions;
 	delete mainMenu;
 	delete challengesGameUI;
 	delete replayUI;
 	delete gameStandings;
+	delete chatScreen;
+	delete slideMenu;
+	delete scoreScreen;
+	delete animatedBackground;
 }
 
 void UI::joinRoom(sf::Uint16 id) {
@@ -138,7 +175,7 @@ void UI::setGameState(GameStates state) {
 		mainMenu->hide();
 		onlineplayUI->hide();
 		if (state != MainMenu) {
-			gameplayUI->show();
+			gameFieldDrawer.show();
 			gameStandings->hide();
 		}
 	}
@@ -167,15 +204,17 @@ void UI::setGameState(GameStates state) {
 		game.field.text.away=false;
 		game.sendgameover=false;
 		game.winner=false;
+		scoreScreen->hide();
+		chatScreen->sendTo("Lobby");
 		if (playonline) {
 			onlineplayUI->show();
-			gameplayUI->hide();
+			gameFieldDrawer.hide();
 			challengesGameUI->hide();
 			replayUI->hide();
 			gameStandings->hide();
 		}
 		else {
-			gameplayUI->hide();
+			gameFieldDrawer.hide();
 			mainMenu->show();
 		}
 	}
@@ -231,6 +270,8 @@ void UI::disconnect() {
 	udpConfirmed=false;
 	performanceOutput->ping->hide();
 	onlineplayUI->matchButton->setText("Join 1vs1 matchmaking");
+	serverUI->clear();
+	chatScreen->hide();
 }
 
 void UI::quickMsg(const sf::String& msg) {
@@ -250,123 +291,13 @@ void UI::chatFocus(bool i) {
 	}
 }
 
-void UI::chatMsg(const sf::String& to, const sf::String& msg) {
-	if (!msg.getSize())
-		return;
-	if (spamCount>7000) {
-		gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(235, 130, 0));
-		if (to == "Lobby")
-			onlineplayUI->Lobby->addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", sf::Color(235, 130, 0));
-		gameplayUI->ChatBox->setText("");
-		onlineplayUI->ChatBox->setText("");
-		spamCount=12000;
-		return;
-	}
-	if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
-		short until = msg.find(' ', 3);
-		sf::String privto = msg.substring(3, until-3);
-		sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
-		sendMsg(privto, privmsg);
-		gameplayUI->ChatBox->setText("");
-		onlineplayUI->ChatBox->setText("");
-		spamCount+=2000;
-		return;
-	}
-	sf::String postmsg = game.field.text.name + ": " + msg;
-	gameplayUI->ChatBox->setText("");
-	onlineplayUI->ChatBox->setText("");
-
-	for (unsigned int i=0; i<msg.getSize(); i++)
-		if (msg[i] != ' ') {
-			gameplayUI->Chat->get<tgui::ChatBox>(to)->addLine(postmsg, sf::Color(235, 130, 0));
-			if (to == "Lobby")
-				onlineplayUI->Lobby->addLine(postmsg, sf::Color(235, 130, 0));
-			sendMsg(to, msg);
-			spamCount+=2000;
-			return;
-		}
-}
-
-void UI::sendMsg(const sf::String& to, const sf::String& msg) {
-	sf::Uint8 packetid = 10;
-	net.packet.clear();
-	net.packet << packetid;
-	if (to == "Room") {
-		packetid = 1;
-		net.packet << packetid << msg;
-		net.sendTCP();
-	}
-	else if (to == "Lobby") {
-		packetid = 2;
-		net.packet << packetid << msg;
-		net.sendTCP();
-	}
-	else {
-		packetid = 3;
-		net.packet << packetid << to << msg;
-		net.sendTCP();
-	}
-}
-
-void UI::getMsg() {
-	sf::String name, msg;
-	sf::Uint8 type;
-	net.packet >> type >> name >> msg;
-	if (type == 3) { // Private msg
-		short create=-1;
-		for (size_t i = 0; i < gameplayUI->privChats.size(); i++)
-			if (gameplayUI->privChats[i].name == name) {
-				create=i;
-			}
-		if (create == -1) {
-			PrivChat newchat;
-			newchat.name=name;
-			gameplayUI->privChats.push_back(move(newchat));
-			create=gameplayUI->privChats.size()-1;
-
-
-			gameplayUI->privChats[create].chatBox = themeBB->load("ChatBox");
-			gameplayUI->privChats[create].chatBox->setPosition(5, 35);
-			gameplayUI->privChats[create].chatBox->setSize(480, 475);
-			gameplayUI->privChats[create].chatBox->hide();
-			gameplayUI->Chat->add(gameplayUI->privChats[create].chatBox, name);
-			int tmp = gameplayUI->ChatTab->getSelectedIndex();
-			gameplayUI->ChatTab->add(name);
-			gameplayUI->ChatTab->select(tmp);
-		}
-		gameplayUI->privChats[create].chatBox->addLine(name + ": " + msg);
-	}
-	else if (type == 2) { // Lobby msg
-		gameplayUI->Lobby->addLine(name + ": " + msg);
-		onlineplayUI->Lobby->addLine(name + ": " + msg);
-	}
-	else // Room msg
-		gameplayUI->Room->addLine(name + ": " + msg);
-}
-
-void UI::Chat() {
-	if (gameplayUI->Chat->isVisible())
-		gameplayUI->InGameTab->select(0);
-	else {
-		gameplayUI->InGameTab->select(2);
-		dontForwardToChat=true;
-	}
-}
-
-void UI::Score() {
-	if (gameplayUI->Score->isVisible())
-		gameplayUI->InGameTab->select(0);
-	else if (!chatFocused)
-		gameplayUI->InGameTab->select(1);
-}
-
 void UI::receiveRecording() {
 	sf::Uint16 type;
 	net.packet >> type;
 	game.recorder.receiveRecording(net);
 	setGameState(Replay);
 	if (type >= 20000) {
-		gameplayUI->hide();
+		gameFieldDrawer.hide();
 		challengesGameUI->show();
 		challengesGameUI->showPanel(type);
 		replayUI->show();
@@ -408,11 +339,13 @@ void UI::delayCheck() {
 			challengesGameUI->update();
 	}
 
-	sf::Time tmp = currentTime - spamTime;
-	spamCount-=tmp.asMilliseconds();
-	spamTime = currentTime;
-	if (spamCount<0)
-		spamCount=0;
+	slideMenu->update(currentTime);
+
+	if (bugReport->join)
+		if (bugReport->t.joinable())
+			bugReport->t.join();
+
+	chatScreen->fade(currentTime);
 }
 
 void UI::goAway() {
@@ -448,18 +381,17 @@ void UI::ready() {
 }
 
 void UI::handleEvent(sf::Event& event) {
-	if (event.type == sf::Event::TextEntered && dontForwardToChat)
+	if (keyEvents(event))
 		return;
+
 	gameInput(event);
 	windowEvents(event);
 	
 	if (gameOptions->SelectKey->isVisible())
 		gameOptions->putKey(event);
 	
-	if (gameplayUI->isVisible())
+	if (gameFieldDrawer.isVisible())
 		gameFieldDrawer.enlargePlayfield(event);
-
-	keyEvents(event);
 
 	if (onlineplayUI->isVisible()) {
 		onlineplayUI->roomList.scrolled(event);
@@ -468,16 +400,16 @@ void UI::handleEvent(sf::Event& event) {
 		onlineplayUI->challengesUI.scrolled(event);
 	}
 
+	slideMenu->handleEvent(event);
+
 	tGui.handleEvent(event);
 }
 
 void UI::gameInput(sf::Event& event) {
-	if (gamestate != Replay && gamestate != MainMenu)
+	if (gamestate != Replay && gamestate != MainMenu) {
 		if (event.type == sf::Event::KeyPressed) {
-			if (event.key.code == options.chat)
-                Chat();
-            else if (event.key.code == options.score)
-                Score();
+            if (event.key.code == options.score)
+                scoreScreen->show();
             else if (event.key.code == options.away && playonline && gamestate != Spectating) {
                 if (away)
                     unAway();
@@ -485,6 +417,10 @@ void UI::gameInput(sf::Event& event) {
                     goAway();
             }
 		}
+		else if (event.type == sf::Event::KeyReleased)
+			if (event.key.code == options.score)
+				scoreScreen->hide();
+	}
 	if (gamestate == CountDown) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
             if (event.key.code == options.right)
@@ -527,13 +463,13 @@ void UI::gameInput(sf::Event& event) {
 	}
 	else if (gamestate == GameOver) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
-            if (event.key.code == sf::Keyboard::Return && !areYouSure->isVisible()) {
+            if (event.key.code == sf::Keyboard::P && !areYouSure->isVisible()) {
             	if (playonline) {
             		game.gameover=false;
-            		if (gameplayUI->isVisible())
-            			setGameState(Practice);
-            		else if (challengesGameUI->isVisible())
+            		if (challengesGameUI->isVisible())
             			ready();
+            		else
+            			setGameState(Practice);
             	}
             	else {
 	                setGameState(CountDown);
@@ -571,47 +507,142 @@ void UI::resizeWindow(sf::Event& event) {
     window->clear(sf::Color(0,0,0));
 }
 
-void UI::keyEvents(sf::Event& event) {
+bool UI::keyEvents(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed) {
+		if (chatScreen->isActive())
+			chatScreen->focus();
 		if (event.key.code == sf::Keyboard::Escape) {
-			if (loginBox->isVisible()) {
-				loginBox->closeLogin();
+			if (areYouSure->isVisible()) {
+				areYouSure->hide();
+				mainMenu->enable();
+				onlineplayUI->enable();
 			}
+			else if (chatScreen->isActive())
+				chatScreen->deactivate();
 			else if (mainMenu->isVisible()) {
-				if (areYouSure->isVisible()) {
-					areYouSure->hide();
-					mainMenu->enable();
-				}
-				else {
-					areYouSure->label->setText("Do you want to quit?");
-					areYouSure->show();
-					mainMenu->disable();
-				}
+				areYouSure->label->setText("Do you want to quit?");
+				areYouSure->show();
+				mainMenu->disable();
 			}
-			else if (gameOptions->isVisible())
-				gameOptions->otab->select("Back");
-			else if (onlineplayUI->isVisible())
-				onlineplayUI->opTab->select("Back");
-			else if (gameplayUI->isVisible()) {
-				if (areYouSure->isVisible())
-					areYouSure->hide();
-				else {
-					areYouSure->label->setText("Leave this game?");
-					areYouSure->show();
-				}
+			else if (onlineplayUI->isVisible()) {
+				areYouSure->label->setText("Leave the server?");
+				areYouSure->show();
+				onlineplayUI->disable();
 			}
 			else if (challengesGameUI->isVisible()) {
-				if (areYouSure->isVisible())
-					areYouSure->hide();
-				else {
-					areYouSure->label->setText("Leave this challenge?");
-					areYouSure->show();
-				}
+				areYouSure->label->setText("Leave this challenge?");
+				areYouSure->show();
+			}
+			else if (gamestate != MainMenu) {
+				areYouSure->label->setText("Leave this game?");
+				areYouSure->show();
 			}
 		}
-		else if (event.key.code == sf::Keyboard::Return)
-			if (areYouSure->isVisible())
+		else if (event.key.code == sf::Keyboard::Return) {
+			if (event.key.alt)
+				toggleFullscreen();
+			else if (areYouSure->isVisible())
 				areYouSure->ausY();
+			else if (playonline && !chatScreen->isActive()) {
+				chatScreen->activate();
+				return true;
+			}
+		}
+		else if (event.key.code == sf::Keyboard::Tab && chatScreen->isActive()) {
+			chatScreen->toggleSendTo();
+			return true;
+		}
+	}
+	return false;
+}
+
+void UI::toggleFullscreen() {
+	if (!options.fullscreen) {
+		if (options.currentmode == -1)
+			options.currentmode = 0;
+		window->close();
+		window->create(options.modes[options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+		window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
+		options.fullscreen=true;
+	}
+	else if (options.fullscreen || !window->isOpen()) {
+		window->close();
+		window->create(sf::VideoMode(960, 600), "SpeedBlocks");
+		window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
+		options.fullscreen=false;
+	}
+}
+
+void UI::darkTheme() {
+	animatedBackground->dark();
+	slideMenu->dark();
+	chatScreen->dark();
+	game.field.text.setColor(sf::Color(255,255,255));
+	game.pressEnterText.setFillColor(sf::Color(255,255,255));
+	game.pressEnterText.setOutlineColor(sf::Color(255,255,255));
+	game.draw();
+	setWidgetTextColor(sf::Color(255,255,255,200));
+	themeTG->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
+	options.theme=2;
+	for (auto& field : gameFieldDrawer.fields)
+		field.text.setColor(sf::Color(255,255,255));
+}
+
+void UI::lightTheme() {
+	animatedBackground->light();
+	slideMenu->light();
+	chatScreen->light();
+	game.field.text.setColor(sf::Color(0,0,0));
+	game.pressEnterText.setFillColor(sf::Color(0,0,0));
+	game.pressEnterText.setOutlineColor(sf::Color(0,0,0));
+	game.draw();
+	setWidgetTextColor(sf::Color(0,0,0,200));
+	themeTG->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
+	options.theme=1;
+	for (auto& field : gameFieldDrawer.fields)
+		field.text.setColor(sf::Color(0,0,0));
+}
+
+void UI::setWidgetTextColor(sf::Color color) {
+	themeTG->setProperty("Label", "TextColor", color);
+	
+	color.a = 215; themeTG->setProperty("Button", "TextColorNormal", color);
+	color.a = 235; themeTG->setProperty("Button", "TextColorHover", color);
+	themeTG->setProperty("Button", "TextColorDown", color);
+
+	color.a = 215; themeTG->setProperty("CheckBox", "TextColorNormal", color);
+	color.a = 235; themeTG->setProperty("CheckBox", "TextColorHover", color);
+	color.a = 180; themeTG->setProperty("CheckBox", "CheckColorNormal", color);
+	color.a = 200; themeTG->setProperty("CheckBox", "CheckColorHover", color);
+
+	color.a = 180; themeTG->setProperty("EditBox", "TextColor", color);
+	color.a = 225; themeTG->setProperty("EditBox", "SelectedTextColor", color);
+	color.a = 180; themeTG->setProperty("EditBox", "DefaultTextColor", color);
+	color.a = 215; themeTG->setProperty("EditBox", "CaretColor", color);
+
+	color.a = 245; themeTG->setProperty("ListBox", "SelectedTextColor", color);
+	color.a = 215; themeTG->setProperty("ListBox", "TextColorNormal", color);
+	color.a = 235; themeTG->setProperty("ListBox", "TextColorHover", color);
+
+	color.a = 215; themeTG->setProperty("Tab", "TextColor", color);
+	color.a = 245; themeTG->setProperty("Tab", "SelectedTextColor", color);
+
+	color.a = 215; themeTG->setProperty("RadioButton", "TextColorNormal", color);
+	color.a = 235; themeTG->setProperty("RadioButton", "TextColorHover", color);
+	color.a = 180; themeTG->setProperty("RadioButton", "CheckColorNormal", color);
+	color.a = 200; themeTG->setProperty("RadioButton", "CheckColorHover", color);
+
+	color.a = 180; themeTG->setProperty("TextBox", "TextColor", color);
+	color.a = 225; themeTG->setProperty("TextBox", "SelectedTextColor", color);
+	color.a = 215; themeTG->setProperty("TextBox", "CaretColor", color);
+}
+
+void UI::setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets) {
+	for (auto& widget : widgets) {
+		if (widget->getWidgetType() == "Panel")
+			setOnChatFocus(std::static_pointer_cast<tgui::Panel>(widget)->getWidgets());
+		else if (widget->getWidgetType() == "EditBox" || widget->getWidgetType() == "TextBox")
+			widget->connect("Focused Unfocused", &UI::chatFocus, this, std::bind(&tgui::Widget::isFocused, widget));
 	}
 }
 
@@ -736,11 +767,10 @@ void UI::handlePacket() {
 
 			net.packet >> myId >> welcomeMsg;
 
-			gameplayUI->Lobby->addLine("Server: " + welcomeMsg);
-			onlineplayUI->Lobby->addLine("Server: " + welcomeMsg);
+			serverUI->motd->setText(welcomeMsg);
 
 			onlineplayUI->makeRoomList();
-			onlineplayUI->makeClientList();
+			serverUI->makeClientList();
 			performanceOutput->ping->show();
 		}
 		break;
@@ -764,7 +794,7 @@ void UI::handlePacket() {
 
 				if (joinok == 1) {
 					setGameState(GameOver);
-					game.pressEnterText.setString("press Enter to start practice");
+					game.pressEnterText.setString("press P to start practice");
 					game.field.clear();
 					game.draw();
 					gameFieldDrawer.setPosition(465, 40);
@@ -788,6 +818,8 @@ void UI::handlePacket() {
 				}
 				if (gamestate == Spectating)
 					gameStandings->alignResult();
+
+				chatScreen->sendTo("Room");
 			}
 			else if (joinok == 2)
 				quickMsg("Room is full");
@@ -797,8 +829,8 @@ void UI::handlePacket() {
 				quickMsg("This is not your game");
 			else if (joinok >= 20000) {
 				setGameState(GameOver);
-				gameplayUI->hide();
-				game.pressEnterText.setString("press Enter to start challenge");
+				gameFieldDrawer.hide();
+				game.pressEnterText.setString("press P to start challenge");
 				game.field.clear();
 				game.draw();
 				challengesGameUI->show();
@@ -841,9 +873,10 @@ void UI::handlePacket() {
 		{
 			sf::Uint8 count;
 			net.packet >> count;
-			gameplayUI->clearScore();
+			scoreScreen->clear();
 			for (int i=0; i<count; i++)
-				gameplayUI->scoreRow();
+				scoreScreen->addRow();
+			scoreScreen->setItemPos();
 		}
 		break;
 		case 9: // Auth result
@@ -858,14 +891,14 @@ void UI::handlePacket() {
 				onlineplayUI->show();
 				onlineplayUI->opTab->select(0);
 				mainMenu->enable();
-				onlineplayUI->LobbyList->addItem(game.field.text.name);
+				serverUI->putClient(myId, name);
 			}
 			else if (success == 2) {
 				connectingScreen->hide();
 				onlineplayUI->show();
 				onlineplayUI->opTab->select(0);
 				mainMenu->enable();
-				onlineplayUI->LobbyList->addItem(game.field.text.name);
+				serverUI->putClient(myId, game.field.text.name);
 			}
 			else {
 				disconnect();
@@ -883,7 +916,7 @@ void UI::handlePacket() {
 		}
 		break;
 		case 12: // Incoming chat msg
-			getMsg();
+			chatScreen->getMsg();
 		break;
 		case 16: // Server sending room list
 			onlineplayUI->makeRoomList();
@@ -899,10 +932,10 @@ void UI::handlePacket() {
 		}
 		break;
 		case 20: // Another client connected to the server
-			onlineplayUI->addClient();
+			serverUI->addClient();
 		break;
 		case 21: // Another client left the server
-			onlineplayUI->removeClient();
+			serverUI->removeClient();
 		break;
 		case 22: // Get tournament list
 			onlineplayUI->makeTournamentList();

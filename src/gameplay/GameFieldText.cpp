@@ -17,20 +17,16 @@ GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
     positionText.setPosition(130, 200);
     countdownText.setFont(resources.gfx.typewriter);
     countdownText.setCharacterSize(96);
-    countdownText.setColor(sf::Color::White);
     countdownText.setPosition(130,210);
 
     comboText.setFont(resources.gfx.typewriter); comboText.setString("0");
     pendingText.setFont(resources.gfx.typewriter); pendingText.setString("0");
     bpmText.setFont(resources.gfx.typewriter); bpmText.setString("0");
     comboText.setCharacterSize(48);
-    comboText.setColor(sf::Color::White);
     comboText.setPosition(360,320);
     pendingText.setCharacterSize(48);
-    pendingText.setColor(sf::Color::White);
     pendingText.setPosition(360,500);
     bpmText.setCharacterSize(48);
-    bpmText.setColor(sf::Color::White);
     bpmText.setPosition(360, 420);
     gameOverText.setFont(resources.gfx.typewriter);
     gameOverText.setPosition(50,250);
@@ -42,6 +38,8 @@ GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
 
     combo = 0; pending = 0; bpm = 0; position = 0; countdown = 0; gameover = 0;
     away = false; ready = false;
+
+    setColor(resources.gfx.gameFieldTextColor);
 }
 
 GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resources) {
@@ -126,6 +124,28 @@ void GameFieldText::setPending(const sf::Uint8 _pending) {
 		pending = _pending;
 		pendingText.setString(to_string(pending));
 	}
+}
+
+void GameFieldText::setColor(sf::Color color) {
+    nameTag.setFillColor(color);
+    awayText.setFillColor(color);
+    positionText.setFillColor(color);
+    readyText.setFillColor(color);
+    comboText.setFillColor(color);
+    pendingText.setFillColor(color);
+    countdownText.setFillColor(color);
+    bpmText.setFillColor(color);
+    gameOverText.setFillColor(color);
+
+    nameTag.setOutlineColor(color);
+    awayText.setOutlineColor(color);
+    positionText.setOutlineColor(color);
+    readyText.setOutlineColor(color);
+    comboText.setOutlineColor(color);
+    pendingText.setOutlineColor(color);
+    countdownText.setOutlineColor(color);
+    bpmText.setOutlineColor(color);
+    gameOverText.setOutlineColor(color);
 }
 
 void GameFieldText::clear() {

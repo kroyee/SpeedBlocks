@@ -1,10 +1,15 @@
 #include "AnimatedBackground.h"
-#include <iostream>
-using std::cout;
-using std::endl;
+#include "Resources.h"
 
-const sf::Color color(128, 128, 128);
-const float speedfactor = 0.20;
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#else
+#include "EmptyResourcePath.h"
+#endif
+
+const float speedfactor = 0.26;
+const sf::Color light_color(220,220,220);
+const sf::Color dark_color(35,35,35);
 
 MovingPoint::MovingPoint(sf::Vector2f start) {
 	start.x -= (int)start.x % 30;
@@ -83,13 +88,19 @@ void MovingPoint::drawLast(sf::RenderWindow& window) {
 	window.draw(line);
 }
 
-AnimatedBackground::AnimatedBackground(sf::Uint8 count) {
+AnimatedBackground::AnimatedBackground(Resources& resources, sf::Uint8 count) :
+background_light(resources.gfx.background_light), background_dark(resources.gfx.background_dark) {
 	for (int i=0; i<count; i++)
 		points.push_back(MovingPoint(sf::Vector2f(i*960/count, i*600/count)));
+	backSprite.setTexture(background_light);
+	enabled=true;
+	color = sf::Color(220, 220, 220);
 }
 
 void AnimatedBackground::draw(sf::RenderWindow& window, const sf::Time& current) {
-	window.clear(sf::Color(70, 70, 70));
+	window.draw(backSprite);
+	if (!enabled)
+		return;
 	update(current);
 	for (auto& point : points) {
 		point.drawFirst(window);
@@ -149,4 +160,22 @@ void AnimatedBackground::update(const sf::Time& current) {
 			point.pos.pop_back();
 		}
 	}
+}
+
+void AnimatedBackground::enable(const sf::Time& current) { lastFrame=current; enabled=true; }
+
+void AnimatedBackground::disable() { enabled=false; }
+
+void AnimatedBackground::dark() {
+	backSprite.setTexture(background_dark);
+	color = dark_color;
+	for (auto& point : points)
+		point.color=color;
+}
+
+void AnimatedBackground::light() {
+	backSprite.setTexture(background_light);
+	color = light_color;
+	for (auto& point : points)
+		point.color=color;
 }

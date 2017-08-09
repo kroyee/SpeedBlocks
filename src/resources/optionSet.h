@@ -26,6 +26,7 @@ public:
     bool sound;
     bool vSync;
     bool performanceOutput;
+    bool animatedBackground;
 
     short MusicVolume;
     short EffectVolume;
@@ -43,6 +44,9 @@ public:
     sf::Uint8 piecerotation[7];
     sf::Uint8 colormap[7];
     basePieces basepiece[7];
+
+    sf::Uint8 theme;
+    sf::Uint8 ghostPieceAlpha;
 
     sf::String name;
 

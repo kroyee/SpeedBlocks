@@ -3,6 +3,7 @@
 #include "network.h"
 #include "MainMenu.h"
 #include "gamePlay.h"
+#include "AreYouSure.h"
 using std::to_string;
 using std::cout;
 using std::endl;
@@ -10,9 +11,8 @@ using std::endl;
 void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	createBase(_pos, _gui);
 
-	opTab = gui->themeBB->load("Tab");
+	opTab = gui->themeTG->load("Tab");
 	opTab->add("Rooms");
-	opTab->add("Lobby");
 	opTab->add("Tournaments");
 	opTab->add("Challenges");
 	opTab->add("Back");
@@ -58,31 +58,6 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	matchPlaying->setText("Playing: 0");
 	matchPlaying->setTextSize(18);
 	roomSidePanel->add(matchPlaying);
-
-	ServerLobby = tgui::Panel::create();
-	ServerLobby->setPosition(0,100);
-	ServerLobby->setSize(960, 500);
-	ServerLobby->hide();
-	ServerLobby->setBackgroundColor(sf::Color(255,255,255,0));
-	panel->add(ServerLobby);
-
-	Lobby = gui->themeBB->load("ChatBox");
-	Lobby->setPosition(5, 5);
-	Lobby->setSize(750, 455);
-	ServerLobby->add(Lobby);
-
-	ChatBox = gui->themeTG->load("EditBox");
-	ChatBox->setPosition(5, 465);
-	ChatBox->setSize(750, 30);
-	ChatBox->connect("ReturnKeyPressed", &UI::chatMsg, gui, "Lobby");
-	ChatBox->connect("Focused Unfocused", &UI::chatFocus, gui, std::bind(&tgui::Widget::isFocused, ChatBox));
-	ServerLobby->add(ChatBox);
-
-	LobbyList = gui->themeBB->load("ListBox");
-	LobbyList->setPosition(760, 5);
-	LobbyList->setSize(190, 490);
-	LobbyList->getRenderer()->setTextColor(sf::Color::Black);
-	ServerLobby->add(LobbyList);
 
 	tournamentList.create(pos, gui, panel);
 	pos.width = 960;
@@ -173,7 +148,6 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	tgui::EditBox::Ptr NorE = gui->themeTG->load("EditBox");
 	NorE->setPosition(25, 60);
 	NorE->setSize(250, 40);
-	NorE->connect("Focused Unfocused", &UI::chatFocus, gui, std::bind(&tgui::Widget::isFocused, NorE));
 	CreateRoom->add(NorE);
 
 	tgui::Label::Ptr NopL = gui->themeTG->load("Label");
@@ -185,10 +159,9 @@ void OnlineplayUI::create(sf::Rect<int> _pos, UI* _gui) {
 	NopE->setPosition(425, 60);
 	NopE->setSize(250, 40);
 	NopE->setInputValidator(tgui::EditBox::Validator::UInt);
-	NopE->connect("Focused Unfocused", &UI::chatFocus, gui, std::bind(&tgui::Widget::isFocused, NopE));
 	CreateRoom->add(NopE);
 
-	tgui::Button::Ptr CrB = gui->themeBB->load("Button");
+	tgui::Button::Ptr CrB = gui->themeTG->load("Button");
 	CrB->setPosition(300, 150);
 	CrB->setText("Create");
 	CrB->setSize(100, 40);
@@ -204,11 +177,6 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		roomList.show();
 		roomSidePanel->show();
 	}
-	else if (tab == "Lobby") {
-		hideAllPanels();
-		ServerLobby->show();
-		ChatBox->focus();
-	}
 	else if (tab == "Tournaments") {
 		hideAllPanels();
 		tournamentList.show();
@@ -223,14 +191,13 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		challengesUI.show();
 	}
 	else if (tab == "Back") {
-		hide();
-		gui->mainMenu->show();
-		gui->disconnect();
+		gui->areYouSure->label->setText("Leave the server?");
+		gui->areYouSure->show();
+		disable();
 	}
 }
 
 void OnlineplayUI::hideAllPanels(bool keepTournamentOpen) {
-	ServerLobby->hide();
 	roomList.hide();
 	tournamentList.hide();
 	CreateRoom->hide();
@@ -284,50 +251,6 @@ void OnlineplayUI::addRoom() {
 		roomlabel += "/" + to_string(maxPlayers);
 	roomlabel+= " players";
 	roomList.addItem(name, roomlabel, id);
-}
-
-void OnlineplayUI::makeClientList() {
-	LobbyList->removeAllItems();
-	clientList.clear();
-	clientInfo client;
-	sf::Uint16 clientCount;
-
-	gui->net.packet >> clientCount;
-
-	for (int i=0; i<clientCount; i++) {
-		gui->net.packet >> client.id >> client.name;
-		clientList.push_back(client);
-	}
-
-	makeLobbyList();
-}
-
-void OnlineplayUI::makeLobbyList() {
-	LobbyList->removeAllItems();
-	for (auto&& client : clientList)
-		LobbyList->addItem(client.name);
-}
-
-void OnlineplayUI::addClient() {
-	clientInfo client;
-
-	gui->net.packet >> client.id >> client.name;
-	clientList.push_back(client);
-
-	LobbyList->addItem(client.name);
-}
-
-void OnlineplayUI::removeClient() {
-	sf::Uint16 id;
-
-	gui->net.packet >> id;
-
-	for (auto it = clientList.begin(); it != clientList.end(); it++)
-		if (it->id == id) {
-			LobbyList->removeItem(it->name);
-			clientList.erase(it);
-			break;
-		}
 }
 
 void OnlineplayUI::makeTournamentList() {
@@ -408,4 +331,9 @@ void OnlineplayUI::alertMsg(const sf::Uint16 id1) {
 		if (tournament.id == id1)
 			msg += " in " + tournament.name;
 	gui->quickMsg(msg);
+}
+
+void OnlineplayUI::show() {
+	panel->show();
+	panel->enable();
 }

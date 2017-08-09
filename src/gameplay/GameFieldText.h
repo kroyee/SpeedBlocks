@@ -40,6 +40,7 @@ public:
     void setBpm(const sf::Uint16 _bpm);
     void setCombo(const sf::Uint8 _combo);
     void setPending(const sf::Uint8 _pending);
+    void setColor(sf::Color color);
 
     void clear();
 

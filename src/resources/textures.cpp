@@ -37,18 +37,52 @@ sf::String textures::loadTextures() {
 
     fieldBackground.setTexture(fieldBackgroundTexture);
 
-    if (!backgroundTexture.loadFromFile(resourcePath() + "media/background.png"))
-        return "media/background.png";
-    background.setTexture(backgroundTexture);
-
     if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf"))
         return "media/Kingthings Trypewriter 2.ttf";
     if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf"))
         return "media/F25_Bank_Printer.ttf";
+    if (!standard.loadFromFile(resourcePath() + "media/standard.ttf"))
+        return "media/standard.ttf";
 
     icon = new sf::Image;
     if (!icon->loadFromFile(resourcePath() + "media/icon.png"))
         return "media/icon.png";
+
+    if (!menuBackground_light.loadFromFile(resourcePath() + "media/menubackground_light.png"))
+        return "media/menubackground_light.png";
+
+    if (!menuBackground_dark.loadFromFile(resourcePath() + "media/menubackground_dark.png"))
+        return "media/menubackground_dark.png";
+
+    if (!background_light.loadFromFile(resourcePath() + "media/background_light.png"))
+        return "media/background_light.png";
+
+    if (!background_dark.loadFromFile(resourcePath() + "media/background_dark.png"))
+        return "media/background_dark.png";
+
+    if (!alert.loadFromFile(resourcePath() + "media/alert.png"))
+        return "media/alert.png";
+
+    sf::Texture text;
+    if (!text.loadFromFile(resourcePath() + "media/rotate.png"))
+        return "media/rotate.png";
+
+    rotate_n.load(text);
+    rotate_h.load(text);
+    rotate_n.setColor(sf::Color(0,0,0));
+
+    if (!text.loadFromFile(resourcePath() + "media/choosecolor.png"))
+        return "media/choosecolor.png";
+
+    color_n.load(text);
+    color_h.load(text);
+    color_n.setColor(sf::Color(0,0,0));
+
+    if (!logoTexture.loadFromFile(resourcePath() + "media/blackwhitelogo.png"))
+        return "media/blackwhitelogo.png";
+    logo.setTexture(logoTexture);
+
+    gameFieldTextColor = sf::Color(0,0,0,255);
 
     /*themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
     tgui::Label::Ptr test;
@@ -65,4 +99,15 @@ sf::String textures::loadTextures() {
     }*/
     
     return "OK";
+}
+
+void textures::setGhostPieceAlpha(sf::Uint8 alpha) {
+    tile[8].setColor(sf::Color(255,0,0,alpha));
+    tile[9].setColor(sf::Color(0,255,0,alpha));
+    tile[10].setColor(sf::Color(115,145,255,alpha));
+    tile[11].setColor(sf::Color(255,0,255,alpha));
+    tile[12].setColor(sf::Color(0,255,255,alpha));
+    tile[13].setColor(sf::Color(255,255,0,alpha));
+    tile[14].setColor(sf::Color(255,255,255,alpha));
+    tile[15].setColor(sf::Color(170,170,170,alpha));
 }

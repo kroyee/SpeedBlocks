@@ -45,7 +45,7 @@ showPressEnterText(true)
 	pressEnterText.setCharacterSize(17);
 	pressEnterText.setColor(sf::Color::White);
 	pressEnterText.setPosition(10,500);
-	pressEnterText.setString("press Enter to start practice");
+	pressEnterText.setString("press P to start practice");
 
 	updateBasePieces();
 }

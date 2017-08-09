@@ -6,6 +6,7 @@
 class ComboCounter {
 private:
 	sf::Time comboStart=sf::seconds(0), comboTime=sf::seconds(0);
+	sf::Uint8 lineCount=0;
 public:
 	sf::Uint8 maxCombo=0, comboCount=0;
 

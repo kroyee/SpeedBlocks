@@ -17,56 +17,60 @@ using std::ofstream;
 
 
 void optionSet::loadStandardOptions() {
-		down = sf::Keyboard::K;
-		left = sf::Keyboard::J;
-		right = sf::Keyboard::L;
-		rcw = sf::Keyboard::F;
-		rccw = sf::Keyboard::D;
-		r180 = sf::Keyboard::A;
-		hd = sf::Keyboard::Space;
-		chat = sf::Keyboard::LControl;
-		score = sf::Keyboard::LShift;
-		away = sf::Keyboard::F4;
-		ready = sf::Keyboard::F5;
+	down = sf::Keyboard::K;
+	left = sf::Keyboard::J;
+	right = sf::Keyboard::L;
+	rcw = sf::Keyboard::F;
+	rccw = sf::Keyboard::D;
+	r180 = sf::Keyboard::A;
+	hd = sf::Keyboard::Space;
+	chat = sf::Keyboard::LControl;
+	score = sf::Keyboard::LShift;
+	away = sf::Keyboard::F4;
+	ready = sf::Keyboard::F5;
 
-		ghostpiece = true;
-		fullscreen = false;
-		vSync = false;
-		performanceOutput = true;
+	ghostpiece = true;
+	fullscreen = false;
+	vSync = false;
+	performanceOutput = true;
+	animatedBackground = true;
 
-		repeatDelay = sf::milliseconds(150);
-		repeatSpeed = sf::milliseconds(0);
+	repeatDelay = sf::milliseconds(150);
+	repeatSpeed = sf::milliseconds(0);
 
-		repeatDelayDown = sf::milliseconds(20);
-		repeatSpeedDown = sf::milliseconds(20);
+	repeatDelayDown = sf::milliseconds(20);
+	repeatSpeedDown = sf::milliseconds(20);
 
-		//frame delay multiplicator 10 = 100 FPS
-		frameDelay = sf::milliseconds(10);
-        //input delay multiplicator 1000 = 1000 microseconds - 1ms
-		inputDelay = sf::milliseconds(1);
+	//frame delay multiplicator 10 = 100 FPS
+	frameDelay = sf::milliseconds(10);
+    //input delay multiplicator 1000 = 1000 microseconds - 1ms
+	inputDelay = sf::milliseconds(1);
 
-		piecerotation[0] = 3;
-		piecerotation[1] = 1;
-		piecerotation[2] = 3;
-		piecerotation[3] = 1;
-		piecerotation[4] = 1;
-		piecerotation[5] = 2;
-		piecerotation[6] = 0;
+	piecerotation[0] = 3;
+	piecerotation[1] = 1;
+	piecerotation[2] = 3;
+	piecerotation[3] = 1;
+	piecerotation[4] = 1;
+	piecerotation[5] = 2;
+	piecerotation[6] = 0;
 
-        colormap[0] = 4;
-        colormap[1] = 3;
-        colormap[2] = 5;
-        colormap[3] = 7;
-        colormap[4] = 2;
-        colormap[5] = 1;
-        colormap[6] = 6;
+    colormap[0] = 4;
+    colormap[1] = 3;
+    colormap[2] = 5;
+    colormap[3] = 7;
+    colormap[4] = 2;
+    colormap[5] = 1;
+    colormap[6] = 6;
 
-		name="Player";
-		currentmode=-1;
-		MusicVolume=100;
-		EffectVolume=100;
-		ChatVolume=100;
-		sound=true;
+	name="Player";
+	currentmode=0;
+	MusicVolume=100;
+	EffectVolume=100;
+	ChatVolume=100;
+	sound=true;
+
+	theme=1;
+	ghostPieceAlpha=120;
 }
 
 
@@ -124,6 +128,9 @@ void optionSet::loadOptions() {
 			else if (keyword == "inputdelay") inputDelay = sf::microseconds(stoi(line));
 			else if (keyword == "vsync") vSync = stoi(line);
 			else if (keyword == "performanceOutput") performanceOutput = stoi(line);
+			else if (keyword == "animatedBackground") animatedBackground = stoi(line);
+			else if (keyword == "theme") theme = stoi(line);
+			else if (keyword == "ghostPieceAlpha") ghostPieceAlpha = stoi(line);
 			else countset--;
 		}
 		file.close();
@@ -131,7 +138,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=41)
+	if (countset!=44)
 		success = 0;
 
 	if (!success)
@@ -176,7 +183,10 @@ void optionSet::saveOptions() {
 		file << "framedelay=" << frameDelay.asMicroseconds() << endl;
 		file << "inputdelay=" << inputDelay.asMicroseconds() << endl;
 		file << "vsync=" << vSync << endl;
-		file << "performanceOutput=" << performanceOutput;
+		file << "performanceOutput=" << performanceOutput << endl;
+		file << "animatedBackground=" << animatedBackground << endl;
+		file << "theme=" << (int)theme << endl;
+		file << "ghostPieceAlpha=" << (int)ghostPieceAlpha << endl;
 	}
 	else
 		cout << "Failed" << endl;

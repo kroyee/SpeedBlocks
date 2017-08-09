@@ -1,7 +1,6 @@
 #include "gui.h"
 #include "GameFieldDrawer.h"
 #include "gameField.h"
-#include "GameplayUI.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -17,6 +16,8 @@ void GameFieldDrawer::setSize(short w, short h) { width = w; height = h; calFiel
 
 void GameFieldDrawer::addField(obsField& field) {
 	fields.push_back(field);
+	if (gui.options.theme == 2)
+		fields.back().text.setColor(sf::Color(255,255,255));
 	calFieldPos();
 	drawOppField(fields.back());
 }
@@ -162,38 +163,36 @@ void GameFieldDrawer::drawFields() {
 }
 
 void GameFieldDrawer::enlargePlayfield(sf::Event& event) {
-	if (gui.gameplayUI->GameFields->isVisible()) {
-		if (event.type == sf::Event::MouseMoved) {
-			sf::Vector2f pos = gui.window->mapPixelToCoords(sf::Mouse::getPosition(*gui.window));
-			sf::FloatRect box;
-			if (scaleup) {
-				box = scaleup->sprite.getGlobalBounds();
-				if (!box.contains(pos)) {
-					scaleup->scale=0;
-					scaleup->sprite.setScale(currentR, currentR);
-					scaleup=0;
-				}
+	if (event.type == sf::Event::MouseMoved) {
+		sf::Vector2f pos = gui.window->mapPixelToCoords(sf::Mouse::getPosition(*gui.window));
+		sf::FloatRect box;
+		if (scaleup) {
+			box = scaleup->sprite.getGlobalBounds();
+			if (!box.contains(pos)) {
+				scaleup->scale=0;
+				scaleup->sprite.setScale(currentR, currentR);
+				scaleup=0;
 			}
-			for (auto &&it : fields) {
-				box = it.sprite.getGlobalBounds();
-				if (box.contains(pos)) {
-					if (&it != scaleup) {
-						if (scaleup) {
-							scaleup->scale=0;
-							scaleup->sprite.setScale(currentR, currentR);
-						}
-						scaleup=&it;
+		}
+		for (auto &&it : fields) {
+			box = it.sprite.getGlobalBounds();
+			if (box.contains(pos)) {
+				if (&it != scaleup) {
+					if (scaleup) {
 						scaleup->scale=0;
-						sclock.restart();
-						break;
+						scaleup->sprite.setScale(currentR, currentR);
 					}
+					scaleup=&it;
+					scaleup->scale=0;
+					sclock.restart();
+					break;
 				}
 			}
 		}
-		else if (event.type == sf::Event::MouseLeft && scaleup) {
-			scaleup->scale=0;
-			scaleup->sprite.setScale(currentR, currentR);
-			scaleup=0;
-		}
+	}
+	else if (event.type == sf::Event::MouseLeft && scaleup) {
+		scaleup->scale=0;
+		scaleup->sprite.setScale(currentR, currentR);
+		scaleup=0;
 	}
 }

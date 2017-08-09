@@ -39,5 +39,7 @@ bool Resources::init() {
     sounds.setMusicVolume(options.MusicVolume);
     sounds.setChatVolume(options.ChatVolume);
 
+    gfx.setGhostPieceAlpha(options.ghostPieceAlpha);
+
     return true;
 }

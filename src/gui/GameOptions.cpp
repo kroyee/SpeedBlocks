@@ -4,6 +4,7 @@
 #include "optionSet.h"
 #include "MainMenu.h"
 #include "PerformanceOutput.h"
+#include "AnimatedBackground.h"
 using std::to_string;
 
 #ifdef __APPLE__
@@ -12,45 +13,23 @@ using std::to_string;
 #include "EmptyResourcePath.h"
 #endif
 
-void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
-	createBase(_pos, _gui);
-	initSprites();
-
-	otab = gui->themeBB->load("Tab"); // General Options
-	otab->setTextSize(32);
-	otab->setPosition(250, 30);
-	otab->add("General");
-	otab->add("Video");
-	otab->add("Sound");
-	otab->add("Back");
-	otab->select(1);
-	otab->connect("TabSelected", &GameOptions::otabSelect, this);
-	otab->setOpacity(0.7);
-	panel->add(otab);
+void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel) {
+	createBase(_pos, _gui, parentPanel);
 
 	GenOpt = tgui::Panel::create();
-	GenOpt->setSize(960, 500);
-	GenOpt->setPosition(0, 100);
+	GenOpt->setSize(560, 560);
+	GenOpt->setPosition(0, 0);
 	GenOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	GenOpt->hide();
 	panel->add(GenOpt);
 
-	tgui::Label::Ptr NL = gui->themeTG->load("Label");
-	NL->setPosition(80, 13);
-	NL->setText("Name");
-	GenOpt->add(NL);
-	tgui::EditBox::Ptr NTB = gui->themeTG->load("EditBox");
-	NTB->setText(gui->options.name);
-	NTB->setPosition(150, 10);
-	NTB->setSize(400, 30);
-	NTB->connect("TextChanged", &GameOptions::changeName, this);
-	GenOpt->add(NTB);
+	initSprites();
 
 	SelectKey = gui->themeTG->load("Panel");
 	SelectKey->setSize(300, 100);
-	SelectKey->setPosition(250, 150);
+	SelectKey->setPosition(330, 150);
 	SelectKey->hide();
-	GenOpt->add(SelectKey);
+	gui->tGui.add(SelectKey);
 	tgui::Label::Ptr CKPL = gui->themeTG->load("Label");
 	CKPL->setTextSize(32);
 	CKPL->setText("Press any key");
@@ -178,13 +157,13 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	GenOpt->add(BindAway);
 
 	tgui::Label::Ptr ReL = gui->themeTG->load("Label");
-	ReL->setPosition(500, 63);
+	ReL->setPosition(0, 263);
 	ReL->setSize(90, 30);
 	ReL->setText("Ready");
 	ReL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ReL);
 	BindReady = gui->themeTG->load("Button");
-	BindReady->setPosition(600, 60);
+	BindReady->setPosition(100, 260);
 	BindReady->connect("pressed", &GameOptions::setKey, this, BindReady, std::ref(gui->options.ready));
 	BindReady->setText(SFKeyToString(gui->options.ready));
 	GenOpt->add(BindReady);
@@ -192,16 +171,21 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	tgui::Button::Ptr Rp[7]; // Align Pieces
 	tgui::Button::Ptr Cc[7];
 	for (int i=0; i<7; i++) {
-		Rp[i] = gui->themeBB->load("Button");
-		Cc[i] = gui->themeBB->load("Button");
+		Rp[i] = tgui::Button::create();
+		Rp[i]->getRenderer()->setNormalTexture(gui->resources.gfx.rotate_n);
+		Rp[i]->getRenderer()->setHoverTexture(gui->resources.gfx.rotate_h);
+		Rp[i]->getRenderer()->setBorders({0,0,0,0});
+		Cc[i] = tgui::Button::create();
+		Cc[i]->getRenderer()->setNormalTexture(gui->resources.gfx.color_n);
+		Cc[i]->getRenderer()->setHoverTexture(gui->resources.gfx.color_h);
+		Cc[i]->getRenderer()->setBorders({0,0,0,0});
 
-		Rp[i]->setPosition(i*115+20, 365);
-		Rp[i]->setSize(30,30);
-		Rp[i]->setOpacity(0.7);
+		Rp[i]->setPosition(i*80+10, 365);
+		Rp[i]->setSize(25,25);
 		Rp[i]->connect("pressed", &GameOptions::rotPiece, this, i);
 
-		Cc[i]->setPosition(i*115+60, 365);
-		Cc[i]->setSize(30,30);
+		Cc[i]->setPosition(i*80+40, 365);
+		Cc[i]->setSize(25,25);
 		Cc[i]->connect("pressed", &GameOptions::colPiece, this, i);
 
 		GenOpt->add(Rp[i]);
@@ -209,13 +193,13 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	}
 
 	tgui::Label::Ptr Rl1 = gui->themeTG->load("Label"); // Repeat delay & speed
-	Rl1->setPosition(750, 0);
+	Rl1->setPosition(50, 410);
 	Rl1->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	Rl1->setText("Left & Right Repeat\nDelay         Speed");
 	GenOpt->add(Rl1);
 
 	tgui::EditBox::Ptr Re1 = gui->themeTG->load("EditBox");
-	Re1->setPosition(750, 50);
+	Re1->setPosition(50, 460);
 	Re1->setSize(70, 30);
 	Re1->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re1->setText(to_string(gui->options.repeatDelay.asMilliseconds()));
@@ -223,7 +207,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	GenOpt->add(Re1);
 
 	tgui::EditBox::Ptr Re2 = gui->themeTG->load("EditBox");
-	Re2->setPosition(850, 50);
+	Re2->setPosition(150, 460);
 	Re2->setSize(70, 30);
 	Re2->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re2->setText(to_string(gui->options.repeatSpeed.asMilliseconds()));
@@ -231,13 +215,13 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	GenOpt->add(Re2);
 
 	tgui::Label::Ptr Rl2 = gui->themeTG->load("Label");
-	Rl2->setPosition(750, 100);
+	Rl2->setPosition(300, 410);
 	Rl2->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	Rl2->setText("Down Repeat\n  Delay         Speed");
 	GenOpt->add(Rl2);
 
 	tgui::EditBox::Ptr Re3 = gui->themeTG->load("EditBox");
-	Re3->setPosition(750, 150);
+	Re3->setPosition(300, 460);
 	Re3->setSize(70, 30);
 	Re3->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re3->setText(to_string(gui->options.repeatDelayDown.asMilliseconds()));
@@ -245,7 +229,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	GenOpt->add(Re3);
 
 	tgui::EditBox::Ptr Re4 = gui->themeTG->load("EditBox");
-	Re4->setPosition(850, 150);
+	Re4->setPosition(400, 460);
 	Re4->setSize(70, 30);
 	Re4->setInputValidator(tgui::EditBox::Validator::UInt);
 	Re4->setText(to_string(gui->options.repeatSpeedDown.asMilliseconds()));
@@ -253,20 +237,20 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	GenOpt->add(Re4);
 
 	VidOpt = tgui::Panel::create(); // Video Options
-	VidOpt->setSize(960, 500);
-	VidOpt->setPosition(0, 100);
+	VidOpt->setSize(560, 560);
+	VidOpt->setPosition(0, 0);
 	VidOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	VidOpt->hide();
 	panel->add(VidOpt);
 
 	tgui::Label::Ptr ViL = gui->themeTG->load("Label");
-	ViL->setPosition(350, 0);
+	ViL->setPosition(250, 0);
 	ViL->setText("Video Mode");
 	VidOpt->add(ViL);
 
 	VMSlider = gui->themeTG->load("Slider");
 	VMSlider->setPosition(50, 50);
-	VMSlider->setSize(700, 30);
+	VMSlider->setSize(460, 30);
 	VMSlider->setMaximum(gui->options.modes.size()-1);
 	if (gui->options.currentmode == -1)
 		VMSlider->setValue(0);
@@ -277,14 +261,14 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	VidOpt->add(VMSlider);
 
 	VideoMode = gui->themeTG->load("Label");
-	VideoMode->setPosition(340, 90);
+	VideoMode->setPosition(240, 90);
 	sf::String cvmname;
 	cvmname = to_string(gui->options.modes[VMSlider->getValue()].width) + "x" + to_string(gui->options.modes[VMSlider->getValue()].height);
 	VideoMode->setText(cvmname);
 	VidOpt->add(VideoMode);
 
 	Fullscreen = gui->themeTG->load("CheckBox");
-	Fullscreen->setPosition(120, 130);
+	Fullscreen->setPosition(60, 130);
 	Fullscreen->setText("Fullscreen");
 	Fullscreen->connect("Checked Unchecked", &GameOptions::fsChecked, this);
 	VidOpt->add(Fullscreen);
@@ -294,46 +278,46 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	}
 
 	vSync = gui->themeTG->load("CheckBox");
-	vSync->setPosition(380, 130);
+	vSync->setPosition(220, 130);
 	vSync->setText("VSync");
 	if (gui->options.vSync)
 		vSync->check();
 	VidOpt->add(vSync);
 
 	performanceOutput = gui->themeTG->load("CheckBox");
-	performanceOutput->setPosition(580, 130);
+	performanceOutput->setPosition(320, 130);
 	performanceOutput->setText("Performance output");
 	if (gui->options.performanceOutput)
 		performanceOutput->check();
 	VidOpt->add(performanceOutput);
 
 	tgui::Label::Ptr FdL = gui->themeTG->load("Label");
-	FdL->setPosition(150, 200);
+	FdL->setPosition(80, 200);
 	FdL->setText("Frame Rate");
 	VidOpt->add(FdL);
 
 	FrameDelay = gui->themeTG->load("EditBox");
-	FrameDelay->setPosition(170, 230);
+	FrameDelay->setPosition(100, 230);
 	FrameDelay->setSize(70, 30);
 	FrameDelay->setInputValidator(tgui::EditBox::Validator::UInt);
 	FrameDelay->setText(to_string(1000000/gui->options.frameDelay.asMicroseconds()));
 	VidOpt->add(FrameDelay);
 
 	tgui::Label::Ptr IdL = gui->themeTG->load("Label");
-	IdL->setPosition(470, 200);
+	IdL->setPosition(320, 200);
 	IdL->setText("Input Rate");
 	VidOpt->add(IdL);
 
 	InputDelay = gui->themeTG->load("EditBox");
-	InputDelay->setPosition(460, 230);
+	InputDelay->setPosition(310, 230);
 	InputDelay->setSize(110, 30);
 	InputDelay->setInputValidator(tgui::EditBox::Validator::UInt);
 	InputDelay->setText(to_string(1000000/gui->options.inputDelay.asMicroseconds()));
 	VidOpt->add(InputDelay);
 
-	tgui::Button::Ptr AvB = gui->themeBB->load("Button");
+	tgui::Button::Ptr AvB = gui->themeTG->load("Button");
 	AvB->setText("Apply");
-	AvB->setPosition(340, 300);
+	AvB->setPosition(240, 300);
 	AvB->setOpacity(0.7);
 	AvB->connect("pressed", &GameOptions::applyVideo, this);
 	VidOpt->add(AvB);
@@ -344,14 +328,14 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 	VidOpt->add(InL);
 
 	SndOpt = tgui::Panel::create(); // Sound Options
-	SndOpt->setSize(800, 500);
-	SndOpt->setPosition(0, 100);
+	SndOpt->setSize(560, 560);
+	SndOpt->setPosition(0, 0);
 	SndOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	SndOpt->hide();
 	panel->add(SndOpt);
 
 	tgui::CheckBox::Ptr EsC = gui->themeTG->load("CheckBox");
-	EsC->setPosition(150, 0);
+	EsC->setPosition(50, 0);
 	EsC->setText("Sound Enabled");
 	EsC->connect("Checked Unchecked", &GameOptions::sndChecked, this);
 	SndOpt->add(EsC, "sndCheck");
@@ -360,7 +344,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 
 	tgui::Slider::Ptr MvS = gui->themeTG->load("Slider");
 	MvS->setPosition(50, 100);
-	MvS->setSize(700,30);
+	MvS->setSize(460,30);
 	MvS->setMaximum(100);
 	MvS->connect("ValueChanged", &GameOptions::volSlide, this, 1);
 	MvS->setValue(gui->options.MusicVolume);
@@ -368,12 +352,12 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 
 	tgui::Label::Ptr MvL = gui->themeTG->load("Label");
 	MvL->setText("Music Volume");
-	MvL->setPosition(350, 50);
+	MvL->setPosition(240, 50);
 	SndOpt->add(MvL);
 
 	tgui::Slider::Ptr EvS = gui->themeTG->load("Slider");
 	EvS->setPosition(50, 200);
-	EvS->setSize(700,30);
+	EvS->setSize(460,30);
 	EvS->setMaximum(100);
 	EvS->connect("ValueChanged", &GameOptions::volSlide, this, 2);
 	EvS->setValue(gui->options.EffectVolume);
@@ -381,12 +365,12 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 
 	tgui::Label::Ptr EvL = gui->themeTG->load("Label");
 	EvL->setText("Effect Volume");
-	EvL->setPosition(350, 150);
+	EvL->setPosition(240, 150);
 	SndOpt->add(EvL);
 
 	tgui::Slider::Ptr CvS = gui->themeTG->load("Slider");
 	CvS->setPosition(50, 300);
-	CvS->setSize(700,30);
+	CvS->setSize(460,30);
 	CvS->setMaximum(100);
 	CvS->connect("ValueChanged", &GameOptions::volSlide, this, 3);
 	CvS->setValue(gui->options.ChatVolume);
@@ -394,20 +378,80 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui) {
 
 	tgui::Label::Ptr CvL = gui->themeTG->load("Label");
 	CvL->setText("Chat Volume");
-	CvL->setPosition(350, 250);
+	CvL->setPosition(240, 250);
 	SndOpt->add(CvL);
+
+	VisOpt = tgui::Panel::create(); // Sound Options
+	VisOpt->setSize(560, 560);
+	VisOpt->setPosition(0, 0);
+	VisOpt->setBackgroundColor(sf::Color(255,255,255,0));
+	VisOpt->hide();
+	panel->add(VisOpt);
+
+	tgui::Label::Ptr NL = gui->themeTG->load("Label");
+	NL->setPosition(20, 13);
+	NL->setText("Name (for single-player)");
+	VisOpt->add(NL);
+	tgui::EditBox::Ptr NTB = gui->themeTG->load("EditBox");
+	NTB->setText(gui->options.name);
+	NTB->setPosition(230, 10);
+	NTB->setSize(270, 30);
+	NTB->connect("TextChanged", &GameOptions::changeName, this);
+	VisOpt->add(NTB);
+
+	tgui::CheckBox::Ptr animBack = gui->themeTG->load("CheckBox");
+	animBack->setPosition(20, 50);
+	animBack->setText("Show background animation");
+	animBack->connect("Checked", [&](){ gui->options.animatedBackground=true; gui->animatedBackground->enable(gui->delayClock.getElapsedTime()); });
+	animBack->connect("Unchecked", [&](){ gui->options.animatedBackground=false; gui->animatedBackground->disable(); });
+	if (gui->options.animatedBackground)
+		animBack->check();
+	VisOpt->add(animBack);
+
+	tgui::Label::Ptr gpaLabel = gui->themeTG->load("Label");
+	gpaLabel->setPosition(100, 90);
+	gpaLabel->setText("Ghost piece transparency");
+	VisOpt->add(gpaLabel);
+
+	tgui::Slider::Ptr ghostPieceAlpha = gui->themeTG->load("Slider");
+	ghostPieceAlpha->setPosition(20, 120);
+	ghostPieceAlpha->setSize(520,30);
+	ghostPieceAlpha->setMaximum(255);
+	ghostPieceAlpha->setValue(gui->options.ghostPieceAlpha);
+	ghostPieceAlpha->connect("ValueChanged", &GameOptions::setGhostPieceAlpha, this);
+	VisOpt->add(ghostPieceAlpha);
+
+	tgui::RadioButton::Ptr r_lightTheme = gui->themeTG->load("RadioButton");
+	r_lightTheme->setPosition(20, 180);
+	r_lightTheme->setText("Light theme");
+	VisOpt->add(r_lightTheme);
+
+	tgui::RadioButton::Ptr r_darkTheme = gui->themeTG->load("RadioButton");
+	r_darkTheme->setPosition(20, 220);
+	r_darkTheme->setText("Dark theme");
+	VisOpt->add(r_darkTheme);
+
+	if (gui->options.theme == 1)
+		r_lightTheme->check();
+	else
+		r_darkTheme->check();
+
+	r_lightTheme->connect("Checked", &UI::lightTheme, gui);
+	r_darkTheme->connect("Checked", &UI::darkTheme, gui);
 }
 
-void GameOptions::otabSelect(std::string tab) {
-	if (tab == "General") {
+void GameOptions::show(sf::Uint8 index) {
+	panel->show();
+	GenOpt->hide();
+	VidOpt->hide();
+	SndOpt->hide();
+	VisOpt->hide();
+	if (index == 0)
+		VisOpt->show();
+	if (index == 1)
 		GenOpt->show();
-		VidOpt->hide();
-		SndOpt->hide();
-	}
-	else if (tab == "Video") {
+	else if (index == 2) {
 		VidOpt->show();
-		GenOpt->hide();
-		SndOpt->hide();
 		if (gui->options.fullscreen)
 			Fullscreen->check();
 		else
@@ -419,16 +463,8 @@ void GameOptions::otabSelect(std::string tab) {
 		FrameDelay->setText(to_string(1000000/gui->options.frameDelay.asMicroseconds()));
 		InputDelay->setText(to_string(1000000/gui->options.inputDelay.asMicroseconds()));
 	}
-	else if (tab == "Sound") {
-		VidOpt->hide();
-		GenOpt->hide();
+	else if (index == 3)
 		SndOpt->show();
-	}
-	else if (tab == "Back") {
-		gui->mainMenu->show();
-		otab->select(1);
-		hide();
-	}
 }
 
 void GameOptions::changeName(const sf::String& name) {
@@ -458,7 +494,7 @@ void GameOptions::sndChecked(bool i) {
 
 void GameOptions::applyVideo() {
 	if (Fullscreen->isChecked()) {
-		if (gui->options.currentmode == -1 || gui->options.currentmode != VMSlider->getValue()) {
+		if (!gui->options.fullscreen || gui->options.currentmode != VMSlider->getValue()) {
 			gui->options.currentmode = VMSlider->getValue();
 			gui->window->close();
 			gui->window->create(gui->options.modes[gui->options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
@@ -466,10 +502,9 @@ void GameOptions::applyVideo() {
 			gui->options.fullscreen=true;
 		}
 	}
-	else if (gui->options.currentmode != -1) {
+	else if (gui->options.fullscreen) {
 		gui->window->close();
 		gui->window->create(sf::VideoMode(960, 600), "SpeedBlocks");
-		gui->options.currentmode = -1;
 		gui->window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
 		gui->options.fullscreen=false;
 	}
@@ -606,6 +641,8 @@ void GameOptions::rotPiece(short i) {
 	if (gui->options.piecerotation[i]>3)
 		gui->options.piecerotation[i]=0;
 	piece[i].setRotation(gui->options.piecerotation[i]*90);
+	canvas[i]->clear(sf::Color(255,255,255,0));
+	canvas[i]->draw(piece[i]);
 	gui->game.updateBasePieces();
 }
 
@@ -615,6 +652,8 @@ void GameOptions::colPiece(short i) {
     else
         gui->options.setPieceColor(i, gui->options.basepiece[i].tile+1);
 	piece[i].setColor(pColor(gui->options.basepiece[i].tile));
+	canvas[i]->clear(sf::Color(255,255,255,0));
+	canvas[i]->draw(piece[i]);
 	gui->game.updateBasePieces();
 }
 
@@ -638,14 +677,6 @@ void GameOptions::initSprites() {
 						tile.setPosition(x*30, y*30);
 						rendtex.draw(tile);
 					}
-			rendtex.display();
-			texture[p] = rendtex.getTexture();
-			piece[p].setTexture(texture[p]);
-			piece[p].setScale(0.8, 0.8);
-			piece[p].setPosition(115*p+50, 360+50);
-			piece[p].setColor(pColor(gui->options.basepiece[p].tile));
-			piece[p].setOrigin(60,60);
-			piece[p].setRotation(gui->options.piecerotation[p]*90);
 		}
 		else {
 			for (int x=0; x<3; x++)
@@ -654,15 +685,21 @@ void GameOptions::initSprites() {
 						tile.setPosition(x*30+15, y*30+15);
 						rendtex.draw(tile);
 					}
-			rendtex.display();
-			texture[p] = rendtex.getTexture();
-			piece[p].setTexture(texture[p]);
-			piece[p].setScale(0.8, 0.8);
-			piece[p].setPosition(115*p+50, 360+50);
-			piece[p].setColor(pColor(gui->options.basepiece[p].tile));
-			piece[p].setOrigin(60,60);
-			piece[p].setRotation(gui->options.piecerotation[p]*90);
 		}
+		rendtex.display();
+		texture[p] = rendtex.getTexture();
+		piece[p].setTexture(texture[p]);
+		piece[p].setScale(0.5, 0.5);
+		piece[p].setPosition(30, 30);
+		piece[p].setColor(pColor(gui->options.basepiece[p].tile));
+		piece[p].setOrigin(60,60);
+		piece[p].setRotation(gui->options.piecerotation[p]*90);
+		sf::FloatRect size = piece[p].getGlobalBounds();
+		canvas[p] = tgui::Canvas::create({size.width, size.height});
+		canvas[p]->clear(sf::Color(255,255,255,0));
+		canvas[p]->draw(piece[p]);
+		canvas[p]->setPosition(80*p+10, 300);
+		GenOpt->add(canvas[p]);
 	}
 }
 
@@ -766,4 +803,10 @@ sf::String SFKeyToString(unsigned int keycode) {
     else
     	return "";
     }
+}
+
+void GameOptions::setGhostPieceAlpha(sf::Uint8 alpha) {
+	gui->options.ghostPieceAlpha = alpha;
+	gui->resources.gfx.setGhostPieceAlpha(alpha);
+	gui->game.drawMe=true;
 }
