@@ -316,13 +316,6 @@ void UI::delayCheck() {
 				udpPortTime = currentTime;
 				net.sendUdpConfirm(myId);
 			}
-		if (currentTime - performanceOutput->pingTime > sf::seconds(1)) {
-			if (!performanceOutput->pingReturned)
-				performanceOutput->setPing(999);
-			performanceOutput->pingTime = currentTime;
-			performanceOutput->pingIdCount++;
-			net.sendPing(myId, performanceOutput->pingIdCount);
-		}
 		if (onlineplayUI->isVisible()) {
 			if (onlineplayUI->roomList.isVisible())
 				if (currentTime - onlineplayUI->updateRoomListTime > sf::seconds(5)) {
@@ -337,6 +330,17 @@ void UI::delayCheck() {
 		}
 		if (challengesGameUI->isVisible() && (gamestate == Game || gamestate == Replay))
 			challengesGameUI->update();
+		performanceOutput->setPing(ping.send(currentTime, net, myId));
+
+		if (gamestate == CountDown) {
+			sf::Uint8 cd = countdown.check(currentTime);
+			if (cd != 255) {
+				if (game.countDown(cd))
+					setGameState(Game);
+				gamedatacount=255-cd;
+				sendGameState();
+			}
+		}
 	}
 
 	slideMenu->update(currentTime);
@@ -381,14 +385,15 @@ void UI::ready() {
 }
 
 void UI::handleEvent(sf::Event& event) {
+	if (gameOptions->SelectKey->isVisible())
+		if (gameOptions->putKey(event))
+			return;
+
 	if (keyEvents(event))
 		return;
 
 	gameInput(event);
 	windowEvents(event);
-	
-	if (gameOptions->SelectKey->isVisible())
-		gameOptions->putKey(event);
 	
 	if (gameFieldDrawer.isVisible())
 		gameFieldDrawer.enlargePlayfield(event);
@@ -512,22 +517,17 @@ bool UI::keyEvents(sf::Event& event) {
 		if (chatScreen->isActive())
 			chatScreen->focus();
 		if (event.key.code == sf::Keyboard::Escape) {
-			if (areYouSure->isVisible()) {
+			if (areYouSure->isVisible())
 				areYouSure->hide();
-				mainMenu->enable();
-				onlineplayUI->enable();
-			}
 			else if (chatScreen->isActive())
 				chatScreen->deactivate();
 			else if (mainMenu->isVisible()) {
 				areYouSure->label->setText("Do you want to quit?");
 				areYouSure->show();
-				mainMenu->disable();
 			}
 			else if (onlineplayUI->isVisible()) {
 				areYouSure->label->setText("Leave the server?");
 				areYouSure->show();
-				onlineplayUI->disable();
 			}
 			else if (challengesGameUI->isVisible()) {
 				areYouSure->label->setText("Leave this challenge?");
@@ -722,6 +722,14 @@ void UI::iGotKicked(sf::Uint16 reason) {
 	setGameState(MainMenu);
 }
 
+void UI::setCountdown() {
+	countdown.set(delayClock.getElapsedTime(), net.packet);
+	if (countdown.ongoing() && !away && gamestate != CountDown) {
+		setGameState(CountDown);
+		game.startCountdown();
+	}
+}
+
 void UI::handlePacket() {
 	if (net.packetid <100)
 		cout << "Packet id: " << (int)net.packetid << endl;
@@ -731,8 +739,6 @@ void UI::handlePacket() {
 			onlineplayUI->hide();
 			areYouSure->hide();
 			connectingScreen->hide();
-			mainMenu->enable();
-			loginBox->hide();
 			challengesGameUI->hide();
 			replayUI->hide();
 			playonline=false;
@@ -890,14 +896,12 @@ void UI::handlePacket() {
 				connectingScreen->hide();
 				onlineplayUI->show();
 				onlineplayUI->opTab->select(0);
-				mainMenu->enable();
 				serverUI->putClient(myId, name);
 			}
 			else if (success == 2) {
 				connectingScreen->hide();
 				onlineplayUI->show();
 				onlineplayUI->opTab->select(0);
-				mainMenu->enable();
 				serverUI->putClient(myId, game.field.text.name);
 			}
 			else {
@@ -950,17 +954,10 @@ void UI::handlePacket() {
 			onlineplayUI->tournamentPanel.getUpdate(myId);
 		break;
 		case 102: // Ping packet returned from server
-		{
-			sf::Uint8 pingId;
-			sf::Uint16 clientid;
-			net.packet >> clientid >> pingId;
-			if (pingId == performanceOutput->pingIdCount) {
-				net.sendUDP();
-				sf::Time pingResult = delayClock.getElapsedTime() - performanceOutput->pingTime;
-				performanceOutput->setPing(pingResult.asMilliseconds());
-				performanceOutput->pingReturned=true;
-			}
-		}
+			performanceOutput->setPing(ping.get(delayClock.getElapsedTime(), net));
+		break;
+		case 103: // Countdown packet with time elapsed from countdown start
+			setCountdown();
 		break;
 		case 254: // Signal packet
 			handleSignal();
@@ -1003,6 +1000,7 @@ void UI::handleSignal() {
 			setGameState(CountDown);
 			gamedatacount=251;
 			sendGameState();
+			countdown.start(delayClock.getElapsedTime());
 			if (challengesGameUI->isVisible()) {
 				challengesGameUI->clear();
 				if (challengesGameUI->cheesePanel->isVisible()) {
@@ -1017,18 +1015,10 @@ void UI::handleSignal() {
 				}
 			}
 		break;
-		case 5: //Countdown ongoing
-			if (gamestate != CountDown)
-				setGameState(CountDown);
-			if (!game.rander.total)
-				game.startCountdown();
-			game.countDown(id1);
-			if (!id1)
-				setGameState(Game);
-			else {
-				gamedatacount=255-id1;
-				sendGameState();
-			}
+		case 5: //Countdown ended
+			if (!id1 && gamestate==Game)
+				game.gameover=true;
+			countdown.stop();
 		break;
 		case 6: //Another player left the room
 			gameFieldDrawer.removeField(id1);
@@ -1038,16 +1028,18 @@ void UI::handleSignal() {
 		case 7: //Round ended
 			if (gamestate != Practice)
 				game.gameover=true;
+			countdown.stop();
 		break;
 		case 8: //Round ended and you where the winner
 			game.gameover=true;
 			game.winner=true;
 			game.autoaway=false;
+			countdown.stop();
 		break;
 		case 9: //Garbage received
 			game.addGarbage(id1);
 		break;
-		case 10: //Server telling me to reset my oppfields. This is the same as Packet 1, but when client is away.
+		case 10: //Server telling me to reset my oppfields. This is the same as Signal 4, but when client is away.
 			gameFieldDrawer.resetOppFields();
 			game.rander.seedPiece(id1);
 			game.rander.seedHole(id2);
@@ -1056,6 +1048,7 @@ void UI::handleSignal() {
 				game.field.clear();
 				game.draw();
 			}
+			countdown.start(delayClock.getElapsedTime());
 		break;
 		case 11: // Another player went away
 			for (auto&& field : gameFieldDrawer.fields)

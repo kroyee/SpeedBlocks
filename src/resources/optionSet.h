@@ -27,6 +27,10 @@ public:
     bool vSync;
     bool performanceOutput;
     bool animatedBackground;
+    bool rememberme;
+    sf::String hash;
+    sf::String username;
+    short pass;
 
     short MusicVolume;
     short EffectVolume;

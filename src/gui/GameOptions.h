@@ -50,7 +50,7 @@ public:
 	void applyVideo();
 	void volSlide(short i, short vol);
 	void setKey(tgui::Button::Ptr _button, sf::Keyboard::Key& _key);
-	void putKey(sf::Event& event);
+	bool putKey(sf::Event& event);
 
 	void rotPiece(short i);
 	void colPiece(short i);

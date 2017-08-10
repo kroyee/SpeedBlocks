@@ -5,6 +5,8 @@
 #include "packetcompress.h"
 #include "Resources.h"
 #include "GameFieldDrawer.h"
+#include "PingHandle.h"
+#include "CountdownHandle.h"
 
 class optionSet;
 class soundBank;
@@ -65,6 +67,8 @@ public:
 	optionSet& options;
 	gamePlay& game;
 	network& net;
+	PingHandle ping;
+	CountdownHandle countdown;
 
 	sf::RenderWindow* window;
 
@@ -86,8 +90,7 @@ public:
 
 	void setGameState(GameStates state);
 
-	void Chat();
-	void Score();
+	void setCountdown();
 
 	void joinRoom(sf::Uint16);
 	void leaveRoom();

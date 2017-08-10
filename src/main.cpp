@@ -5,7 +5,6 @@
 #include "PerformanceOutput.h"
 #include "ReplayUI.h"
 #include <iostream> // just here for quick and simple error testing, remove if you want
-#include "machineid.h"
 #include "AnimatedBackground.h"
 #include "SlideMenu.h"
 #include <string>
@@ -14,7 +13,7 @@
 using std::cout;
 using std::endl;
 
-#define CLIENT_VERSION 8
+#define CLIENT_VERSION 9
 //#define DEBUG
 
 int main()

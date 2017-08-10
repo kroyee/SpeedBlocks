@@ -6,6 +6,7 @@
 #include "Connecting.h"
 #include "OnlineplayUI.h"
 #include "AnimatedBackground.h"
+#include "machineid.h"
 
 void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	createBase(_pos, _gui, parent);
@@ -30,18 +31,32 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	LiE1 = gui->themeTG->load("EditBox");
 	LiE1->setPosition(120, 80);
 	LiE1->setSize(180, 30);
+	LiE1->setText(gui->options.username);
 	panel->add(LiE1);
 
 	tgui::EditBox::Ptr LiE2 = gui->themeTG->load("EditBox");
 	LiE2->setPosition(120, 120);
 	LiE2->setSize(180, 30);
 	LiE2->setPasswordCharacter('*');
+	if (gui->options.rememberme) {
+		sf::String boguspass;
+		for (int i=0; i<gui->options.pass; i++)
+			boguspass+="b";
+		LiE2->setText(boguspass);
+	}
+	LiE2->connect("TextChanged", [&](){ edited=true; });
+	LiE2->connect("Focused", [&]() { if (!edited) LiE2->setText(""); });
+	LiE1->connect("ReturnKeyPressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2), 0);
 	LiE2->connect("ReturnKeyPressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2), 0);
 	panel->add(LiE2);
 
 	tgui::CheckBox::Ptr remember = gui->themeTG->load("CheckBox");
 	remember->setText("Remember me");
 	remember->setPosition(120, 160);
+	if (gui->options.rememberme)
+		remember->check();
+	remember->connect("Checked", [&](){ gui->options.rememberme=true; });
+	remember->connect("Unchecked", [&](){ gui->options.rememberme=false; });
 	panel->add(remember);
 
 	tgui::Button::Ptr LiB1 = gui->themeTG->load("Button");
@@ -102,7 +117,17 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 		gui->net.udpSock.bind(sf::Socket::AnyPort);
 		sf::String hash;
 		if (!guest) {
-			hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass, 1);
+			if (!edited && gui->options.rememberme)
+				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + gui->options.hash + "&machineid=" + machineid::machineHash(), 1);
+			else
+				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass + "&machineid=" + machineid::machineHash(), 1);
+			if (gui->options.rememberme)
+				gui->options.hash = hash.substring(20);
+			else
+				gui->options.hash = "null";
+			hash = hash.substring(0,20);
+			gui->options.username=name;
+			gui->options.pass = pass.getSize();
 			sendLogin(hash, guest);
 		}
 		else {
@@ -121,7 +146,7 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 	}
 }
 
-void LoginBox::open() {
+void LoginBox::show() {
 	panel->show();
 	LiE1->focus();
 }

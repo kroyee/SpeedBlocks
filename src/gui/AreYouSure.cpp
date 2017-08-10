@@ -53,6 +53,4 @@ void AreYouSure::ausY() {
 
 void AreYouSure::ausN() {
 	hide();
-	((guiBase*)gui->mainMenu)->enable();
-	((guiBase*)gui->onlineplayUI)->enable();
 }

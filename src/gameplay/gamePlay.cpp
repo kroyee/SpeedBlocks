@@ -484,7 +484,9 @@ bool gamePlay::countDown() {
 	return false;
 }
 
-void gamePlay::countDown(short c) {
+bool gamePlay::countDown(short c) {
+	if (c==255)
+		return false;
 	gameover=false;
 	field.text.setCountdown(c);
 	if (options.sound) {
@@ -496,6 +498,10 @@ void gamePlay::countDown(short c) {
 	draw();
 	if (recorder.rec)
 		addRecEvent(7, c);
+	if (c)
+		return false;
+	else
+		return true;
 }
 
 bool gamePlay::gameOver() {

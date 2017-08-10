@@ -116,7 +116,7 @@ public:
 
 	void startCountdown();
 	bool countDown();
-	void countDown(short);
+	bool countDown(short);
 
 	bool gameOver();
 

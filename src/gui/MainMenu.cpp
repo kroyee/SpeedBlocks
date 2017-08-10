@@ -31,20 +31,9 @@ void Menu::create(sf::Rect<int> _pos, UI* _gui) {
 	panel->add(Quit);
 }
 
-void Menu::playOnline() {
-	disable();
-	gui->loginBox->open();
-}
-
 void Menu::Training() {
 	gui->setGameState(CountDown);
 	gui->game.startCountdown();
-}
-
-void Menu::Options() {
-	//hide();
-	//gui->gameOptions->show();
-	//gui->gameOptions->otab->select(0);
 }
 
 void Menu::quitGame() {

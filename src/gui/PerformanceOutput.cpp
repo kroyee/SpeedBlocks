@@ -163,6 +163,8 @@ void PerformanceOutput::setLongestFrame(sf::Time& lf) {
 }
 
 void PerformanceOutput::setPing(int pingResult) {
+	if (pingResult == -1)
+		return;
 	ping->setText(to_string(pingResult));
 	int pingColor;
 	if (pingResult > 255)

@@ -71,6 +71,10 @@ void optionSet::loadStandardOptions() {
 
 	theme=1;
 	ghostPieceAlpha=120;
+	hash="";
+	rememberme=false;
+	username="";
+	pass=0;
 }
 
 
@@ -131,6 +135,10 @@ void optionSet::loadOptions() {
 			else if (keyword == "animatedBackground") animatedBackground = stoi(line);
 			else if (keyword == "theme") theme = stoi(line);
 			else if (keyword == "ghostPieceAlpha") ghostPieceAlpha = stoi(line);
+			else if (keyword == "hash") hash = line;
+			else if (keyword == "rememberme") rememberme=stoi(line);
+			else if (keyword == "username") username=line;
+			else if (keyword == "pass") pass=stoi(line);
 			else countset--;
 		}
 		file.close();
@@ -138,7 +146,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=44)
+	if (countset!=48)
 		success = 0;
 
 	if (!success)
@@ -187,6 +195,10 @@ void optionSet::saveOptions() {
 		file << "animatedBackground=" << animatedBackground << endl;
 		file << "theme=" << (int)theme << endl;
 		file << "ghostPieceAlpha=" << (int)ghostPieceAlpha << endl;
+		file << "rememberme=" << rememberme << endl;
+		file << "hash=" << hash.toAnsiString() << endl;
+		file << "username=" << username.toAnsiString() << endl;
+		file << "pass=" << pass << endl;
 	}
 	else
 		cout << "Failed" << endl;

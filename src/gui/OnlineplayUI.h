@@ -56,8 +56,6 @@ public:
 	void alertMsg(const sf::Uint16 id1);
 
 	void back();
-
-	void show();
 };
 
 #endif

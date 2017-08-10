@@ -193,7 +193,6 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 	else if (tab == "Back") {
 		gui->areYouSure->label->setText("Leave the server?");
 		gui->areYouSure->show();
-		disable();
 	}
 }
 
@@ -331,9 +330,4 @@ void OnlineplayUI::alertMsg(const sf::Uint16 id1) {
 		if (tournament.id == id1)
 			msg += " in " + tournament.name;
 	gui->quickMsg(msg);
-}
-
-void OnlineplayUI::show() {
-	panel->show();
-	panel->enable();
 }

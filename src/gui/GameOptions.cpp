@@ -25,16 +25,23 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 
 	initSprites();
 
-	SelectKey = gui->themeTG->load("Panel");
-	SelectKey->setSize(300, 100);
-	SelectKey->setPosition(330, 150);
+	SelectKey = tgui::Panel::create();
+	SelectKey->setBackgroundColor(sf::Color(255,255,255,0));
+	SelectKey->setSize(960, 600);
+	SelectKey->setPosition(0, 0);
 	SelectKey->hide();
 	gui->tGui.add(SelectKey);
+
+	tgui::Panel::Ptr box = gui->themeTG->load("Panel");
+	box->setSize(300, 100);
+	box->setPosition(330, 150);
+	SelectKey->add(box);
+
 	tgui::Label::Ptr CKPL = gui->themeTG->load("Label");
 	CKPL->setTextSize(32);
 	CKPL->setText("Press any key");
 	CKPL->setPosition(40, 30);
-	SelectKey->add(CKPL);
+	box->add(CKPL);
 
 	tgui::Label::Ptr LeL = gui->themeTG->load("Label"); // Binding Keys
 	LeL->setPosition(0, 63);
@@ -558,20 +565,16 @@ void GameOptions::volSlide(short i, short vol) {
 
 void GameOptions::setKey(tgui::Button::Ptr _button, sf::Keyboard::Key& _key) {
 	SelectKey->show();
-	GenOpt->disable();
 	key=&_key;
 	button=_button;
 }
 
-void GameOptions::putKey(sf::Event& event) {
+bool GameOptions::putKey(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Key::Escape || event.key.code == -1 ) {
+        if (event.key.code == sf::Keyboard::Key::Escape || event.key.code == -1 )
         	SelectKey->hide();
-        	GenOpt->enable();
-        }
         else {
         	SelectKey->hide();
-        	GenOpt->enable();
 
 			if (event.key.code == gui->options.left) {
 				gui->options.left = sf::Keyboard::Unknown;
@@ -633,7 +636,9 @@ void GameOptions::putKey(sf::Event& event) {
         	*key = event.key.code;
         	button->setText(SFKeyToString(event.key.code));
         }
+        return true;
     }
+    return false;
 }
 
 void GameOptions::rotPiece(short i) {
