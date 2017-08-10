@@ -10,6 +10,7 @@ private:
 	bool edited=false;
 public:
 	tgui::EditBox::Ptr LiE1;
+	tgui::EditBox::Ptr LiE2;
 	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent);
 	void login(const sf::String& name, const sf::String& pass, sf::Uint8 guest);
 	void show();

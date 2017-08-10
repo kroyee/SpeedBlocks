@@ -7,6 +7,9 @@
 #include "OnlineplayUI.h"
 #include "AnimatedBackground.h"
 #include "machineid.h"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	createBase(_pos, _gui, parent);
@@ -34,7 +37,7 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	LiE1->setText(gui->options.username);
 	panel->add(LiE1);
 
-	tgui::EditBox::Ptr LiE2 = gui->themeTG->load("EditBox");
+	LiE2 = gui->themeTG->load("EditBox");
 	LiE2->setPosition(120, 120);
 	LiE2->setSize(180, 30);
 	LiE2->setPasswordCharacter('*');
@@ -121,8 +124,12 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + gui->options.hash + "&machineid=" + machineid::machineHash(), 1);
 			else
 				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass + "&machineid=" + machineid::machineHash(), 1);
-			if (gui->options.rememberme)
-				gui->options.hash = hash.substring(20);
+			if (gui->options.rememberme) {
+				if (hash.getSize() < 40)
+					cout << hash.toAnsiString() << endl << gui->options.hash.toAnsiString() << endl;
+				else
+					gui->options.hash = hash.substring(20);
+			}
 			else
 				gui->options.hash = "null";
 			hash = hash.substring(0,20);
