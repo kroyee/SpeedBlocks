@@ -734,6 +734,12 @@ void UI::setCountdown() {
 	}
 }
 
+void UI::getAlert() {
+	sf::String msg;
+	net.packet >> msg;
+	alertsUI->addAlert(msg);
+}
+
 void UI::handlePacket() {
 	if (net.packetid <100)
 		cout << "Packet id: " << (int)net.packetid << endl;
@@ -915,6 +921,9 @@ void UI::handlePacket() {
 				performanceOutput->ping->hide();
 			}
 		}
+		break;
+		case 10: //Alert msg
+			getAlert();
 		break;
 		case 12: // Incoming chat msg
 			chatScreen->getMsg();

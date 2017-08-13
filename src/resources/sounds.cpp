@@ -37,6 +37,8 @@ sf::String soundBank::loadSounds() {
 		return "sounds/171640__fins__scale-c7.wav";
 	if (!startBeepBuff.loadFromFile(resourcePath() + "sounds/13119__looppool__bell-blip.wav"))
 		return "sounds/13119__looppool__bell-blip.wav";
+	if (!alertBuff.loadFromFile(resourcePath() + "sounds/274183__littlerobotsoundfactory__jingle-win-synth-04.wav"))
+		return "sounds/274183__littlerobotsoundfactory__jingle-win-synth-04.wav";
 
 	pieceDropSound.setBuffer(pieceDropBuff);
 	lineClearSound.setBuffer(lineClearBuff);
@@ -54,6 +56,7 @@ sf::String soundBank::loadSounds() {
 	combo21Sound.setBuffer(combo21Buff);
 	startBeep1Sound.setBuffer(startBeepBuff);
 	startBeep2Sound.setBuffer(startBeepBuff);
+	alertSound.setBuffer(alertBuff);
 
 	startBeep2Sound.setPitch(1.5);
 
@@ -83,6 +86,6 @@ void soundBank::setMusicVolume(short vol) {
 
 }
 
-void soundBank::setChatVolume(short vol) {
-
+void soundBank::setAlertVolume(short vol) {
+	alertSound.setVolume(vol);
 }

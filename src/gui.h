@@ -101,6 +101,7 @@ public:
 	void receiveRecording();
 
 	void iGotKicked(sf::Uint16 reason);
+	void getAlert();
 
 	void disconnect();
 

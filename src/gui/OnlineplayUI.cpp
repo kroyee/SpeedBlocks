@@ -4,6 +4,7 @@
 #include "MainMenu.h"
 #include "gamePlay.h"
 #include "AreYouSure.h"
+#include "AlertsUI.h"
 using std::to_string;
 using std::cout;
 using std::endl;
@@ -329,5 +330,5 @@ void OnlineplayUI::alertMsg(const sf::Uint16 id1) {
 	for (auto&& tournament : tournamentList.items)
 		if (tournament.id == id1)
 			msg += " in " + tournament.name;
-	gui->quickMsg(msg);
+	gui->alertsUI->addAlert(msg);
 }

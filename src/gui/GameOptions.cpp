@@ -385,7 +385,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 	SndOpt->add(CvS);
 
 	tgui::Label::Ptr CvL = gui->themeTG->load("Label");
-	CvL->setText("Chat Volume");
+	CvL->setText("Alert Volume");
 	CvL->setPosition(240, 250);
 	SndOpt->add(CvL);
 
@@ -694,7 +694,7 @@ void GameOptions::volSlide(short i, short vol) {
 	}
 	else if (i == 3) {
 		gui->options.ChatVolume = vol;
-		gui->resources.sounds.setChatVolume(vol);
+		gui->resources.sounds.setAlertVolume(vol);
 	}
 }
 

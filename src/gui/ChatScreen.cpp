@@ -189,12 +189,11 @@ void ChatScreen::fade(const sf::Time& t) {
 		else break;
 	}
 
-	sf::Uint8 amount = fadingChatBox->getLineAmount();
+	sf::Uint8 amount = fadingChatBox->getScrollbar()->getMaximum();
 	if (!amount || isActive())
 		fadingChatBox->hide();
 	else {
 		fadingChatBox->show();
-		amount = amount* gui->tGui.getFont()->getLineSpacing(chatTextSize);
 		fadingChatBox->setPosition(5, 560-amount);
 		fadingChatBox->setSize(470, amount);
 	}

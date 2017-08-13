@@ -20,6 +20,7 @@ public:
 	sf::SoundBuffer combo19Buff;
 	sf::SoundBuffer combo21Buff;
 	sf::SoundBuffer startBeepBuff;
+	sf::SoundBuffer alertBuff;
 
 	sf::Sound pieceDropSound;
 	sf::Sound lineClearSound;
@@ -37,6 +38,7 @@ public:
 	sf::Sound combo21Sound;
 	sf::Sound startBeep1Sound;
 	sf::Sound startBeep2Sound;
+	sf::Sound alertSound;
 
 	sf::String loadSounds();
 
@@ -56,10 +58,11 @@ public:
 	void combo21() { combo21Sound.play(); }
 	void startBeep1() { startBeep1Sound.play(); }
 	void startBeep2() { startBeep2Sound.play(); }
+	void alert() { alertSound.play(); }
 
 	void setMusicVolume(short vol);
 	void setEffectVolume(short vol);
-	void setChatVolume(short vol);
+	void setAlertVolume(short vol);
 };
 
 #endif

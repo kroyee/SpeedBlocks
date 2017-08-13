@@ -42,6 +42,9 @@ void AlertsUI::addAlert(const sf::String& msg) {
 	panel->add(alerts.back().button);
 
 	update();
+
+	if (gui->options.sound)
+		gui->resources.sounds.alert();
 }
 
 void AlertsUI::removeAlert(sf::Uint16 _id) {
