@@ -33,11 +33,11 @@ SlideMenu::SlideMenu(sf::Rect<int> _pos, UI* gui) : active(false), mouseOver(fal
 
 void SlideMenu::handleEvent(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed)
-		if (event.key.code == sf::Keyboard::LControl) {
+		if (event.key.code == gui->options.menu) {
 			active = !active;
 			panel->focus();
 		}
-	if (event.type == sf::Event::MouseMoved) {
+	if (event.type == sf::Event::MouseMoved && gui->options.mouseMenu) {
 		sf::Vector2f pos = gui->window->mapPixelToCoords(sf::Mouse::getPosition(*gui->window));
 		if (pos.x > posX) {
 			active = true;

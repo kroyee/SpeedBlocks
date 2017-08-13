@@ -2,6 +2,7 @@
 #define SCORESCREEN_H
 
 #include <TGUI/TGUI.hpp>
+#include <SFML/Network.hpp>
 #include "guiBase.h"
 
 class UI;
@@ -21,14 +22,15 @@ private:
 	tgui::Panel::Ptr scrollPanel;
 	tgui::Panel::Ptr highlight;
 	tgui::Scrollbar::Ptr scroll;
-	sf::Uint16 selected;
+	sf::Uint16 selected, roundLenght;
 	sf::Uint8 rowCount;
 	std::vector<ScoreRow> scores;
 public:
 	sf::String unknown;
 	ScoreScreen(sf::Rect<int> _pos, UI* _gui);
 	void clear();
-	void addRow();
+	void getScores(sf::Packet& packet);
+	void addRow(sf::Packet& packet);
 	void selectRow(sf::Uint8 index);
 	void scorePressed(sf::Vector2f pos);
 	void scrolled(int scrollpos);

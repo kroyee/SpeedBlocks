@@ -71,6 +71,10 @@ target_link_libraries(${EXECUTABLE_NAME} ${CURL_LIBRARIES})
 find_package(Threads REQUIRED)
 target_link_libraries (${EXECUTABLE_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
+if (WIN32)
+    target_link_libraries(${EXECUTABLE_NAME} iphlpapi.lib)
+endif()
+
 if(NOT ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/sounds DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

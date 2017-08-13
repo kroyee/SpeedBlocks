@@ -16,7 +16,7 @@ public:
     sf::Keyboard::Key rccw; // Rotate counter-clockwise
     sf::Keyboard::Key r180; // Rotate 180 degrees
     sf::Keyboard::Key hd; // Hard Drop
-    sf::Keyboard::Key chat; // Show chat
+    sf::Keyboard::Key menu; // Show menu
     sf::Keyboard::Key score; // Show score
     sf::Keyboard::Key away; // Go away
     sf::Keyboard::Key ready; // Ready up
@@ -51,6 +51,13 @@ public:
 
     sf::Uint8 theme;
     sf::Uint8 ghostPieceAlpha;
+    sf::Uint8 fieldBackground;
+    sf::Uint8 lineStyle;
+    bool lineColor;
+    bool fieldVLines;
+    bool fieldHLines;
+
+    bool mouseMenu;
 
     sf::String name;
 

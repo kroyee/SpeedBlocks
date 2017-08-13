@@ -118,14 +118,26 @@ void ScoreScreen::clear() {
 
 	rowCount=0;
 }
+#include <iostream>
+void ScoreScreen::getScores(sf::Packet& packet) {
+	sf::Uint8 count;
+	packet >> roundLenght >> count;
+	std::cout << "Getting scores: " << (int)count << " " << roundLenght << std::endl;
+	clear();
+	for (int i=0; i<count; i++)
+		addRow(packet);
+	setItemPos();
+}
 
-void ScoreScreen::addRow() {
+void ScoreScreen::addRow(sf::Packet& packet) {
 	ScoreRow score;
 
-	gui->net.packet >> score.id >> score.combo >> score.sent >> score.received >> score.blocked >> score.bpm;
-	gui->net.packet >> score.spm >> score.rank >> score.position >> score.score >> score.adj;
+	packet >> score.id >> score.combo >> score.sent >> score.received >> score.blocked >> score.bpm;
+	packet >> score.rank >> score.position >> score.score >> score.adj >> score.points;
 
 	score.name = getName(score.id);
+	score.spm = score.sent / (roundLenght / 60.0);
+	score.apm = (score.sent + score.blocked) / (roundLenght / 60.0);
 
 	sf::String rounding = to_string((int)score.adj); //A bit messy-looking way of rounding float to 1 decimal
 	rounding += "." + to_string((int)((score.adj - (int)score.adj)*10));

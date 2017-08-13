@@ -4,6 +4,7 @@
 #include "pieces.h"
 #include "randomizer.h"
 #include "sounds.h"
+#include "FieldBackMaker.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <deque>
@@ -48,6 +49,10 @@ showPressEnterText(true)
 	pressEnterText.setString("press P to start practice");
 
 	updateBasePieces();
+
+	field.backgroundTexture = makeBackground(options.fieldVLines, options.fieldHLines, options.lineStyle, options.lineColor);
+    field.background.setTexture(field.backgroundTexture);
+    field.background.setPosition(5,5);
 }
 
 void gamePlay::startGame() {
@@ -191,7 +196,7 @@ void gamePlay::copyPiece(sf::Uint8 np) {
 }
 
 void gamePlay::draw() {
-	field.drawField();
+	field.drawField(options.fieldVLines | options.fieldHLines);
 	drawNextPiece();
 	if (showPressEnterText)
 		field.texture.draw(pressEnterText);

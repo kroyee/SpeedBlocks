@@ -9,9 +9,6 @@ public:
 	sf::Texture tileTexture;
 	sf::Sprite tile[16];
 
-	sf::Texture fieldBackgroundTexture;
-    sf::Sprite fieldBackground;
-
     sf::Texture logoTexture;
     sf::Sprite logo;
 

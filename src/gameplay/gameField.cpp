@@ -11,6 +11,9 @@ gameField::gameField(Resources& _resources) : resources(_resources), text(_resou
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
     tile = resources.gfx.tile;
+    backRect.setPosition(5,5);
+    backRect.setSize({300,540});
+    setBackColor(resources.options.fieldBackground);
 
     piece.piece=7;
 
@@ -24,6 +27,9 @@ gameField::gameField(const gameField& field) : resources(field.resources), text(
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
     tile = field.tile;
+    backRect.setPosition(5,5);
+    backRect.setSize({300,540});
+    setBackColor(resources.options.fieldBackground);
 
     piece.piece = 7;
 
@@ -40,14 +46,32 @@ void gameField::clear() {
     piece.piece=7;
 }
 
-void gameField::drawField() {
+void gameField::drawField(bool drawLines) {
     texture.clear(sf::Color(255,255,255,0));
-    texture.draw(resources.gfx.fieldBackground);
+    texture.draw(backRect);
+    if (drawLines)
+        texture.draw(background);
     
+    drawEdges();
     drawSquares();
     drawPiece();
     drawGhostPiece();
     text.drawText();
+}
+
+void gameField::drawEdges() {
+    sf::RectangleShape rect;
+    rect.setFillColor(sf::Color(127,127,127,200));
+    rect.setPosition(0,0);
+    rect.setSize({310,5});
+    texture.draw(rect);
+    rect.setPosition(0,545);
+    texture.draw(rect);
+    rect.setPosition(0,5);
+    rect.setSize({5,540});
+    texture.draw(rect);
+    rect.setPosition(305,5);
+    texture.draw(rect);
 }
 
 void gameField::drawSquares() {
@@ -224,10 +248,15 @@ sf::Vector2i gameField::clearlines () {
     return linescleared;
 }
 
+void gameField::setBackColor(sf::Uint8 val) {
+    backRect.setFillColor(sf::Color(val,val,val,225));
+}
+
 void obsField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
-    texture.draw(resources.gfx.fieldBackground);
+    texture.draw(backRect);
     
+    drawEdges();
     drawSquares();
     drawPiece();
     drawGhostPiece();

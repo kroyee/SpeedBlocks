@@ -24,8 +24,8 @@ void optionSet::loadStandardOptions() {
 	rccw = sf::Keyboard::D;
 	r180 = sf::Keyboard::A;
 	hd = sf::Keyboard::Space;
-	chat = sf::Keyboard::LControl;
-	score = sf::Keyboard::LShift;
+	menu = sf::Keyboard::LShift;
+	score = sf::Keyboard::Tab;
 	away = sf::Keyboard::F4;
 	ready = sf::Keyboard::F5;
 
@@ -75,6 +75,13 @@ void optionSet::loadStandardOptions() {
 	rememberme=false;
 	username="";
 	pass=0;
+
+	fieldBackground=128;
+	lineStyle=3;
+	lineColor=false;
+	fieldVLines=false;
+	fieldHLines=false;
+	mouseMenu=true;
 }
 
 
@@ -107,7 +114,7 @@ void optionSet::loadOptions() {
 			else if (keyword == "rccw") rccw = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "r180") r180 = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "hd") hd = sf::Keyboard::Key(stoi(line));
-			else if (keyword == "chat") chat = sf::Keyboard::Key(stoi(line));
+			else if (keyword == "menu") menu = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "score") score = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "away") away = sf::Keyboard::Key(stoi(line));
 			else if (keyword == "ready") ready = sf::Keyboard::Key(stoi(line));
@@ -139,6 +146,12 @@ void optionSet::loadOptions() {
 			else if (keyword == "rememberme") rememberme=stoi(line);
 			else if (keyword == "username") username=line;
 			else if (keyword == "pass") pass=stoi(line);
+			else if (keyword == "fieldBackground") fieldBackground=stoi(line);
+			else if (keyword == "fieldVLines") fieldVLines=stoi(line);
+			else if (keyword == "fieldHLines") fieldHLines=stoi(line);
+			else if (keyword == "lineStyle") lineStyle=stoi(line);
+			else if (keyword == "lineColor") lineColor=stoi(line);
+			else if (keyword == "mouseMenu") mouseMenu=stoi(line);
 			else countset--;
 		}
 		file.close();
@@ -146,7 +159,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=48)
+	if (countset!=54)
 		success = 0;
 
 	if (!success)
@@ -167,7 +180,7 @@ void optionSet::saveOptions() {
 		file << "rccw=" << rccw << endl;
 		file << "r180=" << r180 << endl;
 		file << "hd=" << hd << endl;
-		file << "chat=" << chat << endl;
+		file << "menu=" << menu << endl;
 		file << "score=" << score << endl;
 		file << "away=" << away << endl;
 		file << "ready=" << ready << endl;
@@ -199,6 +212,12 @@ void optionSet::saveOptions() {
 		file << "hash=" << hash.toAnsiString() << endl;
 		file << "username=" << username.toAnsiString() << endl;
 		file << "pass=" << pass << endl;
+		file << "fieldBackground=" << (int)fieldBackground << endl;
+		file << "fieldVLines=" << fieldVLines << endl;
+		file << "fieldHLines=" << fieldHLines << endl;
+		file << "lineStyle=" << (int)lineStyle << endl;
+		file << "lineColor=" << lineColor << endl;
+		file << "mouseMenu=" << mouseMenu << endl;
 	}
 	else
 		cout << "Failed" << endl;

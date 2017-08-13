@@ -16,6 +16,11 @@ public:
     sf::Sprite sprite;
     sf::Sprite* tile;
 
+    sf::Texture backgroundTexture;
+    sf::Sprite background;
+
+    sf::RectangleShape backRect;
+
     Resources& resources;
 
     GameFieldText text;
@@ -25,7 +30,8 @@ public:
 
     void clear();
 
-    void drawField();
+    void drawField(bool drawLines);
+    void drawEdges();
     void drawSquares();
     void drawPiece();
     void drawGhostPiece();
@@ -44,8 +50,8 @@ public:
     void addPiece();
 
     void removeline(short y);
-
     sf::Vector2i clearlines();
+    void setBackColor(sf::Uint8 val);
 };
 
 class obsField : public gameField {

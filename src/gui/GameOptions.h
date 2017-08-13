@@ -29,7 +29,7 @@ public:
 	tgui::Button::Ptr BindRCCW;
 	tgui::Button::Ptr BindR180;
 	tgui::Button::Ptr BindHD;
-	tgui::Button::Ptr BindChat;
+	tgui::Button::Ptr BindMenu;
 	tgui::Button::Ptr BindScore;
 	tgui::Button::Ptr BindAway;
 	tgui::Button::Ptr BindReady;

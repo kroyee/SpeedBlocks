@@ -10,15 +10,15 @@ namespace machineid {
 
 // we just need this for purposes of unique machine id. So any one or two mac's is
 // fine.
-u16 hashMacAddress(PIP_ADAPTER_INFO info) {
-	u16 hash = 0;
-	for (u32 i = 0; i < info->AddressLength; i++) {
+uint16_t hashMacAddress(PIP_ADAPTER_INFO info) {
+	uint16_t hash = 0;
+	for (uint32_t i = 0; i < info->AddressLength; i++) {
 		hash += (info->Address[i] << ((i & 1) * 8));
 	}
 	return hash;
 }
 
-void getMacHash(u16 &mac1, u16 &mac2) {
+void getMacHash(uint16_t &mac1, uint16_t &mac2) {
 	IP_ADAPTER_INFO AdapterInfo[32];
 	DWORD dwBufLen = sizeof(AdapterInfo);
 
@@ -34,28 +34,28 @@ void getMacHash(u16 &mac1, u16 &mac2) {
 	// sort the mac addresses. We don't want to invalidate
 	// both macs if they just change order.
 	if (mac1 > mac2) {
-		u16 tmp = mac2;
+		uint16_t tmp = mac2;
 		mac2 = mac1;
 		mac1 = tmp;
 	}
 }
 
-u16 getVolumeHash() {
+uint16_t getVolumeHash() {
 	DWORD serialNum = 0;
 
 	// Determine if this volume uses an NTFS file system.
 	GetVolumeInformation("c:\\", NULL, 0, &serialNum, NULL, NULL, NULL, 0);
-	u16 hash = (u16)((serialNum + (serialNum >> 16)) & 0xFFFF);
+	uint16_t hash = (uint16_t)((serialNum + (serialNum >> 16)) & 0xFFFF);
 
 	return hash;
 }
 
-u16 getCpuHash() {
+uint16_t getCpuHash() {
 	int cpuinfo[4] = {0, 0, 0, 0};
 	__cpuid(cpuinfo, 0);
-	u16 hash = 0;
-	u16 *ptr = (u16 * )(&cpuinfo[0]);
-	for (u32 i = 0; i < 8; i++)
+	uint16_t hash = 0;
+	uint16_t *ptr = (uint16_t * )(&cpuinfo[0]);
+	for (uint32_t i = 0; i < 8; i++)
 		hash += ptr[i];
 
 	return hash;
@@ -83,14 +83,14 @@ const char *getMachineName() {
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 
-#ifdef DARWIN
+#ifdef __APPLE__
 #include <net/if_dl.h>
 #include <ifaddrs.h>
 #include <net/if_types.h>
-#else //!DARWIN
+#else //!__APPLE__
 #include <linux/if.h>
 #include <linux/sockios.h>
-#endif //!DARWIN
+#endif //!__APPLE__
 
 	const char *getMachineName() {
 		static struct utsname u;
@@ -118,7 +118,7 @@ const char *getMachineName() {
 		mac1 = 0;
 		mac2 = 0;
 
-#ifdef DARWIN
+#ifdef __APPLE__
 
 		struct ifaddrs* ifaphead;
 	   if ( getifaddrs( &ifaphead ) != 0 )
@@ -145,7 +145,7 @@ const char *getMachineName() {
 
 	   freeifaddrs( ifaphead );
 
-#else // !DARWIN
+#else // !__APPLE__
 
 		int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP);
 		if (sock < 0)
@@ -183,7 +183,7 @@ const char *getMachineName() {
 
 		close(sock);
 
-#endif // !DARWIN
+#endif // !__APPLE__
 
 		// sort the mac addresses. We don't want to invalidate
 		// both macs if they just change order.
@@ -205,7 +205,7 @@ const char *getMachineName() {
 		return hash;
 	}
 
-#ifdef DARWIN
+#ifdef __APPLE__
 #include <mach-o/arch.h>
 	unsigned short getCpuHash()
 	{
@@ -216,7 +216,7 @@ const char *getMachineName() {
 		return val;
 	}
 
-#else // !DARWIN
+#else // !__APPLE__
 
 	static void getCpuid(unsigned int *eax, unsigned int *ebx, unsigned int *ecx, unsigned int *edx) {
 #ifdef __arm__
@@ -245,7 +245,7 @@ const char *getMachineName() {
 		return hash;
 	}
 
-#endif // !DARWIN
+#endif // !__APPLE__
 #endif
 
 	std::string generateHash(const std::string &bytes) {

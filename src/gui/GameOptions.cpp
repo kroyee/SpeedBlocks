@@ -5,6 +5,7 @@
 #include "MainMenu.h"
 #include "PerformanceOutput.h"
 #include "AnimatedBackground.h"
+#include "FieldBackMaker.h"
 using std::to_string;
 
 #ifdef __APPLE__
@@ -130,14 +131,14 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 	tgui::Label::Ptr ChL = gui->themeTG->load("Label");
 	ChL->setPosition(250, 143);
 	ChL->setSize(90, 30);
-	ChL->setText("Chat");
+	ChL->setText("Menu");
 	ChL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ChL);
-	BindChat = gui->themeTG->load("Button");
-	BindChat->setPosition(350, 140);
-	BindChat->connect("pressed", &GameOptions::setKey, this, BindChat, std::ref(gui->options.chat));
-	BindChat->setText(SFKeyToString(gui->options.chat));
-	GenOpt->add(BindChat);
+	BindMenu = gui->themeTG->load("Button");
+	BindMenu->setPosition(350, 140);
+	BindMenu->connect("pressed", &GameOptions::setKey, this, BindMenu, std::ref(gui->options.menu));
+	BindMenu->setText(SFKeyToString(gui->options.menu));
+	GenOpt->add(BindMenu);
 
 	tgui::Label::Ptr ScL = gui->themeTG->load("Label");
 	ScL->setPosition(250, 183);
@@ -164,13 +165,13 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 	GenOpt->add(BindAway);
 
 	tgui::Label::Ptr ReL = gui->themeTG->load("Label");
-	ReL->setPosition(0, 263);
+	ReL->setPosition(250, 263);
 	ReL->setSize(90, 30);
 	ReL->setText("Ready");
 	ReL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ReL);
 	BindReady = gui->themeTG->load("Button");
-	BindReady->setPosition(100, 260);
+	BindReady->setPosition(350, 260);
 	BindReady->connect("pressed", &GameOptions::setKey, this, BindReady, std::ref(gui->options.ready));
 	BindReady->setText(SFKeyToString(gui->options.ready));
 	GenOpt->add(BindReady);
@@ -445,6 +446,140 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 
 	r_lightTheme->connect("Checked", &UI::lightTheme, gui);
 	r_darkTheme->connect("Checked", &UI::darkTheme, gui);
+
+	tgui::Label::Ptr fbcLabel = gui->themeTG->load("Label");
+	fbcLabel->setPosition(100, 260);
+	fbcLabel->setText("Game field background color and lines");
+	VisOpt->add(fbcLabel);
+
+	tgui::Slider::Ptr fieldBackColor = gui->themeTG->load("Slider");
+	fieldBackColor->setPosition(20, 290);
+	fieldBackColor->setSize(520,30);
+	fieldBackColor->setMaximum(255);
+	fieldBackColor->setValue(gui->options.fieldBackground);
+	fieldBackColor->connect("ValueChanged", [&](int val){
+		gui->options.fieldBackground=val;
+		gui->game.field.setBackColor(val);
+		gui->game.drawMe=true;
+		for (auto& field : gui->gameFieldDrawer.fields)
+			field.setBackColor(val);
+	});
+	VisOpt->add(fieldBackColor);
+
+	tgui::CheckBox::Ptr vlines = gui->themeTG->load("CheckBox");
+	vlines->setText("Vertical lines");
+	vlines->setPosition(20, 340);
+	if (gui->options.fieldVLines)
+		vlines->check();
+	vlines->connect("Checked", [&](){
+		gui->options.fieldVLines=true;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	vlines->connect("Unchecked", [&](){
+		gui->options.fieldVLines=false;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	VisOpt->add(vlines);
+
+	tgui::CheckBox::Ptr hlines = gui->themeTG->load("CheckBox");
+	hlines->setText("Vertical lines");
+	hlines->setPosition(20, 370);
+	if (gui->options.fieldHLines)
+		hlines->check();
+	hlines->connect("Checked", [&](){
+		gui->options.fieldHLines=true;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	hlines->connect("Unchecked", [&](){
+		gui->options.fieldHLines=false;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	VisOpt->add(hlines);
+
+	tgui::Panel::Ptr linestyle = tgui::Panel::create();
+	linestyle->setBackgroundColor(sf::Color(255,255,255,0));
+	linestyle->setPosition(175, 340);
+	linestyle->setSize(100,90);
+	VisOpt->add(linestyle);
+
+	tgui::RadioButton::Ptr style1 = gui->themeTG->load("RadioButton");
+	style1->setPosition(0,0);
+	style1->setText("Full");
+	if (gui->options.lineStyle==1)
+		style1->check();
+	style1->connect("Checked", [&](){
+		gui->options.lineStyle=1;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	linestyle->add(style1);
+
+	tgui::RadioButton::Ptr style2 = gui->themeTG->load("RadioButton");
+	style2->setPosition(0,30);
+	style2->setText("Intersections");
+	if (gui->options.lineStyle==2)
+		style2->check();
+	style2->connect("Checked", [&](){
+		gui->options.lineStyle=2;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	linestyle->add(style2);
+
+	tgui::RadioButton::Ptr style3 = gui->themeTG->load("RadioButton");
+	style3->setPosition(0,60);
+	style3->setText("Faded");
+	if (gui->options.lineStyle==3)
+		style3->check();
+	style3->connect("Checked", [&](){
+		gui->options.lineStyle=3;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	linestyle->add(style3);
+
+	tgui::Panel::Ptr linecolor = tgui::Panel::create();
+	linecolor->setBackgroundColor(sf::Color(255,255,255,0));
+	linecolor->setPosition(320, 340);
+	linecolor->setSize(100,60);
+	VisOpt->add(linecolor);
+
+	tgui::RadioButton::Ptr darkLines = gui->themeTG->load("RadioButton");
+	darkLines->setPosition(0,0);
+	darkLines->setText("Dark");
+	if (gui->options.lineColor)
+		darkLines->check();
+	darkLines->connect("Checked", [&](){
+		gui->options.lineColor=true;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	linecolor->add(darkLines);
+
+	tgui::RadioButton::Ptr lightLines = gui->themeTG->load("RadioButton");
+	lightLines->setPosition(0,30);
+	lightLines->setText("Light");
+	if (!gui->options.lineColor)
+		lightLines->check();
+	lightLines->connect("Checked", [&](){
+		gui->options.lineColor=false;
+		gui->game.drawMe=true;
+		gui->game.field.backgroundTexture = makeBackground(gui->options.fieldVLines, gui->options.fieldHLines, gui->options.lineStyle, gui->options.lineColor);
+	});
+	linecolor->add(lightLines);
+
+	tgui::CheckBox::Ptr mouseMenu = gui->themeTG->load("CheckBox");
+	mouseMenu->setPosition(20, 500);
+	mouseMenu->setText("Menu responds to mouse hovering");
+	if (gui->options.mouseMenu)
+		mouseMenu->check();
+	mouseMenu->connect("Checked", [&](){ gui->options.mouseMenu=true; });
+	mouseMenu->connect("Unchecked", [&](){ gui->options.mouseMenu=false; });
+	VisOpt->add(mouseMenu);
 }
 
 void GameOptions::show(sf::Uint8 index) {
@@ -502,18 +637,18 @@ void GameOptions::sndChecked(bool i) {
 void GameOptions::applyVideo() {
 	if (Fullscreen->isChecked()) {
 		if (!gui->options.fullscreen || gui->options.currentmode != VMSlider->getValue()) {
+			gui->options.fullscreen=true;
 			gui->options.currentmode = VMSlider->getValue();
 			gui->window->close();
 			gui->window->create(gui->options.modes[gui->options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
 			gui->window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-			gui->options.fullscreen=true;
 		}
 	}
 	else if (gui->options.fullscreen) {
+		gui->options.fullscreen=false;
 		gui->window->close();
 		gui->window->create(sf::VideoMode(960, 600), "SpeedBlocks");
 		gui->window->setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-		gui->options.fullscreen=false;
 	}
 
 	if (vSync->isChecked()) {
@@ -611,9 +746,9 @@ bool GameOptions::putKey(sf::Event& event) {
 				BindHD->setText("");
 			}
 
-			if (event.key.code == gui->options.chat) {
-				gui->options.chat = sf::Keyboard::Unknown;
-				BindChat->setText("");
+			if (event.key.code == gui->options.menu) {
+				gui->options.menu = sf::Keyboard::Unknown;
+				BindMenu->setText("");
 			}
 
 			if (event.key.code == gui->options.score) {

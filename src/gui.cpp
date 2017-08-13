@@ -138,6 +138,9 @@ UI::UI(sf::RenderWindow& window_,
 	else
 		darkTheme();
 
+	if (!options.animatedBackground)
+		animatedBackground->disable();
+
 	setOnChatFocus(tGui.getWidgets());
 }
 
@@ -470,7 +473,6 @@ void UI::gameInput(sf::Event& event) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
             if (event.key.code == sf::Keyboard::P && !areYouSure->isVisible()) {
             	if (playonline) {
-            		game.gameover=false;
             		if (challengesGameUI->isVisible())
             			ready();
             		else
@@ -491,7 +493,7 @@ void UI::gameInput(sf::Event& event) {
 void UI::windowEvents(sf::Event& event) {
 	if (event.type == sf::Event::Closed)
         window->close();
-    else if (event.type == sf::Event::Resized && options.currentmode == -1) {
+    else if (event.type == sf::Event::Resized && !options.fullscreen) {
         resizeWindow(event);
     }
 }
@@ -697,7 +699,7 @@ void UI::sendGameState() {
 void UI::sendGameOver() {
 	sf::Uint8 packetid = 3;
 	net.packet.clear();
-	net.packet << packetid << game.combo.maxCombo << game.linesSent << game.linesRecieved << game.garbage.linesBlocked << game.bpm << game.linesPerMinute;
+	net.packet << packetid << game.combo.maxCombo << game.linesSent << game.linesRecieved << game.garbage.linesBlocked << game.bpm;
 	net.sendTCP();
 	game.sendgameover=false;
 
@@ -708,10 +710,12 @@ void UI::sendGameWinner() {
 	sf::Uint8 packetid = 4;
 	net.packet.clear();
 	net.packet << packetid << game.combo.maxCombo << game.linesSent << game.linesRecieved << game.garbage.linesBlocked;
-	net.packet << game.bpm << game.linesPerMinute << (sf::Uint32)game.recorder.duration.asMilliseconds();
+	net.packet << game.bpm << (sf::Uint32)game.recorder.duration.asMilliseconds();
 	net.packet << (sf::Uint16)game.pieceCount;
 	net.sendTCP();
 	game.winner=false;
+
+	sendGameState();
 }
 
 void UI::iGotKicked(sf::Uint16 reason) {
@@ -876,14 +880,7 @@ void UI::handlePacket() {
 			quickMsg("Your score of " + text);
 		}
 		case 8: // Round score data
-		{
-			sf::Uint8 count;
-			net.packet >> count;
-			scoreScreen->clear();
-			for (int i=0; i<count; i++)
-				scoreScreen->addRow();
-			scoreScreen->setItemPos();
-		}
+			scoreScreen->getScores(net.packet);
 		break;
 		case 9: // Auth result
 		{

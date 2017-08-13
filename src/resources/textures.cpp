@@ -31,12 +31,6 @@ sf::String textures::loadTextures() {
     tile[14].setTexture(tileTexture); tile[14].setColor(sf::Color(255,255,255,120));
     tile[15].setTexture(tileTexture); tile[15].setColor(sf::Color(170,170,170,120));
 
-    if (!fieldBackgroundTexture.loadFromFile(resourcePath() + "media/fieldback.png"))
-        return "media/fieldback.png";
-    fieldBackgroundTexture.setSmooth(true);
-
-    fieldBackground.setTexture(fieldBackgroundTexture);
-
     if (!typewriter.loadFromFile(resourcePath() + "media/Kingthings Trypewriter 2.ttf"))
         return "media/Kingthings Trypewriter 2.ttf";
     if (!printFont.loadFromFile(resourcePath() + "media/F25_Bank_Printer.ttf"))

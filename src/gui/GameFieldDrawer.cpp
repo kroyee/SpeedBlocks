@@ -136,8 +136,6 @@ void GameFieldDrawer::resetOppFields() {
 
 void GameFieldDrawer::drawOppField(obsField& field) {
 	field.drawField();
-
-	field.drawNextPiece();
 }
 
 void GameFieldDrawer::drawFields() {
