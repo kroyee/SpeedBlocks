@@ -19,11 +19,6 @@ The ResourcePath.mm/hpp is only for Mac builds to be able to access the game res
 Window/Linux uses EmptyResourcePath.h/cpp to replace it with a NULL function to make
 source able to compile as-is on any OS.
 
-MingwConverter.h is to address a bug in MingW32, witch doesn't give it access to
-standard functions to_string() and stoi(). It's replaced with boost/lexical_cast so
-if you want to compile with MingW32 you need that too.
-This is again included in the source to make it compile as-is.
-
 # Building
 
 Please see the Wiki for additional instructions.
