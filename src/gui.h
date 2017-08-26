@@ -75,6 +75,7 @@ public:
 	bool playonline;
 	bool chatFocused;
 	bool away;
+	bool restart;
 
 	sf::Uint16 linesSent, garbageCleared, linesBlocked;
 

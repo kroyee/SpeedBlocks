@@ -31,6 +31,10 @@ using std::move;
 #include "EmptyResourcePath.h"
 #endif
 
+#define version_major 0
+#define version_minor 1
+#define version_patch 10
+
 UI::UI(sf::RenderWindow& window_,
 	gamePlay& game_)
     : tGui(window_),
@@ -42,10 +46,11 @@ UI::UI(sf::RenderWindow& window_,
       playonline(false),
       chatFocused(false),
       away(false),
+      restart(false),
       linesSent(0),
       garbageCleared(0),
       linesBlocked(0),
-      clientVersion(0),
+      clientVersion(version_major*10000 + version_minor*100 + version_patch),
       udpConfirmed(false),
       gamestate(game_.resources.gamestate),
       gameFieldDrawer(*this),
@@ -313,6 +318,9 @@ void UI::delayCheck() {
 		if (currentTime - quickMsgTime > sf::seconds(5))
 			QuickMsg->hide();
 
+	if (connectingScreen->isVisible())
+		loginBox->checkStatus();
+
 	if (playonline) {
 		if (!udpConfirmed)
 			if (currentTime - udpPortTime > sf::milliseconds(500)) {
@@ -472,6 +480,7 @@ void UI::gameInput(sf::Event& event) {
 	else if (gamestate == GameOver) {
 		if (event.type == sf::Event::KeyPressed && !chatFocused) {
             if (event.key.code == sf::Keyboard::P && !areYouSure->isVisible()) {
+            	game.gameover=false;
             	if (playonline) {
             		if (challengesGameUI->isVisible())
             			ready();
@@ -890,6 +899,7 @@ void UI::handlePacket() {
 		break;
 		case 9: // Auth result
 		{
+			loginBox->t.join();
 			sf::Uint8 success;
 			net.packet >> success;
 			if (success == 1) {
@@ -909,8 +919,12 @@ void UI::handlePacket() {
 			}
 			else {
 				disconnect();
-				if (success == 3)
-					quickMsg("You have the wrong client version, check https://speedblocks.se for updates");
+				if (success == 3) {
+					connectingScreen->label->setText("You have the wrong client version, attempting to patch...");
+					performanceOutput->ping->hide();
+					loginBox->t = std::thread(&PatchCheck::check, &loginBox->patcher, clientVersion);
+					return;
+				}
 				else if (success == 4)
 					quickMsg("Name already in use");
 				else

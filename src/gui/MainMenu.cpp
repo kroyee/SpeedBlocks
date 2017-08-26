@@ -29,6 +29,14 @@ void Menu::create(sf::Rect<int> _pos, UI* _gui) {
 	Quit->setFont(gui->resources.gfx.typewriter);
 	Quit->connect("pressed", &Menu::quitGame, this);
 	panel->add(Quit);
+
+	tgui::Label::Ptr version = gui->themeTG->load("Label");
+	version->setPosition(5,575);
+	int version_patch = (gui->clientVersion % 10000) % 100;
+	int version_minor = ((gui->clientVersion - version_patch) % 10000) / 100;
+	int version_major = (gui->clientVersion - version_minor - version_patch) / 10000;
+	version->setText("v"+std::to_string(version_major)+"."+std::to_string(version_minor)+"."+std::to_string(version_patch));
+	panel->add(version);
 }
 
 void Menu::Training() {
