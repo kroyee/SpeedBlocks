@@ -14,6 +14,9 @@
 using std::cout;
 using std::endl;
 
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#endif
 //#define DEBUG
 
 int main()
@@ -190,7 +193,10 @@ int main()
         #ifdef _WIN32
             std::thread relaunch([](){ system("start SpeedBlocks.exe"); });
         #elif __APPLE__
-            std::thread relaunch([](){ system("open " + resourcePath() + "../MacOS/SpeedBlocks"); });
+            std::thread relaunch([](){
+                std::string cmd = "open " + resourcePath() + "../../../SpeedBlocks.app";
+                system(cmd.c_str());
+            });
         #else
             std::thread relaunch([](){ system("./SpeedBlocks"); });
         #endif

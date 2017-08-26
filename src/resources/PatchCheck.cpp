@@ -11,6 +11,12 @@ using std::to_string;
 #include <string>
 #include <array>
 
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#else
+#include "EmptyResourcePath.h"
+#endif
+
 std::string PatchCheck::exec(const std::string& cmd) {
     std::array<char, 128> buffer;
     std::string result;
@@ -77,7 +83,7 @@ bool PatchCheck::download_file(const std::string& file) {
     	return false;
     }
 
-    std::string filename = "tmp/" + file.substr(file.find('/')+1);
+    std::string filename = resourcePath() + "tmp/" + file.substr(file.find('/')+1);
     std::ofstream ofile(filename, std::ios::binary);
 	if (!ofile.is_open()) {
 		std::cout << "Error saving file: " << file << std::endl;
@@ -95,7 +101,7 @@ bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 		std::string filehash = exec("certutil.exe -hashfile " + filename + " MD5");
 		filehash = filehash.substr(filehash.find('\n')+1, 32);
 	#elif __APPLE__
-		std::string filehash = exec("md5sum -b " + resourcePath() + filename);
+		std::string filehash = exec("md5 -r " + resourcePath() + filename);
 		filehash = filehash.substr(0, filehash.find(' '));
 	#else
 		std::string filehash = exec("md5sum -b " + filename);
@@ -134,20 +140,20 @@ void PatchCheck::apply() {
 			system(cmd.c_str());
 		#elif __APPLE__
 			std::string copyfrom = "tmp/" + filename;
-			if (copyto.compare("."))
+			if (!copyto.compare("."))
 				copyto = "../MacOS/";
 			else
 				copyto = copyto + "/" + filename;
 			std::string cmd = "mv " + resourcePath() + copyfrom + " " + resourcePath() + copyto;
 			system(cmd.c_str());
-			cmd = "chmod +x " + resourcePath() + copyto;
+			cmd = "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
 			system(cmd.c_str());
 		#else
 			std::string copyfrom = "tmp/" + filename;
 			copyto = copyto + "/" + filename;
 			std::string cmd = "mv " + copyfrom + " " + copyto;
 			system(cmd.c_str());
-			cmd = "chmod +x " + copyto;
+			cmd = "chmod +x SpeedBlocks";
 			system(cmd.c_str());
 		#endif
 	}
