@@ -50,8 +50,8 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	}
 	LiE2->connect("TextChanged", [&](){ edited=true; });
 	LiE2->connect("Focused", [&]() { if (!edited) LiE2->setText(""); });
-	LiE1->connect("ReturnKeyPressed", &LoginBox::login, this,/* std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2),*/ 0);
-	LiE2->connect("ReturnKeyPressed", &LoginBox::login, this,/* std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2),*/ 0);
+	LiE1->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 0);
+	LiE2->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiE2);
 
 	tgui::CheckBox::Ptr remember = gui->themeTG->load("CheckBox");
@@ -67,15 +67,7 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	LiB1->setPosition(160, 200);
 	LiB1->setSize(100, 40);
 	LiB1->setText("Login");
-	//LiB1->connect("pressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2), 0);
-	LiB1->connect("pressed", [&](){
-		gui->mainMenu->hide();
-		gui->connectingScreen->show();
-		gui->connectingScreen->label->setText("Connecting to server...");
-		name = LiE1->getText();
-		pass = LiE2->getText();
-		t = std::thread(&LoginBox::login, this, 0);
-	});
+	LiB1->connect("pressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiB1);
 
 	tgui::Button::Ptr regButton = gui->themeTG->load("Button");
@@ -105,18 +97,25 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	tgui::EditBox::Ptr LiE3 = gui->themeTG->load("EditBox");
 	LiE3->setPosition(120, 360);
 	LiE3->setSize(180, 30);
-	LiE3->connect("ReturnKeyPressed", &LoginBox::login, this,/* std::bind(&tgui::EditBox::getText, LiE3), "",*/ 1);
+	LiE3->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiE3);
 
 	tgui::Button::Ptr LiB3 = gui->themeTG->load("Button");
 	LiB3->setPosition(135, 410);
 	LiB3->setSize(150, 40);
 	LiB3->setText("Login as Guest");
-	LiB3->connect("pressed", &LoginBox::login, this,/* std::bind(&tgui::EditBox::getText, LiE3), "",*/ 1);
+	LiB3->connect("pressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiB3);
 }
 
-void LoginBox::login(sf::Uint8 guest) {
+void LoginBox::launchLogin(sf::Uint8 guest) {
+	gui->mainMenu->hide();
+	gui->connectingScreen->show();
+	gui->connectingScreen->label->setText("Connecting to server...");
+	t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
+}
+
+void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 	if (guest && !name.getSize())
 		return;
 	patcher.status=1;
@@ -139,7 +138,7 @@ void LoginBox::login(sf::Uint8 guest) {
 			else
 				gui->options.hash = "null";
 			patcher.status=3;
-			hash = (hash.getSize() >= 20 ? hash.substring(0,20) : "null");
+			hash = hash.substring(0,20);
 			gui->options.username=name;
 			gui->options.pass = pass.getSize();
 			sendLogin(hash, guest);
