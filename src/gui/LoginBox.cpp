@@ -139,7 +139,7 @@ void LoginBox::login(sf::Uint8 guest) {
 			else
 				gui->options.hash = "null";
 			patcher.status=3;
-			hash = hash.substring(0,20);
+			hash = (hash.getSize() >= 20 ? hash.substring(0,20) : "null");
 			gui->options.username=name;
 			gui->options.pass = pass.getSize();
 			sendLogin(hash, guest);
@@ -194,13 +194,19 @@ void LoginBox::checkStatus() {
 	}
 	else if (patcher.status == -3) {
 		t.join();
-		gui->quickMsg("Error downloading or saving file");
+		gui->quickMsg("Error downloading file");
 		gui->connectingScreen->hide();
 		gui->mainMenu->show();
 	}
 	else if (patcher.status == -4) {
 		t.join();
 		gui->quickMsg("The md5-sum for downloaded file did not match, aborting");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	else if (patcher.status == -5) {
+		t.join();
+		gui->quickMsg("Error saving file");
 		gui->connectingScreen->hide();
 		gui->mainMenu->show();
 	}

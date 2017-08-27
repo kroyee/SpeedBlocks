@@ -1,8 +1,11 @@
 #include "PatchCheck.h"
 #include <SFML/Network.hpp>
 #include <fstream>
+#include <curl/curl.h>
 using json = nlohmann::json;
 using std::to_string;
+using std::cout;
+using std::endl;
 
 #include <cstdio>
 #include <iostream>
@@ -52,8 +55,9 @@ void PatchCheck::check(int version) {
 	status=5;
 
 	for (auto it = j1.begin(); it != j1.end(); it++) {
-		if (!download_file(it.key())) {
-			status=-3;
+		int result = download_file(it.key());
+		if (result) {
+			status=result;
 			return;
 		}
 		if (!check_md5(it.key(), it.value())) {
@@ -66,33 +70,6 @@ void PatchCheck::check(int version) {
 
 	status=6;
 	return;
-}
-
-bool PatchCheck::download_file(const std::string& file) {
-	sf::Http Http("http://speedblocks.se");
-	
-	std::string sURI = "/update/" + file;
-
-	sf::Http::Request Request(sURI, sf::Http::Request::Get);
-
-    sf::Http::Response Page = Http.sendRequest(Request);
-
-    if (Page.getStatus() != sf::Http::Response::Ok) {
-    	std::cout << Page.getStatus() << std::endl;
-    	std::cout << "Error downloading file: " << file << std::endl;
-    	return false;
-    }
-
-    std::string filename = resourcePath() + "tmp/" + file.substr(file.find('/')+1);
-    std::ofstream ofile(filename, std::ios::binary);
-	if (!ofile.is_open()) {
-		std::cout << "Error saving file: " << file << std::endl;
-		return false;
-	}
-
-    ofile.write((char*)Page.getBody().c_str(), Page.getBody().size());
-	ofile.close();
-	return true;
 }
 
 bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
@@ -135,8 +112,11 @@ void PatchCheck::apply() {
 
 		#ifdef _WIN32
 			std::string copyfrom = "tmp\\" + filename;
-			copyto = copyto + "\\" + filename;
+			if (copyto.compare(""))
+				copyto = copyto + "\\" + filename;
 			std::string cmd = "move /y " + copyfrom + " " + copyto;
+			if (!filename.compare("SpeedBlocks.exe"))
+				system("move /y SpeedBlocks.exe SpeedBlocks.exe.old");
 			system(cmd.c_str());
 		#elif __APPLE__
 			std::string copyfrom = "tmp/" + filename;
@@ -165,4 +145,94 @@ std::string PatchCheck::sendPost(const std::string& _request, const std::string&
     request.setField("Content-Type", "application/x-www-form-urlencoded");
 	sf::Http http("http://speedblocks.se");
     return http.sendRequest(request).getBody();
+}
+
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
+ 
+static size_t
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+ 
+  mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
+  if(mem->memory == NULL) {
+    /* out of memory! */ 
+    cout << "not enough memory (realloc returned NULL)" << endl;
+    return 0;
+  }
+ 
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+ 
+  return realsize;
+}
+
+int PatchCheck::download_file(const std::string& file) {
+	CURL *curl;
+	CURLcode res;
+
+	struct MemoryStruct chunk;
+ 
+  	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
+  	chunk.size = 0;    /* no data at this point */ 
+
+  	std::string URL = "https://speedblocks.se/update/" + file;
+
+	char * urlstr = new char [URL.size()+1];
+	std::strcpy (urlstr, URL.c_str());
+
+	curl = curl_easy_init();
+	if(curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, urlstr);
+
+		struct curl_slist *headers = NULL;
+		headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
+		headers = curl_slist_append(headers, "Cache-Control: no-cache");
+		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+		// Specify callbackfunction to get the response
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+  		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+
+		/* Perform the request, res will get the return code */ 
+		res = curl_easy_perform(curl);
+		/* Check for errors */ 
+		if(res != CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+			cout << endl;
+		}
+
+		curl_slist_free_all(headers);
+
+		/* always cleanup */ 
+		curl_easy_cleanup(curl);
+	}
+	else
+		cout << "Curl failed to load" << endl;
+
+	delete[] urlstr;
+
+	if (res == CURLE_OK) {
+		std::string filename = resourcePath() + "tmp/" + file.substr(file.find('/')+1);
+	    std::ofstream ofile(filename, std::ios::binary);
+		if (!ofile.is_open()) {
+			std::cout << "Error saving file: " << file << std::endl;
+			free(chunk.memory);
+			return -5;
+		}
+
+	    ofile.write(chunk.memory, chunk.size);
+		ofile.close();
+		free(chunk.memory);
+		return 0;
+	}
+	else {
+		free(chunk.memory);
+		return -3;
+	}
 }

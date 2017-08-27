@@ -7,7 +7,7 @@
 struct PatchCheck {
 	std::string exec(const std::string& cmd);
 	void check(int version);
-	bool download_file(const std::string& file);
+	int download_file(const std::string& file);
 	bool check_md5(const std::string& file, const std::string& md5);
 	void apply();
 
