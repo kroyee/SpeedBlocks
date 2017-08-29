@@ -79,7 +79,12 @@ void PatchCheck::check(int version) {
 }
 
 bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
-	std::string filename = "tmp/" + file.substr(file.find('/')+1);
+	#ifdef __APPLE__
+		std::string filename = file.substr(file.find('/')+1);
+	#else
+		std::string filename = "tmp/" + file.substr(file.find('/')+1);
+	#endif
+
 	#ifdef _WIN32
 		std::string filehash = exec("certutil.exe -hashfile " + filename + " MD5");
 		filehash = filehash.substr(filehash.find('\n')+1, 32);
@@ -134,8 +139,8 @@ void PatchCheck::apply() {
 				copyto = "../MacOS/";
 			else
 				copyto = copyto + "/" + filename;
-			std::string cmd = "mv " + copyfrom + " " + resourcePath() + copyto;
-			if (exec(cmd.c_str()).compare("")) {
+			std::string cmd = "mv -f " + copyfrom + " " + resourcePath() + copyto;
+			if (system(cmd.c_str())) {
 				applyAsAdmin=true;
 				fullCommand+=cmd + ";";
 			}
@@ -144,7 +149,7 @@ void PatchCheck::apply() {
 		#else
 			std::string copyfrom = "tmp/" + filename;
 			copyto = copyto + "/" + filename;
-			std::string cmd = "mv " + copyfrom + " " + copyto;
+			std::string cmd = "mv -f " + copyfrom + " " + copyto;
 			system(cmd.c_str());
 			cmd = "chmod +x SpeedBlocks";
 			system(cmd.c_str());
