@@ -16,6 +16,7 @@ using std::endl;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
+#include "RunAsAdmin.hpp"
 #else
 #include "EmptyResourcePath.h"
 #endif
@@ -54,6 +55,11 @@ void PatchCheck::check(int version) {
 	files_downloaded = 0;
 	status=5;
 
+	#ifdef __APPLE__
+	macTmpDir = exec("echo $TMPDIR");
+	macTmpDir.pop_back();
+	#endif
+
 	for (auto it = j1.begin(); it != j1.end(); it++) {
 		int result = download_file(it.key());
 		if (result) {
@@ -78,7 +84,7 @@ bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 		std::string filehash = exec("certutil.exe -hashfile " + filename + " MD5");
 		filehash = filehash.substr(filehash.find('\n')+1, 32);
 	#elif __APPLE__
-		std::string filehash = exec("md5 -r " + resourcePath() + filename);
+		std::string filehash = exec("md5 -r " + macTmpDir + filename);
 		filehash = filehash.substr(0, filehash.find(' '));
 	#else
 		std::string filehash = exec("md5sum -b " + filename);
@@ -91,6 +97,10 @@ bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 }
 
 void PatchCheck::apply() {
+	#ifdef __APPLE__
+	bool applyAsAdmin=false;
+	std::string fullCommand="";
+	#endif
 	for (auto it = j1.begin(); it != j1.end(); it++) {
 		std::string filename = it.key();
 		filename = filename.substr(filename.find('/')+1);
@@ -119,13 +129,16 @@ void PatchCheck::apply() {
 				system("move /y SpeedBlocks.exe SpeedBlocks.exe.old");
 			system(cmd.c_str());
 		#elif __APPLE__
-			std::string copyfrom = "tmp/" + filename;
+			std::string copyfrom = macTmpDir + filename;
 			if (!copyto.compare("."))
 				copyto = "../MacOS/";
 			else
 				copyto = copyto + "/" + filename;
-			std::string cmd = "mv " + resourcePath() + copyfrom + " " + resourcePath() + copyto;
-			system(cmd.c_str());
+			std::string cmd = "mv " + copyfrom + " " + resourcePath() + copyto;
+			if (exec(cmd.c_str()).compare("")) {
+				applyAsAdmin=true;
+				fullCommand+=cmd + ";";
+			}
 			cmd = "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
 			system(cmd.c_str());
 		#else
@@ -137,6 +150,12 @@ void PatchCheck::apply() {
 			system(cmd.c_str());
 		#endif
 	}
+	#ifdef __APPLE__
+	if (applyAsAdmin) {
+		fullCommand+= "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
+		runAsAdmin(fullCommand);
+	}
+	#endif
 }
 
 std::string PatchCheck::sendPost(const std::string& _request, const std::string& body) {
@@ -218,7 +237,11 @@ int PatchCheck::download_file(const std::string& file) {
 	delete[] urlstr;
 
 	if (res == CURLE_OK) {
+		#ifdef __APPLE__
+		std::string filename = macTmpDir + file.substr(file.find('/')+1);
+		#else
 		std::string filename = resourcePath() + "tmp/" + file.substr(file.find('/')+1);
+		#endif
 	    std::ofstream ofile(filename, std::ios::binary);
 		if (!ofile.is_open()) {
 			std::cout << "Error saving file: " << file << std::endl;

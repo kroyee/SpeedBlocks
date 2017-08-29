@@ -18,6 +18,10 @@ struct PatchCheck {
 	int status=0;
 	int files_total=0;
 	int files_downloaded=0;
+
+	#ifdef __APPLE__
+	std::string macTmpDir;
+	#endif
 };
 
 #endif

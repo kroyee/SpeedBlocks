@@ -31,6 +31,8 @@ if(APPLE)
 else()
     list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/ResourcePath.hpp)
     list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/ResourcePath.mm)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/RunAsAdmin.hpp)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/RunAsAdmin.mm)
 endif()
 add_executable(${EXECUTABLE_NAME} MACOSX_BUNDLE WIN32 ${SOURCE_FILES})
 
