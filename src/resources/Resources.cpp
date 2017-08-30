@@ -30,14 +30,17 @@ bool loadError(sf::String error) {
 bool Resources::init() {
     if (loadError(gfx.loadTextures()))
         return false;
-    if (loadError(sounds.loadSounds()))
-        return false;
+    if (!options.noSound) {
+        if (loadError(sounds.loadSounds()))
+            return false;
+        sounds.setEffectVolume(options.EffectVolume);
+        sounds.setMusicVolume(options.MusicVolume);
+        sounds.setAlertVolume(options.ChatVolume);
+    }
+    else
+        options.sound=false;
 
     gamestate = MainMenu;
-
-    sounds.setEffectVolume(options.EffectVolume);
-    sounds.setMusicVolume(options.MusicVolume);
-    sounds.setAlertVolume(options.ChatVolume);
 
     gfx.setGhostPieceAlpha(options.ghostPieceAlpha);
 

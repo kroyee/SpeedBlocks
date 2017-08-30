@@ -73,6 +73,7 @@ void optionSet::loadStandardOptions() {
 	ghostPieceAlpha=120;
 	hash="";
 	rememberme=false;
+	noSound=false;
 	username="";
 	pass=0;
 
@@ -152,6 +153,7 @@ void optionSet::loadOptions() {
 			else if (keyword == "lineStyle") lineStyle=stoi(line);
 			else if (keyword == "lineColor") lineColor=stoi(line);
 			else if (keyword == "mouseMenu") mouseMenu=stoi(line);
+			else if (keyword == "noSound") noSound=stoi(line);
 			else countset--;
 		}
 		file.close();
@@ -159,7 +161,7 @@ void optionSet::loadOptions() {
 	else
 		success = 0;
 
-	if (countset!=54)
+	if (countset!=55)
 		success = 0;
 
 	if (!success)
@@ -218,6 +220,7 @@ void optionSet::saveOptions() {
 		file << "lineStyle=" << (int)lineStyle << endl;
 		file << "lineColor=" << lineColor << endl;
 		file << "mouseMenu=" << mouseMenu << endl;
+		file << "noSound=" << noSound << endl;
 	}
 	else
 		cout << "Failed" << endl;
