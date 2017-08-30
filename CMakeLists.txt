@@ -23,6 +23,11 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 add_definitions(-DSFML_NO_DEPRECATED_WARNINGS)
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  set(CMAKE_INSTALL_RPATH "$ORIGIN/lib/:$$ORIGIN/lib/")
+endif()
+
 set(EXECUTABLE_NAME SpeedBlocks)
 file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h  ${CMAKE_SOURCE_DIR}/src/gui/*.cpp ${CMAKE_SOURCE_DIR}/src/gui/*.h  ${CMAKE_SOURCE_DIR}/src/resources/*.cpp ${CMAKE_SOURCE_DIR}/src/resources/*.h  ${CMAKE_SOURCE_DIR}/src/gameplay/*.cpp ${CMAKE_SOURCE_DIR}/src/gameplay/*.h ${CMAKE_SOURCE_DIR}/src/resources/*.hpp ${CMAKE_SOURCE_DIR}/src/resources/*.mm)
 if(APPLE)
