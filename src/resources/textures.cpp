@@ -60,6 +60,7 @@ sf::String textures::loadTextures() {
     sf::Texture text;
     if (!text.loadFromFile(resourcePath() + "media/rotate.png"))
         return "media/rotate.png";
+    text.setSmooth(true);
 
     rotate_n.load(text);
     rotate_h.load(text);
@@ -67,6 +68,7 @@ sf::String textures::loadTextures() {
 
     if (!text.loadFromFile(resourcePath() + "media/choosecolor.png"))
         return "media/choosecolor.png";
+    text.setSmooth(true);
 
     color_n.load(text);
     color_h.load(text);

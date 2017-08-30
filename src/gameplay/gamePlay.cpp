@@ -512,6 +512,7 @@ bool gamePlay::countDown(short c) {
 bool gamePlay::gameOver() {
 	if (!gameover)
 		return false;
+	gameover=false;
 
 	linesPerMinute = (((float)linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
 	bpm = (int)(pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);

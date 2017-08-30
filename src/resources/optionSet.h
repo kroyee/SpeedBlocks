@@ -28,6 +28,7 @@ public:
     bool performanceOutput;
     bool animatedBackground;
     bool rememberme;
+    bool noSound;
     sf::String hash;
     sf::String username;
     short pass;

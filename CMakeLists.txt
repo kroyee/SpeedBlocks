@@ -24,8 +24,17 @@ endif()
 add_definitions(-DSFML_NO_DEPRECATED_WARNINGS)
 
 set(EXECUTABLE_NAME SpeedBlocks)
-file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h  ${CMAKE_SOURCE_DIR}/src/gui/*.cpp ${CMAKE_SOURCE_DIR}/src/gui/*.h  ${CMAKE_SOURCE_DIR}/src/resources/*.cpp ${CMAKE_SOURCE_DIR}/src/resources/*.h  ${CMAKE_SOURCE_DIR}/src/gameplay/*.cpp ${CMAKE_SOURCE_DIR}/src/gameplay/*.h)
-add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES})
+file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h  ${CMAKE_SOURCE_DIR}/src/gui/*.cpp ${CMAKE_SOURCE_DIR}/src/gui/*.h  ${CMAKE_SOURCE_DIR}/src/resources/*.cpp ${CMAKE_SOURCE_DIR}/src/resources/*.h  ${CMAKE_SOURCE_DIR}/src/gameplay/*.cpp ${CMAKE_SOURCE_DIR}/src/gameplay/*.h ${CMAKE_SOURCE_DIR}/src/resources/*.hpp ${CMAKE_SOURCE_DIR}/src/resources/*.mm)
+if(APPLE)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/EmptyResourcePath.h)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/EmptyResourcePath.cpp)
+else()
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/ResourcePath.hpp)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/ResourcePath.mm)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/RunAsAdmin.hpp)
+    list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/resources/RunAsAdmin.mm)
+endif()
+add_executable(${EXECUTABLE_NAME} MACOSX_BUNDLE WIN32 ${SOURCE_FILES})
 
 target_include_directories(SpeedBlocks PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/gui ${CMAKE_SOURCE_DIR}/src/resources ${CMAKE_SOURCE_DIR}/src/gameplay)
 
@@ -75,7 +84,22 @@ if (WIN32)
     target_link_libraries(${EXECUTABLE_NAME} iphlpapi.lib)
 endif()
 
-if(NOT ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_BINARY_DIR})
+if (APPLE)
+    set(BUNDLE_PATH ${CMAKE_CURRENT_BINARY_DIR}/Debug/SpeedBlocks.app)
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/media DESTINATION ${BUNDLE_PATH}/Contents/Resources)
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/sounds DESTINATION ${BUNDLE_PATH}/Contents/Resources)
+    get_filename_component(SFML_LIBRARY_DIR ${SFML_SYSTEM_LIBRARY} DIRECTORY)
+    set(LIBRARIES_DIR ${SFML_LIBRARY_DIR})
+    # Copy freetype manually, since it otherwise just causes problems (I think because it internally uses
+    # @executable_path instead of @rpath)
+    install(DIRECTORY ${SFML_LIBRARY_DIR}/freetype.framework DESTINATION ${BUNDLE_PATH}/Contents/Frameworks)
+    # Let BundleUtilities do everything else automatically
+    install(CODE "
+        include(BundleUtilities)
+        fixup_bundle(\"${BUNDLE_PATH}\" \"\" \"${LIBRARIES_DIR}\")
+        " COMPONENT Runtime
+    )
+elseif(NOT ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/media DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     file(COPY ${CMAKE_SOURCE_DIR}/sounds DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()

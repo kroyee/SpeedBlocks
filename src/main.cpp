@@ -9,11 +9,14 @@
 #include "SlideMenu.h"
 #include <string>
 #include <cmath>
+#include <thread>
 
 using std::cout;
 using std::endl;
 
-#define CLIENT_VERSION 10
+#ifdef __APPLE__
+#include "ResourcePath.hpp"
+#endif
 //#define DEBUG
 
 int main()
@@ -48,7 +51,6 @@ int main()
     delete resources.gfx.icon;
 
     UI gui(window, game);
-    gui.clientVersion = CLIENT_VERSION;
 
     gui.tGui.setView(view);
 
@@ -160,7 +162,6 @@ int main()
                 game.drawMe=false;
             }
             nextDraw+=game.options.frameDelay;
-            //window.draw(resources.gfx.background);
             gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
             if (gui.gamestate != MainMenu && gui.gamestate != Spectating)
                 window.draw( game.field.sprite );
@@ -188,6 +189,19 @@ int main()
     // Things to do before the game turns off
 
     game.options.saveOptions();
+    if (gui.restart) {
+        #ifdef _WIN32
+            std::thread relaunch([](){ system("start SpeedBlocks.exe"); });
+        #elif __APPLE__
+            std::thread relaunch([](){
+                std::string cmd = "open " + resourcePath() + "../../../SpeedBlocks.app";
+                system(cmd.c_str());
+            });
+        #else
+            std::thread relaunch([](){ system("./SpeedBlocks"); });
+        #endif
+        relaunch.detach();
+    }
 
     return 0;
 }

@@ -25,5 +25,8 @@ build/
 #mac shit
 .DS_Store
 
+#automated update/build/upload script to prepare new patch
+patch.sh
+
 #use .gitkeep to track empty directories
 !*.gitkeep

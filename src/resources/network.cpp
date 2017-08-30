@@ -126,6 +126,7 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
 
 	if (res == CURLE_OK) {
 		sf::String response(chunk.memory);
+		free(chunk.memory);
 		return response;
 	}
 	else

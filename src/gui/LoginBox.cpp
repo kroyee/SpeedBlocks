@@ -10,6 +10,7 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+using std::to_string;
 
 void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	createBase(_pos, _gui, parent);
@@ -49,8 +50,8 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	}
 	LiE2->connect("TextChanged", [&](){ edited=true; });
 	LiE2->connect("Focused", [&]() { if (!edited) LiE2->setText(""); });
-	LiE1->connect("ReturnKeyPressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2), 0);
-	LiE2->connect("ReturnKeyPressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2), 0);
+	LiE1->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 0);
+	LiE2->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiE2);
 
 	tgui::CheckBox::Ptr remember = gui->themeTG->load("CheckBox");
@@ -66,7 +67,7 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	LiB1->setPosition(160, 200);
 	LiB1->setSize(100, 40);
 	LiB1->setText("Login");
-	LiB1->connect("pressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE1), std::bind(&tgui::EditBox::getText, LiE2), 0);
+	LiB1->connect("pressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiB1);
 
 	tgui::Button::Ptr regButton = gui->themeTG->load("Button");
@@ -85,41 +86,45 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 
 	tgui::Label::Ptr LiL4 = gui->themeTG->load("Label");
 	LiL4->setText("Play as guest");
-	LiL4->setPosition(145, 340);
+	LiL4->setPosition(145, 330);
 	panel->add(LiL4);
 
 	tgui::Label::Ptr LiL3 = gui->themeTG->load("Label");
 	LiL3->setText("Name");
-	LiL3->setPosition(53, 373);
+	LiL3->setPosition(53, 363);
 	panel->add(LiL3);
 
 	tgui::EditBox::Ptr LiE3 = gui->themeTG->load("EditBox");
-	LiE3->setPosition(120, 370);
+	LiE3->setPosition(120, 360);
 	LiE3->setSize(180, 30);
-	LiE3->connect("ReturnKeyPressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE3), "", 1);
+	LiE3->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiE3);
 
 	tgui::Button::Ptr LiB3 = gui->themeTG->load("Button");
-	LiB3->setPosition(135, 420);
+	LiB3->setPosition(135, 410);
 	LiB3->setSize(150, 40);
 	LiB3->setText("Login as Guest");
-	LiB3->connect("pressed", &LoginBox::login, this, std::bind(&tgui::EditBox::getText, LiE3), "", 1);
+	LiB3->connect("pressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiB3);
 }
 
-void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 guest) {
-	if (guest && !name.getSize())
-		return;
+void LoginBox::launchLogin(sf::Uint8 guest) {
 	gui->mainMenu->hide();
 	gui->connectingScreen->show();
-	gui->animatedBackground->draw(*gui->window, gui->delayClock.getElapsedTime()); //Update the screen so a block on connect will show the connecting screen
-	gui->tGui.draw();
-	gui->window->display();
+	gui->connectingScreen->label->setText("Connecting to server...");
+	t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
+}
+
+void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
+	if (guest && !name.getSize())
+		return;
+	patcher.status=1;
 	if (gui->net.connect() == sf::Socket::Done) {
 		gui->net.udpSock.unbind();
 		gui->net.udpSock.bind(sf::Socket::AnyPort);
 		sf::String hash;
 		if (!guest) {
+			patcher.status=2;
 			if (!edited && gui->options.rememberme)
 				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + gui->options.hash + "&machineid=" + machineid::machineHash(), 1);
 			else
@@ -132,12 +137,14 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 			}
 			else
 				gui->options.hash = "null";
+			patcher.status=3;
 			hash = hash.substring(0,20);
 			gui->options.username=name;
 			gui->options.pass = pass.getSize();
 			sendLogin(hash, guest);
 		}
 		else {
+			patcher.status=3;
 			sendLogin(name, guest);
 			gui->game.field.text.setName(name);
 		}
@@ -147,10 +154,62 @@ void LoginBox::login(const sf::String& name, const sf::String& pass, sf::Uint8 g
 	}
 	else {
 		gui->net.disconnect();
+		patcher.status=-1;
+	}
+}
+
+void LoginBox::checkStatus() {
+	if (patcher.status == 2)
+		gui->connectingScreen->label->setText("Doing secure auth with auth-server...");
+	else if (patcher.status == 3)
+		gui->connectingScreen->label->setText("Waiting for auth-response from game-server...");
+	else if (patcher.status == -1) {
+		t.join();
 		gui->quickMsg("Could not connect to server");
 		gui->connectingScreen->hide();
 		gui->mainMenu->show();
 	}
+	else if (patcher.status == 4) {
+		t.join();
+		gui->quickMsg("No new version found");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	else if (patcher.status == 5) {
+		gui->connectingScreen->label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
+	}
+	else if (patcher.status == 6) {
+		t.join();
+		gui->connectingScreen->label->setText("Applying patch...");
+		patcher.apply();
+		gui->restart=true;
+		gui->window->close();
+	}
+	else if (patcher.status == -2) {
+		t.join();
+		gui->quickMsg("Error talking to patch server");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	else if (patcher.status == -3) {
+		t.join();
+		gui->quickMsg("Error downloading file");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	else if (patcher.status == -4) {
+		t.join();
+		gui->quickMsg("The md5-sum for downloaded file did not match, aborting");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	else if (patcher.status == -5) {
+		t.join();
+		gui->quickMsg("Error saving file");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	patcher.status=0;
 }
 
 void LoginBox::show() {

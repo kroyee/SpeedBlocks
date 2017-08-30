@@ -340,6 +340,8 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 	SndOpt->setPosition(0, 0);
 	SndOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	SndOpt->hide();
+	if (gui->options.noSound)
+		SndOpt->disable();
 	panel->add(SndOpt);
 
 	tgui::CheckBox::Ptr EsC = gui->themeTG->load("CheckBox");
@@ -484,7 +486,7 @@ void GameOptions::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPa
 	VisOpt->add(vlines);
 
 	tgui::CheckBox::Ptr hlines = gui->themeTG->load("CheckBox");
-	hlines->setText("Vertical lines");
+	hlines->setText("Horizontal lines");
 	hlines->setPosition(20, 370);
 	if (gui->options.fieldHLines)
 		hlines->check();
