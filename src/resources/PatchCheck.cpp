@@ -2,10 +2,6 @@
 #include <SFML/Network.hpp>
 #include <fstream>
 #include <curl/curl.h>
-using json = nlohmann::json;
-using std::to_string;
-using std::cout;
-using std::endl;
 
 #include <cstdio>
 #include <iostream>
@@ -13,6 +9,12 @@ using std::endl;
 #include <stdexcept>
 #include <string>
 #include <array>
+
+#include <cstring>
+
+using std::to_string;
+using std::cout;
+using std::endl;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -33,13 +35,30 @@ std::string PatchCheck::exec(const std::string& cmd) {
     return result;
 }
 
+void PatchCheck::parseJson(const std::string& jsonString) {
+	size_t from = 0, to = 0;
+	while (true) {
+		if (from >= jsonString.size())
+			break;
+		to = jsonString.find(';', from);
+		if (to == std::string::npos)
+			break;
+		std::string key = jsonString.substr(from, to-from);
+		from=to+1;
+		to = jsonString.find(';', from);
+		std::string value = jsonString.substr(from, to-from);
+		from=to+1;
+		j1[key] = value;
+	}
+}
+
 void PatchCheck::check(int version) {
 	#ifdef _WIN32
-		j1 = json::parse(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=win"));
+		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=win"));
 	#elif __APPLE__
-		j1 = json::parse(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=mac"));
+		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=mac"));
 	#else
-		j1 = json::parse(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=linux"));
+		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=linux"));
 	#endif
 	if (j1.find("latest") != j1.end()) {
 		status=4;
@@ -60,13 +79,13 @@ void PatchCheck::check(int version) {
 	macTmpDir.pop_back();
 	#endif
 
-	for (auto it = j1.begin(); it != j1.end(); it++) {
-		int result = download_file(it.key());
+	for (const auto file : j1) {
+		int result = download_file(file.first);
 		if (result) {
 			status=result;
 			return;
 		}
-		if (!check_md5(it.key(), it.value())) {
+		if (!check_md5(file.first, file.second)) {
 			status=-4;
 			return;
 		}
@@ -106,8 +125,8 @@ void PatchCheck::apply() {
 	bool applyAsAdmin=false;
 	std::string fullCommand="";
 	#endif
-	for (auto it = j1.begin(); it != j1.end(); it++) {
-		std::string filename = it.key();
+	for (const auto file : j1) {
+		std::string filename = file.first;
 		filename = filename.substr(filename.find('/')+1);
 
 		size_t pos = filename.find('.');
