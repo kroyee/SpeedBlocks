@@ -21,6 +21,7 @@ build/
 /SpeedBlocks
 /sfml
 /cmake_install.cmake
+install_manifest.txt
 
 #mac shit
 .DS_Store

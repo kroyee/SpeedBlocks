@@ -16,6 +16,8 @@ using std::endl;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
+#elif __WIN32
+#include <windows.h>
 #endif
 //#define DEBUG
 
@@ -47,7 +49,15 @@ int main()
     if (resources.options.vSync)
         window.setVerticalSyncEnabled(true);
 
+    #ifdef __WIN32
+    HICON icon = LoadIcon( (HINSTANCE)GetWindowLong(window.getSystemHandle(), GWL_HINSTANCE), MAKEINTRESOURCE(128) );
+    SendMessage(window.getSystemHandle(), WM_SETICON, ICON_SMALL, (LPARAM)icon);
+    SendMessage(window.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM)icon);
+    #elif __APPLE__
+    #else
     window.setIcon(128, 128, resources.gfx.icon->getPixelsPtr());
+    #endif
+
     delete resources.gfx.icon;
 
     UI gui(window, game);
