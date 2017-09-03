@@ -181,9 +181,13 @@ void LoginBox::checkStatus() {
 	else if (patcher.status == 6) {
 		t.join();
 		gui->connectingScreen->label->setText("Applying patch...");
-		patcher.apply();
-		gui->restart=true;
-		gui->window->close();
+		gui->options.saveOptions();
+		if (patcher.apply()) {
+			gui->restart=true;
+			gui->window->close();
+		}
+		else
+			gui->quickMsg("Failed to apply patch");
 	}
 	else if (patcher.status == -2) {
 		t.join();

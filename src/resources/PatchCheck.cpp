@@ -19,6 +19,10 @@ using std::endl;
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
 #include "RunAsAdmin.hpp"
+#elif __WIN32
+#include "EmptyResourcePath.h"
+#include <windows.h>
+#include <shellapi.h>
 #else
 #include "EmptyResourcePath.h"
 #endif
@@ -75,8 +79,12 @@ void PatchCheck::check(int version) {
 	status=5;
 
 	#ifdef __APPLE__
-	macTmpDir = exec("echo $TMPDIR");
-	macTmpDir.pop_back();
+	tmpDir = exec("echo $TMPDIR");
+	tmpDir.pop_back();
+	#elif __WIN32
+	char tmp[500];
+	GetTempPath(500, tmp);
+	tmpDir = std::string(tmp);
 	#endif
 
 	for (const auto file : j1) {
@@ -100,15 +108,17 @@ void PatchCheck::check(int version) {
 bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 	#ifdef __APPLE__
 		std::string filename = file.substr(file.find('/')+1);
+	#elif __WIN32
+		std::string filename = file.substr(file.find('/')+1);
 	#else
 		std::string filename = "tmp/" + file.substr(file.find('/')+1);
 	#endif
 
 	#ifdef _WIN32
-		std::string filehash = exec("certutil.exe -hashfile " + filename + " MD5");
+		std::string filehash = exec("certutil.exe -hashfile " + tmpDir + filename + " MD5");
 		filehash = filehash.substr(filehash.find('\n')+1, 32);
 	#elif __APPLE__
-		std::string filehash = exec("md5 -r " + macTmpDir + filename);
+		std::string filehash = exec("md5 -r " + tmpDir + filename);
 		filehash = filehash.substr(0, filehash.find(' '));
 	#else
 		std::string filehash = exec("md5sum -b " + filename);
@@ -120,11 +130,9 @@ bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 	return false;
 }
 
-void PatchCheck::apply() {
-	#ifdef __APPLE__
+bool PatchCheck::apply() {
 	bool applyAsAdmin=false;
 	std::string fullCommand="";
-	#endif
 	for (const auto file : j1) {
 		std::string filename = file.first;
 		filename = filename.substr(filename.find('/')+1);
@@ -145,15 +153,18 @@ void PatchCheck::apply() {
 			copyto = "media";
 
 		#ifdef _WIN32
-			std::string copyfrom = "tmp\\" + filename;
+			std::string copyfrom = tmpDir + filename;
 			if (copyto.compare(""))
 				copyto = copyto + "\\" + filename;
 			std::string cmd = "move /y " + copyfrom + " " + copyto;
 			if (!filename.compare("SpeedBlocks.exe"))
 				system("move /y SpeedBlocks.exe SpeedBlocks.exe.old");
-			system(cmd.c_str());
+			if (system(cmd.c_str())) {
+				applyAsAdmin=true;
+				fullCommand += " " + filename;
+			}
 		#elif __APPLE__
-			std::string copyfrom = macTmpDir + filename;
+			std::string copyfrom = tmpDir + filename;
 			if (!copyto.compare("."))
 				copyto = "../MacOS/";
 			else
@@ -169,17 +180,31 @@ void PatchCheck::apply() {
 			std::string copyfrom = "tmp/" + filename;
 			copyto = copyto + "/" + filename;
 			std::string cmd = "mv -f " + copyfrom + " " + copyto;
-			system(cmd.c_str());
+			if (system(cmd.c_str()))
+				return false;
 			cmd = "chmod +x SpeedBlocks";
 			system(cmd.c_str());
 		#endif
 	}
-	#ifdef __APPLE__
+
 	if (applyAsAdmin) {
-		fullCommand+= "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
-		runAsAdmin(fullCommand);
+		#ifdef __APPLE__
+			fullCommand+= "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
+			runAsAdmin(fullCommand);
+		#elif __WIN32
+			char pwd[500];
+			GetCurrentDirectory(500, pwd);
+			std::string launch(pwd);
+			launch+="apply_patch.exe";
+			if ((int)ShellExecute(NULL, "runas", "apply_patch.exe", fullCommand.c_str(), pwd, 0) > 32) {
+				while (true)
+					sf::sleep(sf::seconds(1));
+			}
+			else
+				return false;
+		#endif
 	}
-	#endif
+	return true;
 }
 
 std::string PatchCheck::sendPost(const std::string& _request, const std::string& body) {
@@ -262,9 +287,11 @@ int PatchCheck::download_file(const std::string& file) {
 
 	if (res == CURLE_OK) {
 		#ifdef __APPLE__
-		std::string filename = macTmpDir + file.substr(file.find('/')+1);
+		std::string filename = tmpDir + file.substr(file.find('/')+1);
+		#elif __WIN32
+		std::string filename = tmpDir + file.substr(file.find('/')+1);
 		#else
-		std::string filename = resourcePath() + "tmp/" + file.substr(file.find('/')+1);
+		std::string filename = "tmp/" + file.substr(file.find('/')+1);
 		#endif
 	    std::ofstream ofile(filename, std::ios::binary);
 		if (!ofile.is_open()) {
