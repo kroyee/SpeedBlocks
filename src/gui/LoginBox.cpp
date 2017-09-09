@@ -159,8 +159,14 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 }
 
 void LoginBox::checkStatus() {
-	if (patcher.status == 2)
+	if (patcher.status == 2) {
 		gui->connectingScreen->label->setText("Doing secure auth with auth-server...");
+		gui->connectingScreen->label->setPosition(130, 290);
+		gui->connectingScreen->changelog->hide();
+		gui->connectingScreen->cancel->hide();
+		gui->connectingScreen->apply->hide();
+		gui->connectingScreen->apply->disable();
+	}
 	else if (patcher.status == 3)
 		gui->connectingScreen->label->setText("Waiting for auth-response from game-server...");
 	else if (patcher.status == -1) {
@@ -177,17 +183,17 @@ void LoginBox::checkStatus() {
 	}
 	else if (patcher.status == 5) {
 		gui->connectingScreen->label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
+		gui->connectingScreen->label->setPosition(130, 40);
+		gui->connectingScreen->changelog->setText(patcher.changelog);
+		gui->connectingScreen->changelog->show();
+		gui->connectingScreen->cancel->show();
 	}
 	else if (patcher.status == 6) {
 		t.join();
-		gui->connectingScreen->label->setText("Applying patch...");
-		gui->options.saveOptions();
-		if (patcher.apply()) {
-			gui->restart=true;
-			gui->window->close();
-		}
-		else
-			gui->quickMsg("Failed to apply patch");
+		gui->connectingScreen->label->setText("Patch is ready!");
+		gui->connectingScreen->apply->show();
+		gui->connectingScreen->apply->enable();
+		patcher.finished=true;
 	}
 	else if (patcher.status == -2) {
 		t.join();
@@ -210,6 +216,11 @@ void LoginBox::checkStatus() {
 	else if (patcher.status == -5) {
 		t.join();
 		gui->quickMsg("Error saving file");
+		gui->connectingScreen->hide();
+		gui->mainMenu->show();
+	}
+	else if (patcher.status == -6) {
+		t.join();
 		gui->connectingScreen->hide();
 		gui->mainMenu->show();
 	}

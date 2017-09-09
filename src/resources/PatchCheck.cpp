@@ -41,6 +41,7 @@ std::string PatchCheck::exec(const std::string& cmd) {
 
 void PatchCheck::parseJson(const std::string& jsonString) {
 	size_t from = 0, to = 0;
+	j1.clear();
 	while (true) {
 		if (from >= jsonString.size())
 			break;
@@ -57,6 +58,7 @@ void PatchCheck::parseJson(const std::string& jsonString) {
 }
 
 void PatchCheck::check(int version) {
+	finished=false;
 	#ifdef _WIN32
 		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=win"));
 	#elif __APPLE__
@@ -64,6 +66,7 @@ void PatchCheck::check(int version) {
 	#else
 		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=linux"));
 	#endif
+	if (cancelCheck()) return;
 	if (j1.find("latest") != j1.end()) {
 		status=4;
 		return;
@@ -74,6 +77,11 @@ void PatchCheck::check(int version) {
 	}
 
 	j1.erase("update");
+	changelog = "";
+	if (j1.find("changelog") != j1.end()) {
+		changelog = j1["changelog"];
+		j1.erase("changelog");
+	}
 	files_total = j1.size();
 	files_downloaded = 0;
 	status=5;
@@ -88,11 +96,13 @@ void PatchCheck::check(int version) {
 	#endif
 
 	for (const auto file : j1) {
+		if (cancelCheck()) return;
 		int result = download_file(file.first);
 		if (result) {
 			status=result;
 			return;
 		}
+		if (cancelCheck()) return;
 		if (!check_md5(file.first, file.second)) {
 			status=-4;
 			return;
@@ -100,9 +110,20 @@ void PatchCheck::check(int version) {
 		files_downloaded++;
 		status=5;
 	}
+	if (cancelCheck()) return;
 
 	status=6;
 	return;
+}
+
+bool PatchCheck::cancelCheck() {
+	if (quit) {
+		quit=false;
+		status=-6;
+		return true;
+	}
+	else
+		return false;
 }
 
 bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {

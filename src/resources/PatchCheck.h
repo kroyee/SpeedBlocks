@@ -11,6 +11,7 @@ struct PatchCheck {
 	bool check_md5(const std::string& file, const std::string& md5);
 	bool apply();
 	void parseJson(const std::string& jsonString);
+	bool cancelCheck();
 
 	std::string sendPost(const std::string& _request, const std::string& body);
 
@@ -21,6 +22,10 @@ struct PatchCheck {
 	int files_downloaded=0;
 
 	std::string tmpDir;
+	std::string changelog;
+
+	bool quit=false;
+	bool finished=false;
 };
 
 #endif

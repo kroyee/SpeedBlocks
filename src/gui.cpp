@@ -90,7 +90,7 @@ UI::UI(sf::RenderWindow& window_,
 	replayUI = new ReplayUI;
 	replayUI->create(pos, this);
 
-	pos.left=330; pos.top=250; pos.width=300; pos.height=100;
+	pos.left=0; pos.top=0; pos.width=960; pos.height=600;
 	connectingScreen = new Connecting;
 	connectingScreen->create(pos, this);
 
