@@ -193,7 +193,6 @@ void LoginBox::checkStatus() {
 		gui->connectingScreen->label->setText("Patch is ready!");
 		gui->connectingScreen->apply->show();
 		gui->connectingScreen->apply->enable();
-		patcher.finished=true;
 	}
 	else if (patcher.status == -2) {
 		t.join();

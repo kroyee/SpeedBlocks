@@ -25,7 +25,6 @@ struct PatchCheck {
 	std::string changelog;
 
 	bool quit=false;
-	bool finished=false;
 };
 
 #endif

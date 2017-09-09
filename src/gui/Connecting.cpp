@@ -26,7 +26,7 @@ void Connecting::create(sf::Rect<int> _pos, UI* _gui) {
 	cancel->hide();
 	cancel->connect("pressed", [&](){
 		label->setText("Aborting... waiting for thread to return");
-		if (gui->loginBox->patcher.finished) {
+		if (!gui->loginBox->t.joinable()) {
 			hide();
 			((guiBase*)gui->mainMenu)->show();
 		}

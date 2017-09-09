@@ -58,7 +58,6 @@ void PatchCheck::parseJson(const std::string& jsonString) {
 }
 
 void PatchCheck::check(int version) {
-	finished=false;
 	#ifdef _WIN32
 		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=win"));
 	#elif __APPLE__

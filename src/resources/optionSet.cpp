@@ -11,6 +11,11 @@ using std::ofstream;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
+#elif __WIN32
+#include "EmptyResourcePath.h"
+#include <windows.h>
+#include <shlobj.h>
+#include <stdlib.h>
 #else
 #include "EmptyResourcePath.h"
 #endif
@@ -92,7 +97,20 @@ void optionSet::loadOptions() {
 
 	loadStandardOptions();
 
+	#ifdef __WIN32
+	wchar_t* appdataW[1000];
+	SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, appdataW);
+	char appdata[500];
+	wcstombs(appdata, *appdataW, 500);
+	std::string appdataFolder(appdata);
+	appdataFolder += "\\SpeedBlocks\\";
+	CoTaskMemFree(appdataW[0]);
+	CoTaskMemFree(appdataW);
+
+	ifstream file (appdataFolder + "options.cfg");
+	#else
 	ifstream file (resourcePath() + "options.cfg");
+	#endif
 
 	int countset = 0;
 	bool success = 1;
@@ -169,7 +187,21 @@ void optionSet::loadOptions() {
 }
 
 void optionSet::saveOptions() {
+	#ifdef __WIN32
+	wchar_t* appdataW[1000];
+	SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, appdataW);
+	char appdata[500];
+	wcstombs(appdata, *appdataW, 500);
+	std::string appdataFolder(appdata);
+	appdataFolder += "\\SpeedBlocks\\";
+	CreateDirectory(appdataFolder.c_str(), NULL);
+	CoTaskMemFree(appdataW[0]);
+	CoTaskMemFree(appdataW);
+
+	ofstream file(appdataFolder + "options.cfg");
+	#else
 	ofstream file(resourcePath() + "options.cfg");
+	#endif
     sf::Color col;
 
 	cout << "Saving options..." << endl;
