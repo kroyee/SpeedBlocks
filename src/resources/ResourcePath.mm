@@ -50,3 +50,24 @@ std::string resourcePath(void)
 
     return rpath;
 }
+
+std::string applicationSupportFolder(void) {
+    NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+    
+    NSFileManager* sharedFM = [NSFileManager defaultManager];
+    NSArray* possibleURLs = [sharedFM URLsForDirectory:NSApplicationSupportDirectory
+                                             inDomains:NSUserDomainMask];
+    NSURL* appSupportDir = nil;
+    
+    if ([possibleURLs count] >= 1) {
+        // Use the first directory (if multiple are returned)
+        appSupportDir = [possibleURLs objectAtIndex:0];
+    }
+    NSString* path = [NSString stringWithFormat:@"%@%@", appSupportDir.absoluteString, @"SpeedBlocks/"];
+    std::string dir = [path UTF8String];
+    dir.replace(dir.find("%20"), 3, " ");
+    dir.erase(0,7);
+    
+    [pool drain];
+    return dir;
+}

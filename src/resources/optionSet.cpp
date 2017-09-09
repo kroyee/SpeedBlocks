@@ -11,13 +11,12 @@ using std::ofstream;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
+#include <sys/types.h>
+#include <sys/stat.h>
 #elif __WIN32
-#include "EmptyResourcePath.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <stdlib.h>
-#else
-#include "EmptyResourcePath.h"
 #endif
 
 
@@ -108,8 +107,10 @@ void optionSet::loadOptions() {
 	CoTaskMemFree(appdataW);
 
 	ifstream file (appdataFolder + "options.cfg");
+	#elif __APPLE__
+	ifstream file (applicationSupportFolder() + "options.cfg");
 	#else
-	ifstream file (resourcePath() + "options.cfg");
+	ifstream file ("options.cfg");
 	#endif
 
 	int countset = 0;
@@ -199,8 +200,11 @@ void optionSet::saveOptions() {
 	CoTaskMemFree(appdataW);
 
 	ofstream file(appdataFolder + "options.cfg");
+	#elif __APPLE__
+	mkdir(applicationSupportFolder().c_str(), 0755);
+	ifstream file (applicationSupportFolder() + "options.cfg");
 	#else
-	ofstream file(resourcePath() + "options.cfg");
+	ofstream file("options.cfg");
 	#endif
     sf::Color col;
 

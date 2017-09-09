@@ -39,5 +39,6 @@
 ///
 ////////////////////////////////////////////////////////////
 std::string resourcePath(void);
+std::string applicationSupportFolder(void);
 
 #endif
