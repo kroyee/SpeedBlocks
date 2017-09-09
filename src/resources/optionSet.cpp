@@ -202,7 +202,7 @@ void optionSet::saveOptions() {
 	ofstream file(appdataFolder + "options.cfg");
 	#elif __APPLE__
 	mkdir(applicationSupportFolder().c_str(), 0755);
-	ifstream file (applicationSupportFolder() + "options.cfg");
+	ofstream file (applicationSupportFolder() + "options.cfg");
 	#else
 	ofstream file("options.cfg");
 	#endif
