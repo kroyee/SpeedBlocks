@@ -33,7 +33,7 @@ bool loadError(sf::String error) {
 
 Resources::Resources(sf::RenderWindow& _window) : options(new optionSet), gfx(new textures(_window)),
 sounds(new soundBank(options->sound)), net(new network), window(_window), playonline(false), away(false),
-restart(false) {
+restart(false), chatFocused(false) {
     version_major = 0;
     version_minor = 1;
     version_patch = 10;

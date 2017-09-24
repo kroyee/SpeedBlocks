@@ -137,6 +137,8 @@ public:
 	void setName(const sf::String& name);
 	const sf::String& getName();
 	void updateReplayScreen();
+
+	void handleEvent(sf::Event& event);
 };
 
 #endif

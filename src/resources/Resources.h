@@ -34,7 +34,7 @@ public:
 
 	sf::RenderWindow& window;
 
-	bool playonline, away, restart;
+	bool playonline, away, restart, chatFocused;
 
 	sf::Clock delayClock;
 

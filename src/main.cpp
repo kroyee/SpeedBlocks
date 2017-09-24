@@ -10,6 +10,7 @@
 #include "optionSet.h"
 #include "textures.h"
 #include "network.h"
+#include "GuiElements.h"
 #include <string>
 #include <cmath>
 #include <thread>
@@ -102,7 +103,7 @@ int main()
             scale=1;
         resources.gfx->logo.setPosition(posX, posY);
         resources.gfx->logo.setScale(scale, scale);
-        gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
+        gui.guiElements->animatedBackground.draw(window, gui.delayClock.getElapsedTime());
         window.draw(resources.gfx->logo);
         window.display();
 
@@ -116,7 +117,8 @@ int main()
         sf::Event event;
 
         while (window.pollEvent(event))
-            gui.handleEvent(event);
+            if (gui.handleEvent(event))
+                game.handleEvent(event);
 
         if (resources.playonline)
             while (resources.net->receiveData()) {}
@@ -151,7 +153,7 @@ int main()
             case GameStates::Replay:
                 if (game.playReplay())
                     gui.setGameState(GameStates::GameOver);
-                gui.replayUI->update();
+                gui.guiElements->replayUI.update();
             break;
 
             case GameStates::Practice:
@@ -174,14 +176,14 @@ int main()
                 game.drawMe=false;
             }
             nextDraw+=game.options.frameDelay;
-            gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
+            gui.guiElements->animatedBackground.draw(window, gui.delayClock.getElapsedTime());
             if (gui.gamestate != GameStates::MainMenu && gui.gamestate != GameStates::Spectating)
                 window.draw( game.field.sprite );
-            if (gui.gameFieldDrawer.isVisible())
-                gui.gameFieldDrawer.drawFields();
+            if (gui.guiElements->gameFieldDrawer.isVisible())
+                gui.guiElements->gameFieldDrawer.drawFields();
             resources.gfx->tGui.draw();
             window.display();
-            gui.performanceOutput->frameRate++;
+            gui.guiElements->performanceOutput.frameRate++;
         }
         if (frameClock.getElapsedTime() < nextUpdate) {
             sf::sleep(nextUpdate - frameClock.getElapsedTime() - sf::microseconds(50));
@@ -193,7 +195,7 @@ int main()
         if (nextDraw < current)
             nextDraw=current;
 
-        gui.performanceOutput->update(frameClock.getElapsedTime(), lastFrame);
+        gui.guiElements->performanceOutput.update(frameClock.getElapsedTime(), lastFrame);
 
         lastFrame=current;
     }

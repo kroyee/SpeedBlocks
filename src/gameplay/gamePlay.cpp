@@ -769,3 +769,77 @@ void gamePlay::updateReplayScreen() {
 	playReplay();
 	draw();
 }
+
+void gamePlay::handleEvent(sf::Event& event) {
+	if (resources.gamestate != GameStates::Replay && resources.gamestate != GameStates::MainMenu) {
+		if (event.type == sf::Event::KeyPressed) {
+            if (event.key.code == options.score)
+                Signals::Show(13);
+            else if (event.key.code == options.away && resources.playonline && resources.gamestate != GameStates::Spectating)
+                Signals::Away();
+		}
+		else if (event.type == sf::Event::KeyReleased)
+			if (event.key.code == options.score)
+				Signals::Hide(13);
+	}
+	if (resources.gamestate == GameStates::CountDown) {
+		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
+            if (event.key.code == options.right)
+                rKey=true;
+            else if (event.key.code == options.left)
+                lKey=true;
+        }
+        else if (event.type == sf::Event::KeyReleased) {
+            if (event.key.code == options.right)
+                rKey=false;
+            else if (event.key.code == options.left)
+                lKey=false;
+        }
+	}
+	else if (resources.gamestate == GameStates::Game || resources.gamestate == GameStates::Practice) {
+		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
+            if (event.key.code == options.right)
+                mRKey();
+            else if (event.key.code == options.left)
+                mLKey();
+            else if (event.key.code == options.rcw)
+                rcw();
+            else if (event.key.code == options.rccw)
+                rccw();
+            else if (event.key.code == options.r180)
+                r180();
+            else if (event.key.code == options.down)
+                mDKey();
+            else if (event.key.code == options.hd)
+                hd();
+        }
+        else if (event.type == sf::Event::KeyReleased) {
+            if (event.key.code == options.right)
+                sRKey();
+            else if (event.key.code == options.left)
+                sLKey();
+            else if (event.key.code == options.down)
+                sDKey();
+        }
+	}
+	else if (resources.gamestate == GameStates::GameOver) {
+		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
+            if (event.key.code == sf::Keyboard::P && !Signals::IsVisible(5)) {
+            	gameover=false;
+            	if (resources.playonline) {
+            		if (Signals::IsVisible(8))
+            			Signals::Ready();
+            		else
+            			Signals::SetGameState(GameStates::Practice);
+            	}
+            	else {
+	                Signals::SetGameState(GameStates::CountDown);
+	                startCountdown();
+	                gameover=false;
+            	}
+            }
+            else if (event.key.code == options.ready && resources.playonline)
+            	Signals::Ready();
+        }
+	}
+}
