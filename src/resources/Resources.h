@@ -1,21 +1,52 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-#include "textures.h"
-#include "network.h"
-#include "sounds.h"
-#include "optionSet.h"
+#include <memory>
+#include <list>
+#include <SFML/Graphics.hpp>
 
-enum GameStates { MainMenu, CountDown, Game, GameOver, Replay, Practice, Spectating };
+class AQ;
+class optionSet;
+class textures;
+class soundBank;
+class network;
+
+enum class GameStates : unsigned int { MainMenu, CountDown, Game, GameOver, Replay, Practice, Spectating };
+
+struct clientInfo {
+public:
+	sf::Uint16 id;
+	sf::String name;
+};
 
 class Resources {
 public:
-	optionSet options;
-	textures gfx;
-	soundBank sounds;
-	network net;
+	Resources(sf::RenderWindow& _window);
+	~Resources();
+	optionSet* options;
+	textures* gfx;
+	soundBank* sounds;
+	network* net;
 
 	GameStates gamestate;
+
+	AQ* actions;
+
+	sf::RenderWindow& window;
+
+	bool playonline, away, restart;
+
+	sf::Clock delayClock;
+
+	sf::Uint16 myId;
+
+	sf::String name;
+	std::list<clientInfo> clientList;
+
+	sf::Uint8 version_major;
+	sf::Uint8 version_minor;
+	sf::Uint8 version_patch;
+	sf::Uint16 clientVersion;
 
 	bool init();
 };

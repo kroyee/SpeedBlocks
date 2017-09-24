@@ -1,14 +1,14 @@
 #include "TournamentUI.h"
-#include "gui.h"
-#include "network.h"
 #include "OnlineplayUI.h"
+#include "Signal.h"
+#include <SFML/Network.hpp>
 
 using std::to_string;
 using std::cout;
 using std::endl;
 
-void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel) {
-	createBase(_pos, _gui, parentPanel);
+TournamentUI::TournamentUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel, OnlineplayUI& _opui) :
+guiBase(_pos, _res, parentPanel), onlineplayUI(_opui) {
 
 	signUp = tgui::Panel::create();
 	signUp->setPosition(0,0);
@@ -17,106 +17,106 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	signUp->hide();
 	panel->add(signUp);
 
-	tgui::Label::Ptr widget0 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
 	widget0->setPosition(118,24);
 	widget0->setText("Tournament info");
 	widget0->setTextSize(41);
 	signUp->add(widget0);
 
-	tgui::Label::Ptr widget1 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget1 = resources.gfx->themeTG->load("Label");
 	widget1->setPosition(30,95);
 	widget1->setText("Starting time");
 	widget1->setTextSize(18);
 	signUp->add(widget1);
 
-	tStartingTime = gui->themeTG->load("EditBox");
+	tStartingTime = resources.gfx->themeTG->load("EditBox");
 	tStartingTime->setPosition(165,90);
 	tStartingTime->setSize(270,30);
 	tStartingTime->disable();
 	signUp->add(tStartingTime);
 
-	tgui::Label::Ptr widget3 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget3 = resources.gfx->themeTG->load("Label");
 	widget3->setPosition(546,38);
 	widget3->setText("Players");
 	widget3->setTextSize(18);
 	signUp->add(widget3);
 
-	playerList = gui->themeTG->load("ListBox");
+	playerList = resources.gfx->themeTG->load("ListBox");
 	playerList->setPosition(494,75);
 	playerList->setSize(180,430);
 	playerList->getRenderer()->setTextColor(sf::Color::White);
 	signUp->add(playerList);
 
-	tgui::Label::Ptr widget5 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget5 = resources.gfx->themeTG->load("Label");
 	widget5->setPosition(80,145);
 	widget5->setText("Rounds");
 	widget5->setTextSize(18);
 	signUp->add(widget5);
 
-	tgui::Label::Ptr widget6 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget6 = resources.gfx->themeTG->load("Label");
 	widget6->setPosition(295,145);
 	widget6->setText("Sets");
 	widget6->setTextSize(18);
 	signUp->add(widget6);
 
-	tRounds = gui->themeTG->load("EditBox");
+	tRounds = resources.gfx->themeTG->load("EditBox");
 	tRounds->setPosition(165,140);
 	tRounds->setSize(90,30);
 	tRounds->disable();
 	signUp->add(tRounds);
 
-	tSets = gui->themeTG->load("EditBox");
+	tSets = resources.gfx->themeTG->load("EditBox");
 	tSets->setPosition(344,140);
 	tSets->setSize(90,30);
 	tSets->disable();
 	signUp->add(tSets);
 
-	signUpButton = gui->themeTG->load("Button");
+	signUpButton = resources.gfx->themeTG->load("Button");
 	signUpButton->setPosition(195,290);
 	signUpButton->setSize(210,45);
 	signUpButton->setText("Sign up!");
 	signUpButton->connect("pressed", &TournamentUI::signUpPressed, this);
 	signUp->add(signUpButton);
 
-	tgui::Label::Ptr widget10 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget10 = resources.gfx->themeTG->load("Label");
 	widget10->setPosition(92,195);
 	widget10->setText("Status");
 	widget10->setTextSize(18);
 	signUp->add(widget10);
 
-	tStatus = gui->themeTG->load("EditBox");
+	tStatus = resources.gfx->themeTG->load("EditBox");
 	tStatus->setPosition(165,190);
 	tStatus->setSize(270,30);
 	tStatus->disable();
 	signUp->add(tStatus);
 
-	tgui::Label::Ptr widget11 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget11 = resources.gfx->themeTG->load("Label");
 	widget11->setPosition(96,245);
 	widget11->setText("Grade");
 	widget11->setTextSize(18);
 	signUp->add(widget11);
 
-	tGrade = gui->themeTG->load("EditBox");
+	tGrade = resources.gfx->themeTG->load("EditBox");
 	tGrade->setPosition(165,240);
 	tGrade->setSize(270,30);
 	tGrade->disable();
 	signUp->add(tGrade);
 
-	closeSign = gui->themeTG->load("Button");
+	closeSign = resources.gfx->themeTG->load("Button");
 	closeSign->setPosition(195,390);
 	closeSign->setSize(210,45);
 	closeSign->setText("Close Sign up");
 	closeSign->connect("pressed", &TournamentUI::closeSignPressed, this);
 	signUp->add(closeSign);
 
-	startTournament = gui->themeTG->load("Button");
+	startTournament = resources.gfx->themeTG->load("Button");
 	startTournament->setPosition(195,450);
 	startTournament->setSize(210,45);
 	startTournament->setText("Start tournament");
 	startTournament->connect("pressed", &TournamentUI::startTournamentPressed, this);
 	signUp->add(startTournament);
 
-	tgui::Button::Ptr signUpBack = gui->themeTG->load("Button");
+	tgui::Button::Ptr signUpBack = resources.gfx->themeTG->load("Button");
 	signUpBack->setPosition(50,450);
 	signUpBack->setSize(100,45);
 	signUpBack->setText("Back");
@@ -130,20 +130,20 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	bracket->hide();
 	panel->add(bracket);
 
-	bBack = gui->themeTG->load("Button");
+	bBack = resources.gfx->themeTG->load("Button");
 	bBack->setText("Back");
 	bBack->setSize(60, 30);
 	bBack->connect("pressed", &TournamentUI::goBack, this);
 
-	bStartTournament = gui->themeTG->load("Button");
+	bStartTournament = resources.gfx->themeTG->load("Button");
 	bStartTournament->setText("Start!");
 	bStartTournament->setSize(60, 30);
 	bStartTournament->connect("pressed", &TournamentUI::startTournamentPressed, this);
 
-	bStatus = gui->themeTG->load("Label");
+	bStatus = resources.gfx->themeTG->load("Label");
 	bracket->add(bStatus);
 
-	bWinner = gui->themeTG->load("Label");
+	bWinner = resources.gfx->themeTG->load("Label");
 
 	gameInfo = tgui::Panel::create();
 	gameInfo->setPosition(0,0);
@@ -152,104 +152,104 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	gameInfo->hide();
 	panel->add(gameInfo);
 
-	gameName = gui->themeTG->load("Label");
+	gameName = resources.gfx->themeTG->load("Label");
 	gameName->setPosition(366,17);
 	gameName->setText("Game 1");
 	gameName->setTextSize(40);
 	gameInfo->add(gameName);
 
-	tgui::Label::Ptr widget12 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget12 = resources.gfx->themeTG->load("Label");
 	widget12->setPosition(599,70);
 	widget12->setText("Player 1");
 	widget12->setTextSize(18);
 	gameInfo->add(widget12);
 
-	tgui::Label::Ptr widget13 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget13 = resources.gfx->themeTG->load("Label");
 	widget13->setPosition(803,70);
 	widget13->setText("Player 2");
 	widget13->setTextSize(18);
 	gameInfo->add(widget13);
 
-	player1 = gui->themeTG->load("EditBox");
+	player1 = resources.gfx->themeTG->load("EditBox");
 	player1->setPosition(537,100);
 	player1->setSize(200,30);
 	player1->disable();
 	gameInfo->add(player1);
 
-	player2 = gui->themeTG->load("EditBox");
+	player2 = resources.gfx->themeTG->load("EditBox");
 	player2->setPosition(747,100);
 	player2->setSize(200,30);
 	player2->disable();
 	gameInfo->add(player2);
 
-	tgui::Label::Ptr widget14 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget14 = resources.gfx->themeTG->load("Label");
 	widget14->setPosition(96,103);
 	widget14->setText("Starting time");
 	widget14->setTextSize(18);
 	gameInfo->add(widget14);
 
-	tgui::Label::Ptr widget15 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget15 = resources.gfx->themeTG->load("Label");
 	widget15->setPosition(176,178);
 	widget15->setText("Sets");
 	widget15->setTextSize(18);
 	gameInfo->add(widget15);
 
-	tgui::Label::Ptr widget16 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget16 = resources.gfx->themeTG->load("Label");
 	widget16->setPosition(145,228);
 	widget16->setText("Rounds");
 	widget16->setTextSize(18);
 	gameInfo->add(widget16);
 
-	tgui::Label::Ptr widget17 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget17 = resources.gfx->themeTG->load("Label");
 	widget17->setPosition(156,303);
 	widget17->setText("Status");
 	widget17->setTextSize(18);
 	gameInfo->add(widget17);
 
-	joinButton = gui->themeTG->load("Button");
+	joinButton = resources.gfx->themeTG->load("Button");
 	joinButton->setPosition(280,340);
 	joinButton->setSize(130,35);
 	joinButton->setText("Play");
 	gameInfo->add(joinButton);
 
-	gSpectate = gui->themeTG->load("Button");
+	gSpectate = resources.gfx->themeTG->load("Button");
 	gSpectate->setPosition(280,340);
 	gSpectate->setSize(130, 35);
 	gSpectate->setText("Spectate");
 	gameInfo->add(gSpectate);
 
-	gStartingTime = gui->themeTG->load("EditBox");
+	gStartingTime = resources.gfx->themeTG->load("EditBox");
 	gStartingTime->setPosition(230,100);
 	gStartingTime->setSize(240,30);
 	gStartingTime->disable();
 	gameInfo->add(gStartingTime);
 
-	gSets = gui->themeTG->load("EditBox");
+	gSets = resources.gfx->themeTG->load("EditBox");
 	gSets->setPosition(230,175);
 	gSets->setSize(240,30);
 	gSets->disable();
 	gameInfo->add(gSets);
 
-	gRounds = gui->themeTG->load("EditBox");
+	gRounds = resources.gfx->themeTG->load("EditBox");
 	gRounds->setPosition(230,225);
 	gRounds->setSize(240,30);
 	gRounds->disable();
 	gameInfo->add(gRounds);
 
-	gStatus = gui->themeTG->load("EditBox");
+	gStatus = resources.gfx->themeTG->load("EditBox");
 	gStatus->setPosition(230,300);
 	gStatus->setSize(240,30);
 	gStatus->disable();
 	gameInfo->add(gStatus);
 
-	tgui::Label::Ptr widget19 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget19 = resources.gfx->themeTG->load("Label");
 	widget19->setPosition(709,153);
 	widget19->setText("Results");
 	widget19->setTextSize(18);
 	gameInfo->add(widget19);
 
 	for (int i=0; i<7; i++) {
-		resultLabel[i] = gui->themeTG->load("Label");
+		resultLabel[i] = resources.gfx->themeTG->load("Label");
 		resultLabel[i]->setTextSize(18);
 		resultLabel[i]->setPosition(580,190 + i*40);
 		resultLabel[i]->setText("Set " + to_string(i+1));
@@ -257,7 +257,7 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	}
 
 	for (int i=0; i<7; i++) {
-		p1[i] = gui->themeTG->load("EditBox");
+		p1[i] = resources.gfx->themeTG->load("EditBox");
 		p1[i]->setPosition(650,187 + i*40);
 		p1[i]->setSize(70,30);
 		p1[i]->disable();
@@ -265,30 +265,32 @@ void TournamentUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentP
 	}
 
 	for (int i=0; i<7; i++) {
-		p2[i] = gui->themeTG->load("EditBox");
+		p2[i] = resources.gfx->themeTG->load("EditBox");
 		p2[i]->setPosition(760,187 + i*40);
 		p2[i]->setSize(70,30);
 		p2[i]->disable();
 		gameInfo->add(p2[i]);
 	}
 
-	tgui::Button::Ptr widget27 = gui->themeTG->load("Button");
+	tgui::Button::Ptr widget27 = resources.gfx->themeTG->load("Button");
 	widget27->setPosition(280,400);
 	widget27->setSize(130, 35);
 	widget27->setText("Back");
 	widget27->connect("pressed", &TournamentUI::goBack, this);
 	gameInfo->add(widget27);
+
+	Net::takePacket(23, &TournamentUI::getInfo, this);
+	Net::takePacket(27, &TournamentUI::getUpdate, this);
 }
 
-void TournamentUI::getInfo(sf::Uint16 _myId) {
-	myId = _myId;
+void TournamentUI::getInfo(sf::Packet &packet) {
 	double timetostart;
-	gui->net.packet >> id >> grade >> rounds >> sets >> timetostart;
+	packet >> id >> grade >> rounds >> sets >> timetostart;
 	startingTime = timetostart;
 	status=0;
-	getParticipants();
-	getModerators();
-	getStatus();
+	getParticipants(packet);
+	getModerators(packet);
+	getStatus(packet);
 	gRounds->setText(to_string(rounds));
 	gSets->setText(to_string(sets));
 
@@ -303,7 +305,7 @@ void TournamentUI::getInfo(sf::Uint16 _myId) {
 	else
 		tGrade->setText("Grade E");
 
-	gui->onlineplayUI->hideAllPanels(true);
+	onlineplayUI.hideAllPanels(true);
 	show();
 	gameInfo->hide();
 	bracket->show();
@@ -323,34 +325,33 @@ void TournamentUI::getInfo(sf::Uint16 _myId) {
 			tStatus->setText("Aborted");
 	}
 	else
-		getBracket();
+		getBracket(packet);
 }
 
-void TournamentUI::getUpdate(sf::Uint16 _myId) {
-	myId = _myId;
+void TournamentUI::getUpdate(sf::Packet &packet) {
 	sf::Uint16 tournamentId;
 	sf::Uint8 part;
-	gui->net.packet >> tournamentId >> part;
+	packet >> tournamentId >> part;
 	if (tournamentId != id)
 		return;
 	if (part == 0)
-		getParticipants();
+		getParticipants(packet);
 	else if (part == 1)
-		getModerators();
+		getModerators(packet);
 	else if (part == 2)
-		getStatus();
+		getStatus(packet);
 	else if (part == 3) {
-		getStatus();
-		getBracket();
+		getStatus(packet);
+		getBracket(packet);
 	}
 	else if (part == 4) {
 		sf::Uint16 gameId;
-		gui->net.packet >> gameId;
+		packet >> gameId;
 		for (auto&& game : games)
 			if (game.id == gameId) {
-				gui->net.packet >> game.status;
-				getNewGameNames(game);
-				getResult(game);
+				packet >> game.status;
+				getNewGameNames(game, packet);
+				getResult(game, packet);
 				setButtonColors();
 				if (game.gameName->getText() == gameName->getText()) {
 					setGameStatus(game);
@@ -361,68 +362,68 @@ void TournamentUI::getUpdate(sf::Uint16 _myId) {
 	}
 }
 
-void TournamentUI::getNewGameNames(TGame& game) {
+void TournamentUI::getNewGameNames(TGame& game, sf::Packet &packet) {
 	sf::Uint16 newid;
-	gui->net.packet >> newid;
+	packet >> newid;
 	if (newid) {
 		game.player1_id = newid;
-		gui->net.packet >> game.player1_name;
+		packet >> game.player1_name;
 		game.player1->setText(game.player1_name);
 	}
 
-	gui->net.packet >> newid;
+	packet >> newid;
 	if (newid) {
 		game.player2_id = newid;
-		gui->net.packet >> game.player2_name;
+		packet >> game.player2_name;
 		game.player2->setText(game.player2_name);
 	}
 }
 
-void TournamentUI::getParticipants() {
-	gui->net.packet >> players;
+void TournamentUI::getParticipants(sf::Packet &packet) {
+	packet >> players;
 	playerList->removeAllItems();
 	participants.clear();
 	signUpButton->setText("Sign Up!");
 	for (sf::Uint16 i=0; i<players; i++) {
 		Participant newplayer;
-		gui->net.packet >> newplayer.id >> newplayer.name;
+		packet >> newplayer.id >> newplayer.name;
 		participants.push_back(newplayer);
 		playerList->addItem(newplayer.name);
-		if (newplayer.id == myId)
+		if (newplayer.id == resources.myId)
 			signUpButton->setText("Withdraw");
 	}
 
 	setStatusText();
 }
 
-void TournamentUI::getModerators() {
+void TournamentUI::getModerators(sf::Packet &packet) {
 	sf::Uint8 mod_count;
 	sf::Uint16 mod_id;
-	gui->net.packet >> mod_count;
+	packet >> mod_count;
 	moderator = false;
 	for (sf::Uint8 i = 0; i < mod_count; i++) {
-		gui->net.packet >> mod_id;
-		if (mod_id == myId)
+		packet >> mod_id;
+		if (mod_id == resources.myId)
 			moderator = true;
 	}
 }
 
-void TournamentUI::getStatus() {
-	gui->net.packet >> status;
+void TournamentUI::getStatus(sf::Packet &packet) {
+	packet >> status;
 	setStatusText();
 	setModeratorButtons();
 }
 
-void TournamentUI::getBracket() {
+void TournamentUI::getBracket(sf::Packet &packet) {
 	TGame newgame;
 	games.clear();
-	while (!gui->net.packet.endOfPacket()) {
-		gui->net.packet >> newgame.id >> newgame.depth >> newgame.status;
-		gui->net.packet >> newgame.player1_type;
+	while (!packet.endOfPacket()) {
+		packet >> newgame.id >> newgame.depth >> newgame.status;
+		packet >> newgame.player1_type;
 		if (newgame.player1_type == 1)
-			gui->net.packet >> newgame.player1_id >> newgame.player1_name;
+			packet >> newgame.player1_id >> newgame.player1_name;
 		else if (newgame.player1_type == 2) {
-			gui->net.packet >> newgame.player1_id;
+			packet >> newgame.player1_id;
 			newgame.player1_name = "Game " + to_string(newgame.player1_id);
 		}
 		else if (newgame.player1_type == 3) {
@@ -431,11 +432,11 @@ void TournamentUI::getBracket() {
 			newgame.result.finalScore = "Auto-win";
 		}
 
-		gui->net.packet >> newgame.player2_type;
+		packet >> newgame.player2_type;
 		if (newgame.player2_type == 1)
-			gui->net.packet >> newgame.player2_id >> newgame.player2_name;
+			packet >> newgame.player2_id >> newgame.player2_name;
 		else if (newgame.player2_type == 2) {
-			gui->net.packet >> newgame.player2_id;
+			packet >> newgame.player2_id;
 			newgame.player2_name = "Game " + to_string(newgame.player2_id);
 		}
 		else if (newgame.player2_type == 3) {
@@ -445,7 +446,7 @@ void TournamentUI::getBracket() {
 		}
 
 		if (newgame.status > 2)
-			getResult(newgame);
+			getResult(newgame, packet);
 
 		games.push_back(newgame);
 	}
@@ -457,21 +458,21 @@ void TournamentUI::getBracket() {
 	}
 }
 
-void TournamentUI::getResult(TGame& game) {
-	gui->net.packet >> game.result.p1_sets >> game.result.p2_sets;
+void TournamentUI::getResult(TGame& game, sf::Packet &packet) {
+	packet >> game.result.p1_sets >> game.result.p2_sets;
 
 	game.result.p1_rounds.clear();
 	sf::Uint8 setcount, roundcount;
-	gui->net.packet >> setcount;
+	packet >> setcount;
 	for (sf::Uint8 i=0; i<setcount; i++) {
-		gui->net.packet >> roundcount;
+		packet >> roundcount;
 		game.result.p1_rounds.push_back(roundcount);
 	}
 
 	game.result.p2_rounds.clear();
-	gui->net.packet >> setcount;
+	packet >> setcount;
 	for (sf::Uint8 i=0; i<setcount; i++) {
-		gui->net.packet >> roundcount;
+		packet >> roundcount;
 		game.result.p2_rounds.push_back(roundcount);
 	}
 }
@@ -497,7 +498,7 @@ void TournamentUI::makeBracket() {
 
 	int row = 1, amount_in_row = 1, count = 0;
 	for (auto&& game : games) {
-		game.button = gui->themeTG->load("Button");
+		game.button = resources.gfx->themeTG->load("Button");
 		game.button->setSize(150, 50);
 		int buttonx;
 		int buttony;
@@ -516,14 +517,14 @@ void TournamentUI::makeBracket() {
 		game.button->connect("pressed", &TournamentUI::gamePressed, this, std::ref(game));
 		bracket->add(game.button);
 
-		game.player1 = gui->themeTG->load("Label");
+		game.player1 = resources.gfx->themeTG->load("Label");
 		game.player1->setPosition(buttonx+5, buttony);
 		game.player1->setSize(140, 25);
 		game.player1->setText(game.player1_name);
 		game.player1->disable(false);
 		bracket->add(game.player1);
 
-		game.player2 = gui->themeTG->load("Label");
+		game.player2 = resources.gfx->themeTG->load("Label");
 		game.player2->setPosition(buttonx+5, buttony+25);
 		game.player2->setSize(140, 25);
 		game.player2->setText(game.player2_name);
@@ -531,7 +532,7 @@ void TournamentUI::makeBracket() {
 		bracket->add(game.player2);
 
 		sf::String _gameName = "Game " + to_string(game.id);
-		game.gameName = gui->themeTG->load("Label");
+		game.gameName = resources.gfx->themeTG->load("Label");
 		game.gameName->setText(_gameName);
 		game.gameName->setPosition(buttonx + 10, buttony - 22);
 		game.gameName->setSize(140, 20);
@@ -588,7 +589,7 @@ void TournamentUI::makeBracket() {
 
 void TournamentUI::setButtonColors() {
 	for (auto&& game : games) {
-		if (game.player1_id == myId || game.player2_id == myId)
+		if (game.player1_id == resources.myId || game.player2_id == resources.myId)
 			game.button->getRenderer()->setBorderColor(sf::Color(200, 200, 50));
 		if (game.status == 0 || game.status == 4) {
 			game.button->getRenderer()->setBackgroundColorNormal(sf::Color(200,50,50,150));
@@ -636,7 +637,7 @@ void TournamentUI::setStatusText() {
 	bStatus->setText(statustext);
 	bStatus->setPosition(bracket->getSize().x-bStatus->getSize().x-10, bracket->getSize().y-30);
 
-	for (auto&& item : gui->onlineplayUI->tournamentList.items)
+	for (auto&& item : onlineplayUI.tournamentList.items)
 		if (item.id == id) {
 			sf::String label;
 			if (status == 0)
@@ -672,17 +673,17 @@ void TournamentUI::setModeratorButtons() {
 
 void TournamentUI::signUpPressed() {
 	if (signUpButton->getText() == "Sign Up!")
-		gui->net.sendSignal(9, id);
+		Signals::SendSig(9, id);
 	else
-		gui->net.sendSignal(10, id);
+		Signals::SendSig(10, id);
 }
 
 void TournamentUI::closeSignPressed() {
-	gui->net.sendSignal(11, id);
+	Signals::SendSig(11, id);
 }
 
 void TournamentUI::startTournamentPressed() {
-	gui->net.sendSignal(12, id);
+	Signals::SendSig(12, id);
 }
 
 void TournamentUI::gamePressed(TGame& game) {
@@ -698,7 +699,7 @@ void TournamentUI::gamePressed(TGame& game) {
 	joinButton->connect("pressed", &TournamentUI::playPressed, this, std::ref(game));
 	gSpectate->disconnectAll();
 	gSpectate->connect("pressed", &TournamentUI::spectate, this, std::ref(game));
-	if ((game.status == 2 || game.status == 3) && (game.player1_id == myId || game.player2_id == myId)) {
+	if ((game.status == 2 || game.status == 3) && (game.player1_id == resources.myId || game.player2_id == resources.myId)) {
 		joinButton->show();
 		gSpectate->hide();
 	}
@@ -745,7 +746,7 @@ void TournamentUI::setGameResults(TGame& game) {
 }
 
 void TournamentUI::playPressed(TGame& game) {
-	gui->net.sendSignal(13, id, game.id);
+	Signals::SendSig(13, id, game.id);
 }
 
 void TournamentUI::goBack() {
@@ -755,16 +756,16 @@ void TournamentUI::goBack() {
 	}
 	else {
 		hide();
-		gui->onlineplayUI->tournamentList.show();
-		gui->onlineplayUI->tournamentSidePanel->show();
+		onlineplayUI.tournamentList.show();
+		onlineplayUI.tournamentSidePanel->show();
 	}
 }
 
 void TournamentUI::spectate(TGame& game) {
-	gui->net.sendSignal(19, id, game.id);
+	Signals::SendSig(19, id, game.id);
 }
 
 void TournamentUI::hide() {
-	gui->net.sendSignal(14, id);
+	Signals::SendSig(14, id);
 	panel->hide();
 }

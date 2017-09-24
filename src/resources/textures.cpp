@@ -1,5 +1,4 @@
 #include "textures.h"
-#include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
 #ifdef __APPLE__
@@ -7,6 +6,8 @@
 #else
 #include "EmptyResourcePath.h"
 #endif
+
+textures::textures(sf::RenderWindow& window) : tGui(window) {}
 
 sf::String textures::loadTextures() {
     if (!tileTexture.loadFromFile(resourcePath() + "media/tile.png"))
@@ -80,19 +81,15 @@ sf::String textures::loadTextures() {
 
     gameFieldTextColor = sf::Color(0,0,0,255);
 
-    /*themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
+    themeTG = tgui::Theme::create(resourcePath() + "media/TransparentGrey.txt");
     tgui::Label::Ptr test;
     try {
         test = themeTG->load("Label");
     } catch (tgui::Exception) {
         return "media/TransparentGrey.txt";
     }
-    themeBB = tgui::Theme::create(resourcePath() + "media/BabyBlue.txt");
-    try {
-        test = themeBB->load("Label");
-    } catch (tgui::Exception) {
-        return "media/BabyBlue.txt";
-    }*/
+
+    tGui.setFont(standard);
     
     return "OK";
 }

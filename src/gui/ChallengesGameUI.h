@@ -3,7 +3,7 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class ChallengesGameUI : public guiBase {
 public:
@@ -20,13 +20,15 @@ public:
 	tgui::EditBox::Ptr cheeseLinesRemaining;
 	tgui::EditBox::Ptr cheeseBlocksUsed;
 
-	void create(sf::Rect<int> _pos, UI* _ui);
+	ChallengesGameUI(sf::Rect<int> _pos, Resources& _res);
 
 	void clear();
 	void update();
 	sf::String displayTime(const sf::Time& time);
 	void hideAllPanels();
 	void showPanel(sf::Uint16 whichPanel);
+
+	void hideStartChallengeButton();
 };
 
 #endif

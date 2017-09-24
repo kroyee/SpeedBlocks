@@ -3,7 +3,9 @@
 
 #include "guiBase.h"
 
-class UI;
+namespace sf { class Packet; }
+
+class Resources;
 
 class GameStandings : public guiBase {
 public:
@@ -16,9 +18,9 @@ public:
 	sf::Uint16 p1_id, p2_id;
 	sf::Uint8 _p1_sets, _p2_sets, _p1_rounds, _p2_rounds;
 
-	void create(sf::Rect<int> _pos, UI* _ui);
+	GameStandings(sf::Rect<int> _pos, Resources& _res);
 
-	void setResults();
+	void setResults(sf::Packet &packet);
 	void setWaitTime(sf::Uint16 time);
 	void alignResult();
 };

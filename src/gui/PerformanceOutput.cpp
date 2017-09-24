@@ -1,10 +1,8 @@
 #include "PerformanceOutput.h"
-#include "gui.h"
-#include "Resources.h"
+#include "optionSet.h"
 using std::to_string;
 
-void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
-	createBase(_pos, _gui);
+PerformanceOutput::PerformanceOutput(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	pingIdCount=0;
 	pingReturned=false;
 
@@ -20,18 +18,18 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	longest->setText("");
 	longest->setTextSize(12);
 	longest->setTextColor(sf::Color::Black);
-	longest->setFont(gui->resources.gfx.printFont);
+	longest->setFont(resources.gfx->printFont);
 	longest->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	longest->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(longest);
 
-	longestHeader = gui->themeTG->load("Label");
+	longestHeader = resources.gfx->themeTG->load("Label");
 	longestHeader->setAutoSize(false);
 	longestHeader->setPosition(0,1);
 	longestHeader->setSize(21,13);
 	longestHeader->setText("LFT");
 	longestHeader->setTextSize(10);
-	longestHeader->setFont(gui->resources.gfx.printFont);
+	longestHeader->setFont(resources.gfx->printFont);
 	longestHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	longestHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(longestHeader);
@@ -43,18 +41,18 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	input->setText("");
 	input->setTextSize(12);
 	input->setTextColor(sf::Color::Black);
-	input->setFont(gui->resources.gfx.printFont);
+	input->setFont(resources.gfx->printFont);
 	input->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	input->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(input);
 
-	inputHeader = gui->themeTG->load("Label");
+	inputHeader = resources.gfx->themeTG->load("Label");
 	inputHeader->setAutoSize(false);
 	inputHeader->setPosition(23,1);
 	inputHeader->setSize(28,13);
 	inputHeader->setText("IPS");
 	inputHeader->setTextSize(10);
-	inputHeader->setFont(gui->resources.gfx.printFont);
+	inputHeader->setFont(resources.gfx->printFont);
 	inputHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	inputHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(inputHeader);
@@ -65,19 +63,19 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	frame->setSize(28,15);
 	frame->setText("");
 	frame->setTextSize(12);
-	frame->setFont(gui->resources.gfx.printFont);
+	frame->setFont(resources.gfx->printFont);
 	frame->setTextColor(sf::Color::Black);
 	frame->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	frame->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(frame);
 
-	frameHeader = gui->themeTG->load("Label");
+	frameHeader = resources.gfx->themeTG->load("Label");
 	frameHeader->setAutoSize(false);
 	frameHeader->setPosition(53,1);
 	frameHeader->setSize(28,13);
 	frameHeader->setText("FPS");
 	frameHeader->setTextSize(10);
-	frameHeader->setFont(gui->resources.gfx.printFont);
+	frameHeader->setFont(resources.gfx->printFont);
 	frameHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	frameHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(frameHeader);
@@ -89,25 +87,25 @@ void PerformanceOutput::create(sf::Rect<int> _pos, UI* _gui) {
 	ping->setText("");
 	ping->setTextSize(12);
 	ping->setTextColor(sf::Color::Black);
-	ping->setFont(gui->resources.gfx.printFont);
+	ping->setFont(resources.gfx->printFont);
 	ping->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	ping->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(ping);
 
-	pingHeader = gui->themeTG->load("Label");
+	pingHeader = resources.gfx->themeTG->load("Label");
 	pingHeader->setAutoSize(false);
 	pingHeader->setPosition(83,1);
 	pingHeader->setSize(28,13);
 	pingHeader->setText("MS");
 	pingHeader->setTextSize(10);
-	pingHeader->setFont(gui->resources.gfx.printFont);
+	pingHeader->setFont(resources.gfx->printFont);
 	pingHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	pingHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
 	panel->add(pingHeader);
 }
 
 void PerformanceOutput::update(sf::Time current, sf::Time lastFrame) {
-	if (gui->options.performanceOutput) {
+	if (resources.options->performanceOutput) {
         if (current-lastFrame > longestFrame)
             longestFrame = current-lastFrame;
         frameCount++;

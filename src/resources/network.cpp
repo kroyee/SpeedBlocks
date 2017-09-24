@@ -1,4 +1,5 @@
 #include "network.h"
+#include "Signal.h"
 #include <SFML/Network.hpp>
 #include <iostream>
 #include <cstring>
@@ -9,37 +10,41 @@ network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);
+
+	Signals::SendSignal.connect(&network::sendSignal, this);
+	Signals::SendPacket.connect(&network::sendTCP, this);
+	Signals::SendPacketUDP.connect(&network::sendUDP, this);
+	Signals::SendPing.connect(&network::sendPing, this);
+	Signals::Disconnect.connect(&network::disconnect, this);
 }
 
 network::~network() {
 	curl_global_cleanup();
 }
 
-void network::sendTCP() { while (tcpSock.send(packet) == sf::Socket::Partial) {} }
-void network::sendUDP() { udpSock.send(packet, serverAdd, udpPort); }
+void network::sendTCP(sf::Packet& packet) { while (tcpSock.send(packet) == sf::Socket::Partial) {} }
+void network::sendUDP(sf::Packet& packet) { udpSock.send(packet, serverAdd, udpPort); }
 
-void network::sendSignal(sf::Uint8 signalId, int id1, int id2) {
-	packet.clear();
-	packet << (sf::Uint8)254 << signalId;
-	if (id1 > -1)
-		packet << (sf::Uint16)id1;
-	if (id2 > -1)
-		packet << (sf::Uint16)id2;
-	sendTCP();
+void network::sendSignal(int signalID, int val1, int val2) {
+	sf::Packet packet;
+	packet << (sf::Uint8)254 << static_cast<sf::Uint8>(signalID);
+	if (val1 > -1)
+		packet << static_cast<sf::Uint16>(val1);
+	if (val2 > -1)
+		packet << static_cast<sf::Uint16>(val2);
+	sendTCP(packet);
 }
 
 void network::sendUdpConfirm(sf::Uint16 id) {
-	sf::Uint8 packetid = 99;
-	packet.clear();
-	packet << packetid << id;
-	sendUDP();
+	sf::Packet packet;
+	packet << (sf::Uint8)99 << id;
+	sendUDP(packet);
 }
 
-void network::sendPing(sf::Uint16 myId, sf::Uint8 pingId) {
-	packet.clear();
-	sf::Uint8 packetid = 102;
-	packet << packetid << myId << pingId;
-	sendUDP();
+void network::sendPing(int myID, int pingID) {
+	sf::Packet packet;
+	packet << (sf::Uint8)102 << static_cast<sf::Uint16>(myID) << static_cast<sf::Uint8>(pingID);
+	sendUDP(packet);
 }
 
 struct MemoryStruct {
@@ -140,25 +145,51 @@ sf::Socket::Status network::connect() {
 	return status;
 }
 
+void getSignal(sf::Packet &packet) {
+	sf::Uint8 signalId;
+	sf::Uint16 id1, id2;
+
+	packet >> signalId;
+	if (!packet.endOfPacket()) {
+			packet >> id1;
+		if (!packet.endOfPacket()) {
+			packet >> id2;
+			if (!Net::passOnSignal(signalId, id1, id2))
+				cout << "Error passing on signal " << signalId << "(x,y)" << endl;
+			return;
+		}
+		if (!Net::passOnSignal(signalId, id1))
+			cout << "Error passing on signal " << signalId << "(x)" << endl;
+		return;
+	}
+	if (!Net::passOnSignal(signalId))
+		cout << "Error passing on signal " << signalId << "()" << endl;
+}
+
 bool network::receiveData() {
-	sf::Socket::Status status;
-	packet.clear();
-	status = tcpSock.receive(packet);
+	sf::Packet packet;
+	sf::Socket::Status status = tcpSock.receive(packet);
+	sf::Uint8 packetid;
 	if (status == sf::Socket::Disconnected) {
 		cout << "TCP disconnected" << endl;
-		packetid=255;
+		Signals::Disconnect();
 		return true;
 	}
 	if (status == sf::Socket::Done) {
 		packet >> packetid;
+		if (packetid == 254) {
+			getSignal(packet);
+			return true;
+		}
+		Net::passOnPacket(packetid, packet);
 		return true;
 	}
 	sf::IpAddress receiveAdd;
 	unsigned short receivePort;
-	packet.clear();
 	status = udpSock.receive(packet, receiveAdd, receivePort);
 	if (status == sf::Socket::Done) {
 		packet >> packetid;
+		Net::passOnPacket(packetid, packet);
 		return true;
 	}
 	else if (status != sf::Socket::NotReady)

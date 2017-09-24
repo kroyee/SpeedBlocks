@@ -1,10 +1,18 @@
 #include "sounds.h"
+#include "Signal.h"
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
 #else
 #include "EmptyResourcePath.h"
 #endif
+
+soundBank::soundBank(bool& _sound) : sound(_sound) {
+	Signals::PlaySound.connect(&soundBank::playSound, this);
+	Signals::SetEffectVolume.connect(&soundBank::setEffectVolume, this);
+	Signals::SetMusicVolume.connect(&soundBank::setMusicVolume, this);
+	Signals::SetAlertsVolume.connect(&soundBank::setAlertVolume, this);
+}
 
 sf::String soundBank::loadSounds() {
 	if (!pieceDropBuff.loadFromFile(resourcePath() + "sounds/block.wav"))
@@ -40,52 +48,41 @@ sf::String soundBank::loadSounds() {
 	if (!alertBuff.loadFromFile(resourcePath() + "sounds/274183__littlerobotsoundfactory__jingle-win-synth-04.wav"))
 		return "sounds/274183__littlerobotsoundfactory__jingle-win-synth-04.wav";
 
-	pieceDropSound.setBuffer(pieceDropBuff);
-	lineClearSound.setBuffer(lineClearBuff);
-	garbAddSound.setBuffer(garbAddBuff);
-	lineBlockSound.setBuffer(lineBlockBuff);
-	menuSelSound.setBuffer(menuSelBuff);
-	menuBackSound.setBuffer(menuBackBuff);
-	combo5Sound.setBuffer(combo5Buff);
-	combo8Sound.setBuffer(combo8Buff);
-	combo11Sound.setBuffer(combo11Buff);
-	combo13Sound.setBuffer(combo13Buff);
-	combo15Sound.setBuffer(combo15Buff);
-	combo17Sound.setBuffer(combo17Buff);
-	combo19Sound.setBuffer(combo19Buff);
-	combo21Sound.setBuffer(combo21Buff);
-	startBeep1Sound.setBuffer(startBeepBuff);
-	startBeep2Sound.setBuffer(startBeepBuff);
-	alertSound.setBuffer(alertBuff);
-
-	startBeep2Sound.setPitch(1.5);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(pieceDropBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(lineClearBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(garbAddBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(lineBlockBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(menuSelBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(menuBackBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo5Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo8Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo11Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo13Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo15Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo17Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo19Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(combo21Buff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(startBeepBuff);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(startBeepBuff); soundList.back().setPitch(1.5);
+	soundList.push_back(sf::Sound()); soundList.back().setBuffer(alertBuff);
 
 	return "OK";
 }
 
-void soundBank::setEffectVolume(short vol) {
-    pieceDropSound.setVolume(vol);
-    lineClearSound.setVolume(vol);
-	garbAddSound.setVolume(vol);
-	lineBlockSound.setVolume(vol);
-	menuSelSound.setVolume(vol);
-	menuBackSound.setVolume(vol);
-	combo5Sound.setVolume(vol);
-	combo8Sound.setVolume(vol);
-	combo11Sound.setVolume(vol);
-	combo13Sound.setVolume(vol);
-	combo15Sound.setVolume(vol);
-	combo17Sound.setVolume(vol);
-	combo19Sound.setVolume(vol);
-	combo21Sound.setVolume(vol);
-	startBeep1Sound.setVolume(vol);
-	startBeep2Sound.setVolume(vol);
+void soundBank::playSound(int soundId) {
+	if (sound)
+		soundList[soundId].play();
 }
 
-void soundBank::setMusicVolume(short vol) {
+void soundBank::setEffectVolume(int vol) {
+	for (int i=0; i<16; i++)
+		soundList[i].setVolume(vol);
+}
+
+void soundBank::setMusicVolume(int vol) {
 
 }
 
-void soundBank::setAlertVolume(short vol) {
-	alertSound.setVolume(vol);
+void soundBank::setAlertVolume(int vol) {
+	soundList[16].setVolume(vol);
 }

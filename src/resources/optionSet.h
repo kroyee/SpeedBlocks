@@ -74,6 +74,8 @@ public:
 
     void setPieceColor(short, sf::Uint8);
     void setDelay(short, sf::String);
+
+    void action(sf::Uint8 actionId);
 };
 
 #endif

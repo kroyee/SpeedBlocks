@@ -1,15 +1,16 @@
 #include "PingHandle.h"
-#include "network.h"
+#include "Signal.h"
+#include <SFML/Network.hpp>
 #include <iostream>
 
-int PingHandle::get(const sf::Time& t, network& net) {
+int PingHandle::get(const sf::Time& t, sf::Packet &_packet) {
 	sf::Uint8 pingId;
 	sf::Uint16 clientid;
-	net.packet >> clientid >> pingId;
+	_packet >> clientid >> pingId;
 
 	for (auto& packet : packets) {
 		if (packet.id == pingId) {
-			net.sendUDP();
+			Signals::SendPacketUDP(_packet);
 			packet.received = t;
 			packet.ping = (packet.received-packet.sent).asMilliseconds();
 			packet.returned = true;
@@ -21,7 +22,7 @@ int PingHandle::get(const sf::Time& t, network& net) {
 	return -1;
 }
 
-int PingHandle::send(const sf::Time& t, network& net, sf::Uint16 myId) {
+int PingHandle::send(const sf::Time& t, sf::Uint16 myId) {
 	if (t < lastSend)
 		return -1;
 	int ping=-1;
@@ -30,7 +31,7 @@ int PingHandle::send(const sf::Time& t, network& net, sf::Uint16 myId) {
 			ping+=300;
 		else break;
 	}
-	net.sendPing(myId, pingIdCount);
+	Signals::SendPing(myId, pingIdCount);
 	lastSend=t+sf::milliseconds(300);
 	PingPacket packet;
 	packet.id = pingIdCount++;

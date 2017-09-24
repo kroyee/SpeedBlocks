@@ -1,11 +1,11 @@
 #ifndef TEXTURES_H
 #define TEXTURES_H
 
-#include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
 class textures {
 public:
+    textures(sf::RenderWindow& window);
 	sf::Texture tileTexture;
 	sf::Sprite tile[16];
 
@@ -25,6 +25,10 @@ public:
     sf::Font typewriter, printFont, standard;
 
     tgui::Texture rotate_n, rotate_h, color_n, color_h;
+
+    tgui::Theme::Ptr themeTG;
+
+    tgui::Gui tGui;
 
     sf::Color gameFieldTextColor;
 

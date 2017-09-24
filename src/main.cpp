@@ -7,6 +7,9 @@
 #include <iostream> // just here for quick and simple error testing, remove if you want
 #include "AnimatedBackground.h"
 #include "SlideMenu.h"
+#include "optionSet.h"
+#include "textures.h"
+#include "network.h"
 #include <string>
 #include <cmath>
 #include <thread>
@@ -24,21 +27,21 @@ using std::endl;
 int main()
 {
     // Initializing classes and loading resources
-    Resources resources;
+    sf::RenderWindow window;
+
+    Resources resources(window);
     if (!resources.init())
         return 0;
 
     gamePlay game(resources);
 
-    sf::RenderWindow window;
-
     #ifndef DEBUG
-        if (resources.options.fullscreen)
-            window.create(resources.options.modes[resources.options.currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+        if (resources.options->fullscreen)
+            window.create(resources.options->modes[resources.options->currentmode], "SpeedBlocks", sf::Style::Fullscreen);
         if (!window.isOpen()) {
             window.create(sf::VideoMode(960, 600), "SpeedBlocks");
-            resources.options.fullscreen=false;
-            resources.options.currentmode=0;
+            resources.options->fullscreen=false;
+            resources.options->currentmode=0;
         }
     #else
         window.create(sf::VideoMode(560,350), "SpeedBlocks");
@@ -46,7 +49,7 @@ int main()
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
     window.setKeyRepeatEnabled(false);
-    if (resources.options.vSync)
+    if (resources.options->vSync)
         window.setVerticalSyncEnabled(true);
 
     #ifdef __WIN32
@@ -55,14 +58,14 @@ int main()
     SendMessage(window.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM)icon);
     #elif __APPLE__
     #else
-    window.setIcon(128, 128, resources.gfx.icon->getPixelsPtr());
+    window.setIcon(128, 128, resources.gfx->icon->getPixelsPtr());
     #endif
 
-    delete resources.gfx.icon;
+    delete resources.gfx->icon;
 
     UI gui(window, game);
 
-    gui.tGui.setView(view);
+    resources.gfx->tGui.setView(view);
 
     game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
     game.rander.seedHole(time(NULL));
@@ -97,10 +100,10 @@ int main()
             posX=0;
         if (scale < 1)
             scale=1;
-        resources.gfx.logo.setPosition(posX, posY);
-        resources.gfx.logo.setScale(scale, scale);
+        resources.gfx->logo.setPosition(posX, posY);
+        resources.gfx->logo.setScale(scale, scale);
         gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
-        window.draw(resources.gfx.logo);
+        window.draw(resources.gfx->logo);
         window.display();
 
         sf::sleep(sf::milliseconds(20));
@@ -115,48 +118,47 @@ int main()
         while (window.pollEvent(event))
             gui.handleEvent(event);
 
-        if (gui.playonline)
-            while (resources.net.receiveData())
-                gui.handlePacket();
+        if (resources.playonline)
+            while (resources.net->receiveData()) {}
 
         gui.delayCheck();
         
         switch (gui.gamestate) {
-            case CountDown:
-                if (!gui.playonline)
+            case GameStates::CountDown:
+                if (!resources.playonline)
                     if (game.countDown())
-                        gui.setGameState(Game);
+                        gui.setGameState(GameStates::Game);
 
                 if (game.gameOver())
-                    gui.setGameState(GameOver);
+                    gui.setGameState(GameStates::GameOver);
             break;
 
-            case Game:
+            case GameStates::Game:
                 game.delayCheck();
 
-                if (gui.playonline)
+                if (resources.playonline)
                     gui.sendGameData();
 
                 if (game.gameOver())
-                    gui.setGameState(GameOver);
+                    gui.setGameState(GameStates::GameOver);
             break;
 
-            case GameOver:
-                if (gui.playonline)
+            case GameStates::GameOver:
+                if (resources.playonline)
                     if (game.winner)
                         gui.sendGameWinner();
             break;
-            case Replay:
+            case GameStates::Replay:
                 if (game.playReplay())
-                    gui.setGameState(GameOver);
+                    gui.setGameState(GameStates::GameOver);
                 gui.replayUI->update();
             break;
 
-            case Practice:
+            case GameStates::Practice:
                 game.delayCheck();
 
                 if (game.gameOver())
-                    gui.setGameState(GameOver);
+                    gui.setGameState(GameStates::GameOver);
             break;
 
             default:
@@ -167,17 +169,17 @@ int main()
 
         current = frameClock.getElapsedTime();
         if (current > nextDraw || game.options.vSync) {
-            if (game.drawMe && (gui.gamestate == Game || gui.gamestate == Replay || gui.gamestate == Practice)) {
+            if (game.drawMe && (gui.gamestate == GameStates::Game || gui.gamestate == GameStates::Replay || gui.gamestate == GameStates::Practice)) {
                 game.draw();
                 game.drawMe=false;
             }
             nextDraw+=game.options.frameDelay;
             gui.animatedBackground->draw(window, gui.delayClock.getElapsedTime());
-            if (gui.gamestate != MainMenu && gui.gamestate != Spectating)
+            if (gui.gamestate != GameStates::MainMenu && gui.gamestate != GameStates::Spectating)
                 window.draw( game.field.sprite );
             if (gui.gameFieldDrawer.isVisible())
                 gui.gameFieldDrawer.drawFields();
-            gui.tGui.draw();
+            resources.gfx->tGui.draw();
             window.display();
             gui.performanceOutput->frameRate++;
         }
@@ -199,7 +201,7 @@ int main()
     // Things to do before the game turns off
 
     game.options.saveOptions();
-    if (gui.restart) {
+    if (resources.restart) {
         #ifdef _WIN32
             std::thread relaunch([](){ system("start SpeedBlocks.exe"); });
         #elif __APPLE__

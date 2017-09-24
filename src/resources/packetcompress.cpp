@@ -1,6 +1,7 @@
 #include "packetcompress.h"
 #include "gamePlay.h"
 #include "Recording.h"
+#include "optionSet.h"
 #include <iostream>
 using std::to_string;
 using std::cout;
@@ -100,7 +101,7 @@ void PacketCompress::compress() {
 	addBits(game->field.piece.current_rotation, 2);
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
-	addBits(game->resources.options.piecerotation[game->nextpiece], 2);
+	addBits(game->options.piecerotation[game->nextpiece], 2);
 	addBits(game->field.text.combo, 5);
 	addBits(game->field.text.pending, 8);
 	sf::Uint8 tmp;

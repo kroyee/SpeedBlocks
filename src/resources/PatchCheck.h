@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 struct PatchCheck {
+	PatchCheck();
 	std::string exec(const std::string& cmd);
 	void check(int version);
 	int download_file(const std::string& file);

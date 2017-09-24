@@ -5,7 +5,7 @@
 #include <deque>
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class ChatScreen : public guiBase {
 private:
@@ -17,19 +17,18 @@ private:
 	tgui::Label::Ptr sendToLabel;
 	std::deque<sf::Time> fadeTime;
 	sf::Time spamTime;
-	short spamCount;
+	int spamCount;
 	sf::String to;
 	sf::String privto;
 	bool hideLobbyChat;
 	sf::Color t1, t2, t3, t4, t5;
 public:
-	ChatScreen(sf::Rect<int> _pos, UI* _gui);
+	ChatScreen(sf::Rect<int> _pos, Resources& _res);
 	void activate();
 	void deactivate();
 	void send();
 	void sendMsg(const sf::String& to, const sf::String& msg);
 	void addLine(const sf::String& msg, sf::Uint8 type);
-	void getMsg();
 	void fade(const sf::Time& t);
 	bool handleEvent(sf::Event& event);
 	bool isActive();

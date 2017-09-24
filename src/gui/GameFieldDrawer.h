@@ -1,13 +1,16 @@
 #ifndef GAMEFIELDDRAWER_H
 #define GAMEFIELDDRAWER_H
 
-class UI;
+#include <list>
+#include "gameField.h"
+
+class Resources;
 
 class GameFieldDrawer {
 public:
-	GameFieldDrawer(UI&);
+	GameFieldDrawer(Resources&);
 
-	UI& gui;
+	Resources& resources;
 
 	std::list<obsField> fields;
 
@@ -26,7 +29,7 @@ public:
 	bool isVisible() { return visible; }
 
 	void setPosition(short x, short y);
-	void setSize(short w, short h);
+	void setSize(int w, int h);
 
 	void addField(obsField& field);
 	void removeField(sf::Uint16 id);
@@ -41,6 +44,9 @@ public:
 	void drawFields();
 
 	void enlargePlayfield(sf::Event& event);
+
+	void setBackgroundColor(int val);
+	int areThereFields(int type);
 };
 
 #endif

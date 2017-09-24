@@ -3,7 +3,7 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class GameOptions : public guiBase {
 public:
@@ -41,8 +41,8 @@ public:
 	sf::Sprite piece[7];
 	tgui::Canvas::Ptr canvas[7];
 
-	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel);
-	void show(sf::Uint8 index);
+	GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
+	void show(int index);
 	void changeName(const sf::String& name);
 	void vidSlide(short i);
 	void fsChecked(bool i);

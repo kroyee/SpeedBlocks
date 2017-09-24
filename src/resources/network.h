@@ -18,16 +18,13 @@ public:
 	unsigned short tcpPort;
 	unsigned short udpPort;
 
-	sf::Packet packet;
-	sf::Uint8 packetid;
-
 	sf::Socket::Status connect();
 	void disconnect() { udpSock.unbind(); tcpSock.disconnect(); }
-	void sendTCP();
-	void sendUDP();
-	void sendSignal(sf::Uint8 signalId, int id1 = -1, int id2 = -1);
+	void sendTCP(sf::Packet&);
+	void sendUDP(sf::Packet&);
+	void sendSignal(int signalID, int val1=-1, int val2=-1);
 	void sendUdpConfirm(sf::Uint16);
-	void sendPing(sf::Uint16 myId, sf::Uint8 pingId);
+	void sendPing(int myID, int pingID);
 
 	sf::String sendCurlPost(const sf::String& URL, const sf::String& postData, sf::Uint8 type);
 

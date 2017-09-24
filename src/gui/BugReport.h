@@ -4,7 +4,7 @@
 #include "guiBase.h"
 #include <thread>
 
-class UI;
+class Resources;
 
 class BugReport : public guiBase {
 public:
@@ -19,7 +19,7 @@ public:
 
 	std::thread t;
 
-	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent);
+	BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
 
 	void sendReport();
 };

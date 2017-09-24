@@ -3,7 +3,7 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class PerformanceOutput : public guiBase {
 public:
@@ -23,7 +23,7 @@ public:
 	sf::Time longestFrame, secCount;
     int frameCount, frameRate;
 
-	void create(sf::Rect<int> _pos, UI* _gui);
+	PerformanceOutput(sf::Rect<int> _pos, Resources& _res);
 
 	void update(sf::Time current, sf::Time lastFrame);
 

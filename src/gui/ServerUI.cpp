@@ -1,82 +1,85 @@
 #include "ServerUI.h"
-#include "gui.h"
+#include "Signal.h"
+#include <SFML/Network.hpp>
 
-void ServerUI::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
-	createBase(_pos, _gui, parent);
+ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {
 
-	tgui::Label::Ptr plist = gui->themeTG->load("Label");
+	tgui::Label::Ptr plist = resources.gfx->themeTG->load("Label");
 	plist->setPosition(410, 20);
 	plist->setText("Player list");
 	panel->add(plist);
 
-	LobbyList = gui->themeTG->load("ListBox");
+	LobbyList = resources.gfx->themeTG->load("ListBox");
 	LobbyList->setPosition(360, 50);
 	LobbyList->setSize(190, 490);
 	panel->add(LobbyList);
 
-	tgui::Label::Ptr header = gui->themeTG->load("Label");
+	tgui::Label::Ptr header = resources.gfx->themeTG->load("Label");
 	header->setText("Message of the Day");
 	header->setTextSize(24);
 	header->setPosition(60, 10);
 	panel->add(header);
 
-	motd = gui->themeTG->load("Label");
+	motd = resources.gfx->themeTG->load("Label");
 	motd->setPosition(10, 50);
 	motd->setMaximumTextWidth(340);
 	panel->add(motd);
 
-	tgui::Label::Ptr joinUs = gui->themeTG->load("Label");
+	tgui::Label::Ptr joinUs = resources.gfx->themeTG->load("Label");
 	joinUs->setText("Join speedblocks on");
 	joinUs->setPosition(100, 390);
 	panel->add(joinUs);
 
-	tgui::Button::Ptr discord = gui->themeTG->load("Button");
+	tgui::Button::Ptr discord = resources.gfx->themeTG->load("Button");
 	discord->setPosition(10, 430);
 	discord->setSize(100, 30);
 	discord->setText("Discord");
 	discord->connect("pressed", &ServerUI::linkPressed, this, 1);
 	panel->add(discord);
 
-	tgui::Button::Ptr github = gui->themeTG->load("Button");
+	tgui::Button::Ptr github = resources.gfx->themeTG->load("Button");
 	github->setPosition(130, 430);
 	github->setSize(100, 30);
 	github->setText("GitHub");
 	github->connect("pressed", &ServerUI::linkPressed, this, 2);
 	panel->add(github);
 
-	tgui::Button::Ptr webpage = gui->themeTG->load("Button");
+	tgui::Button::Ptr webpage = resources.gfx->themeTG->load("Button");
 	webpage->setPosition(250, 430);
 	webpage->setSize(100, 30);
 	webpage->setText("WebPage");
 	webpage->connect("pressed", &ServerUI::linkPressed, this, 3);
 	panel->add(webpage);
 
-	tgui::Button::Ptr forum = gui->themeTG->load("Button");
+	tgui::Button::Ptr forum = resources.gfx->themeTG->load("Button");
 	forum->setPosition(10, 480);
 	forum->setSize(100, 30);
 	forum->setText("Forum");
 	forum->connect("pressed", &ServerUI::linkPressed, this, 4);
 	panel->add(forum);
 
-	tgui::Button::Ptr stats = gui->themeTG->load("Button");
+	tgui::Button::Ptr stats = resources.gfx->themeTG->load("Button");
 	stats->setPosition(130, 480);
 	stats->setSize(100, 30);
 	stats->setText("Player stats");
 	stats->connect("pressed", &ServerUI::linkPressed, this, 5);
 	panel->add(stats);
+
+	Net::takePacket(20, &ServerUI::addClient, this);
+	Net::takePacket(21, &ServerUI::removeClient, this);
 }
 
-void ServerUI::makeClientList() {
+void ServerUI::makeClientList(sf::Packet &packet) {
 	LobbyList->removeAllItems();
-	clientList.clear();
+	resources.clientList.clear();
 	clientInfo client;
 	sf::Uint16 clientCount;
 
-	gui->net.packet >> clientCount;
+	packet >> clientCount;
 
 	for (int i=0; i<clientCount; i++) {
-		gui->net.packet >> client.id >> client.name;
-		clientList.push_back(client);
+		packet >> client.id >> client.name;
+		resources.clientList.push_back(client);
 	}
 
 	makeLobbyList();
@@ -84,15 +87,15 @@ void ServerUI::makeClientList() {
 
 void ServerUI::makeLobbyList() {
 	LobbyList->removeAllItems();
-	for (auto&& client : clientList)
+	for (auto&& client : resources.clientList)
 		LobbyList->addItem(client.name);
 }
 
-void ServerUI::addClient() {
+void ServerUI::addClient(sf::Packet &packet) {
 	clientInfo client;
 
-	gui->net.packet >> client.id >> client.name;
-	clientList.push_back(client);
+	packet >> client.id >> client.name;
+	resources.clientList.push_back(client);
 
 	LobbyList->addItem(client.name);
 }
@@ -101,19 +104,19 @@ void ServerUI::putClient(sf::Uint16 id, const sf::String& name) {
 	clientInfo client;
 	client.id = id;
 	client.name = name;
-	clientList.push_back(client);
+	resources.clientList.push_back(client);
 	LobbyList->addItem(client.name);
 }
 
-void ServerUI::removeClient() {
+void ServerUI::removeClient(sf::Packet &packet) {
 	sf::Uint16 id;
 
-	gui->net.packet >> id;
+	packet >> id;
 
-	for (auto it = clientList.begin(); it != clientList.end(); it++)
+	for (auto it = resources.clientList.begin(); it != resources.clientList.end(); it++)
 		if (it->id == id) {
 			LobbyList->removeItem(it->name);
-			clientList.erase(it);
+			resources.clientList.erase(it);
 			break;
 		}
 }
@@ -143,5 +146,5 @@ void ServerUI::linkPressed(sf::Uint8 type) {
 
 void ServerUI::clear() {
 	LobbyList->removeAllItems();
-	clientList.clear();
+	resources.clientList.clear();
 }

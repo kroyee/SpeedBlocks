@@ -1,21 +1,19 @@
 #include "SlideMenu.h"
-#include "gui.h"
-#include "Resources.h"
-#include "GameOptions.h"
+#include "Signal.h"
+#include "optionSet.h"
 
-SlideMenu::SlideMenu(sf::Rect<int> _pos, UI* gui) : active(false), mouseOver(false) {
-	createBase(_pos, gui);
+SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), active(false), mouseOver(false) {
 
-	background = tgui::Picture::create(gui->resources.gfx.menuBackground_light);
+	background = tgui::Picture::create(resources.gfx->menuBackground_light);
 	background->setOpacity(0.85);
 	panel->add(background);
 	
-	alert = tgui::Picture::create(gui->resources.gfx.alert);
+	alert = tgui::Picture::create(resources.gfx->alert);
 	alert->setPosition(0, 60);
 	alert->hide();
 	panel->add(alert);
 
-	tab = gui->themeTG->load("Tab");
+	tab = resources.gfx->themeTG->load("Tab");
 	tab->setPosition(40, 0);
 	tab->add("Alerts");
 	tab->add("Server");
@@ -29,16 +27,19 @@ SlideMenu::SlideMenu(sf::Rect<int> _pos, UI* gui) : active(false), mouseOver(fal
 	panel->add(tab);
 	
 	posX = 920;
+
+	Signals::ShowAlert.connect(&SlideMenu::showAlert, this);
+	Signals::HideAlert.connect(&SlideMenu::hideAlert, this);
 }
 
 void SlideMenu::handleEvent(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed)
-		if (event.key.code == gui->options.menu) {
+		if (event.key.code == resources.options->menu) {
 			active = !active;
 			panel->focus();
 		}
-	if (event.type == sf::Event::MouseMoved && gui->options.mouseMenu) {
-		sf::Vector2f pos = gui->window->mapPixelToCoords(sf::Mouse::getPosition(*gui->window));
+	if (event.type == sf::Event::MouseMoved && resources.options->mouseMenu) {
+		sf::Vector2f pos = resources.window.mapPixelToCoords(sf::Mouse::getPosition(resources.window));
 		if (pos.x > posX) {
 			active = true;
 			mouseOver = true;
@@ -78,38 +79,38 @@ void SlideMenu::hide() { panel->hide(); }
 void SlideMenu::tabSelect(std::string selected) {
 	hideAllTabs();
 	if (selected == "Alerts")
-		((guiBase*)gui->alertsUI)->show();
+		Signals::Show(15);
 	if (selected == "Server")
-		((guiBase*)gui->serverUI)->show();
+		Signals::Show(14);
 	if (selected == "Game play")
-		gui->gameOptions->show(1);
+		Signals::ShowOptions(1);
 	if (selected == "Visual")
-		gui->gameOptions->show(0);
+		Signals::ShowOptions(0);
 	if (selected == "Video")
-		gui->gameOptions->show(2);
+		Signals::ShowOptions(2);
 	if (selected == "Sound")
-		gui->gameOptions->show(3);
+		Signals::ShowOptions(3);
 	if (selected == "Bugs")
-		((guiBase*)gui->bugReport)->show();
+		Signals::Show(7);
 }
 
 void SlideMenu::hideAllTabs() {
-	gui->gameOptions->hide();
-	((guiBase*)gui->bugReport)->hide();
-	((guiBase*)gui->alertsUI)->hide();
-	((guiBase*)gui->serverUI)->hide();
+	Signals::Hide(2);
+	Signals::Hide(7);
+	Signals::Hide(15);
+	Signals::Hide(14);
 }
 
 void SlideMenu::dark() {
 	panel->remove(background);
-	background = tgui::Picture::create(gui->resources.gfx.menuBackground_dark);
+	background = tgui::Picture::create(resources.gfx->menuBackground_dark);
 	panel->add(background);
 	background->moveToBack();
 }
 
 void SlideMenu::light() {
 	panel->remove(background);
-	background = tgui::Picture::create(gui->resources.gfx.menuBackground_light);
+	background = tgui::Picture::create(resources.gfx->menuBackground_light);
 	panel->add(background);
 	background->moveToBack();
 }

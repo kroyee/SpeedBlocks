@@ -4,7 +4,7 @@
 #include <TGUI/TGUI.hpp>
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class SlideMenu : public guiBase {
 private:
@@ -15,14 +15,14 @@ private:
 	bool active, mouseOver;
 public:
 	float posX;
-	SlideMenu(sf::Rect<int> _pos, UI* gui);
+	SlideMenu(sf::Rect<int> _pos, Resources& _res);
 
 	void handleEvent(sf::Event& event);
 	void update(const sf::Time& now);
 	void showAlert();
 	void hideAlert();
-	void show();
-	void hide();
+	virtual void show();
+	virtual void hide();
 	void tabSelect(std::string selected);
 	void hideAllTabs();
 	void dark();

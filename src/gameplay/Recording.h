@@ -14,8 +14,6 @@
 // 100 : Start of recording
 // 101 : End of recording
 
-class network;
-
 class RecordingEvent {
 public:
 	sf::Uint8 type;
@@ -27,6 +25,7 @@ public:
 
 class Recording {
 public:
+	Recording();
 	sf::Uint8 starting_position[22][10];
 	std::vector<RecordingEvent> events;
 	sf::Time duration, startAt, comboSet;
@@ -40,13 +39,17 @@ public:
 	void clear();
 	void start(sf::Uint8[22][10]);
 	void stop();
-	void jumpTo(sf::Uint32 startTime);
+	void jumpTo(int startTime);
 	void addEvent(RecordingEvent& event);
 	void save(std::string filename="");
 	void load(std::string filename);
 
-	void sendRecording(network& net, sf::Uint16 type);
-	void receiveRecording(network& net);
+	void sendRecording(sf::Uint16 type);
+	void receiveRecording(sf::Packet &packet);
+
+	const sf::Time& getRecorderDuration();
+	sf::Time getRecorderTime();
+	const sf::String& getName();
 };
 
 #endif

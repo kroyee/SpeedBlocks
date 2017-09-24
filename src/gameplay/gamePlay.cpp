@@ -4,7 +4,9 @@
 #include "pieces.h"
 #include "randomizer.h"
 #include "sounds.h"
+#include "textures.h"
 #include "FieldBackMaker.h"
+#include "Signal.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <deque>
@@ -17,7 +19,7 @@ using std::endl;
 
 gamePlay::gamePlay(Resources& _resources) :
 field(_resources),
-options(_resources.options),
+options(*_resources.options),
 resources(_resources),
 showPressEnterText(true)
 {
@@ -42,7 +44,7 @@ showPressEnterText(true)
 	dKey=false;
 
 	field.text.setName(options.name);
-	pressEnterText.setFont(resources.gfx.typewriter);
+	pressEnterText.setFont(resources.gfx->typewriter);
 	pressEnterText.setCharacterSize(17);
 	pressEnterText.setColor(sf::Color::White);
 	pressEnterText.setPosition(10,500);
@@ -53,6 +55,26 @@ showPressEnterText(true)
 	field.backgroundTexture = makeBackground(options.fieldVLines, options.fieldHLines, options.lineStyle, options.lineColor);
     field.background.setTexture(field.backgroundTexture);
     field.background.setPosition(5,5);
+
+    Signals::Ready.connect(&gamePlay::ready, this);
+    Signals::Away.connect(&gamePlay::away, this);
+    Signals::SetAway.connect(&gamePlay::setAway, this);
+    Signals::SetGameBackColor.connect(&gamePlay::setBackgroundColor, this);
+    Signals::SetDrawMe.connect(&gamePlay::setDrawMe, this);
+    Signals::MakeBackgroundLines.connect(&gamePlay::makeBackgroundLines, this);
+    Signals::UpdateGamePieces.connect(&gamePlay::updateBasePieces, this);
+    Signals::StartCountDown.connect(&gamePlay::startCountdown, this);
+    Signals::GetName.connect(&gamePlay::getName, this);
+    Signals::SetName.connect(&gamePlay::setName, this);
+    Signals::RecUpdateScreen.connect(&gamePlay::updateReplayScreen, this);
+
+    Net::takeSignal(9, &gamePlay::addGarbage, this);
+    Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
+		if (id1 == resources.myId) {
+			field.text.setPosition(id2);
+			draw();
+		}
+	});
 }
 
 void gamePlay::startGame() {
@@ -355,18 +377,15 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	linesCleared+=lines.x;
 	if (lines.x==0) {
 		combo.noClear();
-		if (options.sound)
-			resources.sounds.pieceDrop();
+		Signals::PlaySound(0);
 		return;
 	}
 	linesSent += garbage.block(lines.x-1, gameclock.getElapsedTime());
 	field.text.setPending(garbage.count());
 	combo.increase(gameclock.getElapsedTime(), lines.x);
 
-	if (options.sound) {
-		resources.sounds.lineClear();
-		playComboSound(combo.comboCount);
-	}
+	Signals::PlaySound(1);
+	playComboSound(combo.comboCount);
 
 	setComboTimer();
 	field.text.setCombo(combo.comboCount);
@@ -377,21 +396,21 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 
 void gamePlay::playComboSound(sf::Uint8 combo) {
 	if (combo==5)
-		resources.sounds.combo5();
+		Signals::PlaySound(6);
 	else if (combo==8)
-		resources.sounds.combo8();
+		Signals::PlaySound(7);
 	else if (combo==10)
-		resources.sounds.combo11();
+		Signals::PlaySound(8);
 	else if (combo==12)
-		resources.sounds.combo13();
+		Signals::PlaySound(9);
 	else if (combo==14)
-		resources.sounds.combo15();
+		Signals::PlaySound(10);
 	else if (combo==16)
-		resources.sounds.combo17();
+		Signals::PlaySound(11);
 	else if (combo==18)
-		resources.sounds.combo19();
+		Signals::PlaySound(12);
 	else if (combo==20)
-		resources.sounds.combo21();
+		Signals::PlaySound(13);
 }
 
 void gamePlay::addGarbage(sf::Uint16 amount) {
@@ -404,8 +423,7 @@ void gamePlay::addGarbage(sf::Uint16 amount) {
 	if (recorder.rec)
 		addRecEvent(5, 0);
 
-	if (options.sound)
-		resources.sounds.garbAdd();
+	Signals::PlaySound(2);
 }
 
 void gamePlay::pushGarbage() {
@@ -476,13 +494,11 @@ bool gamePlay::countDown() {
 		if (recorder.rec)
 			addRecEvent(7, countDowncount);
 		if (countDowncount) {
-			if (options.sound)
-				resources.sounds.startBeep1();
+			Signals::PlaySound(14);
 			draw();
 		}
 		else {
-			if (options.sound)
-				resources.sounds.startBeep2();
+			Signals::PlaySound(15);
 			return true;
 		}
 	}
@@ -494,12 +510,7 @@ bool gamePlay::countDown(short c) {
 		return false;
 	gameover=false;
 	field.text.setCountdown(c);
-	if (options.sound) {
-		if (c)
-			resources.sounds.startBeep1();
-		else
-			resources.sounds.startBeep2();
-	}
+	(c ? Signals::PlaySound(14) : Signals::PlaySound(15));
 	draw();
 	if (recorder.rec)
 		addRecEvent(7, c);
@@ -528,6 +539,44 @@ bool gamePlay::gameOver() {
 
 	draw();
 	return true;
+}
+
+void gamePlay::away() {
+	resources.away = !resources.away;
+	setAway(&resources.away);
+}
+
+void gamePlay::setAway(bool away) {
+	if (away) {
+		resources.away=true;
+		Signals::SendSig(5);
+		gameover=true;
+		sendgameover=true;
+		field.text.away=true;
+		autoaway=false;
+		draw();
+	}
+	else {
+		resources.away=false;
+		autoaway=false;
+		Signals::SendSig(6);
+		field.text.away=false;
+		draw();
+	}
+}
+
+void gamePlay::ready() {
+	if (resources.gamestate == GameStates::GameOver) {
+		if (field.text.ready) {
+			Signals::SendSig(8);
+			field.text.ready=false;
+		}
+		else {
+			Signals::SendSig(7);
+			field.text.ready=true;
+		}
+		draw();
+	}
 }
 
 void gamePlay::drawNextPiece() {
@@ -647,12 +696,7 @@ bool gamePlay::playReplay() {
 				sf::Vector2i lines = field.clearlines();
 				linesCleared+=lines.x;
 				garbageCleared+=lines.y;
-				if (options.sound) {
-					if (lines.x == 0)
-						resources.sounds.pieceDrop();
-					else
-						resources.sounds.lineClear();
-				}
+				(lines.x ? Signals::PlaySound(1) : Signals::PlaySound(0));
 				drawMe = true;
 			}
 			break;
@@ -670,12 +714,7 @@ bool gamePlay::playReplay() {
 			break;
 			case 7:
 				field.text.setCountdown(event.pending);
-				if (options.sound) {
-					if (event.pending)
-						resources.sounds.startBeep1();
-					else
-						resources.sounds.startBeep2();
-				}
+				(event.pending ? Signals::PlaySound(14) : Signals::PlaySound(15));
 				drawMe=true;
 			break;
 		}
@@ -699,10 +738,34 @@ void gamePlay::updateReplayText(RecordingEvent& event) {
 	field.text.setComboTimer(event.comboTimer);
 
 	if (event.combo != recorder.prevCombo) {
-		if (options.sound)
-			playComboSound(event.combo);
+		playComboSound(event.combo);
 		recorder.comboSet = event.time;
 		recorder.comboTimer = event.comboTimer;
 	}
 	recorder.prevCombo = event.combo;
+}
+
+void gamePlay::setBackgroundColor(int val) {
+	field.setBackColor(val);
+}
+
+void gamePlay::setDrawMe() {
+	drawMe=true;
+}
+
+void gamePlay::makeBackgroundLines() {
+	field.backgroundTexture = makeBackground(resources.options->fieldVLines, resources.options->fieldHLines, resources.options->lineStyle, resources.options->lineColor);
+}
+
+void gamePlay::setName(const sf::String& name) {
+	field.text.setName(name);
+}
+
+const sf::String& gamePlay::getName() {
+	return field.text.name;
+}
+
+void gamePlay::updateReplayScreen() {
+	playReplay();
+	draw();
 }

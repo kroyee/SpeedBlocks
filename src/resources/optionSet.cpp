@@ -74,14 +74,14 @@ void optionSet::loadStandardOptions() {
 	sound=true;
 
 	theme=1;
-	ghostPieceAlpha=120;
+	ghostPieceAlpha=180;
 	hash="";
 	rememberme=false;
 	noSound=false;
 	username="";
 	pass=0;
 
-	fieldBackground=128;
+	fieldBackground=0;
 	lineStyle=3;
 	lineColor=false;
 	fieldVLines=false;
@@ -362,4 +362,8 @@ std::vector<short> optionSet::pieceArray() {
 						 0, 0, 0, 0 };
 
 	return value;
+}
+
+void optionSet::action(sf::Uint8 actionId) {
+	//take action
 }

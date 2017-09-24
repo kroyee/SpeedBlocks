@@ -1,5 +1,7 @@
 #include "AnimatedBackground.h"
 #include "Resources.h"
+#include "textures.h"
+#include "Signal.h"
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -89,12 +91,15 @@ void MovingPoint::drawLast(sf::RenderWindow& window) {
 }
 
 AnimatedBackground::AnimatedBackground(Resources& resources, sf::Uint8 count) :
-background_light(resources.gfx.background_light), background_dark(resources.gfx.background_dark) {
+background_light(resources.gfx->background_light), background_dark(resources.gfx->background_dark) {
 	for (int i=0; i<count; i++)
 		points.push_back(MovingPoint(sf::Vector2f(i*960/count, i*600/count)));
 	backSprite.setTexture(background_light);
 	enabled=true;
 	color = sf::Color(220, 220, 220);
+
+	Signals::EnableBackground.connect(&AnimatedBackground::enable, this);
+	Signals::DisableBackground.connect(&AnimatedBackground::disable, this);
 }
 
 void AnimatedBackground::draw(sf::RenderWindow& window, const sf::Time& current) {
@@ -162,7 +167,10 @@ void AnimatedBackground::update(const sf::Time& current) {
 	}
 }
 
-void AnimatedBackground::enable(const sf::Time& current) { lastFrame=current; enabled=true; }
+void AnimatedBackground::enable(const sf::Time& current) {
+	lastFrame=current;
+	enabled=true;
+}
 
 void AnimatedBackground::disable() { enabled=false; }
 

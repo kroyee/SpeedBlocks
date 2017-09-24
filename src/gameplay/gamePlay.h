@@ -120,12 +120,23 @@ public:
 
 	bool gameOver();
 
+	void ready();
+	void away();
+	void setAway(bool away);
+
 	void drawNextPiece();
 
 	void addRecEvent(sf::Uint8 type, sf::Uint8 value);
 	void startReplay();
 	bool playReplay();
 	void updateReplayText(RecordingEvent& event);
+
+	void setBackgroundColor(int val);
+	void setDrawMe();
+	void makeBackgroundLines();
+	void setName(const sf::String& name);
+	const sf::String& getName();
+	void updateReplayScreen();
 };
 
 #endif

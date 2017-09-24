@@ -1,10 +1,8 @@
 #include "ScoreScreen.h"
-#include "gui.h"
-#include "ServerUI.h"
+#include "Signal.h"
 using std::to_string;
 
-ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
-	createBase(_pos, _gui);
+ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	panel->setBackgroundColor(sf::Color(100, 100, 100, 200));
 
 	unknown = "Unknown";
@@ -22,7 +20,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	scrollPanel->connect("MousePressed", &ScoreScreen::scorePressed, this);
 	panel->add(scrollPanel);
 
-	scroll = gui->themeTG->load("Scrollbar");
+	scroll = resources.gfx->themeTG->load("Scrollbar");
 	scroll->setSize(20, 540);
 	scroll->setPosition(840, 0);
 	scroll->setMaximum(0);
@@ -30,13 +28,13 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	scroll->connect("ValueChanged", &ScoreScreen::scrolled, this);
 	panel->add(scroll);
 
-	tgui::Label::Ptr label = gui->themeTG->load("Label");
+	tgui::Label::Ptr label = resources.gfx->themeTG->load("Label");
 	label->setText("Name");
 	label->setPosition(5, 5);
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("Score");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(65, 5);
@@ -44,7 +42,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("Rank");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(110, 5);
@@ -52,7 +50,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("BPM");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(155, 5);
@@ -60,7 +58,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("Cmb");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(200, 5);
@@ -68,7 +66,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("Sent");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(240, 5);
@@ -76,7 +74,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("Adj");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(275, 5);
@@ -84,7 +82,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("SPM");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(315, 5);
@@ -92,7 +90,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("APM");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(355, 5);
@@ -100,7 +98,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = gui->themeTG->load("Label");
+	label = resources.gfx->themeTG->load("Label");
 	label->setText("Blocked");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(420, 5);
@@ -109,6 +107,8 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, UI* _gui) {
 	panel->add(label);
 
 	rowCount=0;
+
+	Net::takePacket(8, &ScoreScreen::getScores, this);
 }
 
 void ScoreScreen::clear() {
@@ -143,13 +143,13 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	rounding += "." + to_string((int)((score.adj - (int)score.adj)*10));
 
 	for (int i=0; i<10; i++)
-		score.labels[i] = gui->themeTG->load("Label");
+		score.labels[i] = resources.gfx->themeTG->load("Label");
 	score.labels[0]->setText(score.name);
 	score.labels[0]->setPosition(5, rowCount*30+5);
 	score.labels[0]->setTextSize(14);
 	scrollPanel->add(score.labels[0]);
 
-	score.labels[1] = gui->themeTG->load("Label");
+	score.labels[1] = resources.gfx->themeTG->load("Label");
 	score.labels[1]->setText(to_string(score.score));
 	score.labels[1]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[1]->setPosition(65, rowCount*30+5);
@@ -157,7 +157,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[1]->setTextSize(14);
 	scrollPanel->add(score.labels[1]);
 
-	score.exp = gui->themeTG->load("ProgressBar");
+	score.exp = resources.gfx->themeTG->load("ProgressBar");
 	score.exp->setPosition(172, rowCount*30+5);
 	score.exp->setSize(45, 15);
 	score.exp->setMinimum(0);
@@ -165,7 +165,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.exp->setValue(score.points);
 	scrollPanel->add(score.exp);
 
-	score.labels[2] = gui->themeTG->load("Label");
+	score.labels[2] = resources.gfx->themeTG->load("Label");
 	score.labels[2]->setText(to_string(score.rank));
 	score.labels[2]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	score.labels[2]->setPosition(172, rowCount*30+5);
@@ -173,7 +173,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[2]->setTextSize(14);
 	scrollPanel->add(score.labels[2]);
 
-	score.labels[3] = gui->themeTG->load("Label");
+	score.labels[3] = resources.gfx->themeTG->load("Label");
 	score.labels[3]->setText(to_string(score.bpm));
 	score.labels[3]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[3]->setPosition(155, rowCount*30+5);
@@ -181,7 +181,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[3]->setTextSize(14);
 	scrollPanel->add(score.labels[3]);
 
-	score.labels[4] = gui->themeTG->load("Label");
+	score.labels[4] = resources.gfx->themeTG->load("Label");
 	score.labels[4]->setText(to_string(score.combo));
 	score.labels[4]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[4]->setPosition(200, rowCount*30+5);
@@ -189,7 +189,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[4]->setTextSize(14);
 	scrollPanel->add(score.labels[4]);
 
-	score.labels[5] = gui->themeTG->load("Label");
+	score.labels[5] = resources.gfx->themeTG->load("Label");
 	score.labels[5]->setText(to_string(score.sent));
 	score.labels[5]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[5]->setPosition(240, rowCount*30+5);
@@ -197,7 +197,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[5]->setTextSize(14);
 	scrollPanel->add(score.labels[5]);
 
-	score.labels[6] = gui->themeTG->load("Label");
+	score.labels[6] = resources.gfx->themeTG->load("Label");
 	score.labels[6]->setText(rounding);
 	score.labels[6]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[6]->setPosition(275, rowCount*30+5);
@@ -205,7 +205,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[6]->setTextSize(14);
 	scrollPanel->add(score.labels[6]);
 
-	score.labels[7] = gui->themeTG->load("Label");
+	score.labels[7] = resources.gfx->themeTG->load("Label");
 	score.labels[7]->setText(to_string(score.spm));
 	score.labels[7]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[7]->setPosition(315, rowCount*30+5);
@@ -213,7 +213,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[7]->setTextSize(14);
 	scrollPanel->add(score.labels[7]);
 
-	score.labels[8] = gui->themeTG->load("Label");
+	score.labels[8] = resources.gfx->themeTG->load("Label");
 	score.labels[8]->setText(to_string(score.apm));
 	score.labels[8]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[8]->setPosition(355, rowCount*30+5);
@@ -221,7 +221,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[8]->setTextSize(14);
 	scrollPanel->add(score.labels[8]);
 
-	score.labels[9] = gui->themeTG->load("Label");
+	score.labels[9] = resources.gfx->themeTG->load("Label");
 	score.labels[9]->setText(to_string(score.blocked) + "/" + to_string(score.received));
 	score.labels[9]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[9]->setPosition(420, rowCount*30+5);
@@ -292,7 +292,7 @@ void ScoreScreen::handleEvent(sf::Event& event) {
 }
 
 const sf::String& ScoreScreen::getName(sf::Uint16 id) {
-	for (auto& client : gui->serverUI->clientList)
+	for (auto& client : resources.clientList)
 		if (client.id == id)
 			return client.name;
 	return unknown;

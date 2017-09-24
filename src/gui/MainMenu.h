@@ -3,11 +3,11 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class Menu : public guiBase {
 public:
-	void create(sf::Rect<int> _pos, UI* _gui);
+	Menu(sf::Rect<int> _pos, Resources& _res);
 	void Training();
 	void quitGame();
 };

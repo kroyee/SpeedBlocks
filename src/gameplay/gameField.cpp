@@ -1,5 +1,7 @@
 #include "gameField.h"
 #include "Resources.h"
+#include "textures.h"
+#include "optionSet.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 using std::cout;
@@ -10,10 +12,10 @@ gameField::gameField(Resources& _resources) : resources(_resources), text(_resou
     texture.create(440, 600);
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
-    tile = resources.gfx.tile;
+    tile = resources.gfx->tile;
     backRect.setPosition(5,5);
     backRect.setSize({300,540});
-    setBackColor(resources.options.fieldBackground);
+    setBackColor(resources.options->fieldBackground);
 
     piece.piece=7;
 
@@ -29,7 +31,7 @@ gameField::gameField(const gameField& field) : resources(field.resources), text(
     tile = field.tile;
     backRect.setPosition(5,5);
     backRect.setSize({300,540});
-    setBackColor(resources.options.fieldBackground);
+    setBackColor(resources.options->fieldBackground);
 
     piece.piece = 7;
 
@@ -98,7 +100,7 @@ void gameField::drawPiece() {
 void gameField::drawGhostPiece() {
     if (piece.piece == 7)
         return;
-    if (resources.options.ghostpiece) {
+    if (resources.options->ghostpiece) {
         short posY = piece.posY;
         while (possible()) { piece.mdown(); }
         piece.mup();
@@ -267,26 +269,26 @@ void obsField::drawField() {
 
 void obsField::drawNextPiece() {
     for (int rot=0; rot < nprot; rot++)
-        resources.options.basepiece[nextpiece].rcw();
+        resources.options->basepiece[nextpiece].rcw();
     for (int y=0; y<4; y++)
         for (int x=0; x<4; x++)
-            if (resources.options.basepiece[nextpiece].grid[y][x] != 0) {
-                    tile[npcol-1].setPosition(sf::Vector2f(-15*resources.options.basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
+            if (resources.options->basepiece[nextpiece].grid[y][x] != 0) {
+                    tile[npcol-1].setPosition(sf::Vector2f(-15*resources.options->basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
                     texture.draw(tile[npcol-1]);
                 }
     for (int rot=0; rot < nprot; rot++)
-        resources.options.basepiece[nextpiece].rccw();
+        resources.options->basepiece[nextpiece].rccw();
 }
 
 void obsField::updatePiece() {
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
-            if (resources.options.basepiece[piece.piece].grid[y][x])
+            if (resources.options->basepiece[piece.piece].grid[y][x])
                 piece.grid[y][x] = piece.tile;
             else
                 piece.grid[y][x] = 0;
         }
-    piece.lpiece = resources.options.basepiece[piece.piece].lpiece;
+    piece.lpiece = resources.options->basepiece[piece.piece].lpiece;
     piece.current_rotation = 0;
     while (piece.current_rotation != piece.rotation)
         piece.rcw();

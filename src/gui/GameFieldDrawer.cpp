@@ -1,22 +1,69 @@
-#include "gui.h"
+#include "Resources.h"
 #include "GameFieldDrawer.h"
-#include "gameField.h"
+#include "optionSet.h"
+#include "Signal.h"
 #include <iostream>
 using std::cout;
 using std::endl;
 
-GameFieldDrawer::GameFieldDrawer(UI& _gui) : gui(_gui), scaleup(nullptr) {
+GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nullptr) {
 	setPosition(465, 40);
 	setSize(490, 555);
+
+	Signals::ShowGameFields.connect(&GameFieldDrawer::show, this);
+	Signals::HideGameFields.connect(&GameFieldDrawer::hide, this);
+	Signals::SetFieldsBackColor.connect(&GameFieldDrawer::setBackgroundColor, this);
+	Signals::AreThereFields.connect(&GameFieldDrawer::areThereFields, this);
+	Signals::SetFieldsSize.connect(&GameFieldDrawer::setSize, this);
+	Signals::GameFieldsIsVisible.connect(&GameFieldDrawer::isVisible, this);
+
+	Net::takeSignal(11, [&](sf::Uint16 id1){
+		for (auto&& field : fields)
+			if (field.id == id1) {
+				field.text.away=true;
+				field.drawField();
+				return;
+			}
+	});
+	Net::takeSignal(12, [&](sf::Uint16 id1){
+		for (auto&& field : fields)
+			if (field.id == id1) {
+				field.text.away=false;
+				field.drawField();
+				return;
+			}
+	});
+	Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
+		for (auto&& field : fields)
+			if (field.id == id1) {
+				field.text.setPosition(id2);
+				field.drawField();
+				return;
+			}
+	});
+	Net::takeSignal(15, [&](sf::Uint16 id1){
+		for (auto&& field : fields)
+			if (field.id == id1) {
+				field.text.ready=true;
+				field.drawField();
+			}
+	});
+	Net::takeSignal(16, [&](sf::Uint16 id1){
+		for (auto&& field : fields)
+			if (field.id == id1) {
+				field.text.ready=false;
+				field.drawField();
+			}
+	});
 }
 
 void GameFieldDrawer::setPosition(short x, short y) { xPos = x; yPos = y; calFieldPos(); }
 
-void GameFieldDrawer::setSize(short w, short h) { width = w; height = h; calFieldPos(); }
+void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos(); }
 
 void GameFieldDrawer::addField(obsField& field) {
 	fields.push_back(field);
-	if (gui.options.theme == 2)
+	if (resources.options->theme == 2)
 		fields.back().text.setColor(sf::Color(255,255,255));
 	calFieldPos();
 	drawOppField(fields.back());
@@ -140,7 +187,7 @@ void GameFieldDrawer::drawOppField(obsField& field) {
 
 void GameFieldDrawer::drawFields() {
 	for (auto&& field : fields)
-		gui.window->draw(field.sprite);
+		resources.window.draw(field.sprite);
 	if (scaleup) {
 		scaleup->scale += sclock.restart().asMilliseconds() / 5.0;
 		if (scaleup->scale > 100)
@@ -154,15 +201,15 @@ void GameFieldDrawer::drawFields() {
 			blackback.setPosition(pos.left, pos.top);
 			blackback.setSize({pos.width, pos.height});
 			blackback.setFillColor(sf::Color::Black);
-			gui.window->draw(blackback);
-			gui.window->draw(scaleup->sprite);
+			resources.window.draw(blackback);
+			resources.window.draw(scaleup->sprite);
 		}
 	}
 }
 
 void GameFieldDrawer::enlargePlayfield(sf::Event& event) {
 	if (event.type == sf::Event::MouseMoved) {
-		sf::Vector2f pos = gui.window->mapPixelToCoords(sf::Mouse::getPosition(*gui.window));
+		sf::Vector2f pos = resources.window.mapPixelToCoords(sf::Mouse::getPosition(resources.window));
 		sf::FloatRect box;
 		if (scaleup) {
 			box = scaleup->sprite.getGlobalBounds();
@@ -193,4 +240,20 @@ void GameFieldDrawer::enlargePlayfield(sf::Event& event) {
 		scaleup->sprite.setScale(currentR, currentR);
 		scaleup=0;
 	}
+}
+
+void GameFieldDrawer::setBackgroundColor(int val) {
+	for (auto& field : fields)
+		field.setBackColor(val);
+}
+
+int GameFieldDrawer::areThereFields(int type) {
+	if (type) {
+		if (fields.size())
+			return fields.front().id;
+		else
+			return 0;
+	}
+	
+	return fields.size();
 }

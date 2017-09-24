@@ -1,50 +1,46 @@
 #include "LoginBox.h"
-#include "gui.h"
-#include "network.h"
-#include "gamePlay.h"
-#include "MainMenu.h"
-#include "Connecting.h"
-#include "OnlineplayUI.h"
-#include "AnimatedBackground.h"
 #include "machineid.h"
+#include "optionSet.h"
+#include "network.h"
+#include "Signal.h"
 #include <iostream>
 using std::cout;
 using std::endl;
 using std::to_string;
 
-void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
-	createBase(_pos, _gui, parent);
+LoginBox::LoginBox(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) :
+guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resources) {
 
-	tgui::Label::Ptr header = gui->themeTG->load("Label");
+	tgui::Label::Ptr header = resources.gfx->themeTG->load("Label");
 	header->setTextSize(42);
 	header->setText("Play online");
 	header->setPosition(20, 0);
-	header->setFont(gui->resources.gfx.typewriter);
+	header->setFont(resources.gfx->typewriter);
 	panel->add(header);
 
-	tgui::Label::Ptr LiL1 = gui->themeTG->load("Label");
+	tgui::Label::Ptr LiL1 = resources.gfx->themeTG->load("Label");
 	LiL1->setText("Username");
 	LiL1->setPosition(20, 83);
 	panel->add(LiL1);
 
-	tgui::Label::Ptr LiL2 = gui->themeTG->load("Label");
+	tgui::Label::Ptr LiL2 = resources.gfx->themeTG->load("Label");
 	LiL2->setText("Password");
 	LiL2->setPosition(23, 123);
 	panel->add(LiL2);
 
-	LiE1 = gui->themeTG->load("EditBox");
+	LiE1 = resources.gfx->themeTG->load("EditBox");
 	LiE1->setPosition(120, 80);
 	LiE1->setSize(180, 30);
-	LiE1->setText(gui->options.username);
+	LiE1->setText(resources.options->username);
 	panel->add(LiE1);
 
-	LiE2 = gui->themeTG->load("EditBox");
+	LiE2 = resources.gfx->themeTG->load("EditBox");
 	LiE2->setPosition(120, 120);
 	LiE2->setSize(180, 30);
 	LiE2->setPasswordCharacter('*');
-	if (gui->options.rememberme) {
+	if (resources.options->rememberme) {
 		sf::String boguspass;
-		for (int i=0; i<gui->options.pass; i++)
+		for (int i=0; i<resources.options->pass; i++)
 			boguspass+="b";
 		LiE2->setText(boguspass);
 	}
@@ -54,64 +50,67 @@ void LoginBox::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent) {
 	LiE2->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiE2);
 
-	tgui::CheckBox::Ptr remember = gui->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr remember = resources.gfx->themeTG->load("CheckBox");
 	remember->setText("Remember me");
 	remember->setPosition(120, 160);
-	if (gui->options.rememberme)
+	if (resources.options->rememberme)
 		remember->check();
-	remember->connect("Checked", [&](){ gui->options.rememberme=true; });
-	remember->connect("Unchecked", [&](){ gui->options.rememberme=false; });
+	remember->connect("Checked", [&](){ resources.options->rememberme=true; });
+	remember->connect("Unchecked", [&](){ resources.options->rememberme=false; });
 	panel->add(remember);
 
-	tgui::Button::Ptr LiB1 = gui->themeTG->load("Button");
+	tgui::Button::Ptr LiB1 = resources.gfx->themeTG->load("Button");
 	LiB1->setPosition(160, 200);
 	LiB1->setSize(100, 40);
 	LiB1->setText("Login");
 	LiB1->connect("pressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiB1);
 
-	tgui::Button::Ptr regButton = gui->themeTG->load("Button");
+	tgui::Button::Ptr regButton = resources.gfx->themeTG->load("Button");
 	regButton->setPosition(20, 220);
 	regButton->setSize(100, 30);
 	regButton->setText("Register");
 	regButton->connect("pressed", &LoginBox::regPressed, this);
 	panel->add(regButton);
 
-	tgui::Button::Ptr forgotButton = gui->themeTG->load("Button");
+	tgui::Button::Ptr forgotButton = resources.gfx->themeTG->load("Button");
 	forgotButton->setPosition(20, 260);
 	forgotButton->setSize(160, 30);
 	forgotButton->setText("Forgot password");
 	forgotButton->connect("pressed", &LoginBox::forgotPressed, this);
 	panel->add(forgotButton);
 
-	tgui::Label::Ptr LiL4 = gui->themeTG->load("Label");
+	tgui::Label::Ptr LiL4 = resources.gfx->themeTG->load("Label");
 	LiL4->setText("Play as guest");
 	LiL4->setPosition(145, 330);
 	panel->add(LiL4);
 
-	tgui::Label::Ptr LiL3 = gui->themeTG->load("Label");
+	tgui::Label::Ptr LiL3 = resources.gfx->themeTG->load("Label");
 	LiL3->setText("Name");
 	LiL3->setPosition(53, 363);
 	panel->add(LiL3);
 
-	tgui::EditBox::Ptr LiE3 = gui->themeTG->load("EditBox");
+	tgui::EditBox::Ptr LiE3 = resources.gfx->themeTG->load("EditBox");
 	LiE3->setPosition(120, 360);
 	LiE3->setSize(180, 30);
 	LiE3->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiE3);
 
-	tgui::Button::Ptr LiB3 = gui->themeTG->load("Button");
+	tgui::Button::Ptr LiB3 = resources.gfx->themeTG->load("Button");
 	LiB3->setPosition(135, 410);
 	LiB3->setSize(150, 40);
 	LiB3->setText("Login as Guest");
 	LiB3->connect("pressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiB3);
+
+	Signals::IsLoginThreadJoinable.connect(&LoginBox::isThreadJoinable, this);
+	Signals::TellPatcherToQuit.connect(&LoginBox::tellPatcherToQuit, this);
 }
 
 void LoginBox::launchLogin(sf::Uint8 guest) {
-	gui->mainMenu->hide();
-	gui->connectingScreen->show();
-	gui->connectingScreen->label->setText("Connecting to server...");
+	Signals::Hide(0);
+	connectingScreen.show();
+	connectingScreen.label->setText("Connecting to server...");
 	t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
 }
 
@@ -119,109 +118,109 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 	if (guest && !name.getSize())
 		return;
 	patcher.status=1;
-	if (gui->net.connect() == sf::Socket::Done) {
-		gui->net.udpSock.unbind();
-		gui->net.udpSock.bind(sf::Socket::AnyPort);
+	if (resources.net->connect() == sf::Socket::Done) {
+		resources.net->udpSock.unbind();
+		resources.net->udpSock.bind(sf::Socket::AnyPort);
 		sf::String hash;
 		if (!guest) {
 			patcher.status=2;
-			if (!edited && gui->options.rememberme)
-				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + gui->options.hash + "&machineid=" + machineid::machineHash(), 1);
+			if (!edited && resources.options->rememberme)
+				hash = resources.net->sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + resources.options->hash + "&machineid=" + machineid::machineHash(), 1);
 			else
-				hash = gui->net.sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass + "&machineid=" + machineid::machineHash(), 1);
-			if (gui->options.rememberme) {
+				hash = resources.net->sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass + "&machineid=" + machineid::machineHash(), 1);
+			if (resources.options->rememberme) {
 				if (hash.getSize() < 40)
-					cout << hash.toAnsiString() << endl << gui->options.hash.toAnsiString() << endl;
+					cout << hash.toAnsiString() << endl << resources.options->hash.toAnsiString() << endl;
 				else
-					gui->options.hash = hash.substring(20);
+					resources.options->hash = hash.substring(20);
 			}
 			else
-				gui->options.hash = "null";
+				resources.options->hash = "null";
 			patcher.status=3;
 			hash = hash.substring(0,20);
-			gui->options.username=name;
-			gui->options.pass = pass.getSize();
+			resources.options->username=name;
+			resources.options->pass = pass.getSize();
 			sendLogin(hash, guest);
 		}
 		else {
 			patcher.status=3;
 			sendLogin(name, guest);
-			gui->game.field.text.setName(name);
+			//gui->game.field.text.setName(name);
 		}
-		gui->playonline=true;
-		gui->onlineplayUI->updateRoomListTime = gui->delayClock.getElapsedTime() + sf::seconds(5);
-		((guiBase*)gui->chatScreen)->show();
+		resources.playonline=true;
+		Signals::SetRoomListTime();
+		Signals::Show(11);
 	}
 	else {
-		gui->net.disconnect();
+		resources.net->disconnect();
 		patcher.status=-1;
 	}
 }
 
 void LoginBox::checkStatus() {
 	if (patcher.status == 2) {
-		gui->connectingScreen->label->setText("Doing secure auth with auth-server...");
-		gui->connectingScreen->label->setPosition(130, 290);
-		gui->connectingScreen->changelog->hide();
-		gui->connectingScreen->cancel->hide();
-		gui->connectingScreen->apply->hide();
-		gui->connectingScreen->apply->disable();
+		connectingScreen.label->setText("Doing secure auth with auth-server...");
+		connectingScreen.label->setPosition(130, 290);
+		connectingScreen.changelog->hide();
+		connectingScreen.cancel->hide();
+		connectingScreen.apply->hide();
+		connectingScreen.apply->disable();
 	}
 	else if (patcher.status == 3)
-		gui->connectingScreen->label->setText("Waiting for auth-response from game-server...");
+		connectingScreen.label->setText("Waiting for auth-response from game-server...");
 	else if (patcher.status == -1) {
 		t.join();
-		gui->quickMsg("Could not connect to server");
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		Signals::QuickMsg("Could not connect to server");
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	else if (patcher.status == 4) {
 		t.join();
-		gui->quickMsg("No new version found");
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		Signals::QuickMsg("No new version found");
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	else if (patcher.status == 5) {
-		gui->connectingScreen->label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
-		gui->connectingScreen->label->setPosition(130, 40);
-		gui->connectingScreen->changelog->setText(patcher.changelog);
-		gui->connectingScreen->changelog->show();
-		gui->connectingScreen->cancel->show();
+		connectingScreen.label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
+		connectingScreen.label->setPosition(130, 40);
+		connectingScreen.changelog->setText(patcher.changelog);
+		connectingScreen.changelog->show();
+		connectingScreen.cancel->show();
 	}
 	else if (patcher.status == 6) {
 		t.join();
-		gui->connectingScreen->label->setText("Patch is ready!");
-		gui->connectingScreen->apply->show();
-		gui->connectingScreen->apply->enable();
+		connectingScreen.label->setText("Patch is ready!");
+		connectingScreen.apply->show();
+		connectingScreen.apply->enable();
 	}
 	else if (patcher.status == -2) {
 		t.join();
-		gui->quickMsg("Error talking to patch server");
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		Signals::QuickMsg("Error talking to patch server");
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	else if (patcher.status == -3) {
 		t.join();
-		gui->quickMsg("Error downloading file");
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		Signals::QuickMsg("Error downloading file");
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	else if (patcher.status == -4) {
 		t.join();
-		gui->quickMsg("The md5-sum for downloaded file did not match, aborting");
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		Signals::QuickMsg("The md5-sum for downloaded file did not match, aborting");
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	else if (patcher.status == -5) {
 		t.join();
-		gui->quickMsg("Error saving file");
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		Signals::QuickMsg("Error saving file");
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	else if (patcher.status == -6) {
 		t.join();
-		gui->connectingScreen->hide();
-		gui->mainMenu->show();
+		connectingScreen.hide();
+		Signals::Show(0);
 	}
 	patcher.status=0;
 }
@@ -232,10 +231,9 @@ void LoginBox::show() {
 }
 
 void LoginBox::sendLogin(const sf::String& hashorname, sf::Uint8 guest) {
-	sf::Uint8 packetid = 2;
-	gui->net.packet.clear();
-	gui->net.packet << packetid << gui->clientVersion << guest << hashorname;
-	gui->net.sendTCP();
+	sf::Packet packet;
+	packet << (sf::Uint8)2 << resources.clientVersion << guest << hashorname;
+	Signals::SendPacket(packet);
 }
 
 void LoginBox::regPressed() {
@@ -256,4 +254,12 @@ void LoginBox::forgotPressed() {
 	#else
 		system("xdg-open https://speedblocks.se/forum/ucp.php?mode=sendpassword");
 	#endif
+}
+
+bool LoginBox::isThreadJoinable() {
+	return t.joinable();
+}
+
+void LoginBox::tellPatcherToQuit() {
+	patcher.quit = true;
 }

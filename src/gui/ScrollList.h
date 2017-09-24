@@ -3,7 +3,7 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class ListItem {
 public:
@@ -19,8 +19,8 @@ public:
 	tgui::Scrollbar::Ptr scroll;
 	sf::Rect<int> pos;
 
-	void create(sf::Rect<int> _pos, UI* _gui);
-	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel);
+	ScrollList(sf::Rect<int> _pos, Resources& _res);
+	ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
 	void addItem(const sf::String& name, const sf::String& labelStr, sf::Uint16 id);
 	void removeItem(sf::Uint16 id);
 	void removeAllItems();

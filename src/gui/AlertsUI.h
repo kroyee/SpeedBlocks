@@ -14,7 +14,7 @@ class AlertsUI : public guiBase {
 	tgui::Button::Ptr clearAll;
 	sf::Uint16 idcount=0;
 public:
-	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent);
+	AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
 
 	void addAlert(const sf::String& msg);
 	void removeAlert(sf::Uint16 _id);

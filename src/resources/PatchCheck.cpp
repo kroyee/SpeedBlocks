@@ -1,4 +1,5 @@
 #include "PatchCheck.h"
+#include "Signal.h"
 #include <SFML/Network.hpp>
 #include <fstream>
 #include <curl/curl.h>
@@ -26,6 +27,10 @@ using std::endl;
 #else
 #include "EmptyResourcePath.h"
 #endif
+
+PatchCheck::PatchCheck() {
+	Signals::ApplyPatch.connect(&PatchCheck::apply, this);
+}
 
 std::string PatchCheck::exec(const std::string& cmd) {
     std::array<char, 128> buffer;

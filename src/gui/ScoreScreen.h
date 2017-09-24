@@ -5,7 +5,7 @@
 #include <SFML/Network.hpp>
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 struct ScoreRow {
 	sf::String name;
@@ -27,7 +27,7 @@ private:
 	std::vector<ScoreRow> scores;
 public:
 	sf::String unknown;
-	ScoreScreen(sf::Rect<int> _pos, UI* _gui);
+	ScoreScreen(sf::Rect<int> _pos, Resources& _res);
 	void clear();
 	void getScores(sf::Packet& packet);
 	void addRow(sf::Packet& packet);

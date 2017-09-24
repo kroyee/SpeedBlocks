@@ -3,7 +3,10 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
+class OnlineplayUI;
+
+namespace sf { class Packet; }
 
 struct Result {
 	sf::Uint8 p1_sets;
@@ -38,6 +41,7 @@ struct Participant {
 
 class TournamentUI : public guiBase {
 public:
+	OnlineplayUI& onlineplayUI;
 	std::list<TGame> games;
 	std::list<Participant> participants;
 
@@ -74,20 +78,19 @@ public:
 
 	sf::Uint8 sets, rounds, status, grade;
 	sf::Uint16 id, players;
-	sf::Uint16 myId;
 	bool moderator;
 	time_t startingTime;
 
-	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel);
+	TournamentUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel, OnlineplayUI& _opui);
 
-	void getInfo(sf::Uint16 _myId);
-	void getUpdate(sf::Uint16 _myId);
-	void getNewGameNames(TGame& game);
-	void getParticipants();
-	void getModerators();
-	void getStatus();
-	void getBracket();
-	void getResult(TGame& game);
+	void getInfo(sf::Packet &packet);
+	void getUpdate(sf::Packet &packet);
+	void getNewGameNames(TGame& game, sf::Packet &packet);
+	void getParticipants(sf::Packet& packet);
+	void getModerators(sf::Packet& packet);
+	void getStatus(sf::Packet &packet);
+	void getBracket(sf::Packet &packet);
+	void getResult(TGame& game, sf::Packet &packet);
 	void makeBracket();
 	void setButtonColors();
 	void setStatusText();

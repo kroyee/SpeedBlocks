@@ -5,6 +5,8 @@
 
 class soundBank {
 public:
+	soundBank(bool& _sound);
+
 	sf::SoundBuffer pieceDropBuff;
 	sf::SoundBuffer lineClearBuff;
 	sf::SoundBuffer garbAddBuff;
@@ -40,29 +42,17 @@ public:
 	sf::Sound startBeep2Sound;
 	sf::Sound alertSound;
 
+	std::vector<sf::Sound> soundList;
+
+	bool& sound;
+
 	sf::String loadSounds();
 
-	void pieceDrop() { pieceDropSound.play(); }
-	void lineClear() { lineClearSound.play(); }
-	void garbAdd() { garbAddSound.play(); }
-	void lineBlock() { lineBlockSound.play(); }
-	void menuSel() { menuSelSound.play(); }
-	void menuBack() { menuBackSound.play(); }
-	void combo5() { combo5Sound.play(); }
-	void combo8() { combo8Sound.play(); }
-	void combo11() { combo11Sound.play(); }
-	void combo13() { combo13Sound.play(); }
-	void combo15() { combo15Sound.play(); }
-	void combo17() { combo17Sound.play(); }
-	void combo19() { combo19Sound.play(); }
-	void combo21() { combo21Sound.play(); }
-	void startBeep1() { startBeep1Sound.play(); }
-	void startBeep2() { startBeep2Sound.play(); }
-	void alert() { alertSound.play(); }
+	void playSound(int soundId);
 
-	void setMusicVolume(short vol);
-	void setEffectVolume(short vol);
-	void setAlertVolume(short vol);
+	void setMusicVolume(int vol);
+	void setEffectVolume(int vol);
+	void setAlertVolume(int vol);
 };
 
 #endif

@@ -6,7 +6,7 @@
 #include "TournamentUI.h"
 #include "ChallengesUI.h"
 
-class UI;
+class Resources;
 
 class OnlineplayUI : public guiBase {
 public:
@@ -33,19 +33,19 @@ public:
 
 	sf::Time updateRoomListTime, updateTournamentListTime;
 
-	void create(sf::Rect<int> _pos, UI* _gui);
+	OnlineplayUI(sf::Rect<int> _pos, Resources& _res);
 
 	void opTabSelect(const std::string& tab);
 	void hideAllPanels(bool keepTournamentOpen = false);
 
 	void createRoom(const sf::String& name, const sf::String& maxplayers);
-	void makeRoomList();
-	void addRoom();
+	void makeRoomList(sf::Packet &packet);
+	void addRoom(sf::Packet &packet);
 
 	void createRoomPressed();
 
-	void makeTournamentList();
-	void addTournament();
+	void makeTournamentList(sf::Packet &packet);
+	void addTournament(sf::Packet &packet);
 
 	void createTournamentPressed();
 
@@ -56,6 +56,8 @@ public:
 	void alertMsg(const sf::Uint16 id1);
 
 	void back();
+
+	void setRoomListTime();
 };
 
 #endif

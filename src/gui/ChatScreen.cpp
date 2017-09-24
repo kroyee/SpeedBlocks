@@ -1,11 +1,10 @@
 #include "ChatScreen.h"
-#include "gui.h"
-#include "gamePlay.h"
+#include "Signal.h"
+#include <SFML/Network.hpp>
 
 const unsigned int chatTextSize = 14;
 
-ChatScreen::ChatScreen(sf::Rect<int> _pos, UI* _gui) {
-	createBase(_pos, _gui);
+ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	panel->disable(false);
 	to = "Lobby";
 	privto = "";
@@ -13,9 +12,9 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, UI* _gui) {
 
 	panel->disable(false);
 	spamCount=0;
-	spamTime=gui->delayClock.getElapsedTime();
+	spamTime=sf::seconds(0);
 
-	chatBox = gui->themeTG->load("ChatBox");
+	chatBox = resources.gfx->themeTG->load("ChatBox");
 	chatBox->setPosition(5, 5);
 	chatBox->setSize(470, 555);
 	chatBox->getRenderer()->setBackgroundColor(sf::Color(200,200,200,128));
@@ -25,7 +24,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, UI* _gui) {
 	chatBox->hide();
 	panel->add(chatBox);
 
-	chatBoxNoLobby = gui->themeTG->load("ChatBox");
+	chatBoxNoLobby = resources.gfx->themeTG->load("ChatBox");
 	chatBoxNoLobby->setPosition(5, 5);
 	chatBoxNoLobby->setSize(470, 555);
 	chatBoxNoLobby->getRenderer()->setBackgroundColor(sf::Color(200,200,200,128));
@@ -35,7 +34,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, UI* _gui) {
 	chatBoxNoLobby->hide();
 	panel->add(chatBoxNoLobby);
 
-	fadingChatBox = gui->themeTG->load("ChatBox");
+	fadingChatBox = resources.gfx->themeTG->load("ChatBox");
 	fadingChatBox->setPosition(5, 5);
 	fadingChatBox->setSize(470, 555);
 	fadingChatBox->getRenderer()->setBackgroundColor(sf::Color(200,200,200,128));
@@ -44,35 +43,44 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, UI* _gui) {
 	fadingChatBox->disable(false);
 	panel->add(fadingChatBox);
 
-	hideLobby = gui->themeTG->load("CheckBox");
+	hideLobby = resources.gfx->themeTG->load("CheckBox");
 	hideLobby->setText("Hide Lobby chat");
 	hideLobby->setPosition(panel->getPosition().x+300, panel->getPosition().y+40);
 	hideLobby->connect("Checked", [&](){ hideLobbyChat=true; chatBox->hide(); chatBoxNoLobby->show(); });
 	hideLobby->connect("Unchecked", [&](){ hideLobbyChat=false; chatBox->show(); chatBoxNoLobby->hide(); });
 	hideLobby->hide();
-	gui->tGui.add(hideLobby);
+	resources.gfx->tGui.add(hideLobby);
 
-	input = gui->themeTG->load("EditBox");
+	input = resources.gfx->themeTG->load("EditBox");
 	input->setPosition(panel->getPosition().x+5, panel->getPosition().y+565);
 	input->setSize(470, 30);
 	input->connect("ReturnKeyPressed", &ChatScreen::send, this);
 	input->hide();
-	gui->tGui.add(input);
+	resources.gfx->tGui.add(input);
 
-	sendToLabel = gui->themeTG->load("Label");
+	sendToLabel = resources.gfx->themeTG->load("Label");
 	sendToLabel->setPosition(panel->getPosition().x-100, panel->getPosition().y+568);
 	sendToLabel->setText("Lobby:");
 	sendToLabel->setSize(100, 25);
 	sendToLabel->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	sendToLabel->disable(false);
 	sendToLabel->hide();
-	gui->tGui.add(sendToLabel);
+	resources.gfx->tGui.add(sendToLabel);
 
 	t1 = sf::Color(0,0,0,200);
 	t2 = sf::Color(0,128,0,200);
 	t3 = sf::Color(128,0,0,200);
 	t4 = sf::Color(50,50,50,200);
 	t5 = sf::Color(128,50,50,200);
+
+	Net::takePacket(12, [&](sf::Packet &packet){
+		sf::String name, msg;
+		sf::Uint8 type;
+		packet >> type >> name >> msg;
+		if (type == 3)
+			privto = name;
+		addLine(name + ": " + msg, type);
+	});
 }
 
 void ChatScreen::activate() {
@@ -120,12 +128,12 @@ void ChatScreen::send() {
 			sf::String _privto = msg.substring(3, until-3);
 			sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
 			sendMsg(_privto, privmsg);
-			addLine(gui->game.field.text.name + ": " + privmsg, 5);
+			addLine(resources.name + ": " + privmsg, 5);
 			spamCount+=2000;
 			sendTo(_privto, true);
 			return;
 		}
-	sf::String postmsg = gui->game.field.text.name + ": " + msg;
+	sf::String postmsg = resources.name + ": " + msg;
 
 	for (unsigned int i=0; i<msg.getSize(); i++)
 		if (msg[i] != ' ') {
@@ -140,15 +148,15 @@ void ChatScreen::send() {
 }
 
 void ChatScreen::sendMsg(const sf::String& to, const sf::String& msg) {
-	gui->net.packet.clear();
-	gui->net.packet << (sf::Uint8)10;
+	sf::Packet packet;
+	packet << (sf::Uint8)10;
 	if (to == "Room")
-		gui->net.packet << (sf::Uint8)1 << msg;
+		packet << (sf::Uint8)1 << msg;
 	else if (to == "Lobby")
-		gui->net.packet << (sf::Uint8)2 << msg;
+		packet << (sf::Uint8)2 << msg;
 	else
-		gui->net.packet << (sf::Uint8)3 << to << msg;
-	gui->net.sendTCP();
+		packet << (sf::Uint8)3 << to << msg;
+	Signals::SendPacket(packet);
 }
 
 void ChatScreen::addLine(const sf::String& msg, sf::Uint8 type) { //1=room, 2=lobby, 3=priv, 4=self, 5=privself
@@ -165,19 +173,10 @@ void ChatScreen::addLine(const sf::String& msg, sf::Uint8 type) { //1=room, 2=lo
 	chatBox->addLine(msg, color);
 	if (type != 2 || !hideLobbyChat) {
 		fadingChatBox->addLine(msg, color);
-		fadeTime.push_front(gui->delayClock.getElapsedTime()+sf::seconds(5));
+		fadeTime.push_front(resources.delayClock.getElapsedTime()+sf::seconds(5));
 	}
 	if (type != 2)
 		chatBoxNoLobby->addLine(msg, color);
-}
-
-void ChatScreen::getMsg() {
-	sf::String name, msg;
-	sf::Uint8 type;
-	gui->net.packet >> type >> name >> msg;
-	if (type == 3)
-		privto = name;
-	addLine(name + ": " + msg, type);
 }
 
 void ChatScreen::fade(const sf::Time& t) {
@@ -240,7 +239,7 @@ void ChatScreen::sendTo(const sf::String& _to, bool force) {
 
 void ChatScreen::toggleSendTo() {
 	if (to == "Lobby") {
-		if (gui->gameFieldDrawer.isVisible())
+		if (resources.gamestate != GameStates::MainMenu && resources.gamestate != GameStates::Replay)
 			sendTo("Room");
 		else if (privto != "")
 			sendTo(privto);

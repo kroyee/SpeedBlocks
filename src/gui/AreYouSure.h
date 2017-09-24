@@ -3,15 +3,17 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class AreYouSure : public guiBase {
 public:
 	tgui::Label::Ptr label;
 	
-	void create(sf::Rect<int> _pos, UI* _gui);
+	AreYouSure(sf::Rect<int> _pos, Resources& _res);
 	void ausY();
 	void ausN();
+
+	void setAUS(const sf::String& text);
 };
 
 #endif

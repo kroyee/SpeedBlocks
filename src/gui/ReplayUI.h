@@ -3,7 +3,7 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class ReplayUI : public guiBase {
 public:
@@ -23,7 +23,7 @@ public:
 	sf::String nameBackup;
 	bool backup;
 
-	void create(sf::Rect<int> _pos, UI* _ui);
+	ReplayUI(sf::Rect<int> _pos, Resources& _res);
 	void show(bool showTournamentControls=false);
 	void hide();
 

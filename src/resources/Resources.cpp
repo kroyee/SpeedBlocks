@@ -1,4 +1,8 @@
 #include "Resources.h"
+#include "textures.h"
+#include "network.h"
+#include "sounds.h"
+#include "optionSet.h"
 #include <TGUI/TGUI.hpp>
 
 bool loadError(sf::String error) {
@@ -27,22 +31,38 @@ bool loadError(sf::String error) {
     return true;
 }
 
+Resources::Resources(sf::RenderWindow& _window) : options(new optionSet), gfx(new textures(_window)),
+sounds(new soundBank(options->sound)), net(new network), window(_window), playonline(false), away(false),
+restart(false) {
+    version_major = 0;
+    version_minor = 1;
+    version_patch = 10;
+    clientVersion = version_major*10000 + version_minor*100 + version_patch;
+}
+
+Resources::~Resources() {
+    delete options;
+    delete gfx;
+    delete sounds;
+    delete net;
+}
+
 bool Resources::init() {
-    if (loadError(gfx.loadTextures()))
+    if (loadError(gfx->loadTextures()))
         return false;
-    if (!options.noSound) {
-        if (loadError(sounds.loadSounds()))
+    if (!options->noSound) {
+        if (loadError(sounds->loadSounds()))
             return false;
-        sounds.setEffectVolume(options.EffectVolume);
-        sounds.setMusicVolume(options.MusicVolume);
-        sounds.setAlertVolume(options.ChatVolume);
+        sounds->setEffectVolume(options->EffectVolume);
+        sounds->setMusicVolume(options->MusicVolume);
+        sounds->setAlertVolume(options->ChatVolume);
     }
     else
-        options.sound=false;
+        options->sound=false;
 
-    gamestate = MainMenu;
+    gamestate = GameStates::MainMenu;
 
-    gfx.setGhostPieceAlpha(options.ghostPieceAlpha);
+    gfx->setGhostPieceAlpha(options->ghostPieceAlpha);
 
     return true;
 }

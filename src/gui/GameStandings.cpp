@@ -1,60 +1,62 @@
 #include "GameStandings.h"
-#include "gui.h"
-#include "gameField.h"
+#include "Signal.h"
+#include <SFML/Network.hpp>
 using std::to_string;
 
-void GameStandings::create(sf::Rect<int> _pos, UI* _ui) {
-	createBase(_pos, _ui);
+GameStandings::GameStandings(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
-	tgui::Label::Ptr widget0 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
 	widget0->setPosition(31,0);
 	widget0->setText("Sets");
 	widget0->setTextSize(18);
 	panel->add(widget0);
 
-	rounds = gui->themeTG->load("Label");
+	rounds = resources.gfx->themeTG->load("Label");
 	rounds->setPosition(16,50);
 	rounds->setText("Rounds");
 	rounds->setTextSize(18);
 	panel->add(rounds);
 
-	p1_sets = gui->themeTG->load("Label");
+	p1_sets = resources.gfx->themeTG->load("Label");
 	p1_sets->setPosition(10,25);
 	p1_sets->setText("0");
 	p1_sets->setTextSize(18);
 	panel->add(p1_sets);
 
-	p2_sets = gui->themeTG->load("Label");
+	p2_sets = resources.gfx->themeTG->load("Label");
 	p2_sets->setPosition(80,25);
 	p2_sets->setText("0");
 	p2_sets->setTextSize(18);
 	panel->add(p2_sets);
 
-	p1_rounds = gui->themeTG->load("Label");
+	p1_rounds = resources.gfx->themeTG->load("Label");
 	p1_rounds->setPosition(10,75);
 	p1_rounds->setText("0");
 	p1_rounds->setTextSize(18);
 	panel->add(p1_rounds);
 
-	p2_rounds = gui->themeTG->load("Label");
+	p2_rounds = resources.gfx->themeTG->load("Label");
 	p2_rounds->setPosition(80,75);
 	p2_rounds->setText("0");
 	p2_rounds->setTextSize(18);
 	panel->add(p2_rounds);
+
+	Net::takePacket(24, &GameStandings::setResults, this);
+	Net::takeSignal(3, &GameStandings::setWaitTime, this);
 }
 
-void GameStandings::setResults() {
-	if (gui->gamestate == Spectating)
+void GameStandings::setResults(sf::Packet &packet) {
+	if (resources.gamestate == GameStates::Spectating)
 		panel->setPosition(365, 195);
 	else
 		panel->setPosition(330, 185);
 
-    gui->net.packet >> p1_id >> p2_id >> _p1_sets >> _p2_sets >> _p1_rounds >> _p2_rounds;
+    packet >> p1_id >> p2_id >> _p1_sets >> _p2_sets >> _p1_rounds >> _p2_rounds;
 
-    if (gui->gamestate == Spectating) {
+    if (resources.gamestate == GameStates::Spectating) {
     	bool p2=true;
-    	if (gui->gameFieldDrawer.fields.size())
-	    	if (p1_id == gui->gameFieldDrawer.fields.front().id) {
+    	if (Signals::AreThereFields(1))
+	    	if (p1_id == Signals::AreThereFields(1)) {
 		        p1_sets->setText(to_string(_p1_sets));
 		        p2_sets->setText(to_string(_p2_sets));
 		        p1_rounds->setText(to_string(_p1_rounds));
@@ -70,7 +72,7 @@ void GameStandings::setResults() {
 	    }
     }
     else {
-	    if (p1_id == gui->myId) {
+	    if (p1_id == resources.myId) {
 	        p1_sets->setText(to_string(_p1_sets));
 	        p2_sets->setText(to_string(_p2_sets));
 	        p1_rounds->setText(to_string(_p1_rounds));
@@ -97,7 +99,7 @@ void GameStandings::setResults() {
 }
 
 void GameStandings::setWaitTime(sf::Uint16 time) {
-	if (gui->gamestate == Spectating)
+	if (resources.gamestate == GameStates::Spectating)
 		panel->setPosition(365, 195);
 	else
 		panel->setPosition(330, 185);
@@ -110,8 +112,8 @@ void GameStandings::setWaitTime(sf::Uint16 time) {
 
 void GameStandings::alignResult() {
 	bool p2=true;
-	if (gui->gameFieldDrawer.fields.size())
-    	if (p1_id == gui->gameFieldDrawer.fields.front().id) {
+	if (Signals::AreThereFields(1))
+    	if (p1_id == Signals::AreThereFields(1)) {
 	        p1_sets->setText(to_string(_p1_sets));
 	        p2_sets->setText(to_string(_p2_sets));
 	        p1_rounds->setText(to_string(_p1_rounds));
@@ -132,8 +134,8 @@ void GameStandings::alignResult() {
     }
     p1_rounds->setPosition(10,75);
 
-    if (gui->gameFieldDrawer.fields.size() == 1)
-    	gui->gameFieldDrawer.setSize(470, 555);
+    if (Signals::AreThereFields(0) == 1)
+    	Signals::SetFieldsSize(470, 555);
     else
-    	gui->gameFieldDrawer.setSize(950, 555);
+    	Signals::SetFieldsSize(950, 555);
 }

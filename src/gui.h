@@ -7,6 +7,7 @@
 #include "GameFieldDrawer.h"
 #include "PingHandle.h"
 #include "CountdownHandle.h"
+#include <functional>
 
 class optionSet;
 class soundBank;
@@ -19,7 +20,6 @@ class Resources;
 class Menu;
 class LoginBox;
 class GameOptions;
-class Connecting;
 class OnlineplayUI;
 class AreYouSure;
 class PerformanceOutput;
@@ -33,6 +33,7 @@ class ScoreScreen;
 class AnimatedBackground;
 class ServerUI;
 class AlertsUI;
+class guiBase;
 
 class obsField;
 
@@ -41,13 +42,9 @@ public:
 	UI(sf::RenderWindow& window_, gamePlay& game_);
 	~UI();
 
-	tgui::Gui tGui;
-	tgui::Theme::Ptr themeTG;
-
 	Menu* mainMenu;
 	LoginBox* loginBox;
 	GameOptions* gameOptions;
-	Connecting* connectingScreen;
 	OnlineplayUI* onlineplayUI;
 	AreYouSure* areYouSure;
 	PerformanceOutput* performanceOutput;
@@ -63,6 +60,8 @@ public:
 	ServerUI* serverUI;
 	AlertsUI* alertsUI;
 
+	std::vector<guiBase*> guiElements;
+
 	Resources& resources;
 	optionSet& options;
 	gamePlay& game;
@@ -72,18 +71,14 @@ public:
 
 	sf::RenderWindow* window;
 
-	bool playonline;
 	bool chatFocused;
 	bool away;
-	bool restart;
 
 	sf::Uint16 linesSent, garbageCleared, linesBlocked;
 
-	sf::Uint16 clientVersion;
-
 	sf::Time quickMsgTime;
 	sf::Time udpPortTime;
-	sf::Clock delayClock;
+	sf::Clock& delayClock;
 
 	bool udpConfirmed;
 
@@ -91,15 +86,15 @@ public:
 
 	void setGameState(GameStates state);
 
-	void setCountdown();
+	void setCountdown(sf::Packet &packet);
 
-	void joinRoom(sf::Uint16);
+	void joinRoom(int);
 	void leaveRoom();
 
 	void chatFocus(bool i);
 
 	void quickMsg(const sf::String& msg);
-	void receiveRecording();
+	void receiveRecording(sf::Packet &packet);
 
 	void iGotKicked(sf::Uint16 reason);
 	void getAlert();
@@ -111,7 +106,7 @@ public:
 	PacketCompress compressor;
 	sf::Time gamedata;
 	sf::Uint8 gamedatacount;
-	sf::Uint16 myId;
+	sf::Uint16& myId;
 
 	void handleEvent(sf::Event& event);
 
@@ -126,15 +121,12 @@ public:
 	void handlePacket();
 	void handleSignal();
 
+	void getGameState(sf::Packet&);
+
 	void sendGameData();
 	void sendGameState();
 	void sendGameOver();
 	void sendGameWinner();
-
-	void goAway();
-	void unAway();
-
-	void ready();
 
 	void delayCheck();
 
@@ -143,6 +135,15 @@ public:
 	void setWidgetTextColor(sf::Color color);
 
 	void setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets);
+
+	void showElement(int elem);
+	void hideElement(int elem);
+	void enableElement(int elem);
+	void disableElement(int elem);
+	bool isVisible(int elem);
+
+	void joinRoomResponse(sf::Packet &packet);
+	void getAuthResult(sf::Packet &packet);
 };
 
 #endif

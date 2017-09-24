@@ -2,18 +2,21 @@
 #define GUIBASE_H
 
 #include <TGUI/TGUI.hpp>
+#include "textures.h"
+#include "Resources.h"
 
-class UI;
+class Resources;
 
 class guiBase {
 public:
 	tgui::Panel::Ptr panel;
-	UI* gui;
+	Resources& resources;
 
-	void createBase(sf::Rect<int> _pos, UI* _gui);
-	void createBase(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel);
-	void show() { panel->show(); }
-	void hide() { panel->hide(); }
+	guiBase(sf::Rect<int> _pos, Resources& _res);
+	guiBase(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
+	virtual ~guiBase();
+	virtual void show() { panel->show(); }
+	virtual void hide() { panel->hide(); }
 	void enable() { panel->enable(); }
 	void disable() { panel->disable(); }
 	bool isVisible() { return (panel->isVisible()) ? true : false; }

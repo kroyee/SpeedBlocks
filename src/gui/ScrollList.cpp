@@ -1,13 +1,13 @@
 #include "ScrollList.h"
-#include "gui.h"
+#include "Signal.h"
+
 using std::cout;
 using std::endl;
 
-void ScrollList::create(sf::Rect<int> _pos, UI* _gui) {
-	createBase(_pos, _gui);
+ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	pos = _pos;
 
-	scroll = gui->themeTG->load("Scrollbar");
+	scroll = resources.gfx->themeTG->load("Scrollbar");
 	scroll->setSize(30, pos.height-10);
 	scroll->setPosition(pos.width-35, 5);
 	scroll->setMaximum(0);
@@ -16,11 +16,10 @@ void ScrollList::create(sf::Rect<int> _pos, UI* _gui) {
 	panel->add(scroll);
 }
 
-void ScrollList::create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parentPanel) {
-	createBase(_pos, _gui, parentPanel);
+ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : guiBase(_pos, _res, parentPanel) {
 	pos = _pos;
 
-	scroll = gui->themeTG->load("Scrollbar");
+	scroll = resources.gfx->themeTG->load("Scrollbar");
 	scroll->setSize(30, pos.height-10);
 	scroll->setPosition(pos.width-35, 5);
 	scroll->setMaximum(0);
@@ -33,13 +32,13 @@ void ScrollList::addItem(const sf::String& name, const sf::String& labelStr, sf:
 	ListItem newItem;
 	items.push_back(newItem);
 	items.back().name = name;
-	items.back().button = gui->themeTG->load("Button");
+	items.back().button = resources.gfx->themeTG->load("Button");
 	items.back().button->setText(name);
 	items.back().button->setSize(300, 100);
-	items.back().button->connect("Pressed", &UI::joinRoom, gui, id);
+	items.back().button->connect("Pressed", [=](){ Signals::JoinRoom(id); });
 	panel->add(items.back().button);
 
-	items.back().label = gui->themeTG->load("Label");
+	items.back().label = resources.gfx->themeTG->load("Label");
 	items.back().label->setTextSize(14);
 	items.back().label->setText(labelStr);
 	items.back().label->disable(false);

@@ -1,6 +1,6 @@
 #include "Recording.h"
-#include "network.h"
 #include "packetcompress.h"
+#include "Signal.h"
 #include <iostream>
 #include <fstream>
 
@@ -9,6 +9,13 @@
 #else
 #include "EmptyResourcePath.h"
 #endif
+
+Recording::Recording() {
+	Signals::GetRecDuration.connect(&Recording::getRecorderDuration, this);
+	Signals::GetRecTime.connect(&Recording::getRecorderTime, this);
+	Signals::RecJumpTo.connect(&Recording::jumpTo, this);
+	Signals::RecGetName.connect(&Recording::getName, this);
+}
 
 void Recording::clear() {
 	for (int y=0; y<22; y++)
@@ -39,7 +46,7 @@ void Recording::stop() {
 	rec=false;
 }
 
-void Recording::jumpTo(sf::Uint32 startTime) {
+void Recording::jumpTo(int startTime) {
 	timer.restart();
 	startAt = sf::milliseconds(startTime);
 	currentEvent=0;
@@ -263,17 +270,29 @@ void Recording::load(std::string filename) {
 	file.close();
 }
 
-void Recording::sendRecording(network& net, sf::Uint16 type) {
-	net.packet.clear();
-	net.packet << (sf::Uint8)1 << type;
+void Recording::sendRecording(sf::Uint16 type) {
+	sf::Packet packet;
+	packet << (sf::Uint8)1 << type;
 	PacketCompress compressor;
-	compressor.compressReplay(*this, net.packet);
-	net.sendTCP();
+	compressor.compressReplay(*this, packet);
+	Signals::SendPacket(packet);
 }
 
-void Recording::receiveRecording(network& net) {
+void Recording::receiveRecording(sf::Packet &packet) {
 	events.clear();
 
 	PacketCompress compressor;
-	compressor.extractReplay(*this, net.packet);
+	compressor.extractReplay(*this, packet);
+}
+
+const sf::Time& Recording::getRecorderDuration() {
+	return duration;
+}
+
+sf::Time Recording::getRecorderTime() {
+	return timer.getElapsedTime() + startAt;
+}
+
+const sf::String& Recording::getName() {
+	return name;
 }

@@ -3,14 +3,16 @@
 
 #include "guiBase.h"
 
-class UI;
+class Resources;
 
 class Connecting : public guiBase {
 public:
 	tgui::Label::Ptr label;
 	tgui::TextBox::Ptr changelog;
 	tgui::Button::Ptr cancel, apply;
-	void create(sf::Rect<int> _pos, UI* _gui);
+	Connecting(sf::Rect<int> _pos, Resources& _res);
+
+	void setText(const sf::String& text);
 };
 
 #endif

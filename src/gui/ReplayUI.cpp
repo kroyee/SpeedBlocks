@@ -1,69 +1,66 @@
 #include "ReplayUI.h"
-#include "gui.h"
-#include "gamePlay.h"
-#include "ChallengesGameUI.h"
+#include "Signal.h"
 using std::cout;
 using std::endl;
 using std::to_string;
 
-void ReplayUI::create(sf::Rect<int> _pos, UI* _ui) {
-	createBase(_pos, _ui);
+ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
-	timeTotal = gui->themeTG->load("Label");
+	timeTotal = resources.gfx->themeTG->load("Label");
 	timeTotal->setPosition(440,5);
 	timeTotal->setText("00:00");
 	timeTotal->setTextSize(18);
 	panel->add(timeTotal);
 
-	playPause = gui->themeTG->load("Button");
+	playPause = resources.gfx->themeTG->load("Button");
 	playPause->setPosition(116,35);
 	playPause->setSize(85,30);
 	playPause->setText("Pause");
 	playPause->connect("pressed", &ReplayUI::pause, this);
 	panel->add(playPause);
 
-	gameForward = gui->themeTG->load("Button");
+	gameForward = resources.gfx->themeTG->load("Button");
 	gameForward->setPosition(212,35);
 	gameForward->setSize(30,30);
 	gameForward->setText(">");
 	panel->add(gameForward);
 
-	setForward = gui->themeTG->load("Button");
+	setForward = resources.gfx->themeTG->load("Button");
 	setForward->setPosition(252,35);
 	setForward->setSize(40,30);
 	setForward->setText(">>");
 	panel->add(setForward);
 
-	gameBack = gui->themeTG->load("Button");
+	gameBack = resources.gfx->themeTG->load("Button");
 	gameBack->setPosition(75,35);
 	gameBack->setSize(30,30);
 	gameBack->setText("<");
 	panel->add(gameBack);
 
-	setBack = gui->themeTG->load("Button");
+	setBack = resources.gfx->themeTG->load("Button");
 	setBack->setPosition(24,35);
 	setBack->setSize(40,30);
 	setBack->setText("<<");
 	panel->add(setBack);
 
-	timePlayed = gui->themeTG->load("Label");
+	timePlayed = resources.gfx->themeTG->load("Label");
 	timePlayed->setPosition(0,5);
 	timePlayed->setText("00:00");
 	timePlayed->setTextSize(18);
 	panel->add(timePlayed);
 
-	seekbar = gui->themeTG->load("ProgressBar");
+	seekbar = resources.gfx->themeTG->load("ProgressBar");
 	seekbar->setPosition(50, 5);
 	seekbar->setSize(387, 20);
 	seekbar->connect("MousePressed", &ReplayUI::seek, this);
 	panel->add(seekbar);
 
-	rounds = gui->themeTG->load("Label");
+	rounds = resources.gfx->themeTG->load("Label");
 	rounds->setPosition(310, 40);
 	rounds->setText("Round: 1");
 	panel->add(rounds);
 
-	sets = gui->themeTG->load("Label");
+	sets = resources.gfx->themeTG->load("Label");
 	sets->setPosition(420, 40);
 	sets->setText("Set: 1");
 	panel->add(sets);
@@ -86,40 +83,40 @@ void ReplayUI::show(bool showTournamentControls) {
 		setForward->hide();
 		gameBack->hide();
 		gameForward->hide();
-		nameBackup = gui->game.field.text.name;
-		gui->game.field.text.setName(gui->game.recorder.name);
+		Signals::SetName(Signals::RecGetName());
 		backup=true;
 	}
 	panel->show();
-	seekbar->setMaximum(gui->game.recorder.duration.asSeconds());
-	timeTotal->setText(displayTime(gui->game.recorder.duration.asSeconds()+1));
+	sf::Time duration = Signals::GetRecDuration();
+	seekbar->setMaximum(duration.asSeconds());
+	timeTotal->setText(displayTime(duration.asSeconds()+1));
 	playPause->setText("Pause");
 
-	if (gui->challengesGameUI->isVisible())
-		gui->challengesGameUI->startChallenge->hide();
+	if (Signals::IsVisible(8))
+		Signals::HideStartChallengeButton();
 }
 
 void ReplayUI::hide() {
 	if (backup) {
 		backup=false;
-		gui->game.field.text.setName(nameBackup);
+		Signals::SetName(resources.name);
 	}
 	panel->hide();
 }
 
 void ReplayUI::update() {
-	int value = (gui->game.recorder.timer.getElapsedTime() + gui->game.recorder.startAt).asSeconds();
+	sf::Time recTime = Signals::GetRecTime();
+	int value = recTime.asSeconds();
 	seekbar->setValue(value);
 	timePlayed->setText(displayTime(value));
 }
 
 void ReplayUI::seek(sf::Vector2f mouse) {
-	int value = (mouse.x/(float)seekbar->getSize().x)*(float)seekbar->getMaximum();
+	sf::Uint32 value = (mouse.x/(float)seekbar->getSize().x)*(float)seekbar->getMaximum();
 	seekbar->setValue(value);
-	gui->game.recorder.jumpTo(value*1000);
-	if (gui->gamestate == GameOver) {
-		gui->game.playReplay();
-		gui->game.draw();
+	Signals::RecJumpTo(value);
+	if (resources.gamestate == GameStates::GameOver) {
+		Signals::RecUpdateScreen();
 		pauseTime = sf::seconds(value);
 	}
 }
@@ -142,14 +139,14 @@ sf::String ReplayUI::displayTime(sf::Uint16 timeVal) {
 }
 
 void ReplayUI::pause() {
-	if (gui->gamestate == Replay) {
-		gui->setGameState(GameOver);
-		pauseTime = gui->game.recorder.timer.getElapsedTime() + gui->game.recorder.startAt;
+	if (resources.gamestate == GameStates::Replay) {
+		Signals::SetGameState(GameStates::GameOver);
+		pauseTime = Signals::GetRecTime();
 		playPause->setText("Play");
 	}
 	else {
-		gui->setGameState(Replay);
-		gui->game.recorder.jumpTo(pauseTime.asMilliseconds());
+		Signals::SetGameState(GameStates::Replay);
+		Signals::RecJumpTo(pauseTime.asMilliseconds());
 		playPause->setText("Pause");
 	}
 }

@@ -3,26 +3,20 @@
 
 #include "guiBase.h"
 
-struct clientInfo {
-public:
-	sf::Uint16 id;
-	sf::String name;
-};
+namespace sf { class Packet; }
 
 class ServerUI : public guiBase {
 public:
 	tgui::ListBox::Ptr LobbyList;
 	tgui::Label::Ptr motd;
 
-	std::list<clientInfo> clientList;
+	ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
 
-	void create(sf::Rect<int> _pos, UI* _gui, tgui::Panel::Ptr parent);
-
-	void makeClientList();
+	void makeClientList(sf::Packet &packet);
 	void makeLobbyList();
-	void addClient();
+	void addClient(sf::Packet &packet);
 	void putClient(sf::Uint16 id, const sf::String& name);
-	void removeClient();
+	void removeClient(sf::Packet &packet);
 	void linkPressed(sf::Uint8 type);
 	void clear();
 };

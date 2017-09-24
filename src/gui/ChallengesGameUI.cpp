@@ -1,10 +1,9 @@
 #include "ChallengesGameUI.h"
-#include "gui.h"
+#include "Signal.h"
 #include "gamePlay.h"
 using std::to_string;
 
-void ChallengesGameUI::create(sf::Rect<int> _pos, UI* _ui) {
-	createBase(_pos, _ui);
+ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
 	// Race
 
@@ -15,48 +14,48 @@ void ChallengesGameUI::create(sf::Rect<int> _pos, UI* _ui) {
 	racePanel->hide();
 	panel->add(racePanel);
 
-	tgui::Label::Ptr widget0 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
 	widget0->setPosition(177,11);
 	widget0->setText("Race");
 	widget0->setTextSize(60);
 	racePanel->add(widget0);
 
-	tgui::Label::Ptr widget1 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget1 = resources.gfx->themeTG->load("Label");
 	widget1->setPosition(61,90);
 	widget1->setText("Time Elapsed");
 	widget1->setTextSize(30);
 	racePanel->add(widget1);
 
-	tgui::Label::Ptr widget2 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget2 = resources.gfx->themeTG->load("Label");
 	widget2->setPosition(21,160);
 	widget2->setText("Lines remaining");
 	widget2->setTextSize(30);
 	racePanel->add(widget2);
 
-	tgui::Label::Ptr widget3 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget3 = resources.gfx->themeTG->load("Label");
 	widget3->setPosition(87,230);
 	widget3->setText("Blocks used");
 	widget3->setTextSize(30);
 	racePanel->add(widget3);
 
-	startChallenge = gui->themeTG->load("Button");
+	startChallenge = resources.gfx->themeTG->load("Button");
 	startChallenge->setPosition(153,311);
 	startChallenge->setSize(200,40);
 	startChallenge->setText("Start challenge");
-	startChallenge->connect("pressed", &UI::ready, gui);
+	startChallenge->connect("pressed", [&](){ Signals::Ready(); });
 	racePanel->add(startChallenge);
 
-	raceTimeElapsed = gui->themeTG->load("EditBox");
+	raceTimeElapsed = resources.gfx->themeTG->load("EditBox");
 	raceTimeElapsed->setPosition(280,87);
 	raceTimeElapsed->setSize(130,40);
 	racePanel->add(raceTimeElapsed);
 
-	raceLinesRemaining = gui->themeTG->load("EditBox");
+	raceLinesRemaining = resources.gfx->themeTG->load("EditBox");
 	raceLinesRemaining->setPosition(280,157);
 	raceLinesRemaining->setSize(130,40);
 	racePanel->add(raceLinesRemaining);
 
-	raceBlocksUsed = gui->themeTG->load("EditBox");
+	raceBlocksUsed = resources.gfx->themeTG->load("EditBox");
 	raceBlocksUsed->setPosition(280,227);
 	raceBlocksUsed->setSize(130,40);
 	racePanel->add(raceBlocksUsed);
@@ -70,25 +69,25 @@ void ChallengesGameUI::create(sf::Rect<int> _pos, UI* _ui) {
 	cheesePanel->hide();
 	panel->add(cheesePanel);
 
-	tgui::Label::Ptr widget5 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget5 = resources.gfx->themeTG->load("Label");
 	widget5->setPosition(177,11);
 	widget5->setText("Cheese");
 	widget5->setTextSize(60);
 	cheesePanel->add(widget5);
 
-	tgui::Label::Ptr widget6 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget6 = resources.gfx->themeTG->load("Label");
 	widget6->setPosition(61,90);
 	widget6->setText("Time Elapsed");
 	widget6->setTextSize(30);
 	cheesePanel->add(widget6);
 
-	tgui::Label::Ptr widget7 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget7 = resources.gfx->themeTG->load("Label");
 	widget7->setPosition(21,160);
 	widget7->setText("Lines remaining");
 	widget7->setTextSize(30);
 	cheesePanel->add(widget7);
 
-	tgui::Label::Ptr widget8 = gui->themeTG->load("Label");
+	tgui::Label::Ptr widget8 = resources.gfx->themeTG->load("Label");
 	widget8->setPosition(87,230);
 	widget8->setText("Blocks used");
 	widget8->setTextSize(30);
@@ -96,20 +95,22 @@ void ChallengesGameUI::create(sf::Rect<int> _pos, UI* _ui) {
 
 	cheesePanel->add(startChallenge);
 
-	cheeseTimeElapsed = gui->themeTG->load("EditBox");
+	cheeseTimeElapsed = resources.gfx->themeTG->load("EditBox");
 	cheeseTimeElapsed->setPosition(280,87);
 	cheeseTimeElapsed->setSize(130,40);
 	cheesePanel->add(cheeseTimeElapsed);
 
-	cheeseLinesRemaining = gui->themeTG->load("EditBox");
+	cheeseLinesRemaining = resources.gfx->themeTG->load("EditBox");
 	cheeseLinesRemaining->setPosition(280,157);
 	cheeseLinesRemaining->setSize(130,40);
 	cheesePanel->add(cheeseLinesRemaining);
 
-	cheeseBlocksUsed = gui->themeTG->load("EditBox");
+	cheeseBlocksUsed = resources.gfx->themeTG->load("EditBox");
 	cheeseBlocksUsed->setPosition(280,227);
 	cheeseBlocksUsed->setSize(130,40);
 	cheesePanel->add(cheeseBlocksUsed);
+
+	Signals::HideStartChallengeButton.connect(&ChallengesGameUI::hideStartChallengeButton, this);
 }
 
 void ChallengesGameUI::clear() {
@@ -122,8 +123,8 @@ void ChallengesGameUI::clear() {
 }
 
 void ChallengesGameUI::update() {
-	if (racePanel->isVisible()) {
-		if (gui->gamestate == Replay)
+	/*if (racePanel->isVisible()) {
+		if (resources.gamestate == Replay)
 			raceTimeElapsed->setText(displayTime(gui->game.recorder.timer.getElapsedTime() + gui->game.recorder.startAt));
 		else
 			raceTimeElapsed->setText(displayTime(gui->game.gameclock.getElapsedTime()));
@@ -135,7 +136,7 @@ void ChallengesGameUI::update() {
 		}
 	}
 	else if (cheesePanel->isVisible()) {
-		if (gui->gamestate == Replay)
+		if (resources.gamestate == Replay)
 			cheeseTimeElapsed->setText(displayTime(gui->game.recorder.timer.getElapsedTime() + gui->game.recorder.startAt));
 		else
 			cheeseTimeElapsed->setText(displayTime(gui->game.gameclock.getElapsedTime()));
@@ -145,7 +146,7 @@ void ChallengesGameUI::update() {
 			gui->game.gameover=true;
 			gui->game.winner=true;
 		}
-	}
+	}*/
 }
 
 sf::String ChallengesGameUI::displayTime(const sf::Time& time) {
@@ -179,4 +180,8 @@ void ChallengesGameUI::showPanel(sf::Uint16 whichPanel) {
 		racePanel->show();
 	else if (whichPanel == 20001)
 		cheesePanel->show();
+}
+
+void ChallengesGameUI::hideStartChallengeButton() {
+	startChallenge->hide();
 }
