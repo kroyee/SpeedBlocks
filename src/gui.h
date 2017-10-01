@@ -27,7 +27,6 @@ public:
 	Resources& resources;
 	optionSet& options;
 	gamePlay& game;
-	network& net;
 	PingHandle ping;
 	CountdownHandle countdown;
 
@@ -58,19 +57,11 @@ public:
 
 	void getAlert();
 
-	PacketCompress compressor;
-	sf::Time gamedata;
-	sf::Uint8 gamedatacount;
 	sf::Uint16& myId;
 
 	bool handleEvent(sf::Event& event);
 
 	void getGameState(sf::Packet&);
-
-	void sendGameData();
-	void sendGameState();
-	void sendGameOver();
-	void sendGameWinner();
 
 	void delayCheck();
 

@@ -10,11 +10,11 @@
 #include "EmptyResourcePath.h"
 #endif
 
-Recording::Recording() {
-	Signals::GetRecDuration.connect(&Recording::getRecorderDuration, this);
-	Signals::GetRecTime.connect(&Recording::getRecorderTime, this);
+Recording::Recording() : name("") {
+	Signals::GetRecDuration.connect([&]() -> const sf::Time& { return duration; });
+	Signals::GetRecTime.connect([&]() -> sf::Time { return timer.getElapsedTime() + startAt; });
 	Signals::RecJumpTo.connect(&Recording::jumpTo, this);
-	Signals::RecGetName.connect(&Recording::getName, this);
+	Signals::GetRecName.connect([&]() -> const sf::String& { return name; });
 }
 
 void Recording::clear() {
@@ -283,16 +283,4 @@ void Recording::receiveRecording(sf::Packet &packet) {
 
 	PacketCompress compressor;
 	compressor.extractReplay(*this, packet);
-}
-
-const sf::Time& Recording::getRecorderDuration() {
-	return duration;
-}
-
-sf::Time Recording::getRecorderTime() {
-	return timer.getElapsedTime() + startAt;
-}
-
-const sf::String& Recording::getName() {
-	return name;
 }

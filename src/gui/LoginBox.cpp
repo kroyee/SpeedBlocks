@@ -90,7 +90,7 @@ guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiL3->setPosition(53, 363);
 	panel->add(LiL3);
 
-	tgui::EditBox::Ptr LiE3 = resources.gfx->themeTG->load("EditBox");
+	LiE3 = resources.gfx->themeTG->load("EditBox");
 	LiE3->setPosition(120, 360);
 	LiE3->setSize(180, 30);
 	LiE3->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 1);
@@ -111,7 +111,10 @@ void LoginBox::launchLogin(sf::Uint8 guest) {
 	Signals::Hide(0);
 	connectingScreen.show();
 	connectingScreen.label->setText("Connecting to server...");
-	t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
+	if (guest)
+		t = std::thread(&LoginBox::login, this, LiE3->getText(), LiE2->getText(), guest);
+	else
+		t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
 }
 
 void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
@@ -145,14 +148,15 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 		else {
 			patcher.status=3;
 			sendLogin(name, guest);
-			//gui->game.field.text.setName(name);
+			Signals::SetName(name);
+			resources.name = name;
 		}
 		resources.playonline=true;
 		Signals::SetRoomListTime();
 		Signals::Show(11);
 	}
 	else {
-		resources.net->disconnect();
+		resources.net->disconnect(0);
 		patcher.status=-1;
 	}
 }

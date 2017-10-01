@@ -118,11 +118,10 @@ void ScoreScreen::clear() {
 
 	rowCount=0;
 }
-#include <iostream>
+
 void ScoreScreen::getScores(sf::Packet& packet) {
 	sf::Uint8 count;
 	packet >> roundLenght >> count;
-	std::cout << "Getting scores: " << (int)count << " " << roundLenght << std::endl;
 	clear();
 	for (int i=0; i<count; i++)
 		addRow(packet);

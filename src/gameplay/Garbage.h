@@ -14,7 +14,9 @@ class GarbageHandler {
 private:
 	std::list<Garbage> garbage;
 public:
-	sf::Uint16 linesBlocked;
+	GarbageHandler(uint16_t& _linesBlocked) : linesBlocked(_linesBlocked) {}
+	
+	uint16_t & linesBlocked;
 	sf::Time minRemaining;
 
 	sf::Uint16 count();

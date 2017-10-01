@@ -10,6 +10,7 @@ class optionSet;
 class textures;
 class soundBank;
 class network;
+class PacketCompress;
 
 enum class GameStates : unsigned int { MainMenu, CountDown, Game, GameOver, Replay, Practice, Spectating };
 
@@ -27,6 +28,7 @@ public:
 	textures* gfx;
 	soundBank* sounds;
 	network* net;
+	PacketCompress* compressor;
 
 	GameStates gamestate;
 

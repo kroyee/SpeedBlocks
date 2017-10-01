@@ -103,6 +103,7 @@ void ServerUI::addClient(sf::Packet &packet) {
 void ServerUI::putClient(sf::Uint16 id, const sf::String& name) {
 	clientInfo client;
 	client.id = id;
+	std::cout << "Adding client " << name.toAnsiString() << std::endl;
 	client.name = name;
 	resources.clientList.push_back(client);
 	LobbyList->addItem(client.name);

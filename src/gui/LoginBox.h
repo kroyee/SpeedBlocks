@@ -15,6 +15,7 @@ private:
 public:
 	tgui::EditBox::Ptr LiE1;
 	tgui::EditBox::Ptr LiE2;
+	tgui::EditBox::Ptr LiE3;
 	std::thread t;
 	PatchCheck patcher;
 	Connecting connectingScreen;

@@ -6,11 +6,13 @@
 #include "pieces.h"
 #include "randomizer.h"
 #include "gameField.h"
-#include "Resources.h"
 #include "Recording.h"
 #include "BPMCount.h"
 #include "Garbage.h"
 #include "Combo.h"
+#include "Signal.h"
+#include "optionSet.h"
+#include "GameDataSender.h"
 
 class soundBank;
 
@@ -35,9 +37,12 @@ public:
 
 	Recording recorder;
 
+	GameplayData data;
+
 	BPMCount bpmCounter;
 	GarbageHandler garbage;
 	ComboCounter combo;
+	GameDataSender dataSender;
 
 	sf::Clock gameclock;
 
@@ -54,23 +59,11 @@ public:
 	sf::Time lockDownTime;
 	bool lockdown;
 
-	sf::Uint16 linesSent;
-	sf::Uint16 linesRecieved;
-	sf::Uint16 linesPerMinute;
-	sf::Uint16 bpm;
-	sf::Uint16 garbageCleared;
-	sf::Uint16 linesCleared;
-	
-	short pieceCount;
-
 	sf::Uint8 nextpiece;
 
 	sf::Text pressEnterText;
 	bool showPressEnterText;
 
-	bool gameover;
-	bool sendgameover;
-	bool winner;
 	bool autoaway;
 	bool drawMe;
 
@@ -109,6 +102,7 @@ public:
 
 	void addGarbage(sf::Uint16 amount);
 	void pushGarbage();
+	void addGarbageLine();
 	void addGarbageLine(sf::Uint8 hole);
 	void clearGarbage();
 
@@ -118,7 +112,7 @@ public:
 	bool countDown();
 	bool countDown(short);
 
-	bool gameOver();
+	void gameOver(int winner);
 
 	void ready();
 	void away();
@@ -135,7 +129,6 @@ public:
 	void setDrawMe();
 	void makeBackgroundLines();
 	void setName(const sf::String& name);
-	const sf::String& getName();
 	void updateReplayScreen();
 
 	void handleEvent(sf::Event& event);

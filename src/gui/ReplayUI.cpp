@@ -64,6 +64,8 @@ ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	sets->setPosition(420, 40);
 	sets->setText("Set: 1");
 	panel->add(sets);
+
+	Signals::UpdateReplayUI.connect(&ReplayUI::update, this);
 }
 
 void ReplayUI::show(bool showTournamentControls) {
@@ -83,7 +85,7 @@ void ReplayUI::show(bool showTournamentControls) {
 		setForward->hide();
 		gameBack->hide();
 		gameForward->hide();
-		Signals::SetName(Signals::RecGetName());
+		Signals::SetName(Signals::GetRecName());
 		backup=true;
 	}
 	panel->show();
@@ -104,8 +106,7 @@ void ReplayUI::hide() {
 	panel->hide();
 }
 
-void ReplayUI::update() {
-	sf::Time recTime = Signals::GetRecTime();
+void ReplayUI::update(sf::Time recTime) {
 	int value = recTime.asSeconds();
 	seekbar->setValue(value);
 	timePlayed->setText(displayTime(value));

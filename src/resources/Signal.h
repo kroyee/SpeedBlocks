@@ -29,6 +29,10 @@ public:
 			(instance->*func)(std::forward<Args>(args)...);
 		});
 	}
+
+	void disconnect() {
+		function.clear();
+	}
 };
 
 template<typename ReturnType, typename... Args>
@@ -37,7 +41,7 @@ class Signal<ReturnType, Args...> {
 public:
 	template<typename... Args2>
 	ReturnType operator()(Args2&&... args2) {
-		return function(std::forward<Args2>(args2)...);
+			return function(std::forward<Args2>(args2)...);
 	}
 
 	template<typename Func>
@@ -56,6 +60,33 @@ public:
 namespace sf { class String; class Packet; class Time; }
 enum class GameStates : unsigned int;
 
+struct GameplayData {
+	uint16_t linesSent=0;
+	uint16_t linesRecieved=0;
+	uint16_t linesPerMinute=0;
+	uint16_t bpm=0;
+	uint16_t garbageCleared=0;
+	uint16_t linesCleared=0;
+	uint16_t pieceCount=0;
+	uint16_t linesBlocked=0;
+	uint16_t maxCombo=0;
+	void clear() {
+		linesSent=0;
+		linesRecieved=0;
+		linesPerMinute=0;
+		bpm=0;
+		garbageCleared=0;
+		linesCleared=0;
+		pieceCount=0;
+		linesBlocked=0;
+		maxCombo=0;
+	}
+};
+
+struct ReplayData {
+
+};
+
 struct Signals {
 									//GUI
 	static Signal<void, int>				Show;
@@ -71,7 +102,7 @@ struct Signals {
 	static Signal<void>						ShowAlert;
 	static Signal<void>						HideAlert;
 	static Signal<void>						LeaveRoom;
-	static Signal<void>						Disconnect;
+	static Signal<void, int>				Disconnect;
 	static Signal<void, GameStates>			SetGameState;
 	static Signal<bool>						IsLoginThreadJoinable;
 	static Signal<void>						TellPatcherToQuit;
@@ -90,6 +121,10 @@ struct Signals {
 	static Signal<void>						HideStartChallengeButton;
 	static Signal<void, int>				JoinRoom;
 	static Signal<void, int>				ShowOptions;
+	static Signal<void, GameplayData&>		UpdateGamedata;
+	static Signal<void, GameplayData&>		UpdateChallengesUI;
+	static Signal<void, sf::Time>			UpdateReplayUI;
+	static Signal<bool>						Survivor;
 
 									//Network
 	static Signal<void, int, int, int>		SendSignal;
@@ -107,7 +142,7 @@ struct Signals {
 
 									//Game
 	static Signal<void>						StartCountDown;
-	static Signal<void>						GameOver;
+	static Signal<void, int>				GameOver;
 	static Signal<void>						Ready;
 	static Signal<void>						Away;
 	static Signal<void, bool>				SetAway;
@@ -116,12 +151,16 @@ struct Signals {
 	static Signal<void, const sf::String&>	SetName;
 	static Signal<const sf::String&>		GetName;
 	static Signal<void>						UpdateGamePieces;
+	static Signal<GameplayData&>			GetGameData;
+	static Signal<sf::Time>					GetGameTime;
+	static Signal<void>						SendGameState;
+	static Signal<void>						PushGarbage;
 
 									//Recording
 	static Signal<const sf::Time&>			GetRecDuration;
 	static Signal<sf::Time>					GetRecTime;
 	static Signal<void, int>				RecJumpTo;
-	static Signal<const sf::String&>		RecGetName;
+	static Signal<const sf::String&>		GetRecName;
 	static Signal<void>						RecUpdateScreen;
 
 	static void SendSig(int x, int y=-1, int z=-1) {

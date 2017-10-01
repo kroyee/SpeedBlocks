@@ -27,7 +27,7 @@ public:
 	void show(bool showTournamentControls=false);
 	void hide();
 
-	void update();
+	void update(sf::Time);
 	void seek(sf::Vector2f mouse);
 	sf::String displayTime(sf::Uint16 timeVal);
 	void pause();

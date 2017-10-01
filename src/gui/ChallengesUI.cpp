@@ -12,7 +12,7 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	challengeList.show();
 
 	leaderPanel = tgui::Panel::create();
-	leaderPanel->setPosition(460,0);
+	leaderPanel->setPosition(420,0);
 	leaderPanel->setSize(500,500);
 	leaderPanel->setBackgroundColor(sf::Color(255,255,255,0));
 	leaderPanel->hide();
@@ -45,7 +45,7 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	playChallenge->connect("pressed", &ChallengesUI::play, this);
 
 	Net::takePacket(2, &ChallengesUI::makeList, this);
-	Net::takePacket(3, &ChallengesUI::makeLeaderboard, this);
+	Net::takePacket(5, &ChallengesUI::makeLeaderboard, this);
 }
 
 void ChallengesUI::makeList(sf::Packet &packet) {
@@ -79,19 +79,11 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 
 	width[0] = 0;
 	columns++;
+	sf::String string;
 	for (int i=1; i<columns; i++) {
 		packet >> width[i];
 		width[i]+=50;
-	}
 
-	tgui::Label::Ptr position = resources.gfx->themeTG->load("Label");
-	position->setPosition(0, 40);
-	position->setText("#");
-	position->setTextSize(16);
-	leaderPanel->add(position);
-
-	sf::String string;
-	for (int i=1; i<columns; i++) {
 		packet >> string;
 		tgui::Label::Ptr label = resources.gfx->themeTG->load("Label");
 		label->setPosition(width[i], 40);
@@ -99,6 +91,12 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 		label->setTextSize(16);
 		leaderPanel->add(label);
 	}
+
+	tgui::Label::Ptr position = resources.gfx->themeTG->load("Label");
+	position->setPosition(0, 40);
+	position->setText("#");
+	position->setTextSize(16);
+	leaderPanel->add(position);
 
 	scrollPanel->removeAllWidgets();
 	rows.clear();
