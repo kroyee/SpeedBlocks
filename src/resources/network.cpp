@@ -6,7 +6,7 @@
 using std::cout;
 using std::endl;
 
-network::network() : serverAdd("82.102.5.7"), tcpPort(21512), udpPort(21514) {
+network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	curl_global_init(CURL_GLOBAL_ALL);
@@ -172,11 +172,13 @@ bool network::receiveData() {
 	sf::Uint8 packetid;
 	if (status == sf::Socket::Disconnected) {
 		cout << "TCP disconnected" << endl;
-		Signals::Disconnect();
+		Signals::Disconnect(1);
 		return true;
 	}
 	if (status == sf::Socket::Done) {
 		packet >> packetid;
+		if (packetid < 100)
+			cout << "Packet: " << static_cast<int>(packetid) << endl;
 		if (packetid == 254) {
 			getSignal(packet);
 			return true;

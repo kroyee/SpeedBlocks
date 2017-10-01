@@ -130,36 +130,20 @@ int main()
                 if (!resources.playonline)
                     if (game.countDown())
                         gui.setGameState(GameStates::Game);
-
-                if (game.gameOver())
-                    gui.setGameState(GameStates::GameOver);
             break;
 
             case GameStates::Game:
+            case GameStates::Practice:
                 game.delayCheck();
-
-                if (resources.playonline)
-                    gui.sendGameData();
-
-                if (game.gameOver())
-                    gui.setGameState(GameStates::GameOver);
             break;
 
-            case GameStates::GameOver:
+            /*case GameStates::GameOver:
                 if (resources.playonline)
                     if (game.winner)
                         gui.sendGameWinner();
-            break;
+            break;*/
             case GameStates::Replay:
                 if (game.playReplay())
-                    gui.setGameState(GameStates::GameOver);
-                gui.guiElements->replayUI.update();
-            break;
-
-            case GameStates::Practice:
-                game.delayCheck();
-
-                if (game.gameOver())
                     gui.setGameState(GameStates::GameOver);
             break;
 

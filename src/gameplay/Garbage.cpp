@@ -1,4 +1,5 @@
 #include "Garbage.h"
+#include "Signal.h"
 
 const sf::Time initialDelay = sf::milliseconds(1000);
 const sf::Time freezeDelay = sf::milliseconds(450);
@@ -26,12 +27,17 @@ sf::Uint16 GarbageHandler::block(sf::Uint16 amount, const sf::Time& _time, bool 
 		return amount;
 	sf::Time delay = garbage.front().delay;
 	
+	int blocked=0;
 	while (amount && !garbage.empty()) {
 		garbage.front().count--;
 		amount--;
-		linesBlocked++;
+		blocked++;
 		if (garbage.front().count == 0)
 			garbage.pop_front();
+	}
+	if (blocked) {
+		linesBlocked+=blocked;
+		Signals::SendSig(4, blocked);
 	}
 
 	if (!garbage.empty()) {

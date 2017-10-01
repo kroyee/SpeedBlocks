@@ -8,22 +8,22 @@
 
 GuiElements::GuiElements(Resources &_resources) :
 resources(_resources),
+animatedBackground		(resources, 7),
 mainMenu				(sf::Rect<int>(0,0,960,600), resources),
 loginBox				(sf::Rect<int>(500,50,450,550), resources, mainMenu.panel),
+challengesGameUI		(sf::Rect<int>(0,0,960,600), resources),
+onlineplayUI			(sf::Rect<int>(0,0,960,600), resources),
+gameStandings			(sf::Rect<int>(330,185,120,100), resources),
+replayUI				(sf::Rect<int>(465,530,490,70), resources),
+performanceOutput		(sf::Rect<int>(807,0,113,28), resources),
+chatScreen				(sf::Rect<int>(440,0,480,600), resources),
 slideMenu				(sf::Rect<int>(920,0,600,600), resources),
 gameOptions				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
-onlineplayUI			(sf::Rect<int>(0,0,960,600), resources),
-areYouSure				(sf::Rect<int>(0,0,960,600), resources),
-performanceOutput		(sf::Rect<int>(807,0,113,28), resources),
 bugReport				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
-challengesGameUI		(sf::Rect<int>(0,0,960,600), resources),
-replayUI				(sf::Rect<int>(465,530,490,70), resources),
-gameStandings			(sf::Rect<int>(330,185,120,100), resources),
-chatScreen				(sf::Rect<int>(440,0,480,600), resources),
-scoreScreen				(sf::Rect<int>(30,30,860,540), resources),
-animatedBackground		(resources, 7),
 serverUI				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
 alertsUI				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
+areYouSure				(sf::Rect<int>(0,0,960,600), resources),
+scoreScreen				(sf::Rect<int>(30,30,860,540), resources),
 gameFieldDrawer			(resources),
 udpConfirmed			(false)
 {
@@ -76,7 +76,7 @@ udpConfirmed			(false)
 		QuickMsg->show();
 		quickMsgTime = resources.delayClock.getElapsedTime();
 	});
-	Signals::Disconnect.connect([&](){
+	Signals::Disconnect.connect([&](int showMsg){
 		resources.playonline=false;
 		udpConfirmed=false;
 		performanceOutput.ping->hide();
@@ -89,7 +89,8 @@ udpConfirmed			(false)
 		challengesGameUI.hide();
 		replayUI.hide();
 		Signals::SetGameState(GameStates::MainMenu);
-		Signals::QuickMsg("Disconnected from server");
+		if (showMsg)
+			Signals::QuickMsg("Disconnected from server");
 	});
 
 	Net::takePacket(0, [&](sf::Packet& packet){
@@ -156,10 +157,10 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 		loginBox.connectingScreen.hide();
 		onlineplayUI.show();
 		onlineplayUI.opTab->select(0);
-		serverUI.putClient(resources.myId, Signals::GetName());
+		serverUI.putClient(resources.myId, resources.name);
 	}
 	else {
-		Signals::Disconnect();
+		Signals::Disconnect(0);
 		if (success == 3) {
 			loginBox.connectingScreen.label->setText("You have the wrong client version, attempting to patch...");
 			performanceOutput.ping->hide();
@@ -198,8 +199,6 @@ void GuiElements::delayCheck(const sf::Time& currentTime) {
 					Signals::SendSig(15);
 				}
 		}
-		if (challengesGameUI.isVisible() && (resources.gamestate == GameStates::Game || resources.gamestate == GameStates::Replay))
-			challengesGameUI.update();
 	}
 
 	slideMenu.update(currentTime);
@@ -277,6 +276,10 @@ void GuiElements::windowEvents(sf::Event& event) {
         resources.window.close();
     else if (event.type == sf::Event::Resized && !resources.options->fullscreen)
         resizeWindow(event);
+    else if (event.type == sf::Event::LostFocus)
+    	resources.window.setFramerateLimit(60);
+    else if (event.type == sf::Event::GainedFocus)
+    	resources.window.setFramerateLimit(0);
 }
 
 void GuiElements::resizeWindow(sf::Event& event) {

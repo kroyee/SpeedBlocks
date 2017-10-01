@@ -145,14 +145,15 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 		else {
 			patcher.status=3;
 			sendLogin(name, guest);
-			//gui->game.field.text.setName(name);
+			Signals::SetName(name);
+			resources.name = name;
 		}
 		resources.playonline=true;
 		Signals::SetRoomListTime();
 		Signals::Show(11);
 	}
 	else {
-		resources.net->disconnect();
+		resources.net->disconnect(0);
 		patcher.status=-1;
 	}
 }

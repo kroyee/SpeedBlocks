@@ -79,7 +79,7 @@ void soundBank::setEffectVolume(int vol) {
 		soundList[i].setVolume(vol);
 }
 
-void soundBank::setMusicVolume(int vol) {
+void soundBank::setMusicVolume(int) {
 
 }
 

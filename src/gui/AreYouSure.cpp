@@ -43,7 +43,7 @@ void AreYouSure::ausY() {
 		else {
 			Signals::Hide(4);
 			Signals::Show(0);
-			Signals::Disconnect();
+			Signals::Disconnect(0);
 		}
 	}
 	else if (resources.gamestate == GameStates::MainMenu)

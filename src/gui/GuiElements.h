@@ -36,23 +36,25 @@ struct GuiElements {
 
 	Resources &resources;
 
+
+	AnimatedBackground animatedBackground;
 	Menu mainMenu;
 	LoginBox loginBox;
+	ChallengesGameUI challengesGameUI;
+	OnlineplayUI onlineplayUI;
+	GameStandings gameStandings;
+	ReplayUI replayUI;
+	PerformanceOutput performanceOutput;
+	ChatScreen chatScreen;
 	SlideMenu slideMenu;
 	GameOptions gameOptions;
-	OnlineplayUI onlineplayUI;
-	AreYouSure areYouSure;
-	PerformanceOutput performanceOutput;
 	BugReport bugReport;
-	tgui::Label::Ptr QuickMsg;
-	ChallengesGameUI challengesGameUI;
-	ReplayUI replayUI;
-	GameStandings gameStandings;
-	ChatScreen chatScreen;
-	ScoreScreen scoreScreen;
-	AnimatedBackground animatedBackground;
 	ServerUI serverUI;
 	AlertsUI alertsUI;
+	AreYouSure areYouSure;
+	tgui::Label::Ptr QuickMsg;
+	ScoreScreen scoreScreen;
+
 	GameFieldDrawer gameFieldDrawer;
 
 	bool udpConfirmed;

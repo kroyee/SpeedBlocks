@@ -19,7 +19,7 @@ public:
 	unsigned short udpPort;
 
 	sf::Socket::Status connect();
-	void disconnect() { udpSock.unbind(); tcpSock.disconnect(); }
+	void disconnect(int) { udpSock.unbind(); tcpSock.disconnect(); }
 	void sendTCP(sf::Packet&);
 	void sendUDP(sf::Packet&);
 	void sendSignal(int signalID, int val1=-1, int val2=-1);

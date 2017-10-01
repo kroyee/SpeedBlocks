@@ -3,10 +3,11 @@
 #include "optionSet.h"
 #include "pieces.h"
 #include "randomizer.h"
-#include "sounds.h"
 #include "textures.h"
 #include "FieldBackMaker.h"
 #include "Signal.h"
+#include "Resources.h"
+#include "packetcompress.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <deque>
@@ -21,21 +22,16 @@ gamePlay::gamePlay(Resources& _resources) :
 field(_resources),
 options(*_resources.options),
 resources(_resources),
+garbage(data.linesBlocked),
+combo(data.maxCombo),
+dataSender(*this),
 showPressEnterText(true)
 {
+	resources.compressor->game = this;
 	nextpiece=0;
 
 	dropDelay=sf::seconds(1);
 	increaseDropDelay=sf::seconds(3);
-
-	linesSent=0;
-	linesRecieved=0;
-	garbageCleared=0;
-	linesCleared=0;
-
-	gameover=false;
-	sendgameover=false;
-	winner=false;
 
 	lockdown=false;
 
@@ -64,9 +60,13 @@ showPressEnterText(true)
     Signals::MakeBackgroundLines.connect(&gamePlay::makeBackgroundLines, this);
     Signals::UpdateGamePieces.connect(&gamePlay::updateBasePieces, this);
     Signals::StartCountDown.connect(&gamePlay::startCountdown, this);
-    Signals::GetName.connect(&gamePlay::getName, this);
+    Signals::GetName.connect([&]() -> const sf::String& { return field.text.name; });
     Signals::SetName.connect(&gamePlay::setName, this);
     Signals::RecUpdateScreen.connect(&gamePlay::updateReplayScreen, this);
+    Signals::GetGameData.connect([&]() -> GameplayData& { return data; });
+    Signals::GetGameTime.connect([&](){ return gameclock.getElapsedTime(); });
+    Signals::GameOver.connect(&gamePlay::gameOver, this);
+    Signals::PushGarbage.connect(&gamePlay::addGarbageLine, this);
 
     Net::takeSignal(9, &gamePlay::addGarbage, this);
     Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
@@ -86,11 +86,7 @@ void gamePlay::startGame() {
 	combo.clear();
 	dropDelay=sf::seconds(1);
 	dropDelayTime=sf::seconds(0);
-	linesSent=0;
-	linesRecieved=0;
-	garbageCleared=0;
-	linesCleared=0;
-	pieceCount=0;
+	data.clear();
 	autoaway=true;
 	lockdown=false;
 	bpmCounter.clear();
@@ -184,7 +180,7 @@ void gamePlay::addPiece(const sf::Time& _time) {
 	if (recorder.rec)
 		addRecEvent(2, 0);
 	field.addPiece();
-	pieceCount++;
+	data.pieceCount++;
 	bpmCounter.addPiece(_time);
 }
 
@@ -195,8 +191,7 @@ void gamePlay::makeNewPiece() {
 	lockdown=false;
 	if (!field.possible()) {
 		addPiece(gameclock.getElapsedTime());
-		gameover=true;
-		sendgameover=true;
+		gameOver(0);
 	}
 
 	if (recorder.rec) {
@@ -311,14 +306,16 @@ void gamePlay::delayCheck() {
 	if (comboLinesSent) {
 		comboLinesSent = garbage.block(comboLinesSent, gameclock.getElapsedTime(), false);
 		field.text.setPending(garbage.count());
-		linesSent += comboLinesSent;
+		data.linesSent += comboLinesSent;
+		if (comboLinesSent)
+			Signals::SendSig(2, comboLinesSent);
 		drawMe=true;
 	}
 
 	sf::Uint16 newbpm = bpmCounter.calcBpm(gameclock.getElapsedTime());
-	if (newbpm != bpm) {
+	if (newbpm != data.bpm) {
 		field.text.setBpm(newbpm);
-		bpm = newbpm;
+		data.bpm = newbpm;
 		drawMe=true;
 	}
 
@@ -341,6 +338,11 @@ void gamePlay::delayCheck() {
 		else
 			lockdown=false;
 	}
+
+	if (Signals::IsVisible(8))
+		Signals::UpdateChallengesUI(data);
+
+	dataSender.sendstate();
 }
 
 void gamePlay::setPieceOrientation() {
@@ -373,14 +375,19 @@ void gamePlay::updateBasePieces() {
 }
 
 void gamePlay::sendLines(sf::Vector2i lines) {
-	garbageCleared+=lines.y;
-	linesCleared+=lines.x;
+	data.garbageCleared+=lines.y;
+	if (lines.y)
+		Signals::SendSig(3, lines.y);
+	data.linesCleared+=lines.x;
 	if (lines.x==0) {
 		combo.noClear();
 		Signals::PlaySound(0);
 		return;
 	}
-	linesSent += garbage.block(lines.x-1, gameclock.getElapsedTime());
+	sf::Uint16 amount = garbage.block(lines.x-1, gameclock.getElapsedTime());
+	data.linesSent += amount;
+	if (amount)
+		Signals::SendSig(2, amount);
 	field.text.setPending(garbage.count());
 	combo.increase(gameclock.getElapsedTime(), lines.x);
 
@@ -416,7 +423,7 @@ void gamePlay::playComboSound(sf::Uint8 combo) {
 void gamePlay::addGarbage(sf::Uint16 amount) {
 	garbage.add(amount, gameclock.getElapsedTime());
 
-	linesRecieved+=amount;
+	data.linesRecieved+=amount;
 
 	field.text.setPending(garbage.count());
 
@@ -438,16 +445,22 @@ void gamePlay::pushGarbage() {
 	if (!field.possible()) {
 		if (field.piece.posY > 0)
 			field.piece.mup();
-		else {
-			gameover=true;
-			sendgameover=true;
-		}
+		else
+			gameOver(0);
 		if (!lockdown)
 			lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
 		lockdown=true;
 		if (recorder.rec)
 			addRecEvent(1, 0);
 	}
+}
+
+void gamePlay::addGarbageLine() {
+	sf::Uint8 hole = rander.getHole();
+	addGarbageLine(hole);
+
+	if (recorder.rec)
+		addRecEvent(4, hole);
 }
 
 void gamePlay::addGarbageLine(sf::Uint8 hole) {
@@ -468,9 +481,7 @@ void gamePlay::startCountdown() {
 	countDownTime = sf::seconds(0);
 	countDowncount = 3;
 
-	gameover=false;
 	field.clear();
-	field.text.setCountdown(3);
 	makeNewPiece();
 	while (nextpiece == 2 || nextpiece == 3) {
 		rander.reset();
@@ -481,7 +492,8 @@ void gamePlay::startCountdown() {
 	lKeyTime=sf::seconds(0);
 	rKeyTime=sf::seconds(0);
 	garbage.clear();
-	draw();
+	dataSender.reset();
+	countDown(3);
 	if (recorder.rec)
 		addRecEvent(7, 3);
 }
@@ -508,10 +520,10 @@ bool gamePlay::countDown() {
 bool gamePlay::countDown(short c) {
 	if (c==255)
 		return false;
-	gameover=false;
 	field.text.setCountdown(c);
 	(c ? Signals::PlaySound(14) : Signals::PlaySound(15));
 	draw();
+	dataSender.state();
 	if (recorder.rec)
 		addRecEvent(7, c);
 	if (c)
@@ -520,25 +532,27 @@ bool gamePlay::countDown(short c) {
 		return true;
 }
 
-bool gamePlay::gameOver() {
-	if (!gameover)
-		return false;
-	gameover=false;
+void gamePlay::gameOver(int winner) {
+	if (resources.gamestate == GameStates::GameOver)
+		return;
 
-	linesPerMinute = (((float)linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
-	bpm = (int)(pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
-	field.text.setBpm(bpm);
+	data.linesPerMinute = (((float)data.linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
+	data.bpm = (int)(data.pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
+	field.text.setBpm(data.bpm);
 
 	addRecEvent(5, 0);
 	recorder.stop();
 
-    if (winner)
+    if (winner) {
     	field.text.setGameover(2);
+    	autoaway = false;
+    }
     else
 		field.text.setGameover(1);
 
+	dataSender.gameover(winner);
+	Signals::SetGameState(GameStates::GameOver);
 	draw();
-	return true;
 }
 
 void gamePlay::away() {
@@ -550,8 +564,7 @@ void gamePlay::setAway(bool away) {
 	if (away) {
 		resources.away=true;
 		Signals::SendSig(5);
-		gameover=true;
-		sendgameover=true;
+		gameOver(0);
 		field.text.away=true;
 		autoaway=false;
 		draw();
@@ -656,14 +669,11 @@ bool gamePlay::playReplay() {
 		switch (event.type) {
 			case 100:
 				gameclock.restart();
-				pieceCount=0;
-				linesCleared=0;
-				garbageCleared=0;
+				data.clear();
 				field.clear();
 				for (int y=0; y<22; y++)
 					for (int x=0; x<10; x++)
 						field.square[y][x] = recorder.starting_position[y][x];
-				pieceCount=0;
 				bpmCounter.clear();
 				recorder.comboSet=sf::seconds(0);
 				recorder.lastComboTimer=10;
@@ -672,7 +682,7 @@ bool gamePlay::playReplay() {
 			case 101:
 				recorder.halt=true;
 				drawMe=true;
-				field.text.setBpm((int)(pieceCount / ((float)(event.time.asSeconds()))*60.0));
+				field.text.setBpm((int)(data.pieceCount / ((float)(event.time.asSeconds()))*60.0));
 				return false;
 			break;
 			case 1:
@@ -694,8 +704,8 @@ bool gamePlay::playReplay() {
 				field.piece.posY = event.y;
 				addPiece(event.time);
 				sf::Vector2i lines = field.clearlines();
-				linesCleared+=lines.x;
-				garbageCleared+=lines.y;
+				data.linesCleared+=lines.x;
+				data.garbageCleared+=lines.y;
 				(lines.x ? Signals::PlaySound(1) : Signals::PlaySound(0));
 				drawMe = true;
 			}
@@ -728,6 +738,9 @@ bool gamePlay::playReplay() {
 		recorder.lastComboTimer = timer;
 		drawMe=true;
 	}
+	Signals::UpdateReplayUI(Signals::GetRecTime());
+	if (Signals::IsVisible(8))
+		Signals::UpdateChallengesUI(data);
 	return false;
 }
 
@@ -759,10 +772,6 @@ void gamePlay::makeBackgroundLines() {
 
 void gamePlay::setName(const sf::String& name) {
 	field.text.setName(name);
-}
-
-const sf::String& gamePlay::getName() {
-	return field.text.name;
 }
 
 void gamePlay::updateReplayScreen() {
@@ -825,7 +834,6 @@ void gamePlay::handleEvent(sf::Event& event) {
 	else if (resources.gamestate == GameStates::GameOver) {
 		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
             if (event.key.code == sf::Keyboard::P && !Signals::IsVisible(5)) {
-            	gameover=false;
             	if (resources.playonline) {
             		if (Signals::IsVisible(8))
             			Signals::Ready();
@@ -835,7 +843,6 @@ void gamePlay::handleEvent(sf::Event& event) {
             	else {
 	                Signals::SetGameState(GameStates::CountDown);
 	                startCountdown();
-	                gameover=false;
             	}
             }
             else if (event.key.code == options.ready && resources.playonline)

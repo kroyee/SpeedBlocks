@@ -8,7 +8,10 @@ private:
 	sf::Time comboStart=sf::seconds(0), comboTime=sf::seconds(0);
 	sf::Uint8 lineCount=0;
 public:
-	sf::Uint8 maxCombo=0, comboCount=0;
+	ComboCounter(uint16_t& _maxCombo) : maxCombo(_maxCombo) {}
+	
+	uint16_t & maxCombo;
+	sf::Uint8 comboCount=0;
 
 	void clear();
 	void increase(const sf::Time& t, sf::Uint8 amount);

@@ -13,7 +13,7 @@ Signal<void> Signals::DisableBackground;
 Signal<void> Signals::ShowAlert;
 Signal<void> Signals::HideAlert;
 Signal<void> Signals::LeaveRoom;
-Signal<void> Signals::Disconnect;
+Signal<void, int> Signals::Disconnect;
 Signal<void, GameStates> Signals::SetGameState;
 Signal<bool> Signals::IsLoginThreadJoinable;
 Signal<void> Signals::TellPatcherToQuit;
@@ -32,6 +32,10 @@ Signal<void, const sf::String&> Signals::AddAlert;
 Signal<void> Signals::HideStartChallengeButton;
 Signal<void, int> Signals::JoinRoom;
 Signal<void, int> Signals::ShowOptions;
+Signal<void, GameplayData&> Signals::UpdateGamedata;
+Signal<void, GameplayData&> Signals::UpdateChallengesUI;
+Signal<void, sf::Time> Signals::UpdateReplayUI;
+Signal<bool> Signals::Survivor;
 
 //Network
 Signal<void, int, int, int> Signals::SendSignal;
@@ -49,7 +53,7 @@ Signal<void> Signals::DisableSound;
 
 //Game
 Signal<void> Signals::StartCountDown;
-Signal<void> Signals::GameOver;
+Signal<void, int> Signals::GameOver;
 Signal<void> Signals::Ready;
 Signal<void> Signals::Away;
 Signal<void, bool> Signals::SetAway;
@@ -58,12 +62,16 @@ Signal<void, int> Signals::SetGameBackColor;
 Signal<void, const sf::String&> Signals::SetName;
 Signal<const sf::String&> Signals::GetName;
 Signal<void> Signals::UpdateGamePieces;
+Signal<GameplayData&> Signals::GetGameData;
+Signal<sf::Time> Signals::GetGameTime;
+Signal<void> Signals::SendGameState;
+Signal<void> Signals::PushGarbage;
 
 //Recording
 Signal<const sf::Time&> Signals::GetRecDuration;
 Signal<sf::Time> Signals::GetRecTime;
 Signal<void, int> Signals::RecJumpTo;
-Signal<const sf::String&> Signals::RecGetName;
+Signal<const sf::String&> Signals::GetRecName;
 Signal<void> Signals::RecUpdateScreen;
 
 // Packet delegation

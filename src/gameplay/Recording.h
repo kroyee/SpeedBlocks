@@ -46,10 +46,6 @@ public:
 
 	void sendRecording(sf::Uint16 type);
 	void receiveRecording(sf::Packet &packet);
-
-	const sf::Time& getRecorderDuration();
-	sf::Time getRecorderTime();
-	const sf::String& getName();
 };
 
 #endif

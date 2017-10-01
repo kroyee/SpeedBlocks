@@ -50,7 +50,7 @@ public:
 
 	void playSound(int soundId);
 
-	void setMusicVolume(int vol);
+	void setMusicVolume(int);
 	void setEffectVolume(int vol);
 	void setAlertVolume(int vol);
 };
