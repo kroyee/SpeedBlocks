@@ -2,7 +2,7 @@
 #include "machineid.h"
 #include "optionSet.h"
 #include "network.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <iostream>
 using std::cout;
 using std::endl;

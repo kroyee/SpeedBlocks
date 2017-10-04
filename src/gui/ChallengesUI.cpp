@@ -1,5 +1,5 @@
 #include "ChallengesUI.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 using std::cout;
 using std::endl;

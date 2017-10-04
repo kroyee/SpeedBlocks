@@ -1,5 +1,5 @@
 #include "AreYouSure.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <iostream>
 
 AreYouSure::AreYouSure(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {

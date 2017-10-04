@@ -1,5 +1,5 @@
 #include "GameStandings.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 using std::to_string;
 

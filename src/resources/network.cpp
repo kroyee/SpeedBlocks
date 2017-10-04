@@ -1,5 +1,5 @@
 #include "network.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 #include <iostream>
 #include <cstring>

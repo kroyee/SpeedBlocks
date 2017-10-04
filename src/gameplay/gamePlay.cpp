@@ -5,7 +5,7 @@
 #include "randomizer.h"
 #include "textures.h"
 #include "FieldBackMaker.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "Resources.h"
 #include "packetcompress.h"
 #include <SFML/Graphics.hpp>

@@ -1,5 +1,5 @@
 #include "Garbage.h"
-#include "Signal.h"
+#include "GameSignals.h"
 
 const sf::Time initialDelay = sf::milliseconds(1000);
 const sf::Time freezeDelay = sf::milliseconds(450);

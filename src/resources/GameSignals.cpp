@@ -1,4 +1,4 @@
-#include "Signal.h"
+#include "GameSignals.h"
 
 Signal<void, int> Signals::Show;
 Signal<void, int> Signals::Hide;

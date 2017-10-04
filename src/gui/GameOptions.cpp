@@ -1,6 +1,6 @@
 #include "GameOptions.h"
 #include "optionSet.h"
-#include "Signal.h"
+#include "GameSignals.h"
 using std::to_string;
 
 #ifdef __APPLE__

@@ -1,6 +1,6 @@
 #include "Connecting.h"
 #include "optionSet.h"
-#include "Signal.h"
+#include "GameSignals.h"
 
 Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 

@@ -1,5 +1,5 @@
 #include "ServerUI.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 
 ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {

@@ -1,5 +1,5 @@
 #include "ChallengesGameUI.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "gamePlay.h"
 using std::to_string;
 

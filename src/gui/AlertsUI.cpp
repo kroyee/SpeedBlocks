@@ -1,6 +1,6 @@
 #include "AlertsUI.h"
 #include "optionSet.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 
 AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {

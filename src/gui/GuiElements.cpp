@@ -2,7 +2,7 @@
 #include "Resources.h"
 #include "textures.h"
 #include "optionSet.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "gameField.h"
 #include <SFML/Network.hpp>
 
@@ -77,6 +77,8 @@ udpConfirmed			(false)
 		quickMsgTime = resources.delayClock.getElapsedTime();
 	});
 	Signals::Disconnect.connect([&](int showMsg){
+		if (showMsg == 2)
+			return;
 		resources.playonline=false;
 		udpConfirmed=false;
 		performanceOutput.ping->hide();
@@ -160,7 +162,7 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 		serverUI.putClient(resources.myId, resources.name);
 	}
 	else {
-		Signals::Disconnect(0);
+		Signals::Disconnect(2);
 		if (success == 3) {
 			loginBox.connectingScreen.label->setText("You have the wrong client version, attempting to patch...");
 			performanceOutput.ping->hide();

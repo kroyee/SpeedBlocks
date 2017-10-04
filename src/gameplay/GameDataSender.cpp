@@ -1,7 +1,7 @@
 #include "GameDataSender.h"
 #include "gamePlay.h"
 #include "Resources.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "packetcompress.h"
 
 GameDataSender::GameDataSender(gamePlay& _game) : game(_game), sendTime(sf::seconds(0)), count(251) {

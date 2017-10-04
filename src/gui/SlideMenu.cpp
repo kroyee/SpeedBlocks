@@ -1,5 +1,5 @@
 #include "SlideMenu.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "optionSet.h"
 
 SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), active(false), mouseOver(false) {

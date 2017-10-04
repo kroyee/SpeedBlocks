@@ -1,5 +1,5 @@
 #include "ChatScreen.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 
 const unsigned int chatTextSize = 14;

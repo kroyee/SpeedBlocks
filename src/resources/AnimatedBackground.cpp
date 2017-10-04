@@ -1,7 +1,7 @@
 #include "AnimatedBackground.h"
 #include "Resources.h"
 #include "textures.h"
-#include "Signal.h"
+#include "GameSignals.h"
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"

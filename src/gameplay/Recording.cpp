@@ -1,6 +1,6 @@
 #include "Recording.h"
 #include "packetcompress.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <iostream>
 #include <fstream>
 

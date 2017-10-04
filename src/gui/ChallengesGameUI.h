@@ -2,6 +2,7 @@
 #define CHALLENGESGAMEUI_H
 
 #include "guiBase.h"
+#include <array>
 #include <memory>
 
 class Resources;

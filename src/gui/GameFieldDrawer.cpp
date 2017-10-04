@@ -1,7 +1,7 @@
 #include "Resources.h"
 #include "GameFieldDrawer.h"
 #include "optionSet.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <iostream>
 using std::cout;
 using std::endl;

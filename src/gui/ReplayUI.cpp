@@ -1,5 +1,5 @@
 #include "ReplayUI.h"
-#include "Signal.h"
+#include "GameSignals.h"
 using std::cout;
 using std::endl;
 using std::to_string;

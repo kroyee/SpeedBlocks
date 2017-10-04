@@ -1,5 +1,5 @@
 #include "ScoreScreen.h"
-#include "Signal.h"
+#include "GameSignals.h"
 using std::to_string;
 
 ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {

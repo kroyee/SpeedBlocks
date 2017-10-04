@@ -2,7 +2,7 @@
 #include "optionSet.h"
 #include "gamePlay.h"
 #include "textures.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "GuiElements.h"
 #include <iostream>
 using std::cout;

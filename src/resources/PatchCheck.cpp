@@ -1,5 +1,5 @@
 #include "PatchCheck.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include <SFML/Network.hpp>
 #include <fstream>
 #include <curl/curl.h>

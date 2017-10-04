@@ -10,7 +10,7 @@
 #include "BPMCount.h"
 #include "Garbage.h"
 #include "Combo.h"
-#include "Signal.h"
+#include "GameSignals.h"
 #include "optionSet.h"
 #include "GameDataSender.h"
 
