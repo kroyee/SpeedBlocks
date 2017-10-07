@@ -1,5 +1,6 @@
 #include "PatchCheck.h"
 #include "GameSignals.h"
+#include "md5.h"
 #include <SFML/Network.hpp>
 #include <fstream>
 #include <curl/curl.h>
@@ -140,14 +141,11 @@ bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 	#endif
 
 	#ifdef _WIN32
-		std::string filehash = exec("certutil.exe -hashfile " + tmpDir + filename + " MD5");
-		filehash = filehash.substr(filehash.find('\n')+1, 32);
+		std::string filehash = md5file((tmpDir + filename).c_str());
 	#elif __APPLE__
-		std::string filehash = exec("md5 -r " + tmpDir + filename);
-		filehash = filehash.substr(0, filehash.find(' '));
+		std::string filehash = md5file((tmpDir + filename).c_str());
 	#else
-		std::string filehash = exec("md5sum -b " + filename);
-		filehash = filehash.substr(0, filehash.find(' '));
+		std::string filehash = md5file(filename.c_str());
 	#endif
 
 	if (!filehash.compare(md5))

@@ -363,7 +363,3 @@ std::vector<short> optionSet::pieceArray() {
 
 	return value;
 }
-
-void optionSet::action(sf::Uint8 actionId) {
-	//take action
-}
