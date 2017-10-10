@@ -66,6 +66,10 @@ Signal<GameplayData&> Signals::GetGameData;
 Signal<sf::Time> Signals::GetGameTime;
 Signal<void> Signals::SendGameState;
 Signal<void> Signals::PushGarbage;
+Signal<void, int, int> Signals::SeedRander;
+Signal<void> Signals::GameClear;
+Signal<void> Signals::GameDraw;
+Signal<void, int> Signals::GameSetup;
 
 //Recording
 Signal<const sf::Time&> Signals::GetRecDuration;
@@ -73,6 +77,7 @@ Signal<sf::Time> Signals::GetRecTime;
 Signal<void, int> Signals::RecJumpTo;
 Signal<const sf::String&> Signals::GetRecName;
 Signal<void> Signals::RecUpdateScreen;
+Signal<void, int> Signals::SendRecording;
 
 // Packet delegation
 

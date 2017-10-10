@@ -1,6 +1,5 @@
 #include "ChallengesGameUI.h"
 #include "GameSignals.h"
-#include "gamePlay.h"
 using std::to_string;
 
 ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), challenge(nullptr) {
@@ -74,7 +73,7 @@ sf::String ChallengesGameUI::displayTime(const sf::Time& time) {
 	sf::String timeString;
 	sf::Uint16 total = time.asSeconds();
 	sf::Uint16 count = 0;
-	while (total > 60) {
+	while (total >= 60) {
 		total-=60;
 		count++;
 	}

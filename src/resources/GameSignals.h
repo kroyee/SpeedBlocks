@@ -155,6 +155,10 @@ struct Signals {
 	static Signal<sf::Time>					GetGameTime;
 	static Signal<void>						SendGameState;
 	static Signal<void>						PushGarbage;
+	static Signal<void, int, int>			SeedRander;
+	static Signal<void>						GameClear;
+	static Signal<void>						GameDraw;
+	static Signal<void, int>				GameSetup;
 
 									//Recording
 	static Signal<const sf::Time&>			GetRecDuration;
@@ -162,6 +166,7 @@ struct Signals {
 	static Signal<void, int>				RecJumpTo;
 	static Signal<const sf::String&>		GetRecName;
 	static Signal<void>						RecUpdateScreen;
+	static Signal<void, int>				SendRecording;
 
 	static void SendSig(int x, int y=-1, int z=-1) {
 		SendSignal(x,y,z);

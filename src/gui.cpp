@@ -39,12 +39,6 @@ UI::UI(sf::RenderWindow& window_,
 	Net::takePacket(100, &UI::getGameState, this);
 	Net::takePacket(1, &UI::receiveRecording, this);
 	Net::takePacket(3, &UI::joinRoomResponse, this);
-	Net::takePacket(6, [&](sf::Packet &packet){
-		sf::String text;
-		packet >> text;
-		Signals::QuickMsg("You improved your score from " + text);
-		game.recorder.sendRecording(guiElements->onlineplayUI.challengesUI.selectedId);
-	});
 	Net::takePacket(102, [&](sf::Packet &packet){
 		guiElements->performanceOutput.setPing(ping.get(delayClock.getElapsedTime(), packet));
 	});
@@ -53,25 +47,15 @@ UI::UI(sf::RenderWindow& window_,
 	Net::takeSignal(0, [&](){ Signals::QuickMsg("Not enough players to start tournament"); });
 	Net::takeSignal(2, [&](){ Signals::QuickMsg("You can't do that as guest, register at https://speedblocks.se"); });
 	Net::takeSignal(4, [&](sf::Uint16 id1, sf::Uint16 id2){
-		game.rander.seedPiece(id1);
-		game.rander.seedHole(id2);
-		game.rander.reset();
-		game.startCountdown();
+		Signals::SeedRander(id1, id2);
+		Signals::StartCountDown();
 		guiElements->gameFieldDrawer.resetOppFields();
 		setGameState(GameStates::CountDown);
 		countdown.start(delayClock.getElapsedTime());
 		if (guiElements->challengesGameUI.isVisible()) {
 			guiElements->challengesGameUI.clear();
-			if (guiElements->challengesGameUI.challenge->type == Challenges::Cheese) {
-				int lastHole=10, nextHole=10;
-				for (int i=0; i<9; i++) {
-					while (nextHole == lastHole)
-						nextHole = game.rander.getHole();
-					game.addGarbageLine(nextHole);
-					lastHole=nextHole;
-				}
-				game.draw();
-			}
+			if (guiElements->challengesGameUI.challenge->type == Challenges::Cheese)
+				Signals::GameSetup(1);
 		}
 	});
 	Net::takeSignal(5, [&](sf::Uint16 id1){
@@ -90,12 +74,10 @@ UI::UI(sf::RenderWindow& window_,
 	});
 	Net::takeSignal(10, [&](sf::Uint16 id1, sf::Uint16 id2){
 		guiElements->gameFieldDrawer.resetOppFields();
-		game.rander.seedPiece(id1);
-		game.rander.seedHole(id2);
-		game.rander.reset();
+		Signals::SeedRander(id1, id2);
 		if (gamestate != GameStates::Spectating) {
-			game.field.clear();
-			game.draw();
+			Signals::GameClear();
+			Signals::GameDraw();
 		}
 		countdown.start(delayClock.getElapsedTime());
 	});

@@ -103,14 +103,16 @@ guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiB3->connect("pressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiB3);
 
-	Signals::IsLoginThreadJoinable.connect(&LoginBox::isThreadJoinable, this);
-	Signals::TellPatcherToQuit.connect(&LoginBox::tellPatcherToQuit, this);
+	Signals::IsLoginThreadJoinable.connect([&](){ return t.joinable(); });
+	Signals::TellPatcherToQuit.connect([&](){ patcher.quit=true; });
 }
 
 void LoginBox::launchLogin(sf::Uint8 guest) {
 	Signals::Hide(0);
 	connectingScreen.show();
 	connectingScreen.label->setText("Connecting to server...");
+	if (t.joinable())
+		t.join();
 	if (guest)
 		t = std::thread(&LoginBox::login, this, LiE3->getText(), LiE2->getText(), guest);
 	else
@@ -122,8 +124,6 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 		return;
 	patcher.status=1;
 	if (resources.net->connect() == sf::Socket::Done) {
-		resources.net->udpSock.unbind();
-		resources.net->udpSock.bind(sf::Socket::AnyPort);
 		sf::String hash;
 		if (!guest) {
 			patcher.status=2;
@@ -258,12 +258,4 @@ void LoginBox::forgotPressed() {
 	#else
 		system("xdg-open https://speedblocks.se/forum/ucp.php?mode=sendpassword");
 	#endif
-}
-
-bool LoginBox::isThreadJoinable() {
-	return t.joinable();
-}
-
-void LoginBox::tellPatcherToQuit() {
-	patcher.quit = true;
 }

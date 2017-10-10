@@ -66,7 +66,10 @@ showPressEnterText(true)
     Signals::GetGameData.connect([&]() -> GameplayData& { return data; });
     Signals::GetGameTime.connect([&](){ return gameclock.getElapsedTime(); });
     Signals::GameOver.connect(&gamePlay::gameOver, this);
-    Signals::PushGarbage.connect(&gamePlay::addGarbageLine, this);
+    Signals::PushGarbage.connect(&gamePlay::pushGarbage, this);
+    Signals::GameClear.connect([&](){ field.clear(); });
+    Signals::GameDraw.connect(&gamePlay::draw, this);
+    Signals::GameSetup.connect(&gamePlay::startSetup, this);
 
     Net::takeSignal(9, &gamePlay::addGarbage, this);
     Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
@@ -530,6 +533,19 @@ bool gamePlay::countDown(short c) {
 		return false;
 	else
 		return true;
+}
+
+void gamePlay::startSetup(int type) {
+	if (type == 1) {
+		int lastHole=10, nextHole=10;
+		for (int i=0; i<9; i++) {
+			while (nextHole == lastHole)
+				nextHole = rander.getHole();
+			addGarbageLine(nextHole);
+			lastHole=nextHole;
+		}
+	}
+	draw();
 }
 
 void gamePlay::gameOver(int winner) {

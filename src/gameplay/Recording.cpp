@@ -15,6 +15,7 @@ Recording::Recording() : name("") {
 	Signals::GetRecTime.connect([&]() -> sf::Time { return timer.getElapsedTime() + startAt; });
 	Signals::RecJumpTo.connect(&Recording::jumpTo, this);
 	Signals::GetRecName.connect([&]() -> const sf::String& { return name; });
+	Signals::SendRecording.connect(&Recording::sendRecording, this);
 }
 
 void Recording::clear() {
@@ -270,9 +271,9 @@ void Recording::load(std::string filename) {
 	file.close();
 }
 
-void Recording::sendRecording(sf::Uint16 type) {
+void Recording::sendRecording(int type) {
 	sf::Packet packet;
-	packet << (sf::Uint8)1 << type;
+	packet << (sf::Uint8)1 << (sf::Uint16)type;
 	PacketCompress compressor;
 	compressor.compressReplay(*this, packet);
 	Signals::SendPacket(packet);

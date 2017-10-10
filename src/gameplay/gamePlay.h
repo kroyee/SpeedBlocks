@@ -111,6 +111,7 @@ public:
 	void startCountdown();
 	bool countDown();
 	bool countDown(short);
+	void startSetup(int type);
 
 	void gameOver(int winner);
 

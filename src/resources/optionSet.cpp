@@ -28,7 +28,7 @@ void optionSet::loadStandardOptions() {
 	rccw = sf::Keyboard::D;
 	r180 = sf::Keyboard::A;
 	hd = sf::Keyboard::Space;
-	menu = sf::Keyboard::LShift;
+	menu = sf::Keyboard::LAlt;
 	score = sf::Keyboard::Tab;
 	away = sf::Keyboard::F4;
 	ready = sf::Keyboard::F5;
@@ -48,7 +48,7 @@ void optionSet::loadStandardOptions() {
 	//frame delay multiplicator 10 = 100 FPS
 	frameDelay = sf::milliseconds(10);
     //input delay multiplicator 1000 = 1000 microseconds - 1ms
-	inputDelay = sf::milliseconds(1);
+	inputDelay = sf::milliseconds(4);
 
 	piecerotation[0] = 3;
 	piecerotation[1] = 1;

@@ -46,6 +46,12 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 
 	Net::takePacket(2, &ChallengesUI::makeList, this);
 	Net::takePacket(5, &ChallengesUI::makeLeaderboard, this);
+	Net::takePacket(6, [&](sf::Packet &packet){
+		sf::String text;
+		packet >> text;
+		Signals::QuickMsg("You improved your score from " + text);
+		Signals::SendRecording(selectedId);
+	});
 }
 
 void ChallengesUI::makeList(sf::Packet &packet) {

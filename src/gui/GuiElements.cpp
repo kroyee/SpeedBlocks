@@ -14,7 +14,7 @@ loginBox				(sf::Rect<int>(500,50,450,550), resources, mainMenu.panel),
 challengesGameUI		(sf::Rect<int>(0,0,960,600), resources),
 onlineplayUI			(sf::Rect<int>(0,0,960,600), resources),
 gameStandings			(sf::Rect<int>(330,185,120,100), resources),
-replayUI				(sf::Rect<int>(465,530,490,70), resources),
+replayUI				(sf::Rect<int>(425,530,490,70), resources),
 performanceOutput		(sf::Rect<int>(807,0,113,28), resources),
 chatScreen				(sf::Rect<int>(440,0,480,600), resources),
 slideMenu				(sf::Rect<int>(920,0,600,600), resources),
@@ -173,6 +173,7 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 			Signals::QuickMsg("Name already in use");
 		else
 			Signals::QuickMsg("Authentication failed");
+		std::cout << loginBox.t.joinable() << std::endl;
 		loginBox.connectingScreen.hide();
 		mainMenu.show();
 		loginBox.show();

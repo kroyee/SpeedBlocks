@@ -34,7 +34,7 @@ class UniformRealDistribution
 
 class randomizer {
 public:
-	randomizer() { reset(); }
+	randomizer();
 	short noP[7];
 	short total;
 

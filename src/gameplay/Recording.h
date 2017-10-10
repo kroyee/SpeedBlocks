@@ -44,7 +44,7 @@ public:
 	void save(std::string filename="");
 	void load(std::string filename);
 
-	void sendRecording(sf::Uint16 type);
+	void sendRecording(int type);
 	void receiveRecording(sf::Packet &packet);
 };
 

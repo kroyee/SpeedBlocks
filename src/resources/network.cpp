@@ -9,6 +9,7 @@ using std::endl;
 network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
+	udpSock.bind(sf::Socket::AnyPort);
 	curl_global_init(CURL_GLOBAL_ALL);
 
 	Signals::SendSignal.connect(&network::sendSignal, this);
@@ -194,7 +195,5 @@ bool network::receiveData() {
 		Net::passOnPacket(packetid, packet);
 		return true;
 	}
-	else if (status != sf::Socket::NotReady)
-		cout << "Udp not recieved: " << (int)status << endl;
 	return false;
 }

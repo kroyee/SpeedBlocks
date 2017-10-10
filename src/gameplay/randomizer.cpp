@@ -1,4 +1,15 @@
 #include "randomizer.h"
+#include "GameSignals.h"
+
+randomizer::randomizer() {
+	reset();
+
+	Signals::SeedRander.connect([&](int piece, int hole){
+		seedPiece(piece);
+		seedHole(hole);
+		reset();
+	});
+}
 
 short randomizer::getPiece() {
 	short returnpiece=0;

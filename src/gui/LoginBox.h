@@ -27,8 +27,6 @@ public:
 	void regPressed();
 	void forgotPressed();
 	void checkStatus();
-	bool isThreadJoinable();
-	void tellPatcherToQuit();
 };
 
 #endif

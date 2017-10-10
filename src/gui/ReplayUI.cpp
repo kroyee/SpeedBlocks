@@ -115,7 +115,7 @@ void ReplayUI::update(sf::Time recTime) {
 void ReplayUI::seek(sf::Vector2f mouse) {
 	sf::Uint32 value = (mouse.x/(float)seekbar->getSize().x)*(float)seekbar->getMaximum();
 	seekbar->setValue(value);
-	Signals::RecJumpTo(value);
+	Signals::RecJumpTo(value*1000);
 	if (resources.gamestate == GameStates::GameOver) {
 		Signals::RecUpdateScreen();
 		pauseTime = sf::seconds(value);
