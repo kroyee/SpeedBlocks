@@ -18,6 +18,7 @@ gameField::gameField(Resources& _resources) : resources(_resources), text(_resou
     setBackColor(resources.options->fieldBackground);
 
     piece.piece=7;
+    offset=0;
 
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++)
@@ -34,6 +35,7 @@ gameField::gameField(const gameField& field) : resources(field.resources), text(
     setBackColor(resources.options->fieldBackground);
 
     piece.piece = 7;
+    offset=0;
 
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++)
@@ -46,6 +48,7 @@ void gameField::clear() {
             square[y][x] = 0;
     text.clear();
     piece.piece=7;
+    offset=0;
 }
 
 void gameField::drawField(bool drawLines) {
@@ -76,13 +79,35 @@ void gameField::drawEdges() {
     texture.draw(rect);
 }
 
+void gameField::drawTile(sf::Uint8 color, sf::Uint8 x, sf::Uint8 y) {
+    if (y<3 || color == 0)
+        return;
+    color--;
+
+    if (y == 3) {
+        if (!offset)
+            return;
+        tile[color].setTextureRect({0,30-offset,30,offset});
+        tile[color].setPosition(sf::Vector2f(5+x*30, 5));
+        texture.draw(tile[color]);
+        tile[color].setTextureRect({0,0,30,30});
+    }
+    else if (y == 21 && offset) {
+        tile[color].setTextureRect({0,0,30,30-offset});
+        tile[color].setPosition(sf::Vector2f(5+x*30, 515 + offset));
+        texture.draw(tile[color]);
+        tile[color].setTextureRect({0,0,30,30});
+    }
+    else {
+        tile[color].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30 + offset));
+        texture.draw(tile[color]);
+    }
+}
+
 void gameField::drawSquares() {
-    for (int y=4; y<22; y++)
+    for (int y=3; y<22; y++)
         for (int x=0; x<10; x++)
-            if (square[y][x] != 0) {
-                tile[square[y][x]-1].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30));
-                texture.draw(tile[square[y][x]-1]);
-            }
+            drawTile(square[y][x], x, y);
 }
 
 void gameField::drawPiece() {
@@ -91,10 +116,11 @@ void gameField::drawPiece() {
     for (int y=0; y<4; y++)
         for (int x=0; x<4; x++)
             if (piece.grid[y][x] != 0)
-                if (piece.posY+y > 3) {
-                    tile[piece.tile-1].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+                drawTile(piece.tile, piece.posX+x, piece.posY+y);
+                /*if (piece.posY+y > 3) {
+                    tile[piece.tile-1].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30 + offset));
                     texture.draw(tile[piece.tile-1]);
-                }
+                }*/
 }
 
 void gameField::drawGhostPiece() {
@@ -107,10 +133,11 @@ void gameField::drawGhostPiece() {
         for (int y=0; y<4; y++)
             for (int x=0; x<4; x++)
                 if (piece.grid[y][x] != 0)
-                    if (piece.posY+y > 3) {
-                        tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30));
+                    drawTile(piece.tile+8, piece.posX+x, piece.posY+y);
+                    /*if (piece.posY+y > 3) {
+                        tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30 + offset));
                         texture.draw(tile[piece.tile+7]);
-                    }
+                    }*/
 
         piece.posY = posY;
     }

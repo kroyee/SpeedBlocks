@@ -39,8 +39,13 @@ void randomizer::seedPiece(short seedNr) {
 	piece_gen.seed(seedNr);
 }
 
-short randomizer::getHole() {
-	return hole_dist(hole_gen)*10;
+short randomizer::getHole(bool noStack) {
+	short hole = hole_dist(hole_gen)*10;
+	if (noStack)
+		while (hole == lasthole)
+			hole = hole_dist(hole_gen)*10;
+	lasthole = hole;
+	return hole;
 }
 
 void randomizer::seedHole(short seedNr) {
@@ -53,4 +58,5 @@ void randomizer::reset() {
 		cogP[i]=1000/7;
 		total=0;
 	}
+	lasthole = 20;
 }

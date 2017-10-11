@@ -162,8 +162,8 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 		serverUI.putClient(resources.myId, resources.name);
 	}
 	else {
-		Signals::Disconnect(2);
 		if (success == 3) {
+			Signals::Disconnect(2);
 			loginBox.connectingScreen.label->setText("You have the wrong client version, attempting to patch...");
 			performanceOutput.ping->hide();
 			loginBox.t = std::thread(&PatchCheck::check, &loginBox.patcher, resources.clientVersion);
@@ -173,6 +173,7 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 			Signals::QuickMsg("Name already in use");
 		else
 			Signals::QuickMsg("Authentication failed");
+		Signals::Disconnect(0);
 		std::cout << loginBox.t.joinable() << std::endl;
 		loginBox.connectingScreen.hide();
 		mainMenu.show();

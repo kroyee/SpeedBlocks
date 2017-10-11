@@ -125,6 +125,7 @@ struct Signals {
 	static Signal<void, GameplayData&>		UpdateChallengesUI;
 	static Signal<void, sf::Time>			UpdateReplayUI;
 	static Signal<bool>						Survivor;
+	static Signal<bool>						Cheese30L;
 
 									//Network
 	static Signal<void, int, int, int>		SendSignal;
@@ -159,6 +160,7 @@ struct Signals {
 	static Signal<void>						GameClear;
 	static Signal<void>						GameDraw;
 	static Signal<void, int>				GameSetup;
+	static Signal<void, int>				GameAddDelay;
 
 									//Recording
 	static Signal<const sf::Time&>			GetRecDuration;

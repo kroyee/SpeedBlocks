@@ -62,6 +62,11 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBas
 			return true;
 		return false;
 	});
+	Signals::Cheese30L.connect([&]() -> bool {
+		if (panel->isVisible() && challenge->type == Challenges::Cheese30L)
+			return true;
+		return false;
+	});
 }
 
 void ChallengesGameUI::clear() {
@@ -96,11 +101,18 @@ void ChallengesGameUI::openChallenge(sf::Uint16 whichPanel) {
 		challenge = std::unique_ptr<BaseChallenge>(new CH_Cheese(*this));
 	else if (whichPanel == 20002)
 		challenge = std::unique_ptr<BaseChallenge>(new CH_Survivor(*this));
+	else if (whichPanel == 20003)
+		challenge = std::unique_ptr<BaseChallenge>(new CH_Cheese30L(*this));
 	show();
 }
 
 void ChallengesGameUI::hideStartChallengeButton() {
 	startChallenge->hide();
+}
+
+void ChallengesGameUI::hide() {
+	challenge.reset(nullptr);
+	panel->hide();
 }
 
 /////////////////////////////////////////////////////////////
@@ -119,6 +131,7 @@ void BaseChallenge::setLabel(int i, const sf::String& text) {
 	ref.editBox[i]->show();
 	ref.label[i]->setText(text);
 }
+#include <iostream>
 void BaseChallenge::setSpec(int i) {
 	if (i >= LabelCount)
 		return;
@@ -126,6 +139,10 @@ void BaseChallenge::setSpec(int i) {
 	ref.specEditBox->show();
 	ref.specLabel->setText(ref.label[i]->getText());
 	specIndex = i;
+	if (i == 0)
+		ref.specEditBox->setTextSize(18);
+	else
+		ref.specEditBox->setTextSize(27);
 }
 void BaseChallenge::updateSpec() {
 	if (specIndex == LabelCount)
@@ -203,7 +220,14 @@ CH_Survivor::CH_Survivor(ChallengesGameUI& ref) : BaseChallenge(ref) {
 	setLabel(1, "Garbage cleared");
 	setLabel(2, "Blocks used");
 
+	setSpec(0);
+
 	lineAdd = sf::seconds(0);
+	Signals::GameAddDelay(2000);
+}
+
+CH_Survivor::~CH_Survivor() {
+	Signals::GameAddDelay(450);
 }
 
 void CH_Survivor::update(GameplayData& data) {
@@ -217,6 +241,7 @@ void CH_Survivor::update(GameplayData& data) {
 		}
 
 	setTime();
+	updateSpec();
 }
 
 void CH_Survivor::clear() {
@@ -225,4 +250,39 @@ void CH_Survivor::clear() {
 	ref.specEditBox->setText("");
 
 	lineAdd = sf::seconds(2);
+}
+
+///////// Cheese 40L
+
+CH_Cheese30L::CH_Cheese30L(ChallengesGameUI& ref) : BaseChallenge(ref) {
+	linesAdded=6;
+	type = Challenges::Cheese30L;
+	setLabel(1, "Lines Remaining");
+	setLabel(2, "Blocks used");
+
+	setSpec(1);
+}
+
+CH_Cheese30L::~CH_Cheese30L() {}
+
+void CH_Cheese30L::update(GameplayData& data) {
+	ref.editBox[1]->setText(to_string(30 - data.garbageCleared));
+	ref.editBox[2]->setText(to_string(data.pieceCount));
+	if (data.garbageCleared > 29)
+		Signals::GameOver(1);
+	while (linesAdded < 30 && linesAdded - data.garbageCleared < 6) {
+		Signals::PushGarbage();
+		linesAdded++;
+	}
+
+	setTime();
+	updateSpec();
+}
+
+void CH_Cheese30L::clear() {
+	for (int i=0; i<LabelCount; i++)
+		ref.editBox[i]->setText("");
+	ref.specEditBox->setText("");
+
+	linesAdded=6;
 }

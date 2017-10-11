@@ -156,7 +156,7 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 		Signals::Show(11);
 	}
 	else {
-		resources.net->disconnect(0);
+		Signals::Disconnect(2);
 		patcher.status=-1;
 	}
 }

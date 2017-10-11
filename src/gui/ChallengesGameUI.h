@@ -29,9 +29,10 @@ public:
 	void openChallenge(sf::Uint16 whichPanel);
 
 	void hideStartChallengeButton();
+	void hide();
 };
 
-enum class Challenges { Base, Race, Cheese, Survivor };
+enum class Challenges { Base, Race, Cheese, Survivor, Cheese30L };
 
 class BaseChallenge {
 public:
@@ -66,6 +67,16 @@ class CH_Survivor : public BaseChallenge {
 	sf::Time lineAdd;
 public:
 	CH_Survivor(ChallengesGameUI&);
+	~CH_Survivor();
+	void update(GameplayData&);
+	void clear();
+};
+
+class CH_Cheese30L : public BaseChallenge {
+	int linesAdded;
+public:
+	CH_Cheese30L(ChallengesGameUI&);
+	~CH_Cheese30L();
 	void update(GameplayData&);
 	void clear();
 };

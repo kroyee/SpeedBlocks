@@ -137,11 +137,6 @@ int main()
                 game.delayCheck();
             break;
 
-            /*case GameStates::GameOver:
-                if (resources.playonline)
-                    if (game.winner)
-                        gui.sendGameWinner();
-            break;*/
             case GameStates::Replay:
                 if (game.playReplay())
                     gui.setGameState(GameStates::GameOver);

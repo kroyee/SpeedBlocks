@@ -36,6 +36,7 @@ Signal<void, GameplayData&> Signals::UpdateGamedata;
 Signal<void, GameplayData&> Signals::UpdateChallengesUI;
 Signal<void, sf::Time> Signals::UpdateReplayUI;
 Signal<bool> Signals::Survivor;
+Signal<bool> Signals::Cheese30L;
 
 //Network
 Signal<void, int, int, int> Signals::SendSignal;
@@ -70,6 +71,7 @@ Signal<void, int, int> Signals::SeedRander;
 Signal<void> Signals::GameClear;
 Signal<void> Signals::GameDraw;
 Signal<void, int> Signals::GameSetup;
+Signal<void, int> Signals::GameAddDelay;
 
 //Recording
 Signal<const sf::Time&> Signals::GetRecDuration;

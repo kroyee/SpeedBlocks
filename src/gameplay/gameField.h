@@ -25,10 +25,14 @@ public:
 
     GameFieldText text;
 
+    sf::Uint8 offset;
+
     gameField(Resources& _resources);
     gameField(const gameField& field);
 
     void clear();
+
+    void drawTile(sf::Uint8 color, sf::Uint8 x, sf::Uint8 y);
 
     void drawField(bool drawLines);
     void drawEdges();

@@ -40,13 +40,15 @@ public:
 
 	float cogP[7];
 
+    short lasthole;
+
 	std::mt19937 hole_gen;
     UniformRealDistribution<float> hole_dist;
 
     std::mt19937 piece_gen;
     UniformRealDistribution<float> piece_dist;
 
-    short getHole();
+    short getHole(bool noStack=false);
     void seedHole(short seedNr);
     void seedPiece(short seedNr);
 	short getPiece();

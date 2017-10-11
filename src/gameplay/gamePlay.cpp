@@ -345,6 +345,10 @@ void gamePlay::delayCheck() {
 	if (Signals::IsVisible(8))
 		Signals::UpdateChallengesUI(data);
 
+	field.offset = garbage.getOffset(gameclock.getElapsedTime());
+	if (field.offset)
+		drawMe = true;
+
 	dataSender.sendstate();
 }
 
@@ -437,13 +441,17 @@ void gamePlay::addGarbage(sf::Uint16 amount) {
 }
 
 void gamePlay::pushGarbage() {
+	garbage.setOffset(gameclock.getElapsedTime());
 	field.text.setPending(garbage.count());
 
-	sf::Uint8 hole = rander.getHole();
+	sf::Uint8 hole = (Signals::Cheese30L() ? rander.getHole(true) : rander.getHole());
 	addGarbageLine(hole);
 
 	if (recorder.rec)
 		addRecEvent(4, hole);
+
+	if (field.piece.posY > 0)
+		field.piece.mup();
 
 	if (!field.possible()) {
 		if (field.piece.posY > 0)
@@ -536,21 +544,21 @@ bool gamePlay::countDown(short c) {
 }
 
 void gamePlay::startSetup(int type) {
-	if (type == 1) {
-		int lastHole=10, nextHole=10;
-		for (int i=0; i<9; i++) {
-			while (nextHole == lastHole)
-				nextHole = rander.getHole();
-			addGarbageLine(nextHole);
-			lastHole=nextHole;
-		}
-	}
+	if (type == 1)
+		for (int i=0; i<9; i++)
+			addGarbageLine(rander.getHole(true));
+	else if (type == 2)
+		for (int i=0; i<6; i++)
+			addGarbageLine(rander.getHole(true));
 	draw();
 }
 
 void gamePlay::gameOver(int winner) {
-	if (resources.gamestate == GameStates::GameOver)
+	if (resources.gamestate == GameStates::GameOver) {
+		if (winner)
+			dataSender.gameover(winner);
 		return;
+	}
 
 	data.linesPerMinute = (((float)data.linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
 	data.bpm = (int)(data.pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
@@ -687,6 +695,7 @@ bool gamePlay::playReplay() {
 				gameclock.restart();
 				data.clear();
 				field.clear();
+				garbage.setOffset(sf::seconds(-2));
 				for (int y=0; y<22; y++)
 					for (int x=0; x<10; x++)
 						field.square[y][x] = recorder.starting_position[y][x];
@@ -728,6 +737,7 @@ bool gamePlay::playReplay() {
 			break;
 			case 4:
 				addGarbageLine(event.x);
+				garbage.setOffset(event.time);
 				drawMe=true;
 			break;
 			case 5:
@@ -757,6 +767,9 @@ bool gamePlay::playReplay() {
 	Signals::UpdateReplayUI(Signals::GetRecTime());
 	if (Signals::IsVisible(8))
 		Signals::UpdateChallengesUI(data);
+	field.offset = garbage.getOffset(currentTime);
+	if (field.offset)
+		drawMe = true;
 	return false;
 }
 

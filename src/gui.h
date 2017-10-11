@@ -8,6 +8,7 @@
 #include "PingHandle.h"
 #include "CountdownHandle.h"
 #include <functional>
+#include <memory>
 
 class optionSet;
 class soundBank;
@@ -18,6 +19,7 @@ class textures;
 class Resources;
 class GuiElements;
 class obsField;
+class UIBaseState;
 
 class UI {
 public:
@@ -43,6 +45,7 @@ public:
 	sf::Clock& delayClock;
 
 	GameStates& gamestate;
+	std::unique_ptr<UIBaseState> state;
 
 	void setGameState(GameStates state);
 
@@ -72,7 +75,6 @@ public:
 	void setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets);
 
 	void joinRoomResponse(sf::Packet &packet);
-	void getAuthResult(sf::Packet &packet);
 };
 
 #endif

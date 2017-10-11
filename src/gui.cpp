@@ -4,6 +4,7 @@
 #include "textures.h"
 #include "GameSignals.h"
 #include "GuiElements.h"
+#include "UIGameState.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -28,6 +29,7 @@ UI::UI(sf::RenderWindow& window_,
       linesBlocked(0),
       delayClock(resources.delayClock),
       gamestate(game_.resources.gamestate),
+      state(std::unique_ptr<UIBaseState>(new UIMainMenu(*this))),
       myId(resources.myId) {
 
 	Signals::LeaveRoom.connect(&UI::leaveRoom, this);
@@ -56,6 +58,8 @@ UI::UI(sf::RenderWindow& window_,
 			guiElements->challengesGameUI.clear();
 			if (guiElements->challengesGameUI.challenge->type == Challenges::Cheese)
 				Signals::GameSetup(1);
+			else if (guiElements->challengesGameUI.challenge->type == Challenges::Cheese30L)
+				Signals::GameSetup(2);
 		}
 	});
 	Net::takeSignal(5, [&](sf::Uint16 id1){
@@ -107,87 +111,22 @@ void UI::leaveRoom() {
 	setGameState(GameStates::MainMenu);
 }
 
-void UI::setGameState(GameStates state) {
-	if (gamestate == GameStates::MainMenu) { // Reset depending on what state we come from
-		guiElements->mainMenu.hide();
-		guiElements->onlineplayUI.hide();
-		if (state != GameStates::MainMenu) {
-			guiElements->gameFieldDrawer.show();
-			guiElements->gameStandings.hide();
-		}
-	}
-	else if (gamestate == GameStates::Practice) {
-		game.autoaway = false;
-		if (state == GameStates::GameOver) {
-			game.field.text.away=false;
-			game.field.text.ready=true;
-		}
-	}
-	else if (gamestate == GameStates::Spectating) {
-		if (state != GameStates::Spectating)
-			Signals::SendSig(20);
-	}
-	else if (gamestate == GameStates::Replay) {
-		guiElements->replayUI.playPause->setText("Play");
-	}
-
-	if (state == GameStates::MainMenu) { // Set depending on what state we are going into
-		guiElements->gameFieldDrawer.removeAllFields();
-		game.field.clear();
-		away=false;
-		game.autoaway=false;
-		game.field.text.away=false;
-		guiElements->scoreScreen.hide();
-		guiElements->chatScreen.sendTo("Lobby");
-		if (resources.playonline) {
-			guiElements->onlineplayUI.show();
-			guiElements->gameFieldDrawer.hide();
-			guiElements->challengesGameUI.hide();
-			guiElements->replayUI.hide();
-			guiElements->gameStandings.hide();
-		}
-		else {
-			guiElements->gameFieldDrawer.hide();
-			guiElements->mainMenu.show();
-		}
-	}
-	else if (state == GameStates::CountDown) {
-        game.sRKey();
-        game.sLKey();
-        game.sDKey();
-        game.showPressEnterText=false;
-        game.draw();
-	}
-	else if (state == GameStates::Game || state == GameStates::Practice) {
-		linesSent=0;
-        garbageCleared=0;
-        linesBlocked=0;
-		if (state == GameStates::Practice) {
-			if (!game.field.text.ready)
-				Signals::Ready();
-			if (away)
-				Signals::SetAway(false);
-			game.field.clear();
-		}
-		game.showPressEnterText=false;
-        game.startGame();
-	}
-	else if (state == GameStates::GameOver) {
-        if (game.autoaway)
-        	Signals::SetAway(true);
-        if (gamestate != GameStates::Replay)
-        	game.showPressEnterText=true;
-        else
-        	guiElements->replayUI.pauseTime=sf::seconds(0);
-        game.field.text.setCountdown(0);
-        game.draw();
-	}
-	else if (state == GameStates::Replay) {
-		game.showPressEnterText=false;
-		game.startReplay();
-	}
-
-	gamestate = state;
+void UI::setGameState(GameStates _state) {
+	state.reset(nullptr);
+	if (_state == GameStates::MainMenu)
+		state = std::unique_ptr<UIBaseState>(new UIMainMenu(*this));
+	else if (_state == GameStates::CountDown)
+		state = std::unique_ptr<UIBaseState>(new UICountDown(*this));
+	else if (_state == GameStates::Game)
+		state = std::unique_ptr<UIBaseState>(new UIGame(*this));
+	else if (_state == GameStates::GameOver)
+		state = std::unique_ptr<UIBaseState>(new UIGameOver(*this));
+	else if (_state == GameStates::Replay)
+		state = std::unique_ptr<UIBaseState>(new UIReplay(*this));
+	else if (_state == GameStates::Practice)
+		state = std::unique_ptr<UIBaseState>(new UIPractice(*this));
+	else if (_state == GameStates::Spectating)
+		state = std::unique_ptr<UIBaseState>(new UISpectating(*this));
 }
 
 void UI::chatFocus(bool i) {
@@ -350,9 +289,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 		sf::Uint8 playersinroom;
 		sf::Uint16 playerid, seed1, seed2;
 		packet >> seed1 >> seed2 >> playersinroom;
-		game.rander.seedPiece(seed1);
-		game.rander.seedHole(seed2);
-		game.rander.reset();
+		Signals::SeedRander(seed1, seed2);
 
 		if (joinok == 1) {
 			setGameState(GameStates::GameOver);

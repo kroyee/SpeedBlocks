@@ -3,7 +3,10 @@
 
 const sf::Time initialDelay = sf::milliseconds(1000);
 const sf::Time freezeDelay = sf::milliseconds(450);
-const sf::Time addDelay = sf::milliseconds(450);
+
+GarbageHandler::GarbageHandler(uint16_t& _linesBlocked) : linesBlocked(_linesBlocked), addDelay(sf::milliseconds(450)) {
+	Signals::GameAddDelay.connect(&GarbageHandler::setAddDelay, this);
+}
 
 sf::Uint16 GarbageHandler::count() {
 	sf::Uint16 total=0;
@@ -16,6 +19,7 @@ void GarbageHandler::clear() {
 	garbage.clear();
 	linesBlocked=0;
 	minRemaining=initialDelay;
+	offsetTime=sf::seconds(0);
 }
 
 void GarbageHandler::add(sf::Uint16 amount, const sf::Time& _time) {
@@ -66,4 +70,18 @@ bool GarbageHandler::check(const sf::Time& _time) {
 	}
 	minRemaining = std::min(minRemaining, garbage.front().delay - _time);
 	return false;
+}
+
+void GarbageHandler::setAddDelay(int delay) {
+	addDelay = sf::milliseconds(delay);
+}
+
+sf::Uint8 GarbageHandler::getOffset(const sf::Time& _time) {
+	if (_time > offsetTime)
+		return 0;
+	return ((offsetTime - _time) / addDelay) * 30;
+}
+
+void GarbageHandler::setOffset(const sf::Time& _time) {
+	offsetTime = _time + addDelay;
 }
