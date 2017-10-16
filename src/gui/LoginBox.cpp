@@ -108,6 +108,8 @@ guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 }
 
 void LoginBox::launchLogin(sf::Uint8 guest) {
+	if (guest && !LiE3->getText().getSize())
+		return;
 	Signals::Hide(0);
 	connectingScreen.show();
 	connectingScreen.label->setText("Connecting to server...");
@@ -120,8 +122,6 @@ void LoginBox::launchLogin(sf::Uint8 guest) {
 }
 
 void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
-	if (guest && !name.getSize())
-		return;
 	patcher.status=1;
 	if (resources.net->connect() == sf::Socket::Done) {
 		sf::String hash;
