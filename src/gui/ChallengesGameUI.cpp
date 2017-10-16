@@ -268,11 +268,14 @@ CH_Cheese30L::~CH_Cheese30L() {}
 void CH_Cheese30L::update(GameplayData& data) {
 	ref.editBox[1]->setText(to_string(30 - data.garbageCleared));
 	ref.editBox[2]->setText(to_string(data.pieceCount));
-	if (data.garbageCleared > 29)
-		Signals::GameOver(1);
-	while (linesAdded < 30 && linesAdded - data.garbageCleared < 6) {
-		Signals::PushGarbage();
-		linesAdded++;
+
+	if (ref.resources.gamestate == GameStates::Game) {
+		if (data.garbageCleared > 29)
+			Signals::GameOver(1);
+		while (linesAdded < 30 && linesAdded - data.garbageCleared < 6) {
+			Signals::PushGarbage();
+			linesAdded++;
+		}
 	}
 
 	setTime();

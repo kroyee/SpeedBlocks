@@ -581,7 +581,7 @@ void gamePlay::gameOver(int winner) {
 
 void gamePlay::away() {
 	resources.away = !resources.away;
-	setAway(&resources.away);
+	setAway(resources.away);
 }
 
 void gamePlay::setAway(bool away) {
