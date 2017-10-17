@@ -22,6 +22,7 @@ public:
 	bool isVisible() { return (panel->isVisible()) ? true : false; }
 
 	bool mouseOver(tgui::Widget::Ptr widget, int x, int y);
+	bool mouseOver(tgui::Widget::Ptr widget);
 };
 
 #endif

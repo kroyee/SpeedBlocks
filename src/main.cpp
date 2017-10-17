@@ -25,6 +25,8 @@ using std::endl;
 #endif
 //#define DEBUG
 
+#include "PopupMenu.h"
+
 int main()
 {
     // Initializing classes and loading resources
@@ -76,6 +78,23 @@ int main()
 
     // Intro
 
+    PopupMenu pop(resources);
+    pop.setBoundery({100, 100, 300, 300});
+    pop.addItem("Heya");
+    pop.addItem("Coolio");
+    pop.addItem("Press to do shit", [&](){ gui.guiElements->animatedBackground.disable(); });
+    pop.addItem("What's up doc?");
+    auto sub = pop.getSubMenu("Heya");
+    sub->addItem("Handicap");
+    sub = sub->getSubMenu("Handicap");
+    sub->addItem("10%");
+    sub->addItem("20%");
+    sub->addItem("30%");
+    sub->addItem("40%");
+    sub->addItem("50%");
+
+    pop.update();
+
     bool intro=true;
     while (intro) {
         sf::Event event;
@@ -116,9 +135,13 @@ int main()
     {
         sf::Event event;
 
-        while (window.pollEvent(event))
+        while (window.pollEvent(event)) {
             if (gui.handleEvent(event))
                 game.handleEvent(event);
+            if (event.type == sf::Event::MouseButtonPressed)
+                if (event.mouseButton.button == sf::Mouse::Button::Right)
+                    pop.show(event.mouseButton.x, event.mouseButton.y);
+        }
 
         if (resources.playonline)
             while (resources.net->receiveData()) {}

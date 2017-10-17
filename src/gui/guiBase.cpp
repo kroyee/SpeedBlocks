@@ -28,3 +28,13 @@ bool guiBase::mouseOver(tgui::Widget::Ptr widget, int x, int y) {
 			return true;
 	return false;
 }
+
+bool guiBase::mouseOver(tgui::Widget::Ptr widget) {
+	sf::Vector2f pos = widget->getAbsolutePosition();
+	sf::Vector2f size = widget->getSize();
+	sf::Vector2f mpos = resources.window.mapPixelToCoords(sf::Mouse::getPosition(resources.window));
+	if (mpos.x>=pos.x-2 && mpos.x<=pos.x+size.x+2)
+		if (mpos.y>=pos.y-2 && mpos.y<=pos.y+size.y+2)
+			return true;
+	return false;
+}
