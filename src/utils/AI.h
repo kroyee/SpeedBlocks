@@ -50,7 +50,7 @@ public:
 	void setMode(Mode);
 	void setSpeed(const sf::Time& t);
 
-	bool playAI();
+	bool playAI(const sf::Time& t);
 };
 
 #endif

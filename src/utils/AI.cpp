@@ -162,15 +162,15 @@ void AI::setSpeed(const sf::Time& t) {
 	finesseTime = moveTime / 10.0;
 }
 
-void AI::playAI(const sf::Time& t, int _nextpiece) {
+void AI::playAI(const sf::Time& t) {
 	if (movingPiece)
-		continueMove(firstMove.move, nextpiece);
+		continueMove(t);
 	else if (t > nextmoveTime) {
 		firstMove.square = field->square;
 		firstMove.setPiece(field->piece.piece);
 		firstMove.calcHolesBeforePiece();
 		firstMove.tryAllMoves(secondMove, nextpiece);
-		startMove(firstMove.move, _nextpiece, t);
+		startMove(t);
 		if (continueMove(t))
 			return true;
 
