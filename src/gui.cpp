@@ -173,14 +173,6 @@ void UI::delayCheck() {
 	}
 }
 
-bool UI::handleEvent(sf::Event& event) {
-	if (guiElements->handleEvent(event))
-		return false;
-
-	resources.gfx->tGui.handleEvent(event);
-	return true;
-}
-
 void UI::darkTheme() {
 	guiElements->animatedBackground.dark();
 	guiElements->slideMenu.dark();

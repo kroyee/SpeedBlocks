@@ -114,79 +114,13 @@ int main(int argc, char** argv)
 
     // The main-loop
 
-    Population pop(resources);
-    //pop.makePopulation(1000);
-    /*
-    if (argc < 2) {
-        cout << "Usage: SpeedBlocks [filename] | [stack|downstack [size]]\n";
-        cout << "filename: Specify a population file to load\n";
-        cout << "stack: Start stack training with a new randomized population with [size]\n";
-        cout << "downstack: Start downstack traning with a new randomized population with [size]" << endl;
-        window.close();
-    }
-    else {
-        std::string argument(argv[1]);
-        if (argument == "stack") {
-            int size=1000;
-            if (argc < 3)
-                cout << "No size specified, using default 1000" << endl;
-            else {
-                try{
-                    size = std::stoi(argv[2]);
-                } catch (...) {
-                    cout << "Invalid size, using default 1000" << endl;
-                }
-            }
-            pop.ai.mode = Mode::Stack;
-            pop.makePopulation(size);
-        }
-        else if (argument == "downstack") {
-            int size=1000;
-            if (argc < 3)
-                cout << "No size specified, using default 1000" << endl;
-            else {
-                try{
-                    size = std::stoi(argv[2]);
-                } catch (...) {
-                    cout << "Invalid size, using default 1000" << endl;
-                }
-            }
-            pop.ai.mode = Mode::Downstack;
-            pop.makePopulation(size);
-        }
-        else {
-            if (!pop.loadPopulation(argv[1])) {
-                cout << "Does the file exist?" << endl;
-                window.close();
-            }
-        }
-    }*/
-    pop.loadPopulation("AI/population.9-cycles.downstack");
-    if (window.isOpen()) {
-        while (!pop.quit) {
-            cout << "Starting cycle " << pop.cycleCount << endl;
-            if (pop.populationCycle(100)) {
-                pop.evolvePopulation();
-                pop.cycleCount++;
-                pop.savePopulation();
-            }
-        }
-
-        //pop.savePopulation();
-    }
-
     while (window.isOpen())
     {
         sf::Event event;
 
-        while (window.pollEvent(event)) {
+        while (window.pollEvent(event))
             if (gui.handleEvent(event))
                 game.handleEvent(event);
-
-            if (event.type == sf::Event::KeyPressed)
-                if (event.key.code == sf::Keyboard::P)
-                    pop.showBest();
-        }
 
         if (resources.playonline)
             while (resources.net->receiveData()) {}
