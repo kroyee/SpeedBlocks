@@ -7,11 +7,34 @@
 
 class Resources;
 
-class gameField {
+class BasicField {
 public:
-    sf::Uint8 square[22][10];
+    BasicField(Resources& _resources);
+    BasicField(const BasicField& field);
+    Resources& resources;
+
+    std::array<std::array<sf::Uint8, 10>, 22> square;
     basePieces piece;
 
+    bool possible();
+
+    bool mRight();
+    bool mLeft();
+    bool mDown();
+    void hd();
+    bool rcw();
+    bool rccw();
+    bool r180();
+    bool kickTest();
+
+    void addPiece();
+
+    void removeline(short y);
+    sf::Vector2i clearlines();
+};
+
+class gameField : public BasicField {
+public:
     sf::RenderTexture texture;
     sf::Sprite sprite;
     sf::Sprite* tile;
@@ -20,8 +43,6 @@ public:
     sf::Sprite background;
 
     sf::RectangleShape backRect;
-
-    Resources& resources;
 
     GameFieldText text;
 
@@ -40,21 +61,6 @@ public:
     void drawPiece();
     void drawGhostPiece();
 
-    bool possible();
-
-    bool mRight();
-    bool mLeft();
-    bool mDown();
-    void hd();
-    bool rcw();
-    bool rccw();
-    bool r180();
-    bool kickTest();
-
-    void addPiece();
-
-    void removeline(short y);
-    sf::Vector2i clearlines();
     void setBackColor(sf::Uint8 val);
 };
 
