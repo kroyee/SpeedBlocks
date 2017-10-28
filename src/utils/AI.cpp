@@ -6,8 +6,8 @@
 using std::cout;
 using std::endl;
 
-const sf::Time finesseTime = sf::milliseconds(80);
-const sf::Time moveTime = sf::milliseconds(250);
+const sf::Time finesseTime = sf::milliseconds(20);
+const sf::Time moveTime = sf::milliseconds(50);
 const bool useStepping = false;
 
 AI::AI(Resources& _res) : resources(_res), field(_res), firstMove(_res), secondMove(_res) {}
