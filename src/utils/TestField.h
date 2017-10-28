@@ -36,6 +36,8 @@ public:
 	uint8_t well1Wide;
 	uint8_t highestPoint;
 
+	uint8_t holeCount;
+
 	sf::Vector2i well2Pos;
 
 	void backup();
@@ -63,6 +65,7 @@ public:
 	void useFinesseMove(int32_t newscore);
 	bool setFinesseMove();
 	void tryAllFinesseMoves(TestField& field, uint8_t nextpiece);
+	bool finesseIsPossible();
 	bool tryLeft(bool clearTestPath=false);
 	bool tryRight(bool clearTestPath=false);
 	bool tryUp(int turnVal);

@@ -359,11 +359,7 @@ void TestField::findFinesseMove(int addTotalLines) {
 			calcMove(addTotalLines);
 			auto newscore = checkScore();
 			if (newscore > move.score) {
-				if (reverseWallkick())
-					useFinesseMove(newscore);
-				else if (tryLeft(true))
-					useFinesseMove(newscore);
-				else if (tryRight(true))
+				if (finesseIsPossible())
 					useFinesseMove(newscore);
 			}
 		}
@@ -392,9 +388,7 @@ void TestField::tryAllFinesseMoves(TestField& field, uint8_t nextpiece) {
 		if (possible()) {
 			hd();
 			y=piece.posY;
-			if (reverseWallkick() || tryLeft(true) || tryRight(true)) {
-				piece.posY=y;
-				piece.posX=pieceBackup.posX;
+			if (finesseIsPossible()) {
 				checkNextMove(field, nextpiece);
 				if (field.move.score > move.score)
 					useFinesseMove(field.move.score);
@@ -402,6 +396,19 @@ void TestField::tryAllFinesseMoves(TestField& field, uint8_t nextpiece) {
 		}
 	}
 	piece = pieceBackup;
+}
+
+bool TestField::finesseIsPossible() {
+	auto pieceBackup = piece;
+
+	if (reverseWallkick())
+		return restorePiece(pieceBackup, true);
+
+	piece = pieceBackup;
+	if (tryLeft(true))
+		return restorePiece(pieceBackup, true);
+
+	return restorePiece(pieceBackup, tryRight(true));
 }
 
 bool TestField::tryLeft(bool clearTestPath) {
