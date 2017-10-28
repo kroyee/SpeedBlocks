@@ -81,30 +81,40 @@ void TestField::calcOnTopOfHoles() {
 }
 
 void TestField::calcHolesBeforePiece() {
-	holesBeforePiece=0;
-	bool trackHoles=false;
+	closedHoles=0;
+	holeMap.fill({0,0,0,0,0,0,0,0,0,0});
 	for (int x=0; x<10; x++) {
+		bool trackHoles=false;
 		for (int y=0; y<22; y++) {
 			if (trackHoles) {
-				if (!square[y][x])
-					holesBeforePiece++;
+				if (!square[y][x]) {
+					closedHoles++;
+					holeMap[y][x]=1;
+				}
 			}
 			else if (square[y][x])
 				trackHoles=true;
 		}
 	}
+
+	calcOpenHoles();
+	openHolesBeforePiece = openHoles;
+	closedHolesBeforePiece = closedHoles;
 }
 
 void TestField::calcHeightsAndHoles() {
-	holes=0;
+	closedHoles=0;
 	totalHeight=0;
 	highestPoint=0;
+	holeMap.fill({0,0,0,0,0,0,0,0,0,0});
 	for (int x=0; x<10; x++) {
 		heights[x]=0;
 		for (int y=0; y<22; y++) {
 			if (heights[x]) {
-				if (!square[y][x])
-					holes++;
+				if (!square[y][x]) {
+					closedHoles++;
+					holeMap[y][x]=1;
+				}
 			}
 			else if (square[y][x]) {
 				heights[x] = 22-y;
@@ -114,7 +124,32 @@ void TestField::calcHeightsAndHoles() {
 		if (heights[x] > highestPoint)
 			highestPoint = heights[x];
 	}
-	holes -= holesBeforePiece;
+
+	calcOpenHoles();
+
+	openHoles -= openHolesBeforePiece;
+	closedHoles -= closedHolesBeforePiece;
+}
+
+void TestField::calcOpenHoles() {
+	openHoles=0;
+	findOpenHoles(5, 0);
+	closedHoles-=openHoles;
+}
+
+void TestField::findOpenHoles(uint8_t x, uint8_t y) {
+	if (x>9 || y>21 || square[y][x] || holeMap[y][x] == 2)
+		return;
+
+	if (holeMap[y][x])
+		openHoles++;
+
+	holeMap[y][x]=2;
+
+	findOpenHoles(x, y-1);
+	findOpenHoles(x, y+1);
+	findOpenHoles(x-1, y);
+	findOpenHoles(x+1, y);
 }
 
 void TestField::calcBumpiness() {
@@ -206,9 +241,9 @@ void TestField::calcScore() {
 }
 
 int32_t TestField::checkScore() {
-	return totalHeight*weights[0] + holes*weights[1] + bumpiness*weights[2]
+	return totalHeight*weights[0] + closedHoles*weights[1] + bumpiness*weights[2]
 	+ totalLines*weights[3] + well2Wide*weights[4] + highestPoint*weights[5]
-	+ onTopOfHoles*weights[6] + well1Wide*weights[7];
+	+ onTopOfHoles*weights[6] + well1Wide*weights[7] + pieceNextToWall*weights[8] + openHoles*weights[9];
 }
 
 void TestField::calcMove(int addTotalLines) {
@@ -279,7 +314,8 @@ void TestField::findBestMove(int addTotalLines) {
 void TestField::tryAllMoves(TestField& field, uint8_t nextpiece) {
 	backup();
 	move.clear();
-	field.holesBeforePiece = holesBeforePiece;
+	field.closedHolesBeforePiece = closedHolesBeforePiece;
+	field.openHolesBeforePiece = openHolesBeforePiece;
 
 	if (piece.piece == 6) {
 		for (int x=-2; x<9; x++) {
@@ -322,10 +358,15 @@ void TestField::tryAllMoves(TestField& field, uint8_t nextpiece) {
 }
 
 void TestField::findNextMove(TestField& field, uint8_t nextpiece) {
+	field.pieceNextToWall = nextToWall();
+
 	hd();
 	checkNextMove(field, nextpiece);
 
-	if ((piece.posY < 5 ? field.move.score-100 : field.move.score) > move.score) {
+	if (piece.posY < 5)
+		field.move.score -= 100;
+
+	if (field.move.score > move.score) {
 		move.score = (piece.posY < 5 ? field.move.score-100 : field.move.score);
 		move.posX=piece.posX;
 		move.rot=piece.current_rotation;
@@ -333,6 +374,16 @@ void TestField::findNextMove(TestField& field, uint8_t nextpiece) {
 	}
 
 	tryAllFinesseMoves(field, nextpiece);
+}
+
+bool TestField::nextToWall() {
+	for (int x=0; x<4; x++)
+		if (x+piece.posX == 0 || x+piece.posX == 9)
+			for (int y=0; y<4; y++)
+				if (piece.grid[y][x])
+					return true;
+
+	return false;
 }
 
 void TestField::checkNextMove(TestField& field, uint8_t nextpiece) {

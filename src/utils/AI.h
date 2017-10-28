@@ -13,7 +13,7 @@ enum class Mode { Downstack, Stack };
 class AI {
 public:
 	Resources& resources;
-	std::array<double, 8> weights, downstackWeights, stackWeights;
+	std::array<double, 10> weights, downstackWeights, stackWeights;
 	obsField field;
 	TestField firstMove, secondMove;
 
@@ -55,14 +55,14 @@ public:
 struct AIResults {
 	AIResults() {}
 
-	AIResults(std::array<double, 8> & _weights, uint32_t garb, uint32_t lines) :
+	AIResults(std::array<double, 10> & _weights, uint32_t garb, uint32_t lines) :
 	weights(_weights),
 	garbageCleared(garb),
 	linesCleared(lines),
 	score(garb*2 + lines) {}
 
 	void printInfo();
-	std::array<double, 8> weights;
+	std::array<double, 10> weights;
 	uint32_t garbageCleared, linesCleared, score;
 };
 

@@ -115,8 +115,7 @@ int main(int argc, char** argv)
     // The main-loop
 
     Population pop(resources);
-    //pop.makePopulation(1000);
-    /*
+    
     if (argc < 2) {
         cout << "Usage: SpeedBlocks [filename] | [stack|downstack [size]]\n";
         cout << "filename: Specify a population file to load\n";
@@ -160,8 +159,8 @@ int main(int argc, char** argv)
                 window.close();
             }
         }
-    }*/
-    pop.loadPopulation("AI/population.9-cycles.downstack");
+    }
+
     if (window.isOpen()) {
         while (!pop.quit) {
             cout << "Starting cycle " << pop.cycleCount << endl;
@@ -172,7 +171,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //pop.savePopulation();
+        pop.savePopulation();
     }
 
     while (window.isOpen())

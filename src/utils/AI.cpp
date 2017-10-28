@@ -13,23 +13,25 @@ const bool useStepping = false;
 AI::AI(Resources& _res) : resources(_res), field(_res), firstMove(_res), secondMove(_res) {}
 
 void AI::randomizeWeights(randomizer& rander) {
-	for (int i=0; i<8; i++)
+	for (int i=0; i<10; i++)
 		weights[i] = rander.piece_dist(rander.piece_gen) * 2 - 1;
 
-	if (mode == Mode::Downstack)
+/*	if (mode == Mode::Downstack)
 		return;
 
-	weights[0] = 0;	// totalHeiht
-	weights[1] = -0.7;	// holes
+	weights[0] = 0;		// totalHeiht
+	weights[1] = -0.7;	// closedHoles
 	weights[2] = -0.1;	// bumpiness
 	weights[3] = -0.1;	// totalLines
 	weights[4] = 0.1;	// well2wide
 	weights[5] = -0.1;	// highestpoint
 	weights[6] = 0;		// ontopofholes
-	weights[7] = -0.2; // well1wide
+	weights[7] = -0.2;	// well1wide
+	weights[8] = 0;		// pieceNextToWall
+	weights[9] = -0.35;	// openHoles
 
-	for (int i=0; i<8; i++)
-		weights[i] += rander.piece_dist(rander.piece_gen) * 0.4 - 0.2;
+	for (int i=0; i<10; i++)
+		weights[i] += rander.piece_dist(rander.piece_gen) * 0.4 - 0.2;*/
 }
 
 bool AI::makeMove(MoveInfo& move, int _nextpiece) {
@@ -40,7 +42,6 @@ bool AI::makeMove(MoveInfo& move, int _nextpiece) {
 
 	if (move.use_path) {
 		for (auto it = move.path.rbegin(); it != move.path.rend(); it++) {
-			cout << (int)*it << endl;
 			if (!training) {
 				draw();
 				if (useStepping)
@@ -175,6 +176,8 @@ void AI::setMode(Mode _mode) {
 		weights[5] = -0.571009;
 		weights[6] = -0.0826352;
 		weights[7] = -0.268683;
+		//weights[8] = ?
+		//weights[9] = ?
 		firstMove.weights = weights;
 		secondMove.weights = weights;
 	}
@@ -188,6 +191,8 @@ void AI::setMode(Mode _mode) {
 		weights[5] = -0.136575;
 		weights[6] = -0.0488756;
 		weights[7] = -0.206737;
+		//weights[8] = ?
+		//weights[9] = ?
 		firstMove.weights = weights;
 		secondMove.weights = weights;
 	}
@@ -212,10 +217,10 @@ void AI::stepping() {
 }
 
 void AIResults::printInfo() {
-	cout << "totalHeight " << weights[0] << "\nholes " << weights[1] << "\nbumbiness " << weights[2];
+	cout << "totalHeight " << weights[0] << "\nclosedHoles " << weights[1] << "\nbumbiness " << weights[2];
 	cout << "\ntotalLines " << weights[3] << "\nwell2Wide " << weights[4] << "\nhighestPoint " << weights[5];
-	cout << "\nonTopOfHoles " << weights[6] << "\nwell1Wide" << weights[7];
-	cout << "\nTotal score " << score << endl;
+	cout << "\nonTopOfHoles " << weights[6] << "\nwell1Wide " << weights[7] << "\nnextToWall " << weights[8];
+	cout << "\nopenHoles " << weights[9] << "\nTotal score " << score << endl;
 }
 
 /////////////////////////////////////////
@@ -251,7 +256,7 @@ void Population::runAI(AIResults& bot, int count) {
 				ai.restartGame();
 		}
 		else if (ai.mode == Mode::Stack) {
-			if (ai.moveCount > 50 || ai.firstMove.totalHeight > 160)
+			if (ai.moveCount > 80 || ai.firstMove.totalHeight > 160)
 				ai.restartGame();
 		}
 
@@ -302,6 +307,16 @@ void Population::showAI(AIResults& result) {
 			ai.setMode(Mode::Downstack);
 		else if (ai.firstMove.totalHeight < 10)
 			ai.setMode(Mode::Stack);
+
+		/*auto hbpBackup = ai.firstMove.holesBeforePiece;
+		ai.firstMove.square = ai.field.square;
+		ai.firstMove.calcHolesBeforePiece();
+		if (ai.firstMove.holesBeforePiece > hbpBackup) {
+			cout << (int)ai.firstMove.holesBeforePiece << " " << (int)hbpBackup << endl;
+			ai.stepping();
+			ai.draw();
+			ai.stepping();
+		}*/
 
 		/*if (ai.mode == Mode::Downstack) {
 			if (ai.moveCount > 500)
@@ -363,7 +378,7 @@ AIResults Population::tournamentSelection() {
 
 	AIResults offspring;
 	double combinationRatio = (results[first].score - results[second].score) / static_cast<double>(results[first].score);
-	for (int i=0; i<8; i++) {
+	for (int i=0; i<10; i++) {
 		double diff = (results[first].weights[i] - results[second].weights[i]) / 2.0;
 		offspring.weights[i] = results[second].weights[i] + diff + diff*combinationRatio;
 	}
@@ -375,7 +390,7 @@ void Population::mutate(AIResults& result) {
 	if (rander.piece_dist(rander.piece_gen) > 0.05)
 		return;
 
-	int index = rander.piece_dist(rander.piece_gen)*8;
+	int index = rander.piece_dist(rander.piece_gen)*10;
 	double add = rander.piece_dist(rander.piece_gen)*0.4-0.2;
 	double normal = 1 + (add < 0 ? add*-1 : add);
 	result.weights[index] += add;
@@ -437,7 +452,7 @@ void Population::savePopulation() {
 	file.write(&modeByte, 1);
 
 	for (auto& bot : results) {
-		file.write(reinterpret_cast<char*>(&bot.weights[0]), size*8);
+		file.write(reinterpret_cast<char*>(&bot.weights[0]), size*10);
 		file.write(reinterpret_cast<char*>(&bot.score), sizeof(uint32_t));
 	}
 
@@ -479,7 +494,7 @@ bool Population::loadPopulation(const std::string & filename) {
 	}
 
 	AIResults bot;
-	while (file.read(reinterpret_cast<char*>(&bot.weights[0]), size*8) && file.read(reinterpret_cast<char*>(&bot.score), sizeof(uint32_t)))
+	while (file.read(reinterpret_cast<char*>(&bot.weights[0]), size*10) && file.read(reinterpret_cast<char*>(&bot.score), sizeof(uint32_t)))
 		results.push_back(bot);
 
 	cout << "Loaded population of " << results.size() << " bots with cycle count " << cycleCount << endl;
