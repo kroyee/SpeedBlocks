@@ -256,7 +256,7 @@ void Population::runAI(AIResults& bot, int count) {
 				ai.restartGame();
 		}
 		else if (ai.mode == Mode::Stack) {
-			if (ai.moveCount > 80 || ai.firstMove.totalHeight > 160)
+			if (ai.moveCount > 80 || ai.firstMove.totalHeight > 128)
 				ai.restartGame();
 		}
 
@@ -284,9 +284,9 @@ void Population::showAI(AIResults& result) {
 	result.printInfo();
 
 	while (ai.gameCount < 1) {
-		/*if (ai.mode == Mode::Downstack)
+		if (ai.mode == Mode::Downstack)
 			while (ai.garbageAdded - ai.garbageCleared < 5)
-				ai.addGarbageLine(rander.getHole());*/
+				ai.addGarbageLine(rander.getHole());
 		
 		ai.draw();
 
@@ -302,18 +302,19 @@ void Population::showAI(AIResults& result) {
 			ai.restartGame();
 		ai.nextpiece = rander.getPiece();
 
-		ai.firstMove.calcHeightsAndHoles();
+		/*ai.firstMove.calcHeightsAndHoles();
 		if (ai.firstMove.totalHeight > 130)
 			ai.setMode(Mode::Downstack);
 		else if (ai.firstMove.totalHeight < 10)
-			ai.setMode(Mode::Stack);
+			ai.setMode(Mode::Stack);*/
 
-		/*auto hbpBackup = ai.firstMove.holesBeforePiece;
+		/*auto hbpBackup = ai.firstMove.closedHoles;
+		auto bu2 = ai.firstMove.openHoles;
 		ai.firstMove.square = ai.field.square;
 		ai.firstMove.calcHolesBeforePiece();
-		if (ai.firstMove.holesBeforePiece > hbpBackup) {
-			cout << (int)ai.firstMove.holesBeforePiece << " " << (int)hbpBackup << endl;
-			ai.stepping();
+		if (ai.firstMove.closedHoles > hbpBackup) {
+			cout << (int)ai.firstMove.closedHoles << " " << (int)hbpBackup << " - ";
+			cout << (int)ai.firstMove.openHoles << " " << (int)bu2 << endl;
 			ai.draw();
 			ai.stepping();
 		}*/
