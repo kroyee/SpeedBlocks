@@ -9,7 +9,7 @@ using std::endl;
 void MoveInfo::clear() {
 	posX=4;
 	rot=0;
-	score=-2000000000;
+	score=-10000;
 	use_path=false;
 }
 
@@ -213,6 +213,9 @@ void TestField::calc2Wide() {
 		well2Pos.x = 8;
 		well2Pos.y = 9;
 	}
+
+	if (well2Wide > totalHeight/10.0)
+		well2Wide = totalHeight/10.0;
 }
 
 void TestField::calc1Wide() {
@@ -240,7 +243,7 @@ void TestField::calcScore() {
 	}
 }
 
-int32_t TestField::checkScore() {
+double TestField::checkScore() {
 	return totalHeight*weights[0] + closedHoles*weights[1] + bumpiness*weights[2]
 	+ totalLines*weights[3] + well2Wide*weights[4] + highestPoint*weights[5]
 	+ onTopOfHoles*weights[6] + well1Wide*weights[7] + pieceNextToWall*weights[8] + openHoles*weights[9];
@@ -367,7 +370,7 @@ void TestField::findNextMove(TestField& field, uint8_t nextpiece) {
 		field.move.score -= 100;
 
 	if (field.move.score > move.score) {
-		move.score = (piece.posY < 5 ? field.move.score-100 : field.move.score);
+		move.score = field.move.score;
 		move.posX=piece.posX;
 		move.rot=piece.current_rotation;
 		move.use_path=false;
@@ -418,7 +421,7 @@ void TestField::findFinesseMove(int addTotalLines) {
 	piece = pieceBackup;
 }
 
-void TestField::useFinesseMove(int32_t newscore) {
+void TestField::useFinesseMove(double newscore) {
 	move = finesseMove;
 	move.score = newscore;
 }

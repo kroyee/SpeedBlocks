@@ -176,8 +176,8 @@ void AI::setMode(Mode _mode) {
 		weights[5] = -0.571009;
 		weights[6] = -0.0826352;
 		weights[7] = -0.268683;
-		//weights[8] = ?
-		//weights[9] = ?
+		weights[8] = 0.01;
+		weights[9] = -0.947217;
 		firstMove.weights = weights;
 		secondMove.weights = weights;
 	}
@@ -191,8 +191,8 @@ void AI::setMode(Mode _mode) {
 		weights[5] = -0.136575;
 		weights[6] = -0.0488756;
 		weights[7] = -0.206737;
-		//weights[8] = ?
-		//weights[9] = ?
+		weights[8] = 0.01;
+		weights[9] = -0.771367;
 		firstMove.weights = weights;
 		secondMove.weights = weights;
 	}
@@ -284,9 +284,9 @@ void Population::showAI(AIResults& result) {
 	result.printInfo();
 
 	while (ai.gameCount < 1) {
-		if (ai.mode == Mode::Downstack)
+		/*if (ai.mode == Mode::Downstack)
 			while (ai.garbageAdded - ai.garbageCleared < 5)
-				ai.addGarbageLine(rander.getHole());
+				ai.addGarbageLine(rander.getHole());*/
 		
 		ai.draw();
 
@@ -302,11 +302,11 @@ void Population::showAI(AIResults& result) {
 			ai.restartGame();
 		ai.nextpiece = rander.getPiece();
 
-		/*ai.firstMove.calcHeightsAndHoles();
-		if (ai.firstMove.totalHeight > 130)
+		ai.firstMove.calcHeightsAndHoles();
+		if (ai.firstMove.totalHeight > 120)
 			ai.setMode(Mode::Downstack);
-		else if (ai.firstMove.totalHeight < 10)
-			ai.setMode(Mode::Stack);*/
+		else if (ai.firstMove.totalHeight < 15)
+			ai.setMode(Mode::Stack);
 
 		/*auto hbpBackup = ai.firstMove.closedHoles;
 		auto bu2 = ai.firstMove.openHoles;

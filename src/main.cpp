@@ -116,7 +116,7 @@ int main(int argc, char** argv)
 
     Population pop(resources);
     
-    if (argc < 2) {
+    /*if (argc < 2) {
         cout << "Usage: SpeedBlocks [filename] | [stack|downstack [size]]\n";
         cout << "filename: Specify a population file to load\n";
         cout << "stack: Start stack training with a new randomized population with [size]\n";
@@ -172,7 +172,9 @@ int main(int argc, char** argv)
         }
 
         pop.savePopulation();
-    }
+    }*/
+
+    pop.makePopulation(1);
 
     while (window.isOpen())
     {

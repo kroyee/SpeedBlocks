@@ -9,7 +9,7 @@ struct MoveInfo {
 	uint8_t posX, rot;
 	std::vector<uint8_t> path;
 	bool use_path;
-	int32_t score;
+	double score;
 
 	void clear();
 };
@@ -27,7 +27,7 @@ public:
 	// Scoring values
 	std::array<uint8_t, 10> heights;
 	uint8_t totalHeight;
-	uint8_t openHoles, closedHoles, openHolesBeforePiece, closedHolesBeforePiece;
+	int8_t openHoles, closedHoles, openHolesBeforePiece, closedHolesBeforePiece;
 	double onTopOfHoles;
 	uint8_t bumpiness;
 	uint8_t totalLines, totalLines_first;
@@ -56,7 +56,7 @@ public:
 	void calc2Wide();
 	void calc1Wide();
 	void calcScore();
-	int32_t checkScore();
+	double checkScore();
 
 	void calcMove(int addTotalLines=0);
 	void findBestMove(int addTotalLines=0);
@@ -65,7 +65,7 @@ public:
 	bool nextToWall();
 	void checkNextMove(TestField& field, uint8_t nextpiece);
 	void findFinesseMove(int addTotalLines=0);
-	void useFinesseMove(int32_t newscore);
+	void useFinesseMove(double newscore);
 	bool setFinesseMove();
 	void tryAllFinesseMoves(TestField& field, uint8_t nextpiece);
 	bool finesseIsPossible();
