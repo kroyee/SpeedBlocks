@@ -27,7 +27,7 @@ using std::endl;
 
 #include "AI.h"
 
-int main(int argc, char** argv)
+int main()
 {
     // Initializing classes and loading resources
     sf::RenderWindow window;

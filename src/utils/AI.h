@@ -13,7 +13,7 @@ enum class Mode { Downstack, Stack };
 class AI {
 public:
 	Resources& resources;
-	std::array<double, 8> weights, downstackWeights, stackWeights;
+	std::array<double, 10> weights, downstackWeights, stackWeights;
 	obsField* field;
 	TestField firstMove, secondMove;
 
