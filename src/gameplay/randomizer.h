@@ -48,6 +48,8 @@ public:
     std::mt19937 piece_gen;
     UniformRealDistribution<float> piece_dist;
 
+    std::mt19937 AI_gen;
+
     short getHole(bool noStack=false);
     void seedHole(short seedNr);
     void seedPiece(short seedNr);

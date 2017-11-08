@@ -1,6 +1,7 @@
 #include "TestField.h"
 #include "Resources.h"
 #include "optionSet.h"
+#include "randomizer.h"
 
 #include <iostream>
 using std::cout;
@@ -13,7 +14,9 @@ void MoveInfo::clear() {
 	use_path=false;
 }
 
-TestField::TestField(Resources& _resources) : BasicField(_resources) {}
+TestField::TestField(Resources& _resources) : BasicField(_resources) {
+	setPiece(0);
+}
 
 void TestField::backup() {
 	backupField = square;
@@ -314,7 +317,7 @@ void TestField::findBestMove(int addTotalLines) {
 	}
 }
 
-void TestField::tryAllMoves(TestField& field, uint8_t nextpiece) {
+void TestField::tryAllMoves(TestField& field, uint8_t nextpiece, float moveAdjust) {
 	backup();
 	move.clear();
 	field.closedHolesBeforePiece = closedHolesBeforePiece;
@@ -327,7 +330,7 @@ void TestField::tryAllMoves(TestField& field, uint8_t nextpiece) {
 			if (!possible())
 				continue;
 
-			findNextMove(field, nextpiece);
+			findNextMove(field, nextpiece, moveAdjust);
 		}
 	}
 	else if (piece.piece == 4 || piece.piece == 2 || piece.piece == 3) {
@@ -340,7 +343,7 @@ void TestField::tryAllMoves(TestField& field, uint8_t nextpiece) {
 				if (!possible())
 					continue;
 
-				findNextMove(field, nextpiece);
+				findNextMove(field, nextpiece, moveAdjust);
 			}
 		}
 	}
@@ -354,13 +357,13 @@ void TestField::tryAllMoves(TestField& field, uint8_t nextpiece) {
 				if (!possible())
 					continue;
 
-				findNextMove(field, nextpiece);
+				findNextMove(field, nextpiece, moveAdjust);
 			}
 		}
 	}
 }
 
-void TestField::findNextMove(TestField& field, uint8_t nextpiece) {
+void TestField::findNextMove(TestField& field, uint8_t nextpiece, float moveAdjust) {
 	field.pieceNextToWall = nextToWall();
 
 	hd();
@@ -368,6 +371,8 @@ void TestField::findNextMove(TestField& field, uint8_t nextpiece) {
 
 	if (piece.posY < 5)
 		field.move.score -= 100;
+
+	field.move.score += moveAdjust;
 
 	if (field.move.score > move.score) {
 		move.score = field.move.score;

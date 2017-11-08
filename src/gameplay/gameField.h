@@ -74,6 +74,7 @@ public:
     sf::Uint8 nextpiece, nprot, npcol;
     float scale;
     bool mouseover;
+    bool drawMe;
     sf::Uint8 datacount;
 
     void drawField();

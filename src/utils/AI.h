@@ -4,7 +4,16 @@
 #include "gameField.h"
 #include "randomizer.h"
 #include "TestField.h"
+#include "BPMCount.h"
+#include "Garbage.h"
+#include "Combo.h"
+#include "DropDelay.h"
+#include "GameSignals.h"
+#include <vector>
 #include <deque>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 class Resources;
 
@@ -14,43 +23,68 @@ class AI {
 public:
 	Resources& resources;
 	std::array<double, 10> weights, downstackWeights, stackWeights;
-	obsField* field;
+	obsField& field;
 	TestField firstMove, secondMove;
 
 	uint8_t nextpiece;
-	int32_t score;
 
 	sf::Vector2i well2Pos;
 
-	uint16_t garbageCleared;
-	uint16_t linesCleared;
-	uint16_t moveCount;
+	GameplayData data;
 	uint16_t gameCount;
+	uint16_t score;
+
+	sf::Uint16 id;
+	float incomingLines;
 
 	Mode mode;
-	bool movingPiece;
+	bool drawMe;
 	std::vector<uint8_t> currentMove;
+	std::deque<uint8_t> moveQueue;
 	std::vector<uint8_t>::iterator moveIterator;
 
 	sf::Time nextmoveTime, movepieceTime, moveTime, finesseTime;
 
 	randomizer rander;
+	BPMCount bpmCounter;
+	GarbageHandler garbage;
+	ComboCounter combo;
+	DropDelay pieceDropDelay;
 
-	AI(Resources& _res);
+	sf::Clock& gameclock;
 
-	void startMove(const sf::Time& t);
-	bool continueMove(const sf::Time& t);
+	std::thread t;		// Threading control variables
+	std::atomic<uint8_t> updateField, terminateThread;
+	std::mutex moveQueueMutex;
+	std::atomic<bool> alive, adjustDownMove, movingPiece;
+
+	AI(obsField& _field, sf::Clock& _gameclock);
+
+	void startMove();
+	void continueMove();
+	bool executeMove();
 	void setPiece(int piece);
 	void setNextPiece(int piece);
 
-	void startAI(obsField & _field);
+	void startAI();
 	void restartGame();
-	void addGarbageLine(uint8_t);
+	void addGarbageLine();
 
-	void setMode(Mode);
-	void setSpeed(const sf::Time& t);
+	void setMode(Mode, bool vary=false);
+	void setSpeed(uint16_t speed);
 
-	bool playAI(const sf::Time& t);
+	bool playAI();
+	void aiThreadRun();
+
+	void startRound();
+	void startCountdown();
+	void countDown(int count);
+	void endRound(const sf::Time& t, bool winner);
+
+	void delayCheck(const sf::Time& t);
+	bool setComboTimer(const sf::Time& t);
+	void sendLines(sf::Vector2i lines, const sf::Time& t);
+	void addGarbage(uint16_t amount, const sf::Time& t);
 };
 
 #endif

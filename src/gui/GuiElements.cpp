@@ -105,12 +105,9 @@ udpConfirmed			(false)
 	});
 	Net::takePacket(4, [&](sf::Packet &packet){
 		sf::String name;
-		obsField newfield(resources);
-		newfield.clear();
-		packet >> newfield.id >> name;
-		gameFieldDrawer.addField(newfield);
-		gameFieldDrawer.fields.back().text.setName(name);
-		gameFieldDrawer.fields.back().drawField();
+		sf::Uint16 id;
+		packet >> id >> name;
+		Signals::AddField(id, name);
 		if (gameStandings.isVisible())
 			gameStandings.alignResult();
 	});

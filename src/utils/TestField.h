@@ -4,9 +4,11 @@
 #include "gameField.h"
 
 class Resources;
+class randomizer;
 
 struct MoveInfo {
-	uint8_t posX, rot;
+	int8_t posX;
+	uint8_t rot;
 	std::vector<uint8_t> path;
 	bool use_path;
 	double score;
@@ -60,8 +62,8 @@ public:
 
 	void calcMove(int addTotalLines=0);
 	void findBestMove(int addTotalLines=0);
-	void tryAllMoves(TestField& field, uint8_t nextpiece);
-	void findNextMove(TestField& field, uint8_t nextpiece);
+	void tryAllMoves(TestField& field, uint8_t nextpiece, float moveAdjust);
+	void findNextMove(TestField& field, uint8_t nextpiece, float moveAdjust);
 	bool nextToWall();
 	void checkNextMove(TestField& field, uint8_t nextpiece);
 	void findFinesseMove(int addTotalLines=0);

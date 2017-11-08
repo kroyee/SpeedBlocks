@@ -51,7 +51,7 @@ public:
 
 	template<typename Class, typename Instance>
 	void connect(ReturnType(Class::*func)(Args...), Instance instance) {
-		function = [instance, func](Args&&... args){
+		function = [instance, func](Args&&... args) -> ReturnType {
 			return (instance->*func)(std::forward<Args>(args)...);
 		};
 	}
@@ -59,32 +59,29 @@ public:
 
 namespace sf { class String; class Packet; class Time; }
 enum class GameStates : unsigned int;
+class obsField;
 
 struct GameplayData {
 	uint16_t linesSent=0;
 	uint16_t linesRecieved=0;
-	uint16_t linesPerMinute=0;
 	uint16_t bpm=0;
 	uint16_t garbageCleared=0;
 	uint16_t linesCleared=0;
 	uint16_t pieceCount=0;
 	uint16_t linesBlocked=0;
 	uint16_t maxCombo=0;
+	uint16_t roundDuration=0;
 	void clear() {
 		linesSent=0;
 		linesRecieved=0;
-		linesPerMinute=0;
 		bpm=0;
 		garbageCleared=0;
 		linesCleared=0;
 		pieceCount=0;
 		linesBlocked=0;
 		maxCombo=0;
+		roundDuration=0;
 	}
-};
-
-struct ReplayData {
-
 };
 
 struct Signals {
@@ -94,9 +91,6 @@ struct Signals {
 	static Signal<void, int>				Enable;
 	static Signal<void, int>				Disable;
 	static Signal<bool, int>				IsVisible;
-	static Signal<void>						ShowGameFields;
-	static Signal<void>						HideGameFields;
-	static Signal<bool>						GameFieldsIsVisible;
 	static Signal<void, const sf::Time&>	EnableBackground;
 	static Signal<void>						DisableBackground;
 	static Signal<void>						ShowAlert;
@@ -126,6 +120,16 @@ struct Signals {
 	static Signal<void, sf::Time>			UpdateReplayUI;
 	static Signal<bool>						Survivor;
 	static Signal<bool>						Cheese30L;
+	static Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t> AddLocalScore;
+	static Signal<void, int>				SetRoundlenghtForScore;
+
+									//GameFieldDrawer
+	static Signal<void>						ShowGameFields;
+	static Signal<void>						HideGameFields;
+	static Signal<bool>						GameFieldsIsVisible;
+	static Signal<obsField&, int, const sf::String&> AddField;
+	static Signal<void, int>				RemoveField;
+	static Signal<void>						RemoveAllFields;
 
 									//Network
 	static Signal<void, int, int, int>		SendSignal;
@@ -161,6 +165,8 @@ struct Signals {
 	static Signal<void>						GameDraw;
 	static Signal<void, int>				GameSetup;
 	static Signal<void, int>				GameAddDelay;
+	static Signal<void, int>				AddGarbage;
+	static Signal<void, int, int>			DistributeLinesLocally;
 
 									//Recording
 	static Signal<const sf::Time&>			GetRecDuration;

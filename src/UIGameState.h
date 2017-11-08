@@ -11,6 +11,8 @@ public:
 	virtual ~UIBaseState();
 	UI& ui;
 	const GameStates state;
+
+	static void set(std::unique_ptr<UIBaseState>& state, GameStates _state);
 };
 
 class UIMainMenu : public UIBaseState {

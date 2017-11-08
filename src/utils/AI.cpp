@@ -6,22 +6,60 @@
 using std::cout;
 using std::endl;
 
-AI::AI(Resources& _res) : resources(_res), field(_res), firstMove(_res), secondMove(_res) {
+AI::AI(obsField& _field, sf::Clock& _gameclock) :
+resources(_field.resources),
+field(_field),
+firstMove(resources),
+secondMove(resources),
+garbage(data.linesBlocked),
+combo(data.maxCombo),
+gameclock(_gameclock) {
 	movingPiece=false;
 	nextmoveTime=sf::seconds(0);
 	movepieceTime=sf::seconds(0);
-	field = nullptr;
+	terminateThread=false;
+	updateField=0;
+	setPiece(0);
+
+	downstackWeights[0] = -0.777562;
+	downstackWeights[1] = -0.957217;
+	downstackWeights[2] = -0.206355;
+	downstackWeights[3] = 0.305608;
+	downstackWeights[4] = -0.0985396;
+	downstackWeights[5] = -0.571009;
+	downstackWeights[6] = -0.0826352;
+	downstackWeights[7] = -0.268683;
+	downstackWeights[8] = 0.01;
+	downstackWeights[9] = -0.947217;
+
+	stackWeights[0] = 0.0646257;
+	stackWeights[1] = -0.781367;
+	stackWeights[2] = -0.079562;
+	stackWeights[3] = -0.112896;
+	stackWeights[4] = 0.238397;
+	stackWeights[5] = -0.136575;
+	stackWeights[6] = -0.0488756;
+	stackWeights[7] = -0.206737;
+	stackWeights[8] = 0.01;
+	stackWeights[9] = -0.771367;
 }
 
-void AI::startMove(const sf::Time& t) {
+void AI::startMove() {
 	movingPiece=true;
-	nextmoveTime = t+moveTime;
-	movepieceTime = t-sf::microseconds(1);
-	while (field->piece.current_rotation != firstMove.move.rot)
-		field->piece.rcw();
+	movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
 
 	currentMove.clear();
+	int rotationValue = firstMove.move.rot - resources.options->basepiece[firstMove.piece.piece].rotation;
+	if (rotationValue < 0)
+		rotationValue += 4;
+	if (rotationValue)
+		currentMove.push_back(240+rotationValue);
+
 	if (firstMove.move.use_path) {
+		if (firstMove.move.posX > field.piece.posX) for (int i=0; i < firstMove.move.posX-field.piece.posX; i++)
+			currentMove.push_back(255);
+		else for (int i=0; i < field.piece.posX-firstMove.move.posX; i++)
+			currentMove.push_back(254);
 		for (auto it = firstMove.move.path.rbegin(); it != firstMove.move.path.rend(); it++) {
 			if (*it < 240) {
 				for (int i = 0; i < *it; i++)
@@ -31,157 +69,343 @@ void AI::startMove(const sf::Time& t) {
 		}
 	}
 	else {
-		if (firstMove.move.posX > field->piece.posX) for (int i=0; i < firstMove.move.posX-field->piece.posX; i++)
+		if (firstMove.move.posX > field.piece.posX) for (int i=0; i < firstMove.move.posX-field.piece.posX; i++)
 			currentMove.push_back(255);
-		else for (int i=0; i < field->piece.posX-firstMove.move.posX; i++)
+		else for (int i=0; i < field.piece.posX-firstMove.move.posX; i++)
 			currentMove.push_back(254);
 		currentMove.push_back(253);
 	}
 	moveIterator = currentMove.begin();
+	continueMove();
 }
 
-bool AI::continueMove(const sf::Time& t) {
-	while (movingPiece && t > movepieceTime) {
-		if (*moveIterator == 255)
-			field->mRight();
-		else if (*moveIterator == 254)
-			field->mLeft();
-		else if (*moveIterator == 253)
-			field->hd();
-		else if (*moveIterator == 252)
-			field->mDown();
-		else if (*moveIterator == 241)
-			field->rcw();
-		else if (*moveIterator == 242)
-			field->r180();
-		else if (*moveIterator == 243)
-			field->rccw();
+void AI::continueMove() {
+	if (gameclock.getElapsedTime() <= movepieceTime)
+		return;
+
+	std::lock_guard<std::mutex> guard(moveQueueMutex);
+
+	while (movingPiece && gameclock.getElapsedTime() > movepieceTime) {
+		moveQueue.push_back(*moveIterator);
 
 		if (*moveIterator == 252)
-			movepieceTime += finesseTime / 3.0;
+			movepieceTime += sf::milliseconds(finesseTime.asMilliseconds() / 3.0);
 		else
 			movepieceTime += finesseTime;
 		moveIterator++;
 
 		if (moveIterator == currentMove.end()) {
+			moveQueue.push_back(230);
 			movingPiece=false;
-			field->hd();
-			field->addPiece();
 
-			auto lines = field->clearlines();
-			garbageCleared += lines.y;
-			linesCleared += lines.x;
-			moveCount++;
-
-			setPiece(nextpiece);
-			nextpiece = rander.getPiece();
-			setNextPiece(nextpiece);
-
-			if (!field->possible())
-				return true;
+			if (firstMove.totalHeight > 125)
+				setMode(Mode::Downstack);
+			else if (firstMove.totalHeight < 15)
+				setMode(Mode::Stack);
 		}
 	}
+}
+
+bool AI::executeMove() {
+	std::lock_guard<std::mutex> guard(moveQueueMutex);
+
+	bool draw=false;
+
+	while (!moveQueue.empty()) {
+		if (moveQueue.front() == 255)
+			field.mRight();
+		else if (moveQueue.front() == 254)
+			field.mLeft();
+		else if (moveQueue.front() == 253) {
+			field.hd();
+			adjustDownMove=false;
+		}
+		else if (moveQueue.front() == 252) {
+			if (adjustDownMove)
+				adjustDownMove=false;
+			else if (field.mDown())
+				pieceDropDelay.reset(gameclock.getElapsedTime());
+		}
+		else if (moveQueue.front() == 241)
+			field.rcw();
+		else if (moveQueue.front() == 242)
+			field.r180();
+		else if (moveQueue.front() == 243)
+			field.rccw();
+		else if (moveQueue.front() == 230) {
+			field.hd();
+			field.addPiece();
+
+			sendLines(field.clearlines(), gameclock.getElapsedTime());
+			data.pieceCount++;
+
+			setPiece(field.nextpiece);
+			setNextPiece(rander.getPiece());
+
+			bpmCounter.addPiece(gameclock.getElapsedTime());
+
+			if (!field.possible()) {
+				field.drawField();
+				return true;
+			}
+		}
+
+		if (moveQueue.front() == 252)
+			movepieceTime += sf::milliseconds(finesseTime.asMilliseconds() / 3.0);
+		else
+			movepieceTime += finesseTime;
+		
+		moveQueue.pop_front();
+
+		draw=true;
+	}
+
+	if (draw)
+		field.drawField();
 
 	return false;
 }
 
 void AI::setPiece(int piece) {
-	field->piece.piece = piece;
-	field->piece.tile = resources.options->basepiece[piece].tile;
-	field->piece.rotation = resources.options->basepiece[piece].rotation;
-	field->piece.posX = 3;
-	field->piece.posY = 0;
+	field.piece.piece = piece;
+	field.piece.tile = resources.options->basepiece[piece].tile;
+	field.piece.rotation = resources.options->basepiece[piece].rotation;
+	field.piece.posX = 3;
+	field.piece.posY = 0;
 
-	field->updatePiece();
+	field.updatePiece();
 }
 
-void setNextPiece(int piece) {
-	field->nextpiece = piece;
-	field->nprot = resources.options->basepiece[piece].rotation;
-	field->npcol = resources.options->basepiece[piece].tile;
+void AI::setNextPiece(int piece) {
+	field.nextpiece = piece;
+	field.nprot = resources.options->basepiece[piece].rotation;
+	field.npcol = resources.options->basepiece[piece].tile;
 }
 
-void AI::startAI(obsField & _field) {
-	field = &_field;
-	moveCount=0;
-	garbageCleared=0;
-	linesCleared=0;
+void AI::startAI() {
+	data.clear();
 	gameCount=0;
-	field->clear();
+	field.clear();
 }
 
 void AI::restartGame() {
-	field->clear();
+	field.clear();
 	gameCount++;
-	moveCount=0;
+	data.clear();
 	setMode(Mode::Stack);
-	setPiece(rander.getPiece());
-	nextpiece = rander.getPiece();
+	setPiece(0);
+	field.piece.piece = 7;
+	setNextPiece(rander.getPiece());
+	while (field.nextpiece == 2 || field.nextpiece == 3)
+		setNextPiece(rander.getPiece());
 }
 
-void AI::addGarbageLine(uint8_t hole) {
+void AI::addGarbageLine() {
 	for (int y=0; y<21; y++)
 		for (int x=0; x<10; x++)
-			field->square[y][x]=field->square[y+1][x];
+			field.square[y][x]=field.square[y+1][x];
 	for (int x=0; x<10; x++)
-		field->square[21][x]=8;
-	field->square[21][hole]=0;
-	garbageAdded++;
+		field.square[21][x]=8;
+	field.square[21][rander.getHole()]=0;
 }
 
-void AI::setMode(Mode _mode) {
+void AI::setMode(Mode _mode, bool vary) {
 	mode = _mode;
-	if (mode == Mode::Downstack) {
-		weights[0] = -0.777562;
-		weights[1] = -0.957217;
-		weights[2] = -0.206355;
-		weights[3] = 0.305608;
-		weights[4] = -0.0985396;
-		weights[5] = -0.571009;
-		weights[6] = -0.0826352;
-		weights[7] = -0.268683;
-		weights[8] = 0.01;
-		weights[9] = -0.947217;
-		firstMove.weights = weights;
-		secondMove.weights = weights;
+	if (mode == Mode::Downstack)
+		weights = downstackWeights;
+
+	else if (mode == Mode::Stack)
+		weights = stackWeights;
+
+	if (vary)
+		for (int i=0; i<10; i++)
+			weights[i] += rander.piece_dist(rander.AI_gen)*0.2 - 0.1;
+
+	firstMove.weights = weights;
+	secondMove.weights = weights;
+}
+
+void AI::setSpeed(uint16_t _speed) {
+	float speed = 60000000.0 / (_speed*1.05);
+	moveTime = sf::microseconds(speed);
+	finesseTime = sf::microseconds(speed / 10.0);
+}
+
+bool AI::playAI() {
+	if (executeMove()) {
+		alive = false;
+		return true;
 	}
-	else if (mode == Mode::Stack) {
-		weights[0] = 0.0646257;
-		weights[1] = -0.781367;
-		weights[2] = -0.079562;
-		weights[3] = -0.112896;
-		weights[4] = 0.238397;
-		weights[5] = -0.136575;
-		weights[6] = -0.0488756;
-		weights[7] = -0.206737;
-		weights[8] = 0.01;
-		weights[9] = -0.771367;
-		firstMove.weights = weights;
-		secondMove.weights = weights;
+
+	if (updateField == 1) {
+		firstMove.square = field.square;
+		firstMove.setPiece(field.piece.piece);
+		nextpiece = field.nextpiece;
+		updateField = 2;
+	}
+
+	return false;
+}
+
+void AI::aiThreadRun() {
+	while (!terminateThread) {
+		if (movingPiece)
+			continueMove();
+		else if (updateField == 2) {
+			updateField=0;
+
+			firstMove.calcHeightsAndHoles();
+			if (data.pieceCount < 5)
+				setMode(Mode::Stack, true);
+			else if (data.pieceCount == 5)
+				setMode(Mode::Stack);
+			else if (firstMove.totalHeight > 130 || firstMove.highestPoint > 17)
+				setMode(Mode::Downstack);
+			else if (firstMove.totalHeight < 15)
+				setMode(Mode::Stack);
+
+			firstMove.calcHolesBeforePiece();
+			float pieceAdjust = (data.pieceCount < 5 ? rander.piece_dist(rander.AI_gen) * 0.5 - 0.25 : 0);
+			firstMove.tryAllMoves(secondMove, nextpiece, pieceAdjust);
+			startMove();
+		}
+		else if (!updateField && gameclock.getElapsedTime() > nextmoveTime) {
+			updateField = 1;
+			nextmoveTime = gameclock.getElapsedTime()+moveTime;
+		}
+
+		sf::sleep(sf::milliseconds(1));
 	}
 }
 
-void AI::setSpeed(const sf::Time& t) {
-	moveTime = t;
-	finesseTime = moveTime / 10.0;
+void AI::startRound() {
+	garbage.clear();
+	combo.clear();
+	bpmCounter.clear();
+	pieceDropDelay.clear();
+	incomingLines=0;
+	setPiece(field.nextpiece);
+	setNextPiece(rander.getPiece());
+	movepieceTime = sf::seconds(0);
+	nextmoveTime = sf::seconds(0);
+	alive=true;
+	updateField=0;
+	terminateThread=false;
+	adjustDownMove=false;
 }
 
-void AI::playAI(const sf::Time& t) {
-	if (movingPiece)
-		continueMove(t);
-	else if (t > nextmoveTime) {
-		firstMove.square = field->square;
-		firstMove.setPiece(field->piece.piece);
-		firstMove.calcHolesBeforePiece();
-		firstMove.tryAllMoves(secondMove, nextpiece);
-		startMove(t);
-		if (continueMove(t))
-			return true;
+void AI::startCountdown() {
+	restartGame();
+	garbage.clear();
+	combo.clear();
+	bpmCounter.clear();
+}
 
-		firstMove.calcHeightsAndHoles();
-		if (firstMove.totalHeight > 130 || firstMove.highestPoint > 17)
-			setMode(Mode::Downstack);
-		else if (firstMove.totalHeight < 15)
-			setMode(Mode::Stack);
+void AI::countDown(int count) {
+	field.text.setCountdown(count);
+	field.drawField();
+}
+
+void AI::endRound(const sf::Time& _time, bool winner) {
+	terminateThread=true;
+	alive = false;
+	if (t.joinable())
+		t.join();
+	data.bpm = data.pieceCount / _time.asSeconds() * 60.0;
+	field.text.setBpm(data.bpm);
+	field.text.setCombo(data.maxCombo);
+	if (winner) 
+		field.text.setGameover(2);
+	else
+		field.text.setGameover(1);
+	field.drawField();
+}
+
+void AI::delayCheck(const sf::Time& t) {
+	if (pieceDropDelay.check(t)) {
+		if (field.mDown()) {
+			adjustDownMove=true;
+			drawMe=true;
+			//lockdown=false;
+		}
+		/*else {
+			if (!lockdown)
+				lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
+			lockdown=true;
+		}*/
 	}
+
+	uint16_t comboLinesSent = combo.check(t);
+	if (comboLinesSent) {
+		comboLinesSent = garbage.block(comboLinesSent, t, false);
+		field.text.setPending(garbage.count());
+		data.linesSent += comboLinesSent;
+		if (comboLinesSent)
+			Signals::DistributeLinesLocally(id, comboLinesSent);
+		drawMe=true;
+	}
+
+	uint16_t newbpm = bpmCounter.calcBpm(t);
+	if (newbpm != data.bpm) {
+		field.text.setBpm(newbpm);
+		data.bpm = newbpm;
+		drawMe=true;
+	}
+
+
+	if (setComboTimer(t))
+		drawMe=true;
+
+	if (garbage.check(t)) {
+		addGarbageLine();
+		if (!field.piece.posY)
+			adjustDownMove=true;
+		drawMe=true;
+	}
+
+	/*if (lockdown && gameclock.getElapsedTime() > lockDownTime) {
+		if (!field.mDown()) {
+			addPiece(gameclock.getElapsedTime());
+			sendLines(field.clearlines());
+			drawMe=true;
+			makeNewPiece();
+		}
+		else
+			lockdown=false;
+	}*/
+
+	field.offset = garbage.getOffset(t);
+	if (field.offset)
+		drawMe = true;
+}
+
+bool AI::setComboTimer(const sf::Time& t) {
+	sf::Uint8 count = combo.timerCount(t);
+	return field.text.setComboTimer(count);
+}
+
+void AI::sendLines(sf::Vector2i lines, const sf::Time& t) {
+	data.garbageCleared+=lines.y;
+	data.linesCleared+=lines.x;
+	if (lines.x==0) {
+		combo.noClear();
+		return;
+	}
+	sf::Uint16 amount = garbage.block(lines.x-1, t);
+	data.linesSent += amount;
+	if (amount)
+		Signals::DistributeLinesLocally(id, amount);
+	field.text.setPending(garbage.count());
+	combo.increase(t, lines.x);
+
+	setComboTimer(t);
+	field.text.setCombo(combo.comboCount);
+}
+
+void AI::addGarbage(uint16_t amount, const sf::Time& t) {
+	garbage.add(amount, t);
+
+	data.linesRecieved+=amount;
+
+	field.text.setPending(garbage.count());
 }

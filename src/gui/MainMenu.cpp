@@ -34,6 +34,7 @@ Menu::Menu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 void Menu::Training() {
 	Signals::StartCountDown();
 	Signals::SetGameState(GameStates::CountDown);
+	Signals::ShowGameFields();
 }
 
 void Menu::quitGame() {

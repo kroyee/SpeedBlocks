@@ -8,7 +8,7 @@ using std::endl;
 
 GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nullptr) {
 	setPosition(465, 40);
-	setSize(490, 555);
+	setSize(450, 555);
 
 	Signals::ShowGameFields.connect(&GameFieldDrawer::show, this);
 	Signals::HideGameFields.connect(&GameFieldDrawer::hide, this);
@@ -16,6 +16,9 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Signals::AreThereFields.connect(&GameFieldDrawer::areThereFields, this);
 	Signals::SetFieldsSize.connect(&GameFieldDrawer::setSize, this);
 	Signals::GameFieldsIsVisible.connect(&GameFieldDrawer::isVisible, this);
+	Signals::AddField.connect(&GameFieldDrawer::addField, this);
+	Signals::RemoveField.connect(&GameFieldDrawer::removeField, this);
+	Signals::RemoveAllFields.connect(&GameFieldDrawer::removeAllFields, this);
 
 	Net::takeSignal(11, [&](sf::Uint16 id1){
 		for (auto&& field : fields)
@@ -61,25 +64,34 @@ void GameFieldDrawer::setPosition(short x, short y) { xPos = x; yPos = y; calFie
 
 void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos(); }
 
-void GameFieldDrawer::addField(obsField& field) {
-	fields.push_back(field);
+obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
+	if (unusedFields.empty())
+		fields.emplace_back(resources);
+	else
+		fields.splice(fields.end(), unusedFields, unusedFields.begin());
+
+	fields.back().clear();
+	fields.back().id = id;
+	fields.back().text.setName(name);
 	if (resources.options->theme == 2)
 		fields.back().text.setColor(sf::Color(255,255,255));
 	calFieldPos();
-	drawOppField(fields.back());
+	fields.back().drawField();
+
+	return fields.back();
 }
 
-void GameFieldDrawer::removeField(sf::Uint16 id) {
+void GameFieldDrawer::removeField(int id) {
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
-			it = fields.erase(it);
+			unusedFields.splice(unusedFields.end(), fields, it);
 			break;
 		}
 	calFieldPos();
 }
 
 void GameFieldDrawer::removeAllFields() {
-	fields.clear();
+	unusedFields.splice(unusedFields.end(), fields);
 }
 
 void GameFieldDrawer::updateField(obsField& field) {

@@ -5,9 +5,6 @@ Signal<void, int> Signals::Hide;
 Signal<void, int> Signals::Enable;
 Signal<void, int> Signals::Disable;
 Signal<bool, int> Signals::IsVisible;
-Signal<void> Signals::ShowGameFields;
-Signal<void> Signals::HideGameFields;
-Signal<bool> Signals::GameFieldsIsVisible;
 Signal<void, const sf::Time&> Signals::EnableBackground;
 Signal<void> Signals::DisableBackground;
 Signal<void> Signals::ShowAlert;
@@ -37,6 +34,16 @@ Signal<void, GameplayData&> Signals::UpdateChallengesUI;
 Signal<void, sf::Time> Signals::UpdateReplayUI;
 Signal<bool> Signals::Survivor;
 Signal<bool> Signals::Cheese30L;
+Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t> Signals::AddLocalScore;
+Signal<void, int> Signals::SetRoundlenghtForScore;
+
+//GameFieldDrawer
+Signal<void> Signals::ShowGameFields;
+Signal<void> Signals::HideGameFields;
+Signal<bool> Signals::GameFieldsIsVisible;
+Signal<obsField&, int, const sf::String&> Signals::AddField;
+Signal<void, int> Signals::RemoveField;
+Signal<void> Signals::RemoveAllFields;
 
 //Network
 Signal<void, int, int, int> Signals::SendSignal;
@@ -72,6 +79,8 @@ Signal<void> Signals::GameClear;
 Signal<void> Signals::GameDraw;
 Signal<void, int> Signals::GameSetup;
 Signal<void, int> Signals::GameAddDelay;
+Signal<void, int> Signals::AddGarbage;
+Signal<void, int, int> Signals::DistributeLinesLocally;
 
 //Recording
 Signal<const sf::Time&> Signals::GetRecDuration;

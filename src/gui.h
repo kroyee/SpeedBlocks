@@ -38,16 +38,12 @@ public:
 
 	bool away;
 
-	sf::Uint16 linesSent, garbageCleared, linesBlocked;
-
 	sf::Time quickMsgTime;
 	sf::Time udpPortTime;
 	sf::Clock& delayClock;
 
 	GameStates& gamestate;
 	std::unique_ptr<UIBaseState> state;
-
-	void setGameState(GameStates state);
 
 	void setCountdown(sf::Packet &packet);
 

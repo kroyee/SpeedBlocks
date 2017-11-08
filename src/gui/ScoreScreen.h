@@ -6,6 +6,7 @@
 #include "guiBase.h"
 
 class Resources;
+struct GameplayData;
 
 struct ScoreRow {
 	sf::String name;
@@ -31,6 +32,8 @@ public:
 	void clear();
 	void getScores(sf::Packet& packet);
 	void addRow(sf::Packet& packet);
+	void addRowLocal(GameplayData & data, uint16_t id, const sf::String& name, uint16_t score);
+	void setRowLabels(ScoreRow& row, uint8_t type);
 	void selectRow(sf::Uint8 index);
 	void scorePressed(sf::Vector2f pos);
 	void scrolled(int scrollpos);
