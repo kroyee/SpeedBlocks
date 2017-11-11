@@ -109,6 +109,9 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _r
 	rowCount=0;
 
 	Net::takePacket(8, &ScoreScreen::getScores, this);
+
+	Signals::AddLocalScore.connect(&ScoreScreen::addRowLocal, this);
+	Signals::SetRoundlenghtForScore.connect([&](int lenght){ roundLenght = lenght; clear(); });
 }
 
 void ScoreScreen::clear() {
@@ -138,17 +141,60 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.spm = score.sent / (roundLenght / 60.0);
 	score.apm = (score.sent + score.blocked) / (roundLenght / 60.0);
 
-	sf::String rounding = to_string((int)score.adj); //A bit messy-looking way of rounding float to 1 decimal
-	rounding += "." + to_string((int)((score.adj - (int)score.adj)*10));
+	setRowLabels(score, 1);
+}
 
+void ScoreScreen::addRowLocal(GameplayData & data, uint16_t id, const sf::String& name, uint16_t _score) {
+	ScoreRow score;
+
+	score.name = name;
+	score.id = id;						score.combo = data.maxCombo;
+	score.sent = data.linesSent;		score.received = data.linesRecieved;
+	score.blocked = data.linesBlocked;	score.bpm = data.bpm;
+	score.score = _score;
+
+	score.spm = score.sent / (roundLenght / 60.0);
+	score.apm = (score.sent + score.blocked) / (roundLenght / 60.0);
+
+	setRowLabels(score, 2);
+}
+
+void ScoreScreen::setRowLabels(ScoreRow& score, uint8_t type) {
 	for (int i=0; i<10; i++)
 		score.labels[i] = resources.gfx->themeTG->load("Label");
+
+	if (type == 1) {
+		score.exp = resources.gfx->themeTG->load("ProgressBar");
+		score.exp->setPosition(172, rowCount*30+5);
+		score.exp->setSize(45, 15);
+		score.exp->setMinimum(0);
+		score.exp->setMaximum(2000);
+		score.exp->setValue(score.points);
+		scrollPanel->add(score.exp);
+
+		score.labels[2]->setText(to_string(score.rank));
+		score.labels[2]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+		score.labels[2]->setPosition(172, rowCount*30+5);
+		score.labels[2]->setSize(45, 30);
+		score.labels[2]->setTextSize(14);
+		scrollPanel->add(score.labels[2]);
+
+		sf::String rounding = to_string((int)score.adj); //A bit messy-looking way of rounding float to 1 decimal
+		rounding += "." + to_string((int)((score.adj - (int)score.adj)*10));
+
+		score.labels[6]->setText(rounding);
+		score.labels[6]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
+		score.labels[6]->setPosition(275, rowCount*30+5);
+		score.labels[6]->setSize(100, 30);
+		score.labels[6]->setTextSize(14);
+		scrollPanel->add(score.labels[6]);
+	}
+
 	score.labels[0]->setText(score.name);
 	score.labels[0]->setPosition(5, rowCount*30+5);
 	score.labels[0]->setTextSize(14);
 	scrollPanel->add(score.labels[0]);
 
-	score.labels[1] = resources.gfx->themeTG->load("Label");
 	score.labels[1]->setText(to_string(score.score));
 	score.labels[1]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[1]->setPosition(65, rowCount*30+5);
@@ -156,23 +202,6 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[1]->setTextSize(14);
 	scrollPanel->add(score.labels[1]);
 
-	score.exp = resources.gfx->themeTG->load("ProgressBar");
-	score.exp->setPosition(172, rowCount*30+5);
-	score.exp->setSize(45, 15);
-	score.exp->setMinimum(0);
-	score.exp->setMaximum(2000);
-	score.exp->setValue(score.points);
-	scrollPanel->add(score.exp);
-
-	score.labels[2] = resources.gfx->themeTG->load("Label");
-	score.labels[2]->setText(to_string(score.rank));
-	score.labels[2]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	score.labels[2]->setPosition(172, rowCount*30+5);
-	score.labels[2]->setSize(45, 30);
-	score.labels[2]->setTextSize(14);
-	scrollPanel->add(score.labels[2]);
-
-	score.labels[3] = resources.gfx->themeTG->load("Label");
 	score.labels[3]->setText(to_string(score.bpm));
 	score.labels[3]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[3]->setPosition(155, rowCount*30+5);
@@ -180,7 +209,6 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[3]->setTextSize(14);
 	scrollPanel->add(score.labels[3]);
 
-	score.labels[4] = resources.gfx->themeTG->load("Label");
 	score.labels[4]->setText(to_string(score.combo));
 	score.labels[4]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[4]->setPosition(200, rowCount*30+5);
@@ -188,7 +216,6 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[4]->setTextSize(14);
 	scrollPanel->add(score.labels[4]);
 
-	score.labels[5] = resources.gfx->themeTG->load("Label");
 	score.labels[5]->setText(to_string(score.sent));
 	score.labels[5]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[5]->setPosition(240, rowCount*30+5);
@@ -196,15 +223,6 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[5]->setTextSize(14);
 	scrollPanel->add(score.labels[5]);
 
-	score.labels[6] = resources.gfx->themeTG->load("Label");
-	score.labels[6]->setText(rounding);
-	score.labels[6]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
-	score.labels[6]->setPosition(275, rowCount*30+5);
-	score.labels[6]->setSize(100, 30);
-	score.labels[6]->setTextSize(14);
-	scrollPanel->add(score.labels[6]);
-
-	score.labels[7] = resources.gfx->themeTG->load("Label");
 	score.labels[7]->setText(to_string(score.spm));
 	score.labels[7]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[7]->setPosition(315, rowCount*30+5);
@@ -212,7 +230,6 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[7]->setTextSize(14);
 	scrollPanel->add(score.labels[7]);
 
-	score.labels[8] = resources.gfx->themeTG->load("Label");
 	score.labels[8]->setText(to_string(score.apm));
 	score.labels[8]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[8]->setPosition(355, rowCount*30+5);
@@ -220,7 +237,6 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	score.labels[8]->setTextSize(14);
 	scrollPanel->add(score.labels[8]);
 
-	score.labels[9] = resources.gfx->themeTG->load("Label");
 	score.labels[9]->setText(to_string(score.blocked) + "/" + to_string(score.received));
 	score.labels[9]->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	score.labels[9]->setPosition(420, rowCount*30+5);

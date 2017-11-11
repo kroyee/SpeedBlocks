@@ -24,16 +24,15 @@ UI::UI(sf::RenderWindow& window_,
       guiElements(new GuiElements(resources)),
       window(&window_),
       away(false),
-      linesSent(0),
-      garbageCleared(0),
-      linesBlocked(0),
       delayClock(resources.delayClock),
       gamestate(game_.resources.gamestate),
       state(std::unique_ptr<UIBaseState>(new UIMainMenu(*this))),
       myId(resources.myId) {
 
+    guiElements->trainingUI.hide();
+
 	Signals::LeaveRoom.connect(&UI::leaveRoom, this);
-	Signals::SetGameState.connect(&UI::setGameState, this);
+	Signals::SetGameState.connect([&](GameStates _state){ UIBaseState::set(state, _state); });
 	Signals::LightTheme.connect(&UI::lightTheme, this);
 	Signals::DarkTheme.connect(&UI::darkTheme, this);
 	Signals::JoinRoom.connect(&UI::joinRoom, this);
@@ -52,7 +51,7 @@ UI::UI(sf::RenderWindow& window_,
 		Signals::SeedRander(id1, id2);
 		Signals::StartCountDown();
 		guiElements->gameFieldDrawer.resetOppFields();
-		setGameState(GameStates::CountDown);
+		Signals::SetGameState(GameStates::CountDown);
 		countdown.start(delayClock.getElapsedTime());
 		if (guiElements->challengesGameUI.isVisible()) {
 			guiElements->challengesGameUI.clear();
@@ -108,25 +107,7 @@ void UI::joinRoom(int id) {
 
 void UI::leaveRoom() {
 	Signals::SendSig(1);
-	setGameState(GameStates::MainMenu);
-}
-
-void UI::setGameState(GameStates _state) {
-	state.reset(nullptr);
-	if (_state == GameStates::MainMenu)
-		state = std::unique_ptr<UIBaseState>(new UIMainMenu(*this));
-	else if (_state == GameStates::CountDown)
-		state = std::unique_ptr<UIBaseState>(new UICountDown(*this));
-	else if (_state == GameStates::Game)
-		state = std::unique_ptr<UIBaseState>(new UIGame(*this));
-	else if (_state == GameStates::GameOver)
-		state = std::unique_ptr<UIBaseState>(new UIGameOver(*this));
-	else if (_state == GameStates::Replay)
-		state = std::unique_ptr<UIBaseState>(new UIReplay(*this));
-	else if (_state == GameStates::Practice)
-		state = std::unique_ptr<UIBaseState>(new UIPractice(*this));
-	else if (_state == GameStates::Spectating)
-		state = std::unique_ptr<UIBaseState>(new UISpectating(*this));
+	Signals::SetGameState(GameStates::MainMenu);
 }
 
 void UI::chatFocus(bool i) {
@@ -144,7 +125,7 @@ void UI::receiveRecording(sf::Packet &packet) {
 	sf::Uint16 type;
 	packet >> type;
 	game.recorder.receiveRecording(packet);
-	setGameState(GameStates::Replay);
+	Signals::SetGameState(GameStates::Replay);
 	if (type >= 20000) {
 		guiElements->gameFieldDrawer.hide();
 		guiElements->challengesGameUI.openChallenge(type);
@@ -167,7 +148,7 @@ void UI::delayCheck() {
 
 		if (gamestate == GameStates::CountDown)
 			if (game.countDown(countdown.check(currentTime)))
-				setGameState(GameStates::Game);
+				Signals::SetGameState(GameStates::Game);
 
 		guiElements->performanceOutput.setPing(ping.send(currentTime, myId));
 	}
@@ -277,7 +258,7 @@ void UI::getGameState(sf::Packet& packet) {
 void UI::setCountdown(sf::Packet &packet) {
 	countdown.set(delayClock.getElapsedTime(), packet);
 	if (countdown.ongoing() && !away && gamestate != GameStates::CountDown) {
-		setGameState(GameStates::CountDown);
+		Signals::SetGameState(GameStates::CountDown);
 		game.startCountdown();
 	}
 }
@@ -292,28 +273,23 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 		Signals::SeedRander(seed1, seed2);
 
 		if (joinok == 1) {
-			setGameState(GameStates::GameOver);
+			Signals::SetGameState(GameStates::GameOver);
 			game.pressEnterText.setString("press P to start practice");
 			game.field.clear();
 			game.draw();
 			guiElements->gameFieldDrawer.setPosition(465, 40);
-			guiElements->gameFieldDrawer.setSize(490, 555);
+			guiElements->gameFieldDrawer.setSize(450, 555);
 		}
 		else {
-			setGameState(GameStates::Spectating);
+			Signals::SetGameState(GameStates::Spectating);
 			guiElements->gameFieldDrawer.setPosition(5, 40);
-			guiElements->gameFieldDrawer.setSize(950, 555);
+			guiElements->gameFieldDrawer.setSize(910, 555);
 		}
 
-		obsField newfield(resources);
-		newfield.clear();
 		sf::String name;
 		for (int c=0; c<playersinroom; c++) {
 			packet >> playerid >> name;
-			newfield.id = playerid;
-			guiElements->gameFieldDrawer.addField(newfield);
-			guiElements->gameFieldDrawer.fields.back().text.setName(name);
-			guiElements->gameFieldDrawer.fields.back().drawField();
+			Signals::AddField(playerid, name);
 		}
 		if (gamestate == GameStates::Spectating)
 			guiElements->gameStandings.alignResult();
@@ -327,7 +303,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 	else if (joinok == 4)
 		Signals::QuickMsg("This is not your game");
 	else if (joinok >= 20000) {
-		setGameState(GameStates::GameOver);
+		Signals::SetGameState(GameStates::GameOver);
 		guiElements->gameFieldDrawer.hide();
 		game.pressEnterText.setString("press P to start challenge");
 		game.field.clear();

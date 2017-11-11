@@ -13,8 +13,11 @@
 #include "GameSignals.h"
 #include "optionSet.h"
 #include "GameDataSender.h"
+#include "DropDelay.h"
+#include "AIManager.h"
 
 class soundBank;
+class GPBaseState;
 
 class garbageClass {
 public:
@@ -26,6 +29,7 @@ public:
 class gamePlay {
 public:
 	gamePlay(Resources& _resources);
+	~gamePlay();
 
 	gameField field;
 	basePieces basepiece[7];
@@ -43,11 +47,13 @@ public:
 	GarbageHandler garbage;
 	ComboCounter combo;
 	GameDataSender dataSender;
+	DropDelay pieceDropDelay;
+
+	AIManager aiManager;
+
+	std::unique_ptr<GPBaseState> state;
 
 	sf::Clock gameclock;
-
-	sf::Time dropDelay, dropDelayTime;
-	sf::Time increaseDropDelay, increaseDropDelayTime;
 
 	sf::Time rKeyTime;
 	sf::Time lKeyTime;
@@ -100,7 +106,7 @@ public:
 	void sendLines(sf::Vector2i lines);
 	void playComboSound(sf::Uint8 combo);
 
-	void addGarbage(sf::Uint16 amount);
+	void addGarbage(int amount);
 	void pushGarbage();
 	void addGarbageLine();
 	void addGarbageLine(sf::Uint8 hole);

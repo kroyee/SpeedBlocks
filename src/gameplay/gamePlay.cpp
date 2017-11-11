@@ -8,6 +8,7 @@
 #include "GameSignals.h"
 #include "Resources.h"
 #include "packetcompress.h"
+#include "GameplayGameState.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <deque>
@@ -25,13 +26,12 @@ resources(_resources),
 garbage(data.linesBlocked),
 combo(data.maxCombo),
 dataSender(*this),
+aiManager(gameclock),
+state(std::unique_ptr<GPBaseState>(new GPMainMenu(*this))),
 showPressEnterText(true)
 {
 	resources.compressor->game = this;
 	nextpiece=0;
-
-	dropDelay=sf::seconds(1);
-	increaseDropDelay=sf::seconds(3);
 
 	lockdown=false;
 
@@ -70,6 +70,8 @@ showPressEnterText(true)
     Signals::GameClear.connect([&](){ field.clear(); });
     Signals::GameDraw.connect(&gamePlay::draw, this);
     Signals::GameSetup.connect(&gamePlay::startSetup, this);
+    Signals::AddGarbage.connect(&gamePlay::addGarbage, this);
+    Signals::SetGameState.connect([&](GameStates newState){ GPBaseState::set(state, newState); });
 
     Net::takeSignal(9, &gamePlay::addGarbage, this);
     Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
@@ -80,6 +82,8 @@ showPressEnterText(true)
 	});
 }
 
+gamePlay::~gamePlay() {}
+
 void gamePlay::startGame() {
 	recorder.start(field.square);
 	makeNewPiece();
@@ -87,12 +91,12 @@ void gamePlay::startGame() {
 	garbage.clear();
 	gameclock.restart();
 	combo.clear();
-	dropDelay=sf::seconds(1);
-	dropDelayTime=sf::seconds(0);
+	pieceDropDelay.clear();
 	data.clear();
 	autoaway=true;
 	lockdown=false;
 	bpmCounter.clear();
+	aiManager.startRound();
 	if (recorder.rec)
 		addRecEvent(5, 0);
 }
@@ -131,7 +135,7 @@ void gamePlay::mDKey() {
 			if (recorder.rec)
 				addRecEvent(1, 0);
 			drawMe=true;
-			dropDelayTime = gameclock.getElapsedTime();
+			pieceDropDelay.reset(gameclock.getElapsedTime());
 			lockdown=false;
 		}
 		else {
@@ -151,7 +155,7 @@ void gamePlay::hd() {
 	field.hd();
 	addPiece(gameclock.getElapsedTime());
 	sendLines(field.clearlines());
-	dropDelayTime = gameclock.getElapsedTime();
+	pieceDropDelay.reset(gameclock.getElapsedTime());
 	makeNewPiece();
 }
 
@@ -224,7 +228,7 @@ void gamePlay::draw() {
 }
 
 void gamePlay::delayCheck() {
-	if (gameclock.getElapsedTime() - dropDelayTime > dropDelay) {
+	if (pieceDropDelay.check(gameclock.getElapsedTime())) {
 		if (field.mDown()) {
 			drawMe=true;
 			lockdown=false;
@@ -236,19 +240,6 @@ void gamePlay::delayCheck() {
 				lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
 			lockdown=true;
 		}
-		dropDelayTime = gameclock.getElapsedTime();
-	}
-
-	if (gameclock.getElapsedTime() - increaseDropDelayTime > increaseDropDelay) {
-		if (dropDelay > sf::milliseconds(200))
-			dropDelay-=sf::milliseconds(10);
-		else if (dropDelay > sf::milliseconds(100))
-			dropDelay-=sf::milliseconds(5);
-		else if (dropDelay > sf::milliseconds(50))
-			dropDelay-=sf::milliseconds(2);
-		else if (dropDelay > sf::milliseconds(10))
-			dropDelay-=sf::milliseconds(1);
-		increaseDropDelayTime = gameclock.getElapsedTime();
 	}
 
 	sf::Time current = gameclock.getElapsedTime();
@@ -301,7 +292,7 @@ void gamePlay::delayCheck() {
 			if (recorder.rec)
 				addRecEvent(1, 0);
 			drawMe=true;
-			dropDelayTime = gameclock.getElapsedTime();
+			pieceDropDelay.reset(gameclock.getElapsedTime());
 		}
 	}
 
@@ -310,8 +301,10 @@ void gamePlay::delayCheck() {
 		comboLinesSent = garbage.block(comboLinesSent, gameclock.getElapsedTime(), false);
 		field.text.setPending(garbage.count());
 		data.linesSent += comboLinesSent;
-		if (comboLinesSent)
+		if (comboLinesSent) {
 			Signals::SendSig(2, comboLinesSent);
+			aiManager.distributeLines(0, comboLinesSent);
+		}
 		drawMe=true;
 	}
 
@@ -350,6 +343,9 @@ void gamePlay::delayCheck() {
 		drawMe = true;
 
 	dataSender.sendstate();
+
+	if (aiManager.update(gameclock.getElapsedTime()))
+		gameOver(1);
 }
 
 void gamePlay::setPieceOrientation() {
@@ -393,8 +389,10 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	sf::Uint16 amount = garbage.block(lines.x-1, gameclock.getElapsedTime());
 	data.linesSent += amount;
-	if (amount)
+	if (amount) {
 		Signals::SendSig(2, amount);
+		aiManager.distributeLines(0, amount);
+	}
 	field.text.setPending(garbage.count());
 	combo.increase(gameclock.getElapsedTime(), lines.x);
 
@@ -427,7 +425,7 @@ void gamePlay::playComboSound(sf::Uint8 combo) {
 		Signals::PlaySound(13);
 }
 
-void gamePlay::addGarbage(sf::Uint16 amount) {
+void gamePlay::addGarbage(int amount) {
 	garbage.add(amount, gameclock.getElapsedTime());
 
 	data.linesRecieved+=amount;
@@ -492,12 +490,16 @@ void gamePlay::startCountdown() {
 	countDownTime = sf::seconds(0);
 	countDowncount = 3;
 
+	if (!aiManager.empty())
+		Signals::SeedRander(rander.getHole()*rander.getPiece(), rander.getHole()*rander.getPiece());
+
 	field.clear();
 	makeNewPiece();
 	while (nextpiece == 2 || nextpiece == 3) {
 		rander.reset();
 		makeNewPiece();
 	}
+	aiManager.startCountdown();
 	field.piece.piece=7;
 	combo.clear();
 	lKeyTime=sf::seconds(0);
@@ -514,6 +516,7 @@ bool gamePlay::countDown() {
 		countDownTime = gameclock.getElapsedTime() + sf::seconds(1);
 		countDowncount--;
 		field.text.setCountdown(countDowncount);
+		aiManager.countDown(countDowncount);
 		if (recorder.rec)
 			addRecEvent(7, countDowncount);
 		if (countDowncount) {
@@ -559,10 +562,10 @@ void gamePlay::gameOver(int winner) {
 			dataSender.gameover(winner);
 		return;
 	}
-
-	data.linesPerMinute = (((float)data.linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
-	data.bpm = (int)(data.pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
+	data.roundDuration = gameclock.getElapsedTime().asMilliseconds();
+	data.bpm = (int)(data.pieceCount / ((float)gameclock.getElapsedTime().asSeconds()) * 60.0);
 	field.text.setBpm(data.bpm);
+	field.text.setCombo(data.maxCombo);
 
 	addRecEvent(5, 0);
 	recorder.stop();
@@ -576,6 +579,13 @@ void gamePlay::gameOver(int winner) {
 
 	dataSender.gameover(winner);
 	Signals::SetGameState(GameStates::GameOver);
+	if (!resources.playonline) {
+		Signals::SetRoundlenghtForScore(gameclock.getElapsedTime().asSeconds());
+		if (aiManager.empty())
+			Signals::AddLocalScore(data, 0, Signals::GetName(), 0);
+		else
+			aiManager.setScore(data);
+	}
 	draw();
 }
 

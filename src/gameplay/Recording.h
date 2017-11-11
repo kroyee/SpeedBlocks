@@ -37,7 +37,7 @@ public:
 	bool rec, halt;
 
 	void clear();
-	void start(sf::Uint8[22][10]);
+	void start(std::array<std::array<sf::Uint8, 10>, 22>);
 	void stop();
 	void jumpTo(int startTime);
 	void addEvent(RecordingEvent& event);

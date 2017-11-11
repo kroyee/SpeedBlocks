@@ -25,7 +25,11 @@ using std::endl;
 #endif
 //#define DEBUG
 
+<<<<<<< HEAD
 #include "PopupMenu.h"
+=======
+#include "AI.h"
+>>>>>>> playai
 
 int main()
 {
@@ -131,6 +135,8 @@ int main()
 
     // The main-loop
 
+    game.aiManager.setAmount(2);
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -152,7 +158,7 @@ int main()
             case GameStates::CountDown:
                 if (!resources.playonline)
                     if (game.countDown())
-                        gui.setGameState(GameStates::Game);
+                        Signals::SetGameState(GameStates::Game);
             break;
 
             case GameStates::Game:
@@ -162,7 +168,7 @@ int main()
 
             case GameStates::Replay:
                 if (game.playReplay())
-                    gui.setGameState(GameStates::GameOver);
+                    Signals::SetGameState(GameStates::GameOver);
             break;
 
             default:

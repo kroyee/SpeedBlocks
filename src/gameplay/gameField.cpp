@@ -8,7 +8,11 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-gameField::gameField(Resources& _resources) : resources(_resources), text(_resources) {
+BasicField::BasicField(Resources& _resources) : resources(_resources) {}
+
+BasicField::BasicField(const BasicField& field) : resources(field.resources) {}
+
+gameField::gameField(Resources& _resources) : BasicField(_resources), text(_resources) {
     texture.create(440, 600);
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
@@ -25,7 +29,7 @@ gameField::gameField(Resources& _resources) : resources(_resources), text(_resou
             square[y][x] = 0;
 }
 
-gameField::gameField(const gameField& field) : resources(field.resources), text(field.resources) {
+gameField::gameField(const gameField& field) : BasicField(field.resources), text(field.resources) {
     texture.create(440, 600);
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
@@ -117,10 +121,6 @@ void gameField::drawPiece() {
         for (int x=0; x<4; x++)
             if (piece.grid[y][x] != 0)
                 drawTile(piece.tile, piece.posX+x, piece.posY+y);
-                /*if (piece.posY+y > 3) {
-                    tile[piece.tile-1].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30 + offset));
-                    texture.draw(tile[piece.tile-1]);
-                }*/
 }
 
 void gameField::drawGhostPiece() {
@@ -134,16 +134,12 @@ void gameField::drawGhostPiece() {
             for (int x=0; x<4; x++)
                 if (piece.grid[y][x] != 0)
                     drawTile(piece.tile+8, piece.posX+x, piece.posY+y);
-                    /*if (piece.posY+y > 3) {
-                        tile[piece.tile+7].setPosition(sf::Vector2f(5+(piece.posX+x)*30, 5+(piece.posY+y-4)*30 + offset));
-                        texture.draw(tile[piece.tile+7]);
-                    }*/
 
         piece.posY = posY;
     }
 }
 
-bool gameField::possible() {
+bool BasicField::possible() {
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
             if (piece.grid[y][x]) {
@@ -155,7 +151,7 @@ bool gameField::possible() {
     return true;
 }
 
-bool gameField::mRight() {
+bool BasicField::mRight() {
     piece.mright();
     if (possible())
         return true;
@@ -164,7 +160,7 @@ bool gameField::mRight() {
     return false;
 }
 
-bool gameField::mLeft() {
+bool BasicField::mLeft() {
     piece.mleft();
     if (possible())
         return true;
@@ -173,7 +169,7 @@ bool gameField::mLeft() {
     return false;
 }
 
-bool gameField::mDown() {
+bool BasicField::mDown() {
     piece.mdown();
     if (possible())
         return true;
@@ -182,12 +178,13 @@ bool gameField::mDown() {
     return false;
 }
 
-void gameField::hd() {
-    while (possible()) { piece.mdown(); }
+void BasicField::hd() {
+    do { piece.mdown(); }
+    while (possible());
     piece.mup();
 }
 
-bool gameField::rcw() {
+bool BasicField::rcw() {
     piece.rcw();
     if (possible())
         return true;
@@ -199,7 +196,7 @@ bool gameField::rcw() {
     return false;
 }
 
-bool gameField::rccw() {
+bool BasicField::rccw() {
     piece.rccw();
     if (possible())
         return true;
@@ -211,7 +208,7 @@ bool gameField::rccw() {
     return false;
 }
 
-bool gameField::r180() {
+bool BasicField::r180() {
     piece.rccw();
     piece.rccw();
     if (possible())
@@ -225,11 +222,11 @@ bool gameField::r180() {
     return false;
 }
 
-bool gameField::kickTest() {
-    piece.posX--; if (possible()) return true;
+bool BasicField::kickTest() {
+    piece.posY++; if (possible()) return true;
+    piece.posY--; piece.posX--; if (possible()) return true;
     piece.posX+=2; if (possible()) return true;
-    piece.posX--; piece.posY++; if (possible()) return true;
-    piece.posX--; if (possible()) return true;
+    piece.posY++; piece.posX-=2; if (possible()) return true;
     piece.posX+=2; if (possible()) return true;
     piece.posX-=3; piece.posY--; if (possible()) return true;
     piece.posX+=4; if (possible()) return true;
@@ -237,14 +234,14 @@ bool gameField::kickTest() {
     return false;
 }
 
-void gameField::addPiece() {
+void BasicField::addPiece() {
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
             if (piece.grid[y][x])
                 square[piece.posY+y][piece.posX+x]=piece.tile;
 }
 
-void gameField::removeline(short y) {
+void BasicField::removeline(short y) {
     for (;y>-1; y--)
         for (int x=0; x<10; x++)
             square[y][x] = square[y-1][x];
@@ -252,22 +249,24 @@ void gameField::removeline(short y) {
         square[0][x] = 0;
 }
 
-sf::Vector2i gameField::clearlines () {
+sf::Vector2i BasicField::clearlines () {
     sf::Vector2i linescleared(0,0);
     bool rm, gb;
     for (int y=21; y>-1; y--) {
+        if (piece.posY+y > 21 || piece.posY+y < 0)
+            continue;
         rm=1;
         gb=0;
         for (int x=0; x<10; x++) {
-            if (square[y][x] == 8)
+            if (square[piece.posY+y][x] == 8)
                 gb=1;
-            if (square[y][x] == 0) {
+            if (square[piece.posY+y][x] == 0) {
                 rm=0;
                 break;
             }
         }
         if (rm) {
-            removeline(y);
+            removeline(piece.posY+y);
             y++;
             linescleared.x++;
             if (gb)

@@ -135,7 +135,7 @@ void GameStandings::alignResult() {
     p1_rounds->setPosition(10,75);
 
     if (Signals::AreThereFields(0) == 1)
-    	Signals::SetFieldsSize(470, 555);
+    	Signals::SetFieldsSize(450, 555);
     else
-    	Signals::SetFieldsSize(950, 555);
+    	Signals::SetFieldsSize(910, 555);
 }

@@ -13,6 +13,7 @@ public:
 	Resources& resources;
 
 	std::list<obsField> fields;
+	std::list<obsField> unusedFields;
 
 	sf::Clock sclock;
 	obsField* scaleup;
@@ -31,8 +32,8 @@ public:
 	void setPosition(short x, short y);
 	void setSize(int w, int h);
 
-	void addField(obsField& field);
-	void removeField(sf::Uint16 id);
+	obsField& addField(int id, const sf::String& name);
+	void removeField(int id);
 	void updateField(obsField& field);
 	void calFieldPos();
 

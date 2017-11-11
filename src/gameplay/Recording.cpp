@@ -27,7 +27,7 @@ void Recording::clear() {
 	events.clear();
 }
 
-void Recording::start(sf::Uint8 start_pos[22][10]) {
+void Recording::start(std::array<std::array<sf::Uint8, 10>, 22> start_pos) {
 	clear();
 	for (int y=0; y<22; y++)
 		for (int x=0; x<10; x++)
