@@ -25,12 +25,6 @@ using std::endl;
 #endif
 //#define DEBUG
 
-<<<<<<< HEAD
-#include "PopupMenu.h"
-=======
-#include "AI.h"
->>>>>>> playai
-
 int main()
 {
     // Initializing classes and loading resources
@@ -81,23 +75,6 @@ int main()
     sf::Time current=sf::seconds(0), lastFrame=sf::seconds(0), nextDraw=sf::seconds(0), nextUpdate=sf::seconds(0);
 
     // Intro
-
-    PopupMenu pop(resources);
-    pop.setBoundery({100, 100, 300, 300});
-    pop.addItem("Heya");
-    pop.addItem("Coolio");
-    pop.addItem("Press to do shit", [&](){ gui.guiElements->animatedBackground.disable(); });
-    pop.addItem("What's up doc?");
-    auto sub = pop.getSubMenu("Heya");
-    sub->addItem("Handicap");
-    sub = sub->getSubMenu("Handicap");
-    sub->addItem("10%");
-    sub->addItem("20%");
-    sub->addItem("30%");
-    sub->addItem("40%");
-    sub->addItem("50%");
-
-    pop.update();
 
     bool intro=true;
     while (intro) {

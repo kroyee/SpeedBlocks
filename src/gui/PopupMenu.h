@@ -3,6 +3,26 @@
 
 #include "guiBase.h"
 
+/*	Example usage
+
+	PopupMenu pop(resources);
+    pop.setBoundery({100, 100, 300, 300});
+    pop.addItem("Heya");
+    pop.addItem("Coolio");
+    pop.addItem("Press to do shit", [&](){ gui.guiElements->animatedBackground.disable(); });
+    pop.addItem("What's up doc?");
+    auto sub = pop.getSubMenu("Heya");
+    sub->addItem("Handicap");
+    sub = sub->getSubMenu("Handicap");
+    sub->addItem("10%");
+    sub->addItem("20%");
+    sub->addItem("30%");
+    sub->addItem("40%");
+    sub->addItem("50%");
+
+    pop.update();  //When we update the internal panels and labels are resized ect.
+*/
+
 class PopupMenuItem;
 
 class PopupMenu : public guiBase {
