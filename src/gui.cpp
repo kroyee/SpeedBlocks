@@ -29,6 +29,8 @@ UI::UI(sf::RenderWindow& window_,
       state(std::unique_ptr<UIBaseState>(new UIMainMenu(*this))),
       myId(resources.myId) {
 
+    guiElements->trainingUI.hide();
+
 	Signals::LeaveRoom.connect(&UI::leaveRoom, this);
 	Signals::SetGameState.connect([&](GameStates _state){ UIBaseState::set(state, _state); });
 	Signals::LightTheme.connect(&UI::lightTheme, this);

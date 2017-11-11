@@ -23,7 +23,7 @@ class AI {
 public:
 	Resources& resources;
 	std::array<double, 10> weights, downstackWeights, stackWeights;
-	obsField& field;
+	obsField* field;
 	TestField firstMove, secondMove;
 
 	uint8_t nextpiece;
@@ -60,6 +60,7 @@ public:
 
 	AI(obsField& _field, sf::Clock& _gameclock);
 
+	void setField(obsField& _field);
 	void startMove();
 	void continueMove();
 	bool executeMove();

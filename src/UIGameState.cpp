@@ -40,13 +40,14 @@ UIMainMenu::UIMainMenu(UI& _ui) : UIBaseState(_ui, GameStates::MainMenu) {
 	if (ui.resources.playonline)
 		ui.guiElements->onlineplayUI.show();
 	else
-		ui.guiElements->mainMenu.show();
+		ui.guiElements->trainingUI.show();
 }
 UIMainMenu::~UIMainMenu() {
 	ui.guiElements->mainMenu.hide();
 	ui.guiElements->onlineplayUI.hide();
 	ui.guiElements->gameFieldDrawer.show();
 	ui.guiElements->gameStandings.hide();
+	ui.guiElements->trainingUI.hide();
 }
 
 

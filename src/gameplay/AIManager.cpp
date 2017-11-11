@@ -6,14 +6,21 @@ using std::endl;
 
 AIManager::AIManager(sf::Clock& _gameclock) : gameclock(_gameclock) {
 	Signals::DistributeLinesLocally.connect(&AIManager::distributeLines, this);
+	Signals::AmountAI.connect(&AIManager::setAmount, this);
+	Signals::SpeedAI.connect(&AIManager::setSpeed, this);
 }
 
-void AIManager::setAmount(unsigned int amount) {
+void AIManager::setAmount(uint8_t amount) {
 	if (amount > 20)
 		return;
 	static uint16_t id_count = 60000;
 	while (bots.size() < amount) {
-		bots.emplace_back(Signals::AddField(id_count, "AI" + std::to_string(id_count)), gameclock);
+		if (botsCache.empty())
+			bots.emplace_back(Signals::AddField(id_count, "AI" + std::to_string(id_count)), gameclock);
+		else {
+			bots.splice(bots.end(), botsCache, botsCache.begin());
+			bots.back().setField(Signals::AddField(id_count, "AI" + std::to_string(id_count)));
+		}
 		bots.back().startAI();
 		bots.back().id = id_count;
 		id_count++;
@@ -22,11 +29,10 @@ void AIManager::setAmount(unsigned int amount) {
 	}
 
 	while (bots.size() > amount) {
-		Signals::RemoveField(bots.back().id);
-		bots.pop_back();
+		Signals::RemoveField(bots.front().id);
+		botsCache.splice(botsCache.end(), bots, bots.begin());
 	}
 
-	setSpeed(145);
 	resetScore();
 }
 
@@ -124,8 +130,8 @@ void AIManager::setScore(GameplayData & data) {
 	using sPair = std::pair<uint16_t, sf::Uint16>;
 
 	std::vector<sPair> sorting;
-	for (unsigned int i=0; i < bots.size(); i++)
-		sorting.emplace_back(bots[i].score, i);
+	for (auto it = bots.begin(); it != bots.end(); it++)
+		sorting.emplace_back(it->score, it->id);
 
 	sorting.emplace_back(playerScore, 200);
 
@@ -134,7 +140,10 @@ void AIManager::setScore(GameplayData & data) {
 	for (auto& pair : sorting) {
 		if (pair.second == 200)
 			Signals::AddLocalScore(data, pair.second, Signals::GetName(), playerScore);
-		else
-			Signals::AddLocalScore(bots[pair.second].data, pair.second, bots[pair.second].field.text.name, bots[pair.second].score);
+		else for (auto it = bots.begin(); it != bots.end(); it++)
+			if (it->id == pair.second) {
+				Signals::AddLocalScore(it->data, it->id, it->field->text.name, it->score);
+				break;
+			}
 	}
 }

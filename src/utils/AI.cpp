@@ -8,7 +8,7 @@ using std::endl;
 
 AI::AI(obsField& _field, sf::Clock& _gameclock) :
 resources(_field.resources),
-field(_field),
+field(&_field),
 firstMove(resources),
 secondMove(resources),
 garbage(data.linesBlocked),
@@ -44,6 +44,10 @@ gameclock(_gameclock) {
 	stackWeights[9] = -0.771367;
 }
 
+void AI::setField(obsField& _field) {
+	field = &_field;
+}
+
 void AI::startMove() {
 	movingPiece=true;
 	movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
@@ -56,9 +60,9 @@ void AI::startMove() {
 		currentMove.push_back(240+rotationValue);
 
 	if (firstMove.move.use_path) {
-		if (firstMove.move.posX > field.piece.posX) for (int i=0; i < firstMove.move.posX-field.piece.posX; i++)
+		if (firstMove.move.posX > field->piece.posX) for (int i=0; i < firstMove.move.posX-field->piece.posX; i++)
 			currentMove.push_back(255);
-		else for (int i=0; i < field.piece.posX-firstMove.move.posX; i++)
+		else for (int i=0; i < field->piece.posX-firstMove.move.posX; i++)
 			currentMove.push_back(254);
 		for (auto it = firstMove.move.path.rbegin(); it != firstMove.move.path.rend(); it++) {
 			if (*it < 240) {
@@ -69,9 +73,9 @@ void AI::startMove() {
 		}
 	}
 	else {
-		if (firstMove.move.posX > field.piece.posX) for (int i=0; i < firstMove.move.posX-field.piece.posX; i++)
+		if (firstMove.move.posX > field->piece.posX) for (int i=0; i < firstMove.move.posX-field->piece.posX; i++)
 			currentMove.push_back(255);
-		else for (int i=0; i < field.piece.posX-firstMove.move.posX; i++)
+		else for (int i=0; i < field->piece.posX-firstMove.move.posX; i++)
 			currentMove.push_back(254);
 		currentMove.push_back(253);
 	}
@@ -113,39 +117,39 @@ bool AI::executeMove() {
 
 	while (!moveQueue.empty()) {
 		if (moveQueue.front() == 255)
-			field.mRight();
+			field->mRight();
 		else if (moveQueue.front() == 254)
-			field.mLeft();
+			field->mLeft();
 		else if (moveQueue.front() == 253) {
-			field.hd();
+			field->hd();
 			adjustDownMove=false;
 		}
 		else if (moveQueue.front() == 252) {
 			if (adjustDownMove)
 				adjustDownMove=false;
-			else if (field.mDown())
+			else if (field->mDown())
 				pieceDropDelay.reset(gameclock.getElapsedTime());
 		}
 		else if (moveQueue.front() == 241)
-			field.rcw();
+			field->rcw();
 		else if (moveQueue.front() == 242)
-			field.r180();
+			field->r180();
 		else if (moveQueue.front() == 243)
-			field.rccw();
+			field->rccw();
 		else if (moveQueue.front() == 230) {
-			field.hd();
-			field.addPiece();
+			field->hd();
+			field->addPiece();
 
-			sendLines(field.clearlines(), gameclock.getElapsedTime());
+			sendLines(field->clearlines(), gameclock.getElapsedTime());
 			data.pieceCount++;
 
-			setPiece(field.nextpiece);
+			setPiece(field->nextpiece);
 			setNextPiece(rander.getPiece());
 
 			bpmCounter.addPiece(gameclock.getElapsedTime());
 
-			if (!field.possible()) {
-				field.drawField();
+			if (!field->possible()) {
+				field->drawField();
 				return true;
 			}
 		}
@@ -161,52 +165,52 @@ bool AI::executeMove() {
 	}
 
 	if (draw)
-		field.drawField();
+		field->drawField();
 
 	return false;
 }
 
 void AI::setPiece(int piece) {
-	field.piece.piece = piece;
-	field.piece.tile = resources.options->basepiece[piece].tile;
-	field.piece.rotation = resources.options->basepiece[piece].rotation;
-	field.piece.posX = 3;
-	field.piece.posY = 0;
+	field->piece.piece = piece;
+	field->piece.tile = resources.options->basepiece[piece].tile;
+	field->piece.rotation = resources.options->basepiece[piece].rotation;
+	field->piece.posX = 3;
+	field->piece.posY = 0;
 
-	field.updatePiece();
+	field->updatePiece();
 }
 
 void AI::setNextPiece(int piece) {
-	field.nextpiece = piece;
-	field.nprot = resources.options->basepiece[piece].rotation;
-	field.npcol = resources.options->basepiece[piece].tile;
+	field->nextpiece = piece;
+	field->nprot = resources.options->basepiece[piece].rotation;
+	field->npcol = resources.options->basepiece[piece].tile;
 }
 
 void AI::startAI() {
 	data.clear();
 	gameCount=0;
-	field.clear();
+	field->clear();
 }
 
 void AI::restartGame() {
-	field.clear();
+	field->clear();
 	gameCount++;
 	data.clear();
 	setMode(Mode::Stack);
 	setPiece(0);
-	field.piece.piece = 7;
+	field->piece.piece = 7;
 	setNextPiece(rander.getPiece());
-	while (field.nextpiece == 2 || field.nextpiece == 3)
+	while (field->nextpiece == 2 || field->nextpiece == 3)
 		setNextPiece(rander.getPiece());
 }
 
 void AI::addGarbageLine() {
 	for (int y=0; y<21; y++)
 		for (int x=0; x<10; x++)
-			field.square[y][x]=field.square[y+1][x];
+			field->square[y][x]=field->square[y+1][x];
 	for (int x=0; x<10; x++)
-		field.square[21][x]=8;
-	field.square[21][rander.getHole()]=0;
+		field->square[21][x]=8;
+	field->square[21][rander.getHole()]=0;
 }
 
 void AI::setMode(Mode _mode, bool vary) {
@@ -238,9 +242,9 @@ bool AI::playAI() {
 	}
 
 	if (updateField == 1) {
-		firstMove.square = field.square;
-		firstMove.setPiece(field.piece.piece);
-		nextpiece = field.nextpiece;
+		firstMove.square = field->square;
+		firstMove.setPiece(field->piece.piece);
+		nextpiece = field->nextpiece;
 		updateField = 2;
 	}
 
@@ -284,7 +288,7 @@ void AI::startRound() {
 	bpmCounter.clear();
 	pieceDropDelay.clear();
 	incomingLines=0;
-	setPiece(field.nextpiece);
+	setPiece(field->nextpiece);
 	setNextPiece(rander.getPiece());
 	movepieceTime = sf::seconds(0);
 	nextmoveTime = sf::seconds(0);
@@ -302,8 +306,8 @@ void AI::startCountdown() {
 }
 
 void AI::countDown(int count) {
-	field.text.setCountdown(count);
-	field.drawField();
+	field->text.setCountdown(count);
+	field->drawField();
 }
 
 void AI::endRound(const sf::Time& _time, bool winner) {
@@ -312,18 +316,18 @@ void AI::endRound(const sf::Time& _time, bool winner) {
 	if (t.joinable())
 		t.join();
 	data.bpm = data.pieceCount / _time.asSeconds() * 60.0;
-	field.text.setBpm(data.bpm);
-	field.text.setCombo(data.maxCombo);
+	field->text.setBpm(data.bpm);
+	field->text.setCombo(data.maxCombo);
 	if (winner) 
-		field.text.setGameover(2);
+		field->text.setGameover(2);
 	else
-		field.text.setGameover(1);
-	field.drawField();
+		field->text.setGameover(1);
+	field->drawField();
 }
 
 void AI::delayCheck(const sf::Time& t) {
 	if (pieceDropDelay.check(t)) {
-		if (field.mDown()) {
+		if (field->mDown()) {
 			adjustDownMove=true;
 			drawMe=true;
 			//lockdown=false;
@@ -338,7 +342,7 @@ void AI::delayCheck(const sf::Time& t) {
 	uint16_t comboLinesSent = combo.check(t);
 	if (comboLinesSent) {
 		comboLinesSent = garbage.block(comboLinesSent, t, false);
-		field.text.setPending(garbage.count());
+		field->text.setPending(garbage.count());
 		data.linesSent += comboLinesSent;
 		if (comboLinesSent)
 			Signals::DistributeLinesLocally(id, comboLinesSent);
@@ -347,7 +351,7 @@ void AI::delayCheck(const sf::Time& t) {
 
 	uint16_t newbpm = bpmCounter.calcBpm(t);
 	if (newbpm != data.bpm) {
-		field.text.setBpm(newbpm);
+		field->text.setBpm(newbpm);
 		data.bpm = newbpm;
 		drawMe=true;
 	}
@@ -358,15 +362,15 @@ void AI::delayCheck(const sf::Time& t) {
 
 	if (garbage.check(t)) {
 		addGarbageLine();
-		if (!field.piece.posY)
+		if (!field->piece.posY)
 			adjustDownMove=true;
 		drawMe=true;
 	}
 
 	/*if (lockdown && gameclock.getElapsedTime() > lockDownTime) {
-		if (!field.mDown()) {
+		if (!field->mDown()) {
 			addPiece(gameclock.getElapsedTime());
-			sendLines(field.clearlines());
+			sendLines(field->clearlines());
 			drawMe=true;
 			makeNewPiece();
 		}
@@ -374,14 +378,14 @@ void AI::delayCheck(const sf::Time& t) {
 			lockdown=false;
 	}*/
 
-	field.offset = garbage.getOffset(t);
-	if (field.offset)
+	field->offset = garbage.getOffset(t);
+	if (field->offset)
 		drawMe = true;
 }
 
 bool AI::setComboTimer(const sf::Time& t) {
 	sf::Uint8 count = combo.timerCount(t);
-	return field.text.setComboTimer(count);
+	return field->text.setComboTimer(count);
 }
 
 void AI::sendLines(sf::Vector2i lines, const sf::Time& t) {
@@ -395,11 +399,11 @@ void AI::sendLines(sf::Vector2i lines, const sf::Time& t) {
 	data.linesSent += amount;
 	if (amount)
 		Signals::DistributeLinesLocally(id, amount);
-	field.text.setPending(garbage.count());
+	field->text.setPending(garbage.count());
 	combo.increase(t, lines.x);
 
 	setComboTimer(t);
-	field.text.setCombo(combo.comboCount);
+	field->text.setCombo(combo.comboCount);
 }
 
 void AI::addGarbage(uint16_t amount, const sf::Time& t) {
@@ -407,5 +411,5 @@ void AI::addGarbage(uint16_t amount, const sf::Time& t) {
 
 	data.linesRecieved+=amount;
 
-	field.text.setPending(garbage.count());
+	field->text.setPending(garbage.count());
 }

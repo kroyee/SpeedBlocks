@@ -166,7 +166,11 @@ struct Signals {
 	static Signal<void, int>				GameSetup;
 	static Signal<void, int>				GameAddDelay;
 	static Signal<void, int>				AddGarbage;
+
+									//AI
 	static Signal<void, int, int>			DistributeLinesLocally;
+	static Signal<void, uint8_t>			AmountAI;
+	static Signal<void, uint16_t>			SpeedAI;
 
 									//Recording
 	static Signal<const sf::Time&>			GetRecDuration;

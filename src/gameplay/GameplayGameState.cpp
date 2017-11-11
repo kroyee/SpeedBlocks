@@ -27,6 +27,7 @@ GPMainMenu::GPMainMenu(gamePlay& _game) : GPBaseState(_game, GameStates::MainMen
 	game.field.clear();
 	game.autoaway=false;
 	game.field.text.away=false;
+	Signals::AmountAI(0);
 }
 GPMainMenu::~GPMainMenu() {
 	game.showPressEnterText=true;

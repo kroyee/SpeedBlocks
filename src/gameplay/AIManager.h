@@ -2,16 +2,17 @@
 #define AIMANAGER_H
 
 #include "AI.h"
+#include <list>
 
 class AIManager {
-	std::deque<AI> bots;
+	std::list<AI> bots, botsCache;
 	uint8_t alive;
 	sf::Clock& gameclock;
 	float playersIncomingLines;
 	uint16_t playerScore;
 public:
 	AIManager(sf::Clock& _gameclock);
-	void setAmount(unsigned int amount);
+	void setAmount(uint8_t amount);
 	void setSpeed(uint16_t speed);
 	bool update(const sf::Time& t);
 	void startCountdown();

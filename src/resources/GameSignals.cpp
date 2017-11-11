@@ -80,7 +80,11 @@ Signal<void> Signals::GameDraw;
 Signal<void, int> Signals::GameSetup;
 Signal<void, int> Signals::GameAddDelay;
 Signal<void, int> Signals::AddGarbage;
+
+//AI
 Signal<void, int, int> Signals::DistributeLinesLocally;
+Signal<void, uint8_t> Signals::AmountAI;
+Signal<void, uint16_t> Signals::SpeedAI;
 
 //Recording
 Signal<const sf::Time&> Signals::GetRecDuration;

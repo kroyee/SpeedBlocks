@@ -20,6 +20,7 @@
 #include "AlertsUI.h"
 #include "ServerUI.h"
 #include "GameFieldDrawer.h"
+#include "TrainingUI.h"
 
 class Resources;
 
@@ -44,6 +45,7 @@ struct GuiElements {
 	OnlineplayUI onlineplayUI;
 	GameStandings gameStandings;
 	ReplayUI replayUI;
+	TrainingUI trainingUI;
 	PerformanceOutput performanceOutput;
 	ChatScreen chatScreen;
 	SlideMenu slideMenu;

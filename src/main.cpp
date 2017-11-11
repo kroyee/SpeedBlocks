@@ -114,7 +114,7 @@ int main()
 
     // The main-loop
 
-    //game.aiManager.setAmount(2);
+    game.aiManager.setAmount(2);
 
     while (window.isOpen())
     {
