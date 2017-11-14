@@ -7,12 +7,17 @@ class UI;
 
 class UIBaseState {
 public:
-	UIBaseState(UI& _ui, GameStates _state);
-	virtual ~UIBaseState();
-	UI& ui;
 	const GameStates state;
 
+	UIBaseState(UI& _ui, GameStates _state);
+	virtual ~UIBaseState();
+
+	virtual void update() {}
+
 	static void set(std::unique_ptr<UIBaseState>& state, GameStates _state);
+
+protected:
+	UI& ui;
 };
 
 class UIMainMenu : public UIBaseState {

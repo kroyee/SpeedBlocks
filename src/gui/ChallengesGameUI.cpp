@@ -127,11 +127,11 @@ BaseChallenge::BaseChallenge(ChallengesGameUI &_ref) : ref(_ref), specIndex(Labe
 void BaseChallenge::setLabel(int i, const sf::String& text) {
 	if (i >= LabelCount)
 		return;
-	ref.label[i]->show();
+	ref.label[i]->show(); //tguiedit
 	ref.editBox[i]->show();
 	ref.label[i]->setText(text);
 }
-#include <iostream>
+
 void BaseChallenge::setSpec(int i) {
 	if (i >= LabelCount)
 		return;

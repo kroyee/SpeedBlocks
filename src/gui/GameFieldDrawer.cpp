@@ -24,7 +24,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.away=true;
-				field.drawField();
+				field.drawMe=true;
 				return;
 			}
 	});
@@ -32,7 +32,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.away=false;
-				field.drawField();
+				field.drawMe=true;
 				return;
 			}
 	});
@@ -40,7 +40,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.setPosition(id2);
-				field.drawField();
+				field.drawMe=true;
 				return;
 			}
 	});
@@ -48,14 +48,16 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.ready=true;
-				field.drawField();
+				field.drawMe=true;
+				return;
 			}
 	});
 	Net::takeSignal(16, [&](sf::Uint16 id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.ready=false;
-				field.drawField();
+				field.drawMe=true;
+				return;
 			}
 	});
 }
@@ -76,7 +78,8 @@ obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 	if (resources.options->theme == 2)
 		fields.back().text.setColor(sf::Color(255,255,255));
 	calFieldPos();
-	fields.back().drawField();
+	fields.back().launchDrawThread();
+	fields.back().drawMe=true;
 
 	return fields.back();
 }
@@ -84,6 +87,10 @@ obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 void GameFieldDrawer::removeField(int id) {
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
+			it->text.away=false;
+			it->status = 5;
+			if (it->drawThread.joinable())
+				it->drawThread.join();
 			unusedFields.splice(unusedFields.end(), fields, it);
 			break;
 		}

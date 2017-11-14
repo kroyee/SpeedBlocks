@@ -15,6 +15,7 @@
 #include "GameDataSender.h"
 #include "DropDelay.h"
 #include "AIManager.h"
+#include "GameplayGameState.h"
 
 class soundBank;
 class GPBaseState;
@@ -65,7 +66,7 @@ public:
 	sf::Time lockDownTime;
 	bool lockdown;
 
-	sf::Uint8 nextpiece;
+	sf::Uint8 nextpiece, nextpieceCopy;
 
 	sf::Text pressEnterText;
 	bool showPressEnterText;
@@ -97,6 +98,9 @@ public:
 	void copyPiece(sf::Uint8 np);
 
 	void draw();
+
+	void makeDrawCopy();
+	void drawThreadLoop();
 
 	void delayCheck();
 

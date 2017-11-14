@@ -113,8 +113,6 @@ void AI::continueMove() {
 bool AI::executeMove() {
 	std::lock_guard<std::mutex> guard(moveQueueMutex);
 
-	bool draw=false;
-
 	while (!moveQueue.empty()) {
 		if (moveQueue.front() == 255)
 			field->mRight();
@@ -149,7 +147,7 @@ bool AI::executeMove() {
 			bpmCounter.addPiece(gameclock.getElapsedTime());
 
 			if (!field->possible()) {
-				field->drawField();
+				field->drawMe=true;
 				return true;
 			}
 		}
@@ -161,11 +159,8 @@ bool AI::executeMove() {
 		
 		moveQueue.pop_front();
 
-		draw=true;
+		field->drawMe=true;
 	}
-
-	if (draw)
-		field->drawField();
 
 	return false;
 }
@@ -184,6 +179,9 @@ void AI::setNextPiece(int piece) {
 	field->nextpiece = piece;
 	field->nprot = resources.options->basepiece[piece].rotation;
 	field->npcol = resources.options->basepiece[piece].tile;
+	field->npPiece = resources.options->basepiece[piece];
+	while (field->npPiece.current_rotation != field->nprot)
+		field->npPiece.rcw();
 }
 
 void AI::startAI() {
@@ -307,7 +305,7 @@ void AI::startCountdown() {
 
 void AI::countDown(int count) {
 	field->text.setCountdown(count);
-	field->drawField();
+	field->drawMe=true;
 }
 
 void AI::endRound(const sf::Time& _time, bool winner) {
@@ -322,7 +320,7 @@ void AI::endRound(const sf::Time& _time, bool winner) {
 		field->text.setGameover(2);
 	else
 		field->text.setGameover(1);
-	field->drawField();
+	field->drawMe=true;
 }
 
 void AI::delayCheck(const sf::Time& t) {

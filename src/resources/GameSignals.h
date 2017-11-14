@@ -122,6 +122,7 @@ struct Signals {
 	static Signal<bool>						Cheese30L;
 	static Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t> AddLocalScore;
 	static Signal<void, int>				SetRoundlenghtForScore;
+	static Signal<void>						FieldFinishedDrawing;
 
 									//GameFieldDrawer
 	static Signal<void>						ShowGameFields;
@@ -166,6 +167,8 @@ struct Signals {
 	static Signal<void, int>				GameSetup;
 	static Signal<void, int>				GameAddDelay;
 	static Signal<void, int>				AddGarbage;
+	static Signal<void>						MakeDrawCopy;
+	static Signal<void>						GameDrawSprite;
 
 									//AI
 	static Signal<void, int, int>			DistributeLinesLocally;

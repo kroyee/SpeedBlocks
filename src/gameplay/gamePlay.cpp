@@ -8,7 +8,6 @@
 #include "GameSignals.h"
 #include "Resources.h"
 #include "packetcompress.h"
-#include "GameplayGameState.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <deque>
@@ -72,14 +71,18 @@ showPressEnterText(true)
     Signals::GameSetup.connect(&gamePlay::startSetup, this);
     Signals::AddGarbage.connect(&gamePlay::addGarbage, this);
     Signals::SetGameState.connect([&](GameStates newState){ GPBaseState::set(state, newState); });
+    Signals::MakeDrawCopy.connect(&gamePlay::makeDrawCopy, this);
+    Signals::GameDrawSprite.connect([&](){ resources.window.draw(field.sprite); });
 
     Net::takeSignal(9, &gamePlay::addGarbage, this);
     Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
 		if (id1 == resources.myId) {
 			field.text.setPosition(id2);
-			draw();
+			drawMe=true;
 		}
 	});
+
+	field.drawThread = std::thread(&gamePlay::drawThreadLoop, this);
 }
 
 gamePlay::~gamePlay() {}
@@ -225,6 +228,26 @@ void gamePlay::draw() {
 	if (showPressEnterText)
 		field.texture.draw(pressEnterText);
     field.texture.display();
+    drawMe=false;
+}
+
+void gamePlay::makeDrawCopy() {
+	nextpieceCopy = nextpiece;
+    field.squareCopy = field.square;
+    field.pieceCopy = field.piece;
+    drawMe=false;
+    field.status = 1;
+}
+
+void gamePlay::drawThreadLoop() {
+	while (field.status != 5) {
+        if (field.status == 1) {
+            draw();
+            Signals::FieldFinishedDrawing();
+            field.status = 0;
+        }
+        sf::sleep(sf::seconds(0));
+    }
 }
 
 void gamePlay::delayCheck() {
@@ -521,7 +544,7 @@ bool gamePlay::countDown() {
 			addRecEvent(7, countDowncount);
 		if (countDowncount) {
 			Signals::PlaySound(14);
-			draw();
+			drawMe=true;
 		}
 		else {
 			Signals::PlaySound(15);
@@ -536,7 +559,7 @@ bool gamePlay::countDown(short c) {
 		return false;
 	field.text.setCountdown(c);
 	(c ? Signals::PlaySound(14) : Signals::PlaySound(15));
-	draw();
+	drawMe=true;
 	dataSender.state();
 	if (recorder.rec)
 		addRecEvent(7, c);
@@ -553,7 +576,7 @@ void gamePlay::startSetup(int type) {
 	else if (type == 2)
 		for (int i=0; i<6; i++)
 			addGarbageLine(rander.getHole(true));
-	draw();
+	drawMe=true;
 }
 
 void gamePlay::gameOver(int winner) {
@@ -586,7 +609,7 @@ void gamePlay::gameOver(int winner) {
 		else
 			aiManager.setScore(data);
 	}
-	draw();
+	drawMe=true;
 }
 
 void gamePlay::away() {
@@ -601,14 +624,14 @@ void gamePlay::setAway(bool away) {
 		gameOver(0);
 		field.text.away=true;
 		autoaway=false;
-		draw();
+		drawMe=true;
 	}
 	else {
 		resources.away=false;
 		autoaway=false;
 		Signals::SendSig(6);
 		field.text.away=false;
-		draw();
+		drawMe=true;
 	}
 }
 
@@ -622,7 +645,7 @@ void gamePlay::ready() {
 			Signals::SendSig(7);
 			field.text.ready=true;
 		}
-		draw();
+		drawMe=true;
 	}
 }
 
@@ -815,7 +838,7 @@ void gamePlay::setName(const sf::String& name) {
 
 void gamePlay::updateReplayScreen() {
 	playReplay();
-	draw();
+	drawMe=true;
 }
 
 void gamePlay::handleEvent(sf::Event& event) {

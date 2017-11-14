@@ -4,6 +4,8 @@
 #include <SFML/Graphics.hpp>
 #include "pieces.h"
 #include "GameFieldText.h"
+#include <thread>
+#include <atomic>
 
 class Resources;
 
@@ -37,7 +39,7 @@ class gameField : public BasicField {
 public:
     sf::RenderTexture texture;
     sf::Sprite sprite;
-    sf::Sprite* tile;
+    std::array<sf::Sprite, 16> tile;
 
     sf::Texture backgroundTexture;
     sf::Sprite background;
@@ -48,10 +50,20 @@ public:
 
     sf::Uint8 offset;
 
+    bool drawMe;
+
+    std::array<std::array<sf::Uint8, 10>, 22> squareCopy;
+    basePieces pieceCopy;
+
+    std::thread drawThread;
+    std::atomic<uint8_t> status;
+
     gameField(Resources& _resources);
     gameField(const gameField& field);
 
     void clear();
+
+    bool possibleCopy();
 
     void drawTile(sf::Uint8 color, sf::Uint8 x, sf::Uint8 y);
 
@@ -74,13 +86,19 @@ public:
     sf::Uint8 nextpiece, nprot, npcol;
     float scale;
     bool mouseover;
-    bool drawMe;
     sf::Uint8 datacount;
+
+    basePieces npPiece;
 
     void drawField();
 
     void drawNextPiece();
     void updatePiece();
+    void makeNextPieceCopy();
+
+    void makeDrawCopy();
+    void launchDrawThread();
+    void drawThreadLoop();
 };
 
 #endif

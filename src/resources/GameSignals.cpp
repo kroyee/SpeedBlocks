@@ -36,6 +36,7 @@ Signal<bool> Signals::Survivor;
 Signal<bool> Signals::Cheese30L;
 Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t> Signals::AddLocalScore;
 Signal<void, int> Signals::SetRoundlenghtForScore;
+Signal<void> Signals::FieldFinishedDrawing;
 
 //GameFieldDrawer
 Signal<void> Signals::ShowGameFields;
@@ -80,6 +81,8 @@ Signal<void> Signals::GameDraw;
 Signal<void, int> Signals::GameSetup;
 Signal<void, int> Signals::GameAddDelay;
 Signal<void, int> Signals::AddGarbage;
+Signal<void> Signals::MakeDrawCopy;
+Signal<void> Signals::GameDrawSprite;
 
 //AI
 Signal<void, int, int> Signals::DistributeLinesLocally;

@@ -80,7 +80,7 @@ UI::UI(sf::RenderWindow& window_,
 		Signals::SeedRander(id1, id2);
 		if (gamestate != GameStates::Spectating) {
 			Signals::GameClear();
-			Signals::GameDraw();
+			Signals::SetDrawMe();
 		}
 		countdown.start(delayClock.getElapsedTime());
 	});
@@ -169,7 +169,7 @@ void UI::darkTheme() {
 	game.field.text.setColor(sf::Color(255,255,255));
 	game.pressEnterText.setFillColor(sf::Color(255,255,255));
 	game.pressEnterText.setOutlineColor(sf::Color(255,255,255));
-	game.draw();
+	game.drawMe=true;
 	setWidgetTextColor(sf::Color(255,255,255,200));
 	resources.gfx->themeTG->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
 	options.theme=2;
@@ -184,7 +184,7 @@ void UI::lightTheme() {
 	game.field.text.setColor(sf::Color(0,0,0));
 	game.pressEnterText.setFillColor(sf::Color(0,0,0));
 	game.pressEnterText.setOutlineColor(sf::Color(0,0,0));
-	game.draw();
+	game.drawMe=true;
 	setWidgetTextColor(sf::Color(0,0,0,200));
 	resources.gfx->themeTG->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
 	options.theme=1;
@@ -248,7 +248,7 @@ void UI::getGameState(sf::Packet& packet) {
 				if (resources.compressor->validate()) {
 					resources.compressor->field = &field;
 					resources.compressor->copy();
-					field.drawField();
+					field.drawMe=true;
 				}
 			}
 			break;
@@ -276,7 +276,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 			Signals::SetGameState(GameStates::GameOver);
 			game.pressEnterText.setString("press P to start practice");
 			game.field.clear();
-			game.draw();
+			game.drawMe=true;
 			guiElements->gameFieldDrawer.setPosition(465, 40);
 			guiElements->gameFieldDrawer.setSize(450, 555);
 		}
@@ -307,7 +307,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 		guiElements->gameFieldDrawer.hide();
 		game.pressEnterText.setString("press P to start challenge");
 		game.field.clear();
-		game.draw();
+		game.drawMe=true;
 		guiElements->challengesGameUI.openChallenge(joinok);
 	}
 }

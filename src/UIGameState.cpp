@@ -3,7 +3,7 @@
 #include "GuiElements.h"
 #include "gamePlay.h"
 
-UIBaseState::UIBaseState(UI& _ui, GameStates _state) : ui(_ui), state(_state) {
+UIBaseState::UIBaseState(UI& _ui, GameStates _state) : state(_state), ui(_ui) {
 	ui.gamestate = state;
 }
 UIBaseState::~UIBaseState() {}
@@ -65,7 +65,7 @@ UIGameOver::~UIGameOver() {}
 
 UIReplay::UIReplay(UI& _ui) : UIBaseState(_ui, GameStates::Replay) {}
 UIReplay::~UIReplay() {
-	ui.guiElements->replayUI.playPause->setText("Play");
+	ui.guiElements->replayUI.playPause->setText("Play"); //tguiedit
 	ui.guiElements->replayUI.pauseTime=sf::seconds(0);
 }
 

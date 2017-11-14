@@ -1,7 +1,9 @@
 #include "GameplayGameState.h"
 #include "gamePlay.h"
 
-GPBaseState::GPBaseState(gamePlay& _game, GameStates _state) : game(_game), state(_state) {}
+GPBaseState::GPBaseState(gamePlay& _game, GameStates _state) : state(_state), game(_game) {
+	game.resources.gamestate = state;
+}
 GPBaseState::~GPBaseState() {}
 
 void GPBaseState::set(std::unique_ptr<GPBaseState>& state, GameStates _state) {
@@ -23,6 +25,10 @@ void GPBaseState::set(std::unique_ptr<GPBaseState>& state, GameStates _state) {
 		state = std::unique_ptr<GPBaseState>(new GPSpectating(gpRef));
 }
 
+//////////////////////////////////////////////////////////////////////
+//							Main Menu								//
+//////////////////////////////////////////////////////////////////////
+
 GPMainMenu::GPMainMenu(gamePlay& _game) : GPBaseState(_game, GameStates::MainMenu) {
 	game.field.clear();
 	game.autoaway=false;
@@ -33,16 +39,28 @@ GPMainMenu::~GPMainMenu() {
 	game.showPressEnterText=true;
 }
 
+//////////////////////////////////////////////////////////////////////
+//							Countdown								//
+//////////////////////////////////////////////////////////////////////
 
 GPCountDown::GPCountDown(gamePlay& _game) : GPBaseState(_game, GameStates::CountDown) {
 	game.sRKey();
     game.sLKey();
     game.sDKey();
     game.showPressEnterText=false;
-    game.draw();
+    game.drawMe=true;
 }
 GPCountDown::~GPCountDown() {}
 
+void GPCountDown::update() {
+	if (!game.resources.playonline)
+        if (game.countDown())
+            Signals::SetGameState(GameStates::Game);
+}
+
+//////////////////////////////////////////////////////////////////////
+//							Game									//
+//////////////////////////////////////////////////////////////////////
 
 GPGame::GPGame(gamePlay& _game) : GPBaseState(_game, GameStates::Game) {
 	game.showPressEnterText=false;
@@ -53,15 +71,25 @@ GPGame::~GPGame() {
 	game.aiManager.endRound(game.gameclock.getElapsedTime());
 }
 
+void GPGame::update() {
+	game.delayCheck();
+}
+
+//////////////////////////////////////////////////////////////////////
+//							Game Over								//
+//////////////////////////////////////////////////////////////////////
 
 GPGameOver::GPGameOver(gamePlay& _game) : GPBaseState(_game, GameStates::GameOver) {
 	if (game.autoaway)
     	Signals::SetAway(true);
     game.field.text.setCountdown(0);
-    game.draw();
+    game.drawMe=true;
 }
 GPGameOver::~GPGameOver() {}
 
+//////////////////////////////////////////////////////////////////////
+//							Replay									//
+//////////////////////////////////////////////////////////////////////
 
 GPReplay::GPReplay(gamePlay& _game) : GPBaseState(_game, GameStates::Replay) {
 	game.showPressEnterText=false;
@@ -69,6 +97,14 @@ GPReplay::GPReplay(gamePlay& _game) : GPBaseState(_game, GameStates::Replay) {
 }
 GPReplay::~GPReplay() {}
 
+void GPReplay::update() {
+	if (game.playReplay())
+		Signals::SetGameState(GameStates::GameOver);
+}
+
+//////////////////////////////////////////////////////////////////////
+//							Practice								//
+//////////////////////////////////////////////////////////////////////
 
 GPPractice::GPPractice(gamePlay& _game) : GPBaseState(_game, GameStates::Practice) {
 	if (!game.field.text.ready)
@@ -83,6 +119,9 @@ GPPractice::~GPPractice() {
 	game.field.text.ready=true;
 }
 
+//////////////////////////////////////////////////////////////////////
+//							Spectating								//
+//////////////////////////////////////////////////////////////////////
 
 GPSpectating::GPSpectating(gamePlay& _game) : GPBaseState(_game, GameStates::Spectating) {}
 GPSpectating::~GPSpectating() {}

@@ -45,6 +45,8 @@ public:
 	GameStates& gamestate;
 	std::unique_ptr<UIBaseState> state;
 
+	sf::Uint16& myId;
+
 	void setCountdown(sf::Packet &packet);
 
 	void joinRoom(int);
@@ -55,8 +57,6 @@ public:
 	void receiveRecording(sf::Packet &packet);
 
 	void getAlert();
-
-	sf::Uint16& myId;
 
 	bool handleEvent(sf::Event& event);
 
