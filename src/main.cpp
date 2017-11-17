@@ -147,6 +147,8 @@ int main()
     if (game.field.drawThread.joinable())
         game.field.drawThread.join();
 
+    gui.guiElements->gameFieldDrawer.removeAllFields();
+
     game.options.saveOptions();
     if (resources.restart) {
         #ifdef _WIN32

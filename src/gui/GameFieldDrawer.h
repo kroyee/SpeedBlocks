@@ -2,6 +2,7 @@
 #define GAMEFIELDDRAWER_H
 
 #include <list>
+#include <mutex>
 #include "gameField.h"
 
 class Resources;
@@ -12,6 +13,7 @@ public:
 
 	Resources& resources;
 
+	std::mutex fieldsMutex;
 	std::list<obsField> fields;
 	std::list<obsField> unusedFields;
 

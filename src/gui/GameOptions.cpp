@@ -785,9 +785,9 @@ void GameOptions::rotPiece(short i) {
 
 void GameOptions::colPiece(short i) {
 	if (resources.options->basepiece[i].tile+1>7)
-        resources.options->setPieceColor(i, 1);
-    else
-        resources.options->setPieceColor(i, resources.options->basepiece[i].tile+1);
+		resources.options->setPieceColor(i, 1);
+	else
+		resources.options->setPieceColor(i, resources.options->basepiece[i].tile+1);
 	piece[i].setColor(pColor(resources.options->basepiece[i].tile));
 	canvas[i]->clear(sf::Color(255,255,255,0));
 	canvas[i]->draw(piece[i]);

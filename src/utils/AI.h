@@ -14,6 +14,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <array>
 
 class Resources;
 

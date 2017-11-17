@@ -2,6 +2,7 @@
 #define RECORDING_H
 
 #include <SFML/Network.hpp>
+#include <array>
 
 // List of types for RecordingEvent:
 // 1 : Piece moved/rotated

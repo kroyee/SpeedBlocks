@@ -2,6 +2,7 @@
 #define PIECES_H
 
 #include <SFML/Graphics.hpp>
+#include <array>
 
 class basePieces {
 public:

@@ -67,6 +67,7 @@ void GameFieldDrawer::setPosition(short x, short y) { xPos = x; yPos = y; calFie
 void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos(); }
 
 obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
+	std::lock_guard<std::mutex> mute(fieldsMutex);
 	if (unusedFields.empty())
 		fields.emplace_back(resources);
 	else
@@ -78,6 +79,7 @@ obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 	if (resources.options->theme == 2)
 		fields.back().text.setColor(sf::Color(255,255,255));
 	calFieldPos();
+	fields.back().texture.setActive(false);
 	fields.back().launchDrawThread();
 	fields.back().drawMe=true;
 
@@ -85,6 +87,7 @@ obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 }
 
 void GameFieldDrawer::removeField(int id) {
+	std::lock_guard<std::mutex> mute(fieldsMutex);
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
 			it->text.away=false;
@@ -98,6 +101,13 @@ void GameFieldDrawer::removeField(int id) {
 }
 
 void GameFieldDrawer::removeAllFields() {
+	std::lock_guard<std::mutex> mute(fieldsMutex);
+	for (auto& field : fields) {
+		field.text.away=false;
+		field.status = 5;
+		if (field.drawThread.joinable())
+			field.drawThread.join();
+	}
 	unusedFields.splice(unusedFields.end(), fields);
 }
 
@@ -205,6 +215,7 @@ void GameFieldDrawer::drawOppField(obsField& field) {
 }
 
 void GameFieldDrawer::drawFields() {
+	std::lock_guard<std::mutex> mute(fieldsMutex);
 	for (auto&& field : fields)
 		resources.window.draw(field.sprite);
 	if (scaleup) {

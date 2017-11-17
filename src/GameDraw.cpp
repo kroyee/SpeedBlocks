@@ -17,14 +17,14 @@ drawMe(_drawMe) {
 }
 
 void GameDraw::draw() {
-    /*if (status == 2) {
+    if (status == 3) {
         resources.gfx->tGui.draw();
         resources.window.setActive(false);
-        status = 3;
-    }*/
+        status = 4;
+    }
 
     sf::Time current = resources.delayClock.getElapsedTime();
-    /*if (status == 0 && current > nextDraw) {
+    /*if (status == 0 && current > nextDraw) {  // Experimental version where tgui was drawn in thread. SigSev.
         fieldsTotal=0;
         fieldsDone=0;
         if (drawMe) {
@@ -89,7 +89,7 @@ void GameDraw::drawThreadLoop() {
     uint8_t internal=1;
     while (status != 5) {
         if (status == 1 || status == 2) {
-        	if (internal == 1) { // draw background + gamefields
+        	if (internal == 1) {
                 guiElements.animatedBackground.draw(resources.window, resources.delayClock.getElapsedTime());
                 internal = 2;
         	}
@@ -106,12 +106,11 @@ void GameDraw::drawThreadLoop() {
                     //lock gameFieldDrawer::fields mutex
                     guiElements.gameFieldDrawer.drawFields();
                 }
-                //resources.window.setActive(false);
+                resources.window.setActive(false);
                 status = 3;
             }
         }
-    	else if (status == 3) { // display window
-            resources.gfx->tGui.draw();
+    	else if (status == 4) { // display window
             resources.window.display();
             guiElements.performanceOutput.frameRate++;
             status = 0;

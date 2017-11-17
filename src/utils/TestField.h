@@ -2,6 +2,7 @@
 #define TESTFIELD_H
 
 #include "gameField.h"
+#include <array>
 
 class Resources;
 class randomizer;

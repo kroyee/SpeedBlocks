@@ -6,6 +6,7 @@
 #include "GameFieldText.h"
 #include <thread>
 #include <atomic>
+#include <array>
 
 class Resources;
 
