@@ -17,7 +17,7 @@ class network;
 class PacketCompress;
 class textures;
 class Resources;
-class GuiElements;
+struct GuiElements;
 class obsField;
 class UIBaseState;
 

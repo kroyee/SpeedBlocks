@@ -23,7 +23,20 @@
     pop.update();  //When we update the internal panels and labels are resized ect.
 */
 
-class PopupMenuItem;
+class PopupMenu;
+
+class PopupMenuItem {
+public:
+	bool submenu;
+	tgui::Label::Ptr label;
+	std::unique_ptr<PopupMenu> menu;
+	std::function<void()> function;
+	Resources& resources;
+
+	PopupMenuItem(Resources& resources);
+	PopupMenuItem(Resources& resources, std::function<void()> f);
+	void createLabel(bool _submenu, const sf::String & text);
+};
 
 class PopupMenu : public guiBase {
 public:
@@ -45,19 +58,6 @@ public:
 	void setBoundery(sf::Rect<int> _stayInside);
 
 	void update();
-};
-
-class PopupMenuItem {
-public:
-	bool submenu;
-	tgui::Label::Ptr label;
-	std::unique_ptr<PopupMenu> menu;
-	std::function<void()> function;
-	Resources& resources;
-
-	PopupMenuItem(Resources& resources);
-	PopupMenuItem(Resources& resources, std::function<void()> f);
-	void createLabel(bool _submenu, const sf::String & text);
 };
 
 #endif
