@@ -57,6 +57,7 @@ GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resourc
 }
 
 void GameFieldText::setName(const sf::String& n) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
     name = n;
     nameTag.setString(n);
     short x = (310-nameTag.getLocalBounds().width)/2;
@@ -66,6 +67,7 @@ void GameFieldText::setName(const sf::String& n) {
 }
 
 void GameFieldText::setPosition(const sf::Int8 _position) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
 	position = _position;
 	if (position == 1)
         positionText.setString("1st");
@@ -78,12 +80,14 @@ void GameFieldText::setPosition(const sf::Int8 _position) {
 }
 
 void GameFieldText::setCountdown(const sf::Int8 _countdown) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
 	countdown = _countdown;
 	if (countdown)
 		countdownText.setString(to_string(countdown));
 }
 
 void GameFieldText::setGameover(const sf::Int8 _gameover) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
 	gameover = _gameover;
 	if (gameover == 1)
 		gameOverText.setString("Game Over");
@@ -93,6 +97,7 @@ void GameFieldText::setGameover(const sf::Int8 _gameover) {
 
 const float PI = 3.14159265;
 bool GameFieldText::setComboTimer(sf::Uint8 count) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
     if (count>100)
         count=100;
     if (comboTimer.getPointCount() == static_cast<unsigned int>(count+2))
@@ -107,6 +112,7 @@ bool GameFieldText::setComboTimer(sf::Uint8 count) {
 }
 
 void GameFieldText::setBpm(const sf::Uint16 _bpm) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
 	if (bpm != _bpm) {
 		bpm = _bpm;
 		bpmText.setString(to_string(bpm));
@@ -114,6 +120,7 @@ void GameFieldText::setBpm(const sf::Uint16 _bpm) {
 }
 
 void GameFieldText::setCombo(const sf::Uint8 _combo) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
 	if (combo != _combo) {
 		combo = _combo;
 		comboText.setString(to_string(combo));
@@ -121,6 +128,7 @@ void GameFieldText::setCombo(const sf::Uint8 _combo) {
 }
 
 void GameFieldText::setPending(const sf::Uint8 _pending) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
 	if (pending != _pending) {
 		pending = _pending;
 		pendingText.setString(to_string(pending));
@@ -128,6 +136,7 @@ void GameFieldText::setPending(const sf::Uint8 _pending) {
 }
 
 void GameFieldText::setColor(sf::Color color) {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
     nameTag.setFillColor(color);
     awayText.setFillColor(color);
     positionText.setFillColor(color);
@@ -161,6 +170,7 @@ void GameFieldText::clear() {
 }
 
 void GameFieldText::drawText() {
+    std::lock_guard<std::mutex> mute(fieldTextMutex);
     if (away)
         texture->draw(awayText);
     if (position)

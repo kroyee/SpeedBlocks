@@ -1,10 +1,12 @@
 #include "BPMCount.h"
 
 void BPMCount::addPiece(const sf::Time& _time) {
+	std::lock_guard<std::mutex> mute(bpmMutex);
 	bpmCount.push_front(_time);
 }
 
 sf::Uint16 BPMCount::calcBpm(const sf::Time& _time) {
+	std::lock_guard<std::mutex> mute(bpmMutex);
 	while (_time > bpmMeasureTiming) {
 		bpmMeasureTiming+=sf::milliseconds(100);
 		while (bpmCount.size()) {
@@ -26,6 +28,7 @@ sf::Uint16 BPMCount::calcBpm(const sf::Time& _time) {
 }
 
 void BPMCount::clear() {
+	std::lock_guard<std::mutex> mute(bpmMutex);
 	bpmMeasureTiming=sf::seconds(0);
 	oldbpmCount=0;
 	bpm=0;

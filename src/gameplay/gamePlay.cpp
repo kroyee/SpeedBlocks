@@ -244,6 +244,8 @@ void gamePlay::drawThreadLoop() {
         if (field.status == 1) {
             draw();
             Signals::FieldFinishedDrawing();
+            if (field.status == 5)
+            	return;
             field.status = 0;
         }
         sf::sleep(sf::seconds(0));
