@@ -2,6 +2,7 @@
 #define TEXTURES_H
 
 #include <TGUI/TGUI.hpp>
+#include <array>
 
 class textures {
 public:

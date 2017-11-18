@@ -6,7 +6,7 @@
 #include <atomic>
 
 class Resources;
-class GuiElements;
+struct GuiElements;
 
 class GameDraw {
 	sf::Time nextDraw, nextUpdate;
