@@ -77,7 +77,7 @@ void BugReport::sendReport() {
 
 	t = std::thread([&]() { resources.net->sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0); join=true; });
 
-	happened->setText(""); //tguiedit
+	happened->setText("");
 	expected->setText("");
 	reproduce->setText("");
 	contact->setText("");

@@ -59,6 +59,6 @@ void AreYouSure::ausN() {
 }
 
 void AreYouSure::setAUS(const sf::String& text) {
-	label->setText(text); //tguiedit
+	label->setText(text);
 	show();
 }

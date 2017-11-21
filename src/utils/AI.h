@@ -54,8 +54,7 @@ public:
 
 	sf::Clock& gameclock;
 
-	std::thread t;		// Threading control variables
-	std::atomic<uint8_t> updateField, terminateThread;
+	std::atomic<uint8_t> updateField;
 	std::mutex moveQueueMutex;
 	std::atomic<bool> alive, adjustDownMove, movingPiece;
 

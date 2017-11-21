@@ -65,7 +65,7 @@ UIGameOver::~UIGameOver() {}
 
 UIReplay::UIReplay(UI& _ui) : UIBaseState(_ui, GameStates::Replay) {}
 UIReplay::~UIReplay() {
-	ui.guiElements->replayUI.playPause->setText("Play"); //tguiedit
+	ui.guiElements->replayUI.playPause->setText("Play");
 	ui.guiElements->replayUI.pauseTime=sf::seconds(0);
 }
 

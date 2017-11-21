@@ -3,11 +3,14 @@
 
 #include <list>
 #include <mutex>
+#include <unordered_set>
+#include <deque>
 #include "gameField.h"
 
 class Resources;
 
 class GameFieldDrawer {
+	std::list<obsField>::iterator queueIt;
 public:
 	GameFieldDrawer(Resources&);
 
@@ -36,7 +39,7 @@ public:
 
 	obsField& addField(int id, const sf::String& name);
 	void removeField(int id);
-	void updateField(obsField& field);
+	void updateFields();
 	void calFieldPos();
 
 	void removeAllFields();
@@ -45,6 +48,8 @@ public:
 
 	void drawOppField(obsField& field);
 	void drawFields();
+	bool drawNextField();
+	void drawScaleup();
 
 	void enlargePlayfield(sf::Event& event);
 

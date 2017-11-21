@@ -17,7 +17,6 @@ gameclock(_gameclock) {
 	movingPiece=false;
 	nextmoveTime=sf::seconds(0);
 	movepieceTime=sf::seconds(0);
-	terminateThread=false;
 	updateField=0;
 	setPiece(0);
 
@@ -50,8 +49,8 @@ void AI::setField(obsField& _field) {
 
 void AI::startMove() {
 	movingPiece=true;
-	movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
-
+	//movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
+	movepieceTime = nextmoveTime - moveTime;
 	currentMove.clear();
 	int rotationValue = firstMove.move.rot - resources.options->basepiece[firstMove.piece.piece].rotation;
 	if (rotationValue < 0)
@@ -151,11 +150,6 @@ bool AI::executeMove() {
 				return true;
 			}
 		}
-
-		if (moveQueue.front() == 252)
-			movepieceTime += sf::milliseconds(finesseTime.asMilliseconds() / 3.0);
-		else
-			movepieceTime += finesseTime;
 		
 		moveQueue.pop_front();
 
@@ -230,7 +224,7 @@ void AI::setMode(Mode _mode, bool vary) {
 void AI::setSpeed(uint16_t _speed) {
 	float speed = 60000000.0 / (_speed*1.05);
 	moveTime = sf::microseconds(speed);
-	finesseTime = sf::microseconds(speed / 10.0);
+	finesseTime = sf::microseconds(speed / 15.0);
 }
 
 bool AI::playAI() {
@@ -250,33 +244,29 @@ bool AI::playAI() {
 }
 
 void AI::aiThreadRun() {
-	while (!terminateThread) {
-		if (movingPiece)
-			continueMove();
-		else if (updateField == 2) {
-			updateField=0;
+	if (movingPiece)
+		continueMove();
+	else if (updateField == 2) {
+		updateField=0;
 
-			firstMove.calcHeightsAndHoles();
-			if (data.pieceCount < 5)
-				setMode(Mode::Stack, true);
-			else if (data.pieceCount == 5)
-				setMode(Mode::Stack);
-			else if (firstMove.totalHeight > 130 || firstMove.highestPoint > 17)
-				setMode(Mode::Downstack);
-			else if (firstMove.totalHeight < 15)
-				setMode(Mode::Stack);
+		firstMove.calcHeightsAndHoles();
+		if (data.pieceCount < 5)
+			setMode(Mode::Stack, true);
+		else if (data.pieceCount == 5)
+			setMode(Mode::Stack);
+		else if (firstMove.totalHeight > 130 || firstMove.highestPoint > 17)
+			setMode(Mode::Downstack);
+		else if (firstMove.totalHeight < 15)
+			setMode(Mode::Stack);
 
-			firstMove.calcHolesBeforePiece();
-			float pieceAdjust = (data.pieceCount < 5 ? rander.piece_dist(rander.AI_gen) * 0.5 - 0.25 : 0);
-			firstMove.tryAllMoves(secondMove, nextpiece, pieceAdjust);
-			startMove();
-		}
-		else if (!updateField && gameclock.getElapsedTime() > nextmoveTime) {
-			updateField = 1;
-			nextmoveTime = gameclock.getElapsedTime()+moveTime;
-		}
-
-		sf::sleep(sf::milliseconds(1));
+		firstMove.calcHolesBeforePiece();
+		float pieceAdjust = (data.pieceCount < 5 ? rander.piece_dist(rander.AI_gen) * 0.5 - 0.25 : 0);
+		firstMove.tryAllMoves(secondMove, nextpiece, pieceAdjust);
+		startMove();
+	}
+	else if (!updateField && gameclock.getElapsedTime() > nextmoveTime) {
+		updateField = 1;
+		nextmoveTime += moveTime;
 	}
 }
 
@@ -292,7 +282,6 @@ void AI::startRound() {
 	nextmoveTime = sf::seconds(0);
 	alive=true;
 	updateField=0;
-	terminateThread=false;
 	adjustDownMove=false;
 }
 
@@ -309,10 +298,7 @@ void AI::countDown(int count) {
 }
 
 void AI::endRound(const sf::Time& _time, bool winner) {
-	terminateThread=true;
 	alive = false;
-	if (t.joinable())
-		t.join();
 	data.bpm = data.pieceCount / _time.asSeconds() * 60.0;
 	field->text.setBpm(data.bpm);
 	field->text.setCombo(data.maxCombo);

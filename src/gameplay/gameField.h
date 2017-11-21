@@ -40,7 +40,7 @@ class gameField : public BasicField {
 public:
     sf::RenderTexture texture;
     sf::Sprite sprite;
-    std::array<sf::Sprite, 16> tile;
+    std::array<sf::Sprite, 16>& tile;
 
     sf::Texture backgroundTexture;
     sf::Sprite background;
@@ -98,8 +98,6 @@ public:
     void makeNextPieceCopy();
 
     void makeDrawCopy();
-    void launchDrawThread();
-    void drawThreadLoop();
 };
 
 #endif

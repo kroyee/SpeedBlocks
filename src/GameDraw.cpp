@@ -24,38 +24,15 @@ void GameDraw::draw() {
     }
 
     sf::Time current = resources.delayClock.getElapsedTime();
-    /*if (status == 0 && current > nextDraw) {  // Experimental version where tgui was drawn in thread. SigSev.
-        fieldsTotal=0;
-        fieldsDone=0;
-        if (drawMe) {
-            Signals::MakeDrawCopy();
-            fieldsTotal++;
-        }
-        for (auto& field : guiElements.gameFieldDrawer.fields)
-            if (field.drawMe) {
-                field.makeDrawCopy();
-                fieldsTotal++;
-            }
-
-        //resources.window.setActive(false);
-        status = 1;
-        nextDraw+=resources.options->frameDelay;
-    }*/
     if (status == 0) {
-        fieldsTotal=1;
-        fieldsDone=0;
         for (auto& field : guiElements.gameFieldDrawer.fields)
-            if (field.drawMe) {
+            if (field.drawMe)
                 field.makeDrawCopy();
-                fieldsTotal++;
-            }
         status = 1;
     }
     if (status == 1 && current > nextDraw) {
         if (drawMe)
             Signals::MakeDrawCopy();
-        else
-            fieldsDone++;
         while (nextDraw <= resources.delayClock.getElapsedTime())
             nextDraw+=resources.options->frameDelay;
         status = 2;
@@ -91,20 +68,15 @@ void GameDraw::drawThreadLoop() {
         if (status == 1 || status == 2) {
         	if (internal == 1) {
                 guiElements.animatedBackground.draw(resources.window, resources.delayClock.getElapsedTime());
+                if (resources.gamestate != GameStates::MainMenu)
+                    while (status != 2 && guiElements.gameFieldDrawer.drawNextField()) {}
+                guiElements.gameFieldDrawer.drawFields();
                 internal = 2;
         	}
-            else if (internal == 2) {
-                if (fieldsDone == fieldsTotal)
-                    internal = 3;
-                else
-                    sf::sleep(sf::seconds(0));
-            }
-            else if (internal == 3) {
-                if (resources.gamestate != GameStates::MainMenu) {
-                    if (resources.gamestate != GameStates::Spectating)
-                        Signals::GameDrawSprite();
-                    //lock gameFieldDrawer::fields mutex
-                    guiElements.gameFieldDrawer.drawFields();
+            if (internal == 2 && status == 2) {
+                if (resources.gamestate != GameStates::MainMenu && resources.gamestate != GameStates::Spectating) {
+                    Signals::GameDraw();
+                    Signals::GameDrawSprite();
                 }
                 resources.window.setActive(false);
                 status = 3;

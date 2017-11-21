@@ -72,13 +72,26 @@ void AIManager::countDown(int count) {
 }
 
 void AIManager::startRound() {
-	for (auto& bot : bots) {
+	for (auto& bot : bots)
 		bot.startRound();
-		bot.t = std::thread(&AI::aiThreadRun, &bot);
-	}
+	terminateThread = false;
+	aiThread = std::thread(&AIManager::aiThreadRun, this);
 
 	alive = bots.size();
 	playersIncomingLines=0;
+}
+
+void AIManager::aiThreadRun() {
+	while (true) {
+		for (auto& bot : bots) {
+			if (terminateThread)
+				return;
+			if (bot.alive)
+				bot.aiThreadRun();
+		}
+		if (bots.front().nextmoveTime > gameclock.getElapsedTime())
+			sf::sleep(sf::seconds(0));
+	}
 }
 
 void AIManager::endRound(const sf::Time& t) {
@@ -87,6 +100,9 @@ void AIManager::endRound(const sf::Time& t) {
 			bot.endRound(t, true);
 			bot.score += bots.size() + 1 - alive;
 		}
+	terminateThread = true;
+	if (aiThread.joinable())
+		aiThread.join();
 }
 
 void AIManager::distributeLines(int id, int lines) {

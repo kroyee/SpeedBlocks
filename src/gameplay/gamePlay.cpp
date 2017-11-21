@@ -81,8 +81,6 @@ showPressEnterText(true)
 			drawMe=true;
 		}
 	});
-
-	field.drawThread = std::thread(&gamePlay::drawThreadLoop, this);
 }
 
 gamePlay::~gamePlay() {}
@@ -223,6 +221,8 @@ void gamePlay::copyPiece(sf::Uint8 np) {
 }
 
 void gamePlay::draw() {
+	if (field.status == 0)
+		return;
 	field.drawField(options.fieldVLines | options.fieldHLines);
 	drawNextPiece();
 	if (showPressEnterText)
@@ -237,19 +237,6 @@ void gamePlay::makeDrawCopy() {
     field.pieceCopy = field.piece;
     drawMe=false;
     field.status = 1;
-}
-
-void gamePlay::drawThreadLoop() {
-	while (field.status != 5) {
-        if (field.status == 1) {
-            draw();
-            Signals::FieldFinishedDrawing();
-            if (field.status == 5)
-            	return;
-            field.status = 0;
-        }
-        sf::sleep(sf::seconds(0));
-    }
 }
 
 void gamePlay::delayCheck() {
