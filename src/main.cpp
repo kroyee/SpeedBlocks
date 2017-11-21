@@ -124,6 +124,12 @@ int main()
 
     window.setActive(false);
 
+    //#define SHOWTIME
+    #ifdef SHOWTIME
+    sf::Clock testclock;
+    sf::Time t1, t2;
+    #endif
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -137,7 +143,15 @@ int main()
 
         gui.delayCheck();
         game.state->update();
+        #ifdef SHOWTIME
+        t1 = testclock.getElapsedTime();
+        #endif
         gameDraw.draw();
+        #ifdef SHOWTIME
+        t2 = testclock.restart();
+        if (t2.asMicroseconds() > 4500)
+            cout << "T1: " << t1.asMicroseconds() << "\nT2: " << t2.asMicroseconds() << endl;
+        #endif
     }
 
     // Things to do before the game turns off

@@ -150,11 +150,10 @@ sf::Vector2i BasicField::clearlines () {
     return linescleared;
 }
 
-gameField::gameField(Resources& _resources) : BasicField(_resources), text(_resources) {
+gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resources.gfx->tile), text(_resources) {
     texture.create(440, 600);
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
-    tile = resources.gfx->tile;
     backRect.setPosition(5,5);
     backRect.setSize({300,540});
     setBackColor(resources.options->fieldBackground);
@@ -171,11 +170,10 @@ gameField::gameField(Resources& _resources) : BasicField(_resources), text(_reso
         }
 }
 
-gameField::gameField(const gameField& field) : BasicField(field.resources), text(field.resources) {
+gameField::gameField(const gameField& field) : BasicField(field.resources), tile(field.tile), text(field.resources) {
     texture.create(440, 600);
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
-    tile = field.tile;
     backRect.setPosition(5,5);
     backRect.setSize({300,540});
     setBackColor(resources.options->fieldBackground);
@@ -224,6 +222,7 @@ void gameField::drawField(bool drawLines) {
     drawPiece();
     drawGhostPiece();
     text.drawText();
+    status = 0;
 }
 
 void gameField::drawEdges() {
@@ -309,19 +308,6 @@ void obsField::makeDrawCopy() {
     status = 1;
 }
 
-void obsField::drawThreadLoop() {
-    while (status != 5) {
-        if (status == 1) {
-            drawField();
-            Signals::FieldFinishedDrawing();
-            if (status == 5)
-                return;
-            status = 0;
-        }
-        sf::sleep(sf::seconds(0));
-    }
-}
-
 void obsField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(backRect);
@@ -359,17 +345,11 @@ void obsField::updatePiece() {
 }
 
 void obsField::makeNextPieceCopy() {
-    npPiece = resources.options->basepiece[nextpiece];
+    if (npPiece.piece != nextpiece)
+        npPiece = resources.options->basepiece[nextpiece];
     npPiece.tile = npcol-1;
     while (npPiece.current_rotation != nprot)
         npPiece.rcw();
-}
-
-void obsField::launchDrawThread() {
-    if (!drawThread.joinable()) {
-        status = 0;
-        drawThread = std::thread(&obsField::drawThreadLoop, this);
-    }
 }
 
 obsField::obsField(const obsField& field) : gameField(field) {
@@ -378,5 +358,4 @@ obsField::obsField(const obsField& field) : gameField(field) {
 
 obsField::obsField(Resources& _resources) : gameField(_resources) {
     id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0;
-    drawThread = std::thread(&obsField::drawThreadLoop, this);
 }

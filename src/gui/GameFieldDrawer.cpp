@@ -68,8 +68,10 @@ void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos
 
 obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
-	if (unusedFields.empty())
+	if (unusedFields.empty()) {
 		fields.emplace_back(resources);
+		queueIt = fields.begin();
+	}
 	else
 		fields.splice(fields.end(), unusedFields, unusedFields.begin());
 
@@ -80,7 +82,6 @@ obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 		fields.back().text.setColor(sf::Color(255,255,255));
 	calFieldPos();
 	fields.back().texture.setActive(false);
-	fields.back().launchDrawThread();
 	fields.back().drawMe=true;
 
 	return fields.back();
@@ -90,10 +91,9 @@ void GameFieldDrawer::removeField(int id) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
+			if (queueIt != fields.end() && queueIt->id == it->id)
+				queueIt++;
 			it->text.away=false;
-			it->status = 5;
-			if (it->drawThread.joinable())
-				it->drawThread.join();
 			unusedFields.splice(unusedFields.end(), fields, it);
 			break;
 		}
@@ -102,26 +102,34 @@ void GameFieldDrawer::removeField(int id) {
 
 void GameFieldDrawer::removeAllFields() {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
-	for (auto& field : fields) {
+	for (auto& field : fields)
 		field.text.away=false;
-		field.status = 5;
-		if (field.drawThread.joinable())
-			field.drawThread.join();
-	}
 	unusedFields.splice(unusedFields.end(), fields);
+	queueIt = fields.end();
 }
 
-void GameFieldDrawer::updateField(obsField& field) {
-	for (auto it = fields.begin(); it != fields.end(); it++)
-		if (it->id == field.id) {
-			for (int y=0; y<22; y++)
-				for (int x=0; x<10; x++)
-					it->square[y][x] = field.square[y][x];
-			it->nextpiece = field.nextpiece;
-			it->nprot = field.nprot;
-			it->npcol = field.npcol;
-			drawOppField(*it);
-		}
+void GameFieldDrawer::updateFields() {
+	std::lock_guard<std::mutex> mute(fieldsMutex);
+	for (auto& field : fields)
+		if (field.status == 1)
+			field.drawField();
+}
+
+bool GameFieldDrawer::drawNextField() {
+	std::lock_guard<std::mutex> mute(fieldsMutex);
+	if (queueIt == fields.end()) {
+		queueIt = fields.begin();
+		return false;
+	}
+
+	queueIt->drawField();
+	queueIt++;
+
+	return true;
+}
+
+void GameFieldDrawer::drawScaleup() {
+
 }
 
 void GameFieldDrawer::calFieldPos() {
@@ -246,7 +254,7 @@ void GameFieldDrawer::enlargePlayfield(sf::Event& event) {
 			if (!box.contains(pos)) {
 				scaleup->scale=0;
 				scaleup->sprite.setScale(currentR, currentR);
-				scaleup=0;
+				scaleup=nullptr;
 			}
 		}
 		for (auto &&it : fields) {
@@ -268,7 +276,7 @@ void GameFieldDrawer::enlargePlayfield(sf::Event& event) {
 	else if (event.type == sf::Event::MouseLeft && scaleup) {
 		scaleup->scale=0;
 		scaleup->sprite.setScale(currentR, currentR);
-		scaleup=0;
+		scaleup=nullptr;
 	}
 }
 

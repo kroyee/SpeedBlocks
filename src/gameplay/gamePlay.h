@@ -100,7 +100,6 @@ public:
 	void draw();
 
 	void makeDrawCopy();
-	void drawThreadLoop();
 
 	void delayCheck();
 
