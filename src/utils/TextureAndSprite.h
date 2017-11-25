@@ -6,7 +6,7 @@
 
 namespace tgui
 {
-    class TGUI_API TextureAndSprite : public ClickableWidget
+    class TextureAndSprite : public ClickableWidget
     {
     public:
 
