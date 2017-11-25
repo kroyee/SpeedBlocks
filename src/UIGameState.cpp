@@ -3,17 +3,33 @@
 #include "GuiElements.h"
 #include "gamePlay.h"
 
-UIBaseState::UIBaseState(UI& _ui, GameStates _state) : ui(_ui), state(_state) {
+UIBaseState::UIBaseState(UI& _ui, GameStates _state) : state(_state), ui(_ui) {
 	ui.gamestate = state;
 }
 UIBaseState::~UIBaseState() {}
 
+void UIBaseState::set(std::unique_ptr<UIBaseState>& state, GameStates _state) {
+	UI& uiRef = state->ui;
+	state.reset(nullptr);
+	if (_state == GameStates::MainMenu)
+		state = std::unique_ptr<UIBaseState>(new UIMainMenu(uiRef));
+	else if (_state == GameStates::CountDown)
+		state = std::unique_ptr<UIBaseState>(new UICountDown(uiRef));
+	else if (_state == GameStates::Game)
+		state = std::unique_ptr<UIBaseState>(new UIGame(uiRef));
+	else if (_state == GameStates::GameOver)
+		state = std::unique_ptr<UIBaseState>(new UIGameOver(uiRef));
+	else if (_state == GameStates::Replay)
+		state = std::unique_ptr<UIBaseState>(new UIReplay(uiRef));
+	else if (_state == GameStates::Practice)
+		state = std::unique_ptr<UIBaseState>(new UIPractice(uiRef));
+	else if (_state == GameStates::Spectating)
+		state = std::unique_ptr<UIBaseState>(new UISpectating(uiRef));
+}
+
 UIMainMenu::UIMainMenu(UI& _ui) : UIBaseState(_ui, GameStates::MainMenu) {
 	ui.guiElements->gameFieldDrawer.removeAllFields();
-	ui.game.field.clear();
 	ui.away=false;
-	ui.game.autoaway=false;
-	ui.game.field.text.away=false;
 	ui.guiElements->scoreScreen.hide();
 	ui.guiElements->chatScreen.sendTo("Lobby");
 	ui.guiElements->gameFieldDrawer.hide();
@@ -24,56 +40,30 @@ UIMainMenu::UIMainMenu(UI& _ui) : UIBaseState(_ui, GameStates::MainMenu) {
 	if (ui.resources.playonline)
 		ui.guiElements->onlineplayUI.show();
 	else
-		ui.guiElements->mainMenu.show();
+		ui.guiElements->trainingUI.show();
 }
 UIMainMenu::~UIMainMenu() {
 	ui.guiElements->mainMenu.hide();
 	ui.guiElements->onlineplayUI.hide();
 	ui.guiElements->gameFieldDrawer.show();
 	ui.guiElements->gameStandings.hide();
-	ui.game.showPressEnterText=true;
+	ui.guiElements->trainingUI.hide();
 }
 
 
-UICountDown::UICountDown(UI& _ui) : UIBaseState(_ui, GameStates::CountDown) {
-	ui.game.sRKey();
-    ui.game.sLKey();
-    ui.game.sDKey();
-    ui.game.showPressEnterText=false;
-    ui.game.draw();
-}
-UICountDown::~UICountDown() {
-
-}
+UICountDown::UICountDown(UI& _ui) : UIBaseState(_ui, GameStates::CountDown) {}
+UICountDown::~UICountDown() {}
 
 
-UIGame::UIGame(UI& _ui) : UIBaseState(_ui, GameStates::Game) {
-	ui.linesSent=0;
-    ui.garbageCleared=0;
-    ui.linesBlocked=0;
-	ui.game.showPressEnterText=false;
-    ui.game.startGame();
-}
-UIGame::~UIGame() {
-	ui.game.showPressEnterText=true;
-}
+UIGame::UIGame(UI& _ui) : UIBaseState(_ui, GameStates::Game) {}
+UIGame::~UIGame() {}
 
 
-UIGameOver::UIGameOver(UI& _ui) : UIBaseState(_ui, GameStates::GameOver) {
-	if (ui.game.autoaway)
-    	Signals::SetAway(true);
-    ui.game.field.text.setCountdown(0);
-    ui.game.draw();
-}
-UIGameOver::~UIGameOver() {
-
-}
+UIGameOver::UIGameOver(UI& _ui) : UIBaseState(_ui, GameStates::GameOver) {}
+UIGameOver::~UIGameOver() {}
 
 
-UIReplay::UIReplay(UI& _ui) : UIBaseState(_ui, GameStates::Replay) {
-	ui.game.showPressEnterText=false;
-	ui.game.startReplay();
-}
+UIReplay::UIReplay(UI& _ui) : UIBaseState(_ui, GameStates::Replay) {}
 UIReplay::~UIReplay() {
 	ui.guiElements->replayUI.playPause->setText("Play");
 	ui.guiElements->replayUI.pauseTime=sf::seconds(0);
@@ -81,22 +71,10 @@ UIReplay::~UIReplay() {
 
 
 UIPractice::UIPractice(UI& _ui) : UIBaseState(_ui, GameStates::Practice) {
-	ui.linesSent=0;
-    ui.garbageCleared=0;
-    ui.linesBlocked=0;
-	if (!ui.game.field.text.ready)
-		Signals::Ready();
 	if (ui.away)
 		Signals::SetAway(false);
-	ui.game.field.clear();
-	ui.game.showPressEnterText=false;
-    ui.game.startGame();
 }
-UIPractice::~UIPractice() {
-	ui.game.autoaway = false;
-	ui.game.field.text.away=false;
-	ui.game.field.text.ready=true;
-}
+UIPractice::~UIPractice() {}
 
 
 UISpectating::UISpectating(UI& _ui) : UIBaseState(_ui, GameStates::Spectating) {}

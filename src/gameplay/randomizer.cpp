@@ -2,13 +2,15 @@
 #include "GameSignals.h"
 
 randomizer::randomizer() {
-	reset();
-
 	Signals::SeedRander.connect([&](int piece, int hole){
 		seedPiece(piece);
 		seedHole(hole);
 		reset();
 	});
+
+	AI_gen.seed(getHole() * (size_t)this);
+
+	reset();
 }
 
 short randomizer::getPiece() {

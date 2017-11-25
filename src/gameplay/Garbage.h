@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <deque>
+#include <mutex>
 
 struct Garbage {
 	Garbage(short c, const sf::Time& t) { count=c; delay=t; }
@@ -13,6 +14,7 @@ struct Garbage {
 class GarbageHandler {
 private:
 	std::deque<Garbage> garbage;
+	std::mutex garbageMutex;
 public:
 	GarbageHandler(uint16_t& _linesBlocked);
 	

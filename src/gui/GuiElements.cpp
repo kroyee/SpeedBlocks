@@ -9,21 +9,22 @@
 GuiElements::GuiElements(Resources &_resources) :
 resources(_resources),
 animatedBackground		(resources, 7),
-mainMenu				(sf::Rect<int>(0,0,960,600), resources),
-loginBox				(sf::Rect<int>(500,50,450,550), resources, mainMenu.panel),
-challengesGameUI		(sf::Rect<int>(0,0,960,600), resources),
-onlineplayUI			(sf::Rect<int>(0,0,960,600), resources),
-gameStandings			(sf::Rect<int>(330,185,120,100), resources),
-replayUI				(sf::Rect<int>(425,530,490,70), resources),
-performanceOutput		(sf::Rect<int>(807,0,113,28), resources),
-chatScreen				(sf::Rect<int>(440,0,480,600), resources),
-slideMenu				(sf::Rect<int>(920,0,600,600), resources),
-gameOptions				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
-bugReport				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
-serverUI				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
-alertsUI				(sf::Rect<int>(40,40,560,560), resources, slideMenu.panel),
-areYouSure				(sf::Rect<int>(0,0,960,600), resources),
-scoreScreen				(sf::Rect<int>(30,30,860,540), resources),
+mainMenu				({0,0,960,600}, resources),
+loginBox				({500,50,450,550}, resources, mainMenu.panel),
+challengesGameUI		({0,0,960,600}, resources),
+onlineplayUI			({0,0,960,600}, resources),
+gameStandings			({330,185,120,100}, resources),
+replayUI				({425,530,490,70}, resources),
+trainingUI				({50,50,700,550}, resources),
+performanceOutput		({807,0,113,28}, resources),
+chatScreen				({440,0,480,600}, resources),
+slideMenu				({920,0,600,600}, resources),
+gameOptions				({40,40,560,560}, resources, slideMenu.panel),
+bugReport				({40,40,560,560}, resources, slideMenu.panel),
+serverUI				({40,40,560,560}, resources, slideMenu.panel),
+alertsUI				({40,40,560,560}, resources, slideMenu.panel),
+areYouSure				({0,0,960,600}, resources),
+scoreScreen				({30,30,860,540}, resources),
 gameFieldDrawer			(resources),
 udpConfirmed			(false)
 {
@@ -65,6 +66,7 @@ udpConfirmed			(false)
 	elements.push_back(&scoreScreen);
 	elements.push_back(&serverUI);
 	elements.push_back(&alertsUI);
+	elements.push_back(&trainingUI);
 
 	Signals::Show.connect([&](int elem){ elements[elem]->show(); });
 	Signals::Hide.connect([&](int elem){ elements[elem]->hide(); });
@@ -105,12 +107,9 @@ udpConfirmed			(false)
 	});
 	Net::takePacket(4, [&](sf::Packet &packet){
 		sf::String name;
-		obsField newfield(resources);
-		newfield.clear();
-		packet >> newfield.id >> name;
-		gameFieldDrawer.addField(newfield);
-		gameFieldDrawer.fields.back().text.setName(name);
-		gameFieldDrawer.fields.back().drawField();
+		sf::Uint16 id;
+		packet >> id >> name;
+		Signals::AddField(id, name);
 		if (gameStandings.isVisible())
 			gameStandings.alignResult();
 	});
@@ -255,6 +254,10 @@ bool GuiElements::keyEvents(sf::Event& event) {
 			else if (resources.gamestate != GameStates::MainMenu) {
 				areYouSure.label->setText("Leave this game?");
 				areYouSure.show();
+			}
+			else if (trainingUI.isVisible()) {
+				trainingUI.hide();
+				mainMenu.show();
 			}
 		}
 		else if (event.key.code == sf::Keyboard::Return) {

@@ -11,6 +11,7 @@
 #include "textures.h"
 #include "network.h"
 #include "GuiElements.h"
+#include "GameDraw.h"
 #include <string>
 #include <cmath>
 #include <thread>
@@ -22,11 +23,18 @@ using std::endl;
 #include "ResourcePath.hpp"
 #elif __WIN32
 #include <windows.h>
+#else
+#include <X11/Xlib.h>
 #endif
 //#define DEBUG
 
 int main()
 {
+    #ifdef __APPLE__
+    #elif __WIN32
+    #else
+    XInitThreads();
+    #endif
     // Initializing classes and loading resources
     sf::RenderWindow window;
 
@@ -68,15 +76,15 @@ int main()
 
     resources.gfx->tGui.setView(view);
 
+    GameDraw gameDraw(resources, *gui.guiElements, game.drawMe);
+
     game.rander.seedPiece(time(NULL)); // Make sure the seed is random-ish in case the client never connects
     game.rander.seedHole(time(NULL));
-
-    sf::Clock frameClock;
-    sf::Time current=sf::seconds(0), lastFrame=sf::seconds(0), nextDraw=sf::seconds(0), nextUpdate=sf::seconds(0);
 
     // Intro
 
     bool intro=true;
+    resources.delayClock.restart();
     while (intro) {
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -89,7 +97,7 @@ int main()
                 intro=false;
             }
         }
-        float timing = frameClock.getElapsedTime().asMilliseconds() / 100.0;
+        float timing = resources.delayClock.getElapsedTime().asMilliseconds() / 100.0;
         if (timing > 10) {
             timing=10;
             intro=false;
@@ -112,74 +120,32 @@ int main()
 
     // The main-loop
 
+    gameDraw.init();
+
+    window.setActive(false);
+
     while (window.isOpen())
     {
         sf::Event event;
 
         while (window.pollEvent(event))
             if (gui.handleEvent(event))
-                game.handleEvent(event);
+                game.state->handleEvent(event);
 
         if (resources.playonline)
             while (resources.net->receiveData()) {}
 
         gui.delayCheck();
-        
-        switch (gui.gamestate) {
-            case GameStates::CountDown:
-                if (!resources.playonline)
-                    if (game.countDown())
-                        gui.setGameState(GameStates::Game);
-            break;
-
-            case GameStates::Game:
-            case GameStates::Practice:
-                game.delayCheck();
-            break;
-
-            case GameStates::Replay:
-                if (game.playReplay())
-                    gui.setGameState(GameStates::GameOver);
-            break;
-
-            default:
-            break;
-        }
-
-        // Drawing to the screen
-
-        current = frameClock.getElapsedTime();
-        if (current > nextDraw || game.options.vSync) {
-            if (game.drawMe && (gui.gamestate == GameStates::Game || gui.gamestate == GameStates::Replay || gui.gamestate == GameStates::Practice)) {
-                game.draw();
-                game.drawMe=false;
-            }
-            nextDraw+=game.options.frameDelay;
-            gui.guiElements->animatedBackground.draw(window, gui.delayClock.getElapsedTime());
-            if (gui.gamestate != GameStates::MainMenu && gui.gamestate != GameStates::Spectating)
-                window.draw( game.field.sprite );
-            if (gui.guiElements->gameFieldDrawer.isVisible())
-                gui.guiElements->gameFieldDrawer.drawFields();
-            resources.gfx->tGui.draw();
-            window.display();
-            gui.guiElements->performanceOutput.frameRate++;
-        }
-        if (frameClock.getElapsedTime() < nextUpdate) {
-            sf::sleep(nextUpdate - frameClock.getElapsedTime() - sf::microseconds(50));
-            while (frameClock.getElapsedTime() < nextUpdate) {}
-        }
-        nextUpdate += game.options.inputDelay;
-        if (nextUpdate < current)
-            nextUpdate = current;
-        if (nextDraw < current)
-            nextDraw=current;
-
-        gui.guiElements->performanceOutput.update(frameClock.getElapsedTime(), lastFrame);
-
-        lastFrame=current;
+        game.state->update();
+        gameDraw.draw();
     }
 
     // Things to do before the game turns off
+
+    game.field.status=5;
+    gameDraw.quit();
+    if (game.field.drawThread.joinable())
+        game.field.drawThread.join();
 
     game.options.saveOptions();
     if (resources.restart) {

@@ -25,13 +25,12 @@ resources(_resources),
 garbage(data.linesBlocked),
 combo(data.maxCombo),
 dataSender(*this),
+aiManager(gameclock),
+state(std::unique_ptr<GPBaseState>(new GPMainMenu(*this))),
 showPressEnterText(true)
 {
 	resources.compressor->game = this;
 	nextpiece=0;
-
-	dropDelay=sf::seconds(1);
-	increaseDropDelay=sf::seconds(3);
 
 	lockdown=false;
 
@@ -70,15 +69,21 @@ showPressEnterText(true)
     Signals::GameClear.connect([&](){ field.clear(); });
     Signals::GameDraw.connect(&gamePlay::draw, this);
     Signals::GameSetup.connect(&gamePlay::startSetup, this);
+    Signals::AddGarbage.connect(&gamePlay::addGarbage, this);
+    Signals::SetGameState.connect([&](GameStates newState){ GPBaseState::set(state, newState); });
+    Signals::MakeDrawCopy.connect(&gamePlay::makeDrawCopy, this);
+    Signals::GameDrawSprite.connect([&](){ resources.window.draw(field.sprite); });
 
     Net::takeSignal(9, &gamePlay::addGarbage, this);
     Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
 		if (id1 == resources.myId) {
 			field.text.setPosition(id2);
-			draw();
+			drawMe=true;
 		}
 	});
 }
+
+gamePlay::~gamePlay() {}
 
 void gamePlay::startGame() {
 	recorder.start(field.square);
@@ -87,12 +92,12 @@ void gamePlay::startGame() {
 	garbage.clear();
 	gameclock.restart();
 	combo.clear();
-	dropDelay=sf::seconds(1);
-	dropDelayTime=sf::seconds(0);
+	pieceDropDelay.clear();
 	data.clear();
 	autoaway=true;
 	lockdown=false;
 	bpmCounter.clear();
+	aiManager.startRound();
 	if (recorder.rec)
 		addRecEvent(5, 0);
 }
@@ -131,7 +136,7 @@ void gamePlay::mDKey() {
 			if (recorder.rec)
 				addRecEvent(1, 0);
 			drawMe=true;
-			dropDelayTime = gameclock.getElapsedTime();
+			pieceDropDelay.reset(gameclock.getElapsedTime());
 			lockdown=false;
 		}
 		else {
@@ -151,7 +156,7 @@ void gamePlay::hd() {
 	field.hd();
 	addPiece(gameclock.getElapsedTime());
 	sendLines(field.clearlines());
-	dropDelayTime = gameclock.getElapsedTime();
+	pieceDropDelay.reset(gameclock.getElapsedTime());
 	makeNewPiece();
 }
 
@@ -216,15 +221,26 @@ void gamePlay::copyPiece(sf::Uint8 np) {
 }
 
 void gamePlay::draw() {
+	if (field.status == 0)
+		return;
 	field.drawField(options.fieldVLines | options.fieldHLines);
 	drawNextPiece();
 	if (showPressEnterText)
 		field.texture.draw(pressEnterText);
     field.texture.display();
+    drawMe=false;
+}
+
+void gamePlay::makeDrawCopy() {
+	nextpieceCopy = nextpiece;
+    field.squareCopy = field.square;
+    field.pieceCopy = field.piece;
+    drawMe=false;
+    field.status = 1;
 }
 
 void gamePlay::delayCheck() {
-	if (gameclock.getElapsedTime() - dropDelayTime > dropDelay) {
+	if (pieceDropDelay.check(gameclock.getElapsedTime())) {
 		if (field.mDown()) {
 			drawMe=true;
 			lockdown=false;
@@ -236,19 +252,6 @@ void gamePlay::delayCheck() {
 				lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
 			lockdown=true;
 		}
-		dropDelayTime = gameclock.getElapsedTime();
-	}
-
-	if (gameclock.getElapsedTime() - increaseDropDelayTime > increaseDropDelay) {
-		if (dropDelay > sf::milliseconds(200))
-			dropDelay-=sf::milliseconds(10);
-		else if (dropDelay > sf::milliseconds(100))
-			dropDelay-=sf::milliseconds(5);
-		else if (dropDelay > sf::milliseconds(50))
-			dropDelay-=sf::milliseconds(2);
-		else if (dropDelay > sf::milliseconds(10))
-			dropDelay-=sf::milliseconds(1);
-		increaseDropDelayTime = gameclock.getElapsedTime();
 	}
 
 	sf::Time current = gameclock.getElapsedTime();
@@ -301,7 +304,7 @@ void gamePlay::delayCheck() {
 			if (recorder.rec)
 				addRecEvent(1, 0);
 			drawMe=true;
-			dropDelayTime = gameclock.getElapsedTime();
+			pieceDropDelay.reset(gameclock.getElapsedTime());
 		}
 	}
 
@@ -310,8 +313,11 @@ void gamePlay::delayCheck() {
 		comboLinesSent = garbage.block(comboLinesSent, gameclock.getElapsedTime(), false);
 		field.text.setPending(garbage.count());
 		data.linesSent += comboLinesSent;
-		if (comboLinesSent)
-			Signals::SendSig(2, comboLinesSent);
+		if (comboLinesSent) {
+			if (resources.gamestate == GameStates::Game)
+				Signals::SendSig(2, comboLinesSent);
+			aiManager.distributeLines(0, comboLinesSent);
+		}
 		drawMe=true;
 	}
 
@@ -350,6 +356,9 @@ void gamePlay::delayCheck() {
 		drawMe = true;
 
 	dataSender.sendstate();
+
+	if (aiManager.update(gameclock.getElapsedTime()))
+		gameOver(1);
 }
 
 void gamePlay::setPieceOrientation() {
@@ -384,7 +393,8 @@ void gamePlay::updateBasePieces() {
 void gamePlay::sendLines(sf::Vector2i lines) {
 	data.garbageCleared+=lines.y;
 	if (lines.y)
-		Signals::SendSig(3, lines.y);
+		if (resources.gamestate == GameStates::Game)
+			Signals::SendSig(3, lines.y);
 	data.linesCleared+=lines.x;
 	if (lines.x==0) {
 		combo.noClear();
@@ -393,8 +403,11 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	}
 	sf::Uint16 amount = garbage.block(lines.x-1, gameclock.getElapsedTime());
 	data.linesSent += amount;
-	if (amount)
-		Signals::SendSig(2, amount);
+	if (amount) {
+		if (resources.gamestate == GameStates::Game)
+			Signals::SendSig(2, amount);
+		aiManager.distributeLines(0, amount);
+	}
 	field.text.setPending(garbage.count());
 	combo.increase(gameclock.getElapsedTime(), lines.x);
 
@@ -427,7 +440,7 @@ void gamePlay::playComboSound(sf::Uint8 combo) {
 		Signals::PlaySound(13);
 }
 
-void gamePlay::addGarbage(sf::Uint16 amount) {
+void gamePlay::addGarbage(int amount) {
 	garbage.add(amount, gameclock.getElapsedTime());
 
 	data.linesRecieved+=amount;
@@ -492,12 +505,16 @@ void gamePlay::startCountdown() {
 	countDownTime = sf::seconds(0);
 	countDowncount = 3;
 
+	if (!aiManager.empty())
+		Signals::SeedRander(rander.getHole()*rander.getPiece(), rander.getHole()*rander.getPiece());
+
 	field.clear();
 	makeNewPiece();
 	while (nextpiece == 2 || nextpiece == 3) {
 		rander.reset();
 		makeNewPiece();
 	}
+	aiManager.startCountdown();
 	field.piece.piece=7;
 	combo.clear();
 	lKeyTime=sf::seconds(0);
@@ -514,11 +531,12 @@ bool gamePlay::countDown() {
 		countDownTime = gameclock.getElapsedTime() + sf::seconds(1);
 		countDowncount--;
 		field.text.setCountdown(countDowncount);
+		aiManager.countDown(countDowncount);
 		if (recorder.rec)
 			addRecEvent(7, countDowncount);
 		if (countDowncount) {
 			Signals::PlaySound(14);
-			draw();
+			drawMe=true;
 		}
 		else {
 			Signals::PlaySound(15);
@@ -533,7 +551,7 @@ bool gamePlay::countDown(short c) {
 		return false;
 	field.text.setCountdown(c);
 	(c ? Signals::PlaySound(14) : Signals::PlaySound(15));
-	draw();
+	drawMe=true;
 	dataSender.state();
 	if (recorder.rec)
 		addRecEvent(7, c);
@@ -550,7 +568,7 @@ void gamePlay::startSetup(int type) {
 	else if (type == 2)
 		for (int i=0; i<6; i++)
 			addGarbageLine(rander.getHole(true));
-	draw();
+	drawMe=true;
 }
 
 void gamePlay::gameOver(int winner) {
@@ -559,10 +577,10 @@ void gamePlay::gameOver(int winner) {
 			dataSender.gameover(winner);
 		return;
 	}
-
-	data.linesPerMinute = (((float)data.linesSent)/((float)gameclock.getElapsedTime().asSeconds()))*60.0;
-	data.bpm = (int)(data.pieceCount / ((float)(gameclock.getElapsedTime().asSeconds()))*60.0);
+	data.roundDuration = gameclock.getElapsedTime().asMilliseconds();
+	data.bpm = (int)(data.pieceCount / ((float)gameclock.getElapsedTime().asSeconds()) * 60.0);
 	field.text.setBpm(data.bpm);
+	field.text.setCombo(data.maxCombo);
 
 	addRecEvent(5, 0);
 	recorder.stop();
@@ -576,7 +594,14 @@ void gamePlay::gameOver(int winner) {
 
 	dataSender.gameover(winner);
 	Signals::SetGameState(GameStates::GameOver);
-	draw();
+	if (!resources.playonline) {
+		Signals::SetRoundlenghtForScore(gameclock.getElapsedTime().asSeconds());
+		if (aiManager.empty())
+			Signals::AddLocalScore(data, 0, Signals::GetName(), 0);
+		else
+			aiManager.setScore(data);
+	}
+	drawMe=true;
 }
 
 void gamePlay::away() {
@@ -591,14 +616,14 @@ void gamePlay::setAway(bool away) {
 		gameOver(0);
 		field.text.away=true;
 		autoaway=false;
-		draw();
+		drawMe=true;
 	}
 	else {
 		resources.away=false;
 		autoaway=false;
 		Signals::SendSig(6);
 		field.text.away=false;
-		draw();
+		drawMe=true;
 	}
 }
 
@@ -612,7 +637,7 @@ void gamePlay::ready() {
 			Signals::SendSig(7);
 			field.text.ready=true;
 		}
-		draw();
+		drawMe=true;
 	}
 }
 
@@ -805,77 +830,5 @@ void gamePlay::setName(const sf::String& name) {
 
 void gamePlay::updateReplayScreen() {
 	playReplay();
-	draw();
-}
-
-void gamePlay::handleEvent(sf::Event& event) {
-	if (resources.gamestate != GameStates::Replay && resources.gamestate != GameStates::MainMenu) {
-		if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == options.score)
-                Signals::Show(13);
-            else if (event.key.code == options.away && resources.playonline && resources.gamestate != GameStates::Spectating)
-                Signals::Away();
-		}
-		else if (event.type == sf::Event::KeyReleased)
-			if (event.key.code == options.score)
-				Signals::Hide(13);
-	}
-	if (resources.gamestate == GameStates::CountDown) {
-		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
-            if (event.key.code == options.right)
-                rKey=true;
-            else if (event.key.code == options.left)
-                lKey=true;
-        }
-        else if (event.type == sf::Event::KeyReleased) {
-            if (event.key.code == options.right)
-                rKey=false;
-            else if (event.key.code == options.left)
-                lKey=false;
-        }
-	}
-	else if (resources.gamestate == GameStates::Game || resources.gamestate == GameStates::Practice) {
-		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
-            if (event.key.code == options.right)
-                mRKey();
-            else if (event.key.code == options.left)
-                mLKey();
-            else if (event.key.code == options.rcw)
-                rcw();
-            else if (event.key.code == options.rccw)
-                rccw();
-            else if (event.key.code == options.r180)
-                r180();
-            else if (event.key.code == options.down)
-                mDKey();
-            else if (event.key.code == options.hd)
-                hd();
-        }
-        else if (event.type == sf::Event::KeyReleased) {
-            if (event.key.code == options.right)
-                sRKey();
-            else if (event.key.code == options.left)
-                sLKey();
-            else if (event.key.code == options.down)
-                sDKey();
-        }
-	}
-	else if (resources.gamestate == GameStates::GameOver) {
-		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
-            if (event.key.code == sf::Keyboard::P && !Signals::IsVisible(5)) {
-            	if (resources.playonline) {
-            		if (Signals::IsVisible(8))
-            			Signals::Ready();
-            		else
-            			Signals::SetGameState(GameStates::Practice);
-            	}
-            	else {
-	                Signals::SetGameState(GameStates::CountDown);
-	                startCountdown();
-            	}
-            }
-            else if (event.key.code == options.ready && resources.playonline)
-            	Signals::Ready();
-        }
-	}
+	drawMe=true;
 }

@@ -13,8 +13,12 @@
 #include "GameSignals.h"
 #include "optionSet.h"
 #include "GameDataSender.h"
+#include "DropDelay.h"
+#include "AIManager.h"
+#include "GameplayGameState.h"
 
 class soundBank;
+class GPBaseState;
 
 class garbageClass {
 public:
@@ -26,6 +30,7 @@ public:
 class gamePlay {
 public:
 	gamePlay(Resources& _resources);
+	~gamePlay();
 
 	gameField field;
 	basePieces basepiece[7];
@@ -43,11 +48,13 @@ public:
 	GarbageHandler garbage;
 	ComboCounter combo;
 	GameDataSender dataSender;
+	DropDelay pieceDropDelay;
+
+	AIManager aiManager;
+
+	std::unique_ptr<GPBaseState> state;
 
 	sf::Clock gameclock;
-
-	sf::Time dropDelay, dropDelayTime;
-	sf::Time increaseDropDelay, increaseDropDelayTime;
 
 	sf::Time rKeyTime;
 	sf::Time lKeyTime;
@@ -59,7 +66,7 @@ public:
 	sf::Time lockDownTime;
 	bool lockdown;
 
-	sf::Uint8 nextpiece;
+	sf::Uint8 nextpiece, nextpieceCopy;
 
 	sf::Text pressEnterText;
 	bool showPressEnterText;
@@ -92,6 +99,8 @@ public:
 
 	void draw();
 
+	void makeDrawCopy();
+
 	void delayCheck();
 
 	void setPieceOrientation();
@@ -100,7 +109,7 @@ public:
 	void sendLines(sf::Vector2i lines);
 	void playComboSound(sf::Uint8 combo);
 
-	void addGarbage(sf::Uint16 amount);
+	void addGarbage(int amount);
 	void pushGarbage();
 	void addGarbageLine();
 	void addGarbageLine(sf::Uint8 hole);
@@ -131,8 +140,6 @@ public:
 	void makeBackgroundLines();
 	void setName(const sf::String& name);
 	void updateReplayScreen();
-
-	void handleEvent(sf::Event& event);
 };
 
 #endif

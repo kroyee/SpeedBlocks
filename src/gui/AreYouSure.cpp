@@ -42,8 +42,9 @@ void AreYouSure::ausY() {
 			Signals::LeaveRoom();
 		else {
 			Signals::Hide(4);
-			Signals::Show(0);
 			Signals::Disconnect(0);
+			Signals::Hide(16);
+			Signals::Show(0);
 		}
 	}
 	else if (resources.gamestate == GameStates::MainMenu)

@@ -17,7 +17,7 @@ class network;
 class PacketCompress;
 class textures;
 class Resources;
-class GuiElements;
+struct GuiElements;
 class obsField;
 class UIBaseState;
 
@@ -38,8 +38,6 @@ public:
 
 	bool away;
 
-	sf::Uint16 linesSent, garbageCleared, linesBlocked;
-
 	sf::Time quickMsgTime;
 	sf::Time udpPortTime;
 	sf::Clock& delayClock;
@@ -47,7 +45,7 @@ public:
 	GameStates& gamestate;
 	std::unique_ptr<UIBaseState> state;
 
-	void setGameState(GameStates state);
+	sf::Uint16& myId;
 
 	void setCountdown(sf::Packet &packet);
 
@@ -59,8 +57,6 @@ public:
 	void receiveRecording(sf::Packet &packet);
 
 	void getAlert();
-
-	sf::Uint16& myId;
 
 	bool handleEvent(sf::Event& event);
 

@@ -115,5 +115,6 @@ elseif(NOT ${CMAKE_SOURCE_DIR} MATCHES ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries (${EXECUTABLE_NAME} X11)
     install(TARGETS SpeedBlocks DESTINATION ${PROJECT_SOURCE_DIR}/build)
 endif()

@@ -2,17 +2,23 @@
 #define GAMEFIELDDRAWER_H
 
 #include <list>
+#include <mutex>
+#include <unordered_set>
+#include <deque>
 #include "gameField.h"
 
 class Resources;
 
 class GameFieldDrawer {
+	std::list<obsField>::iterator queueIt;
 public:
 	GameFieldDrawer(Resources&);
 
 	Resources& resources;
 
+	std::mutex fieldsMutex;
 	std::list<obsField> fields;
+	std::list<obsField> unusedFields;
 
 	sf::Clock sclock;
 	obsField* scaleup;
@@ -31,9 +37,9 @@ public:
 	void setPosition(short x, short y);
 	void setSize(int w, int h);
 
-	void addField(obsField& field);
-	void removeField(sf::Uint16 id);
-	void updateField(obsField& field);
+	obsField& addField(int id, const sf::String& name);
+	void removeField(int id);
+	void updateFields();
 	void calFieldPos();
 
 	void removeAllFields();
@@ -42,6 +48,8 @@ public:
 
 	void drawOppField(obsField& field);
 	void drawFields();
+	bool drawNextField();
+	void drawScaleup();
 
 	void enlargePlayfield(sf::Event& event);
 

@@ -3,8 +3,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <deque>
+#include <mutex>
 
 class BPMCount {
+	std::mutex bpmMutex;
 public:
 	sf::Uint16 oldbpm[10];
 	sf::Uint8 oldbpmCount;

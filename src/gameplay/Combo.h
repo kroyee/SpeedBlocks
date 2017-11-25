@@ -2,11 +2,13 @@
 #define COMBO_H
 
 #include <SFML/Graphics.hpp>
+#include <mutex>
 
 class ComboCounter {
 private:
 	sf::Time comboStart=sf::seconds(0), comboTime=sf::seconds(0);
 	sf::Uint8 lineCount=0;
+	std::mutex comboMutex;
 public:
 	ComboCounter(uint16_t& _maxCombo) : maxCombo(_maxCombo) {}
 	

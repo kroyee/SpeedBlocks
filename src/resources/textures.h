@@ -2,12 +2,13 @@
 #define TEXTURES_H
 
 #include <TGUI/TGUI.hpp>
+#include <array>
 
 class textures {
 public:
     textures(sf::RenderWindow& window);
 	sf::Texture tileTexture;
-	sf::Sprite tile[16];
+	std::array<sf::Sprite, 16> tile;
 
     sf::Texture logoTexture;
     sf::Sprite logo;

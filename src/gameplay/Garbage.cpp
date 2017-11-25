@@ -16,6 +16,7 @@ sf::Uint16 GarbageHandler::count() {
 }
 
 void GarbageHandler::clear() {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	garbage.clear();
 	linesBlocked=0;
 	minRemaining=initialDelay;
@@ -23,10 +24,12 @@ void GarbageHandler::clear() {
 }
 
 void GarbageHandler::add(sf::Uint16 amount, const sf::Time& _time) {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	garbage.push_back(Garbage(amount, _time + initialDelay));
 }
 
 sf::Uint16 GarbageHandler::block(sf::Uint16 amount, const sf::Time& _time, bool freeze_incoming) {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	if (garbage.empty())
 		return amount;
 	sf::Time delay = garbage.front().delay;
@@ -55,6 +58,7 @@ sf::Uint16 GarbageHandler::block(sf::Uint16 amount, const sf::Time& _time, bool 
 }
 
 bool GarbageHandler::check(const sf::Time& _time) {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	if (garbage.empty())
 		return false;
 	if (_time > garbage.front().delay) {
@@ -73,15 +77,18 @@ bool GarbageHandler::check(const sf::Time& _time) {
 }
 
 void GarbageHandler::setAddDelay(int delay) {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	addDelay = sf::milliseconds(delay);
 }
 
 sf::Uint8 GarbageHandler::getOffset(const sf::Time& _time) {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	if (_time > offsetTime)
 		return 0;
 	return ((offsetTime - _time) / addDelay) * 30;
 }
 
 void GarbageHandler::setOffset(const sf::Time& _time) {
+	std::lock_guard<std::mutex> mute(garbageMutex);
 	offsetTime = _time + addDelay;
 }

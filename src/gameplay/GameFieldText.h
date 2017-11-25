@@ -2,6 +2,7 @@
 #define GAMEFIELDTEXT_H
 
 #include <SFML/Graphics.hpp>
+#include <mutex>
 
 class Resources;
 
@@ -17,6 +18,8 @@ class GameFieldText {
     sf::Text countdownText;
     sf::Text bpmText;
     sf::Text gameOverText;
+
+    std::mutex fieldTextMutex;
 public:
     sf::RenderTexture* texture;
     

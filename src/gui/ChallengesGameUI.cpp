@@ -131,7 +131,7 @@ void BaseChallenge::setLabel(int i, const sf::String& text) {
 	ref.editBox[i]->show();
 	ref.label[i]->setText(text);
 }
-#include <iostream>
+
 void BaseChallenge::setSpec(int i) {
 	if (i >= LabelCount)
 		return;

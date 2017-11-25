@@ -2,11 +2,12 @@
 #define PIECES_H
 
 #include <SFML/Graphics.hpp>
+#include <array>
 
 class basePieces {
 public:
 	basePieces();
-	sf::Uint8 grid[4][4];
+	std::array<std::array<sf::Uint8, 4>, 4> grid;
 
 	sf::Uint8 rotation;
 	sf::Uint8 current_rotation;
