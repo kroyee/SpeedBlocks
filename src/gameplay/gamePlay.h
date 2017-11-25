@@ -140,8 +140,6 @@ public:
 	void makeBackgroundLines();
 	void setName(const sf::String& name);
 	void updateReplayScreen();
-
-	void handleEvent(sf::Event& event);
 };
 
 #endif

@@ -11,8 +11,6 @@ using std::to_string;
 
 BasicField::BasicField(Resources& _resources) : resources(_resources) {}
 
-BasicField::BasicField(const BasicField& field) : resources(field.resources) {}
-
 bool BasicField::possible() {
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
@@ -170,24 +168,6 @@ gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resou
         }
 }
 
-gameField::gameField(const gameField& field) : BasicField(field.resources), tile(field.tile), text(field.resources) {
-    texture.create(440, 600);
-    text.texture = &texture;
-    sprite.setTexture(texture.getTexture());
-    backRect.setPosition(5,5);
-    backRect.setSize({300,540});
-    setBackColor(resources.options->fieldBackground);
-
-    piece.piece = 7;
-    pieceCopy.piece=7;
-    offset=0;
-    status=0;
-
-    for (int y=0; y<22; y++)
-        for (int x=0; x<10; x++)
-            square[y][x] = field.square[y][x];
-}
-
 void gameField::clear() {
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++) {
@@ -322,6 +302,8 @@ void obsField::drawField() {
 }
 
 void obsField::drawNextPiece() {
+    if (npPiece.piece == 7)
+        return;
     for (int y=0; y<4; y++)
         for (int x=0; x<4; x++)
             if (npPiece.grid[y][x] != 0) {
@@ -352,10 +334,6 @@ void obsField::makeNextPieceCopy() {
         npPiece.rcw();
 }
 
-obsField::obsField(const obsField& field) : gameField(field) {
-    id=field.id; nextpiece=field.nextpiece; nprot=field.nprot; npcol=field.npcol; mouseover=0;
-}
-
 obsField::obsField(Resources& _resources) : gameField(_resources) {
-    id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0;
+    id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0; npPiece.piece=7;
 }

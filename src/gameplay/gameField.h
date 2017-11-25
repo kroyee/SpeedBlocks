@@ -13,7 +13,7 @@ class Resources;
 class BasicField {
 public:
     BasicField(Resources& _resources);
-    BasicField(const BasicField& field);
+    //BasicField(const BasicField& field);
     Resources& resources;
 
     std::array<std::array<sf::Uint8, 10>, 22> square;
@@ -60,7 +60,7 @@ public:
     std::atomic<uint8_t> status;
 
     gameField(Resources& _resources);
-    gameField(const gameField& field);
+    //gameField(const gameField& field);
 
     void clear();
 
@@ -79,7 +79,7 @@ public:
 
 class obsField : public gameField {
 public:
-    obsField(const obsField& field);
+    //obsField(const obsField& field);
     
     obsField(Resources& _resources);
 

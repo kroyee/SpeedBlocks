@@ -2,6 +2,7 @@
 #define GAMEOPTIONS_H
 
 #include "guiBase.h"
+#include "TextureAndSprite.h"
 
 class Resources;
 
@@ -37,9 +38,7 @@ public:
 	sf::Keyboard::Key* key;
 	tgui::Button::Ptr button;
 
-	sf::Texture texture[7];
-	sf::Sprite piece[7];
-	tgui::Canvas::Ptr canvas[7];
+	tgui::TextureAndSprite::Ptr piecePreview[7];
 
 	GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
 	void show(int index);

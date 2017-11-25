@@ -124,34 +124,20 @@ int main()
 
     window.setActive(false);
 
-    //#define SHOWTIME
-    #ifdef SHOWTIME
-    sf::Clock testclock;
-    sf::Time t1, t2;
-    #endif
-
     while (window.isOpen())
     {
         sf::Event event;
 
         while (window.pollEvent(event))
             if (gui.handleEvent(event))
-                game.handleEvent(event);
+                game.state->handleEvent(event);
 
         if (resources.playonline)
             while (resources.net->receiveData()) {}
 
         gui.delayCheck();
         game.state->update();
-        #ifdef SHOWTIME
-        t1 = testclock.getElapsedTime();
-        #endif
         gameDraw.draw();
-        #ifdef SHOWTIME
-        t2 = testclock.restart();
-        if (t2.asMicroseconds() > 4500)
-            cout << "T1: " << t1.asMicroseconds() << "\nT2: " << t2.asMicroseconds() << endl;
-        #endif
     }
 
     // Things to do before the game turns off
@@ -160,8 +146,6 @@ int main()
     gameDraw.quit();
     if (game.field.drawThread.joinable())
         game.field.drawThread.join();
-
-    gui.guiElements->gameFieldDrawer.removeAllFields();
 
     game.options.saveOptions();
     if (resources.restart) {

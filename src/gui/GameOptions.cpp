@@ -777,9 +777,7 @@ void GameOptions::rotPiece(short i) {
 	resources.options->piecerotation[i]++;
 	if (resources.options->piecerotation[i]>3)
 		resources.options->piecerotation[i]=0;
-	piece[i].setRotation(resources.options->piecerotation[i]*90);
-	canvas[i]->clear(sf::Color(255,255,255,0));
-	canvas[i]->draw(piece[i]);
+	piecePreview[i]->m_sprite.setRotation(resources.options->piecerotation[i]*90);
 	Signals::UpdateGamePieces();
 }
 
@@ -788,9 +786,7 @@ void GameOptions::colPiece(short i) {
 		resources.options->setPieceColor(i, 1);
 	else
 		resources.options->setPieceColor(i, resources.options->basepiece[i].tile+1);
-	piece[i].setColor(pColor(resources.options->basepiece[i].tile));
-	canvas[i]->clear(sf::Color(255,255,255,0));
-	canvas[i]->draw(piece[i]);
+	piecePreview[i]->m_sprite.setColor(pColor(resources.options->basepiece[i].tile));
 	Signals::UpdateGamePieces();
 }
 
@@ -824,19 +820,15 @@ void GameOptions::initSprites() {
 					}
 		}
 		rendtex.display();
-		texture[p] = rendtex.getTexture();
-		piece[p].setTexture(texture[p]);
-		piece[p].setScale(0.5, 0.5);
-		piece[p].setPosition(30, 30);
-		piece[p].setColor(pColor(resources.options->basepiece[p].tile));
-		piece[p].setOrigin(60,60);
-		piece[p].setRotation(resources.options->piecerotation[p]*90);
-		sf::FloatRect size = piece[p].getGlobalBounds();
-		canvas[p] = tgui::Canvas::create({size.width, size.height});
-		canvas[p]->clear(sf::Color(255,255,255,0));
-		canvas[p]->draw(piece[p]);
-		canvas[p]->setPosition(80*p+10, 300);
-		GenOpt->add(canvas[p]);
+		piecePreview[p] = tgui::TextureAndSprite::create();
+		piecePreview[p]->m_texture = rendtex.getTexture();
+		piecePreview[p]->m_sprite.setTexture(piecePreview[p]->m_texture);
+		piecePreview[p]->m_sprite.setScale(0.5, 0.5);
+		piecePreview[p]->m_sprite.setPosition(80*p+40, 330);
+		piecePreview[p]->m_sprite.setColor(pColor(resources.options->basepiece[p].tile));
+		piecePreview[p]->m_sprite.setOrigin(60,60);
+		piecePreview[p]->m_sprite.setRotation(resources.options->piecerotation[p]*90);
+		GenOpt->add(piecePreview[p]);
 	}
 }
 

@@ -74,10 +74,11 @@ void AIManager::countDown(int count) {
 void AIManager::startRound() {
 	for (auto& bot : bots)
 		bot.startRound();
-	terminateThread = false;
-	aiThread = std::thread(&AIManager::aiThreadRun, this);
 
 	alive = bots.size();
+	terminateThread = false;
+	if (alive)
+		aiThread = std::thread(&AIManager::aiThreadRun, this);
 	playersIncomingLines=0;
 }
 

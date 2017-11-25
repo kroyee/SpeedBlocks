@@ -314,7 +314,8 @@ void gamePlay::delayCheck() {
 		field.text.setPending(garbage.count());
 		data.linesSent += comboLinesSent;
 		if (comboLinesSent) {
-			Signals::SendSig(2, comboLinesSent);
+			if (resources.gamestate == GameStates::Game)
+				Signals::SendSig(2, comboLinesSent);
 			aiManager.distributeLines(0, comboLinesSent);
 		}
 		drawMe=true;
@@ -392,7 +393,8 @@ void gamePlay::updateBasePieces() {
 void gamePlay::sendLines(sf::Vector2i lines) {
 	data.garbageCleared+=lines.y;
 	if (lines.y)
-		Signals::SendSig(3, lines.y);
+		if (resources.gamestate == GameStates::Game)
+			Signals::SendSig(3, lines.y);
 	data.linesCleared+=lines.x;
 	if (lines.x==0) {
 		combo.noClear();
@@ -402,7 +404,8 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	sf::Uint16 amount = garbage.block(lines.x-1, gameclock.getElapsedTime());
 	data.linesSent += amount;
 	if (amount) {
-		Signals::SendSig(2, amount);
+		if (resources.gamestate == GameStates::Game)
+			Signals::SendSig(2, amount);
 		aiManager.distributeLines(0, amount);
 	}
 	field.text.setPending(garbage.count());
@@ -828,76 +831,4 @@ void gamePlay::setName(const sf::String& name) {
 void gamePlay::updateReplayScreen() {
 	playReplay();
 	drawMe=true;
-}
-
-void gamePlay::handleEvent(sf::Event& event) {
-	if (resources.gamestate != GameStates::Replay && resources.gamestate != GameStates::MainMenu) {
-		if (event.type == sf::Event::KeyPressed) {
-            if (event.key.code == options.score)
-                Signals::Show(13);
-            else if (event.key.code == options.away && resources.playonline && resources.gamestate != GameStates::Spectating)
-                Signals::Away();
-		}
-		else if (event.type == sf::Event::KeyReleased)
-			if (event.key.code == options.score)
-				Signals::Hide(13);
-	}
-	if (resources.gamestate == GameStates::CountDown) {
-		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
-            if (event.key.code == options.right)
-                rKey=true;
-            else if (event.key.code == options.left)
-                lKey=true;
-        }
-        else if (event.type == sf::Event::KeyReleased) {
-            if (event.key.code == options.right)
-                rKey=false;
-            else if (event.key.code == options.left)
-                lKey=false;
-        }
-	}
-	else if (resources.gamestate == GameStates::Game || resources.gamestate == GameStates::Practice) {
-		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
-            if (event.key.code == options.right)
-                mRKey();
-            else if (event.key.code == options.left)
-                mLKey();
-            else if (event.key.code == options.rcw)
-                rcw();
-            else if (event.key.code == options.rccw)
-                rccw();
-            else if (event.key.code == options.r180)
-                r180();
-            else if (event.key.code == options.down)
-                mDKey();
-            else if (event.key.code == options.hd)
-                hd();
-        }
-        else if (event.type == sf::Event::KeyReleased) {
-            if (event.key.code == options.right)
-                sRKey();
-            else if (event.key.code == options.left)
-                sLKey();
-            else if (event.key.code == options.down)
-                sDKey();
-        }
-	}
-	else if (resources.gamestate == GameStates::GameOver) {
-		if (event.type == sf::Event::KeyPressed && !resources.chatFocused) {
-            if (event.key.code == sf::Keyboard::P && !Signals::IsVisible(5)) {
-            	if (resources.playonline) {
-            		if (Signals::IsVisible(8))
-            			Signals::Ready();
-            		else
-            			Signals::SetGameState(GameStates::Practice);
-            	}
-            	else {
-	                Signals::SetGameState(GameStates::CountDown);
-	                startCountdown();
-            	}
-            }
-            else if (event.key.code == options.ready && resources.playonline)
-            	Signals::Ready();
-        }
-	}
 }

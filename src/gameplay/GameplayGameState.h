@@ -13,6 +13,10 @@ public:
 	virtual ~GPBaseState();
 
 	virtual void update() {}
+	virtual void handleEvent(sf::Event&) {}
+
+	void handleGeneralButtons(sf::Event& event);
+	void handleControlButtons(sf::Event& event);
 
 	static void set(std::unique_ptr<GPBaseState>& state, GameStates _state);
 
@@ -32,6 +36,7 @@ public:
 	~GPCountDown();
 
 	void update() override;
+	void handleEvent(sf::Event& event) override;
 };
 
 class GPGame : public GPBaseState {
@@ -40,12 +45,15 @@ public:
 	~GPGame();
 
 	void update() override;
+	void handleEvent(sf::Event& event) override;
 };
 
 class GPGameOver : public GPBaseState {
 public:
 	GPGameOver(gamePlay& _game);
 	~GPGameOver();
+
+	void handleEvent(sf::Event& event) override;
 };
 
 class GPReplay : public GPBaseState {
@@ -60,6 +68,9 @@ class GPPractice : public GPBaseState {
 public:
 	GPPractice(gamePlay& _game);
 	~GPPractice();
+
+	void update() override;
+	void handleEvent(sf::Event& event) override;
 };
 
 class GPSpectating : public GPBaseState {
