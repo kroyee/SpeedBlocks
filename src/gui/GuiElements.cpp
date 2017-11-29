@@ -173,10 +173,10 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 		else
 			Signals::QuickMsg("Authentication failed");
 		Signals::Disconnect(0);
-		std::cout << loginBox.t.joinable() << std::endl;
 		loginBox.connectingScreen.hide();
 		mainMenu.show();
 		loginBox.show();
+		trainingUI.hide();
 		performanceOutput.ping->hide();
 	}
 }
