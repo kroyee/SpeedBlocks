@@ -28,7 +28,7 @@ public:
 	void deactivate();
 	void send();
 	void sendMsg(const sf::String& to, const sf::String& msg);
-	void addLine(const sf::String& msg, sf::Uint8 type);
+	void addLine(const sf::String& msg, uint8_t type);
 	void fade(const sf::Time& t);
 	bool handleEvent(sf::Event& event);
 	bool isActive();

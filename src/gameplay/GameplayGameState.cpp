@@ -1,6 +1,15 @@
 #include "GameplayGameState.h"
 #include "gamePlay.h"
 
+static auto& Show = Signal<void, int>::get("Show");
+static auto& Away = Signal<void>::get("Away");
+static auto& Hide = Signal<void, int>::get("Hide");
+static auto& AmountAI = Signal<void, int>::get("AmountAI");
+static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
+static auto& SetAway = Signal<void, bool>::get("SetAway");
+static auto& IsVisible = Signal<bool, int>::get("IsVisible");
+static auto& Ready = Signal<void>::get("Ready");
+
 GPBaseState::GPBaseState(gamePlay& _game, GameStates _state) : state(_state), game(_game) {
 	game.resources.gamestate = state;
 }
@@ -9,13 +18,13 @@ GPBaseState::~GPBaseState() {}
 void GPBaseState::handleGeneralButtons(sf::Event& event) { // != Replay && MainMenu
 	if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == game.options.score)
-            Signals::Show(13);
+            Show(13);
         else if (event.key.code == game.options.away && game.resources.playonline)
-            Signals::Away();
+            Away();
 	}
 	else if (event.type == sf::Event::KeyReleased)
 		if (event.key.code == game.options.score)
-			Signals::Hide(13);
+			Hide(13);
 }
 
 void GPBaseState::handleControlButtons(sf::Event& event) { // == Game || Practice
@@ -72,7 +81,7 @@ GPMainMenu::GPMainMenu(gamePlay& _game) : GPBaseState(_game, GameStates::MainMen
 	game.field.clear();
 	game.autoaway=false;
 	game.field.text.away=false;
-	Signals::AmountAI(0);
+	AmountAI(0);
 }
 GPMainMenu::~GPMainMenu() {
 	game.showPressEnterText=true;
@@ -95,7 +104,7 @@ GPCountDown::~GPCountDown() {}
 void GPCountDown::update() {
 	if (!game.resources.playonline)
         if (game.countDown())
-            Signals::SetGameState(GameStates::Game);
+            SetGameState(GameStates::Game);
 }
 
 void GPCountDown::handleEvent(sf::Event& event) {
@@ -143,7 +152,7 @@ void GPGame::handleEvent(sf::Event& event) {
 
 GPGameOver::GPGameOver(gamePlay& _game) : GPBaseState(_game, GameStates::GameOver) {
 	if (game.autoaway && game.resources.playonline)
-    	Signals::SetAway(true);
+    	SetAway(true);
     game.field.text.setCountdown(0);
     game.drawMe=true;
 }
@@ -153,20 +162,20 @@ void GPGameOver::handleEvent(sf::Event& event) {
 	handleGeneralButtons(event);
 
 	if (event.type == sf::Event::KeyPressed && !game.resources.chatFocused) {
-        if (event.key.code == sf::Keyboard::P && !Signals::IsVisible(5)) {
+        if (event.key.code == sf::Keyboard::P && !IsVisible(5)) {
         	if (game.resources.playonline) {
-        		if (Signals::IsVisible(8))
-        			Signals::Ready();
+        		if (IsVisible(8))
+        			Ready();
         		else
-        			Signals::SetGameState(GameStates::Practice);
+        			SetGameState(GameStates::Practice);
         	}
         	else {
-                Signals::SetGameState(GameStates::CountDown);
+                SetGameState(GameStates::CountDown);
                 game.startCountdown();
         	}
         }
         else if (event.key.code == game.options.ready && game.resources.playonline)
-        	Signals::Ready();
+        	Ready();
     }
 }
 
@@ -182,7 +191,7 @@ GPReplay::~GPReplay() {}
 
 void GPReplay::update() {
 	if (game.playReplay())
-		Signals::SetGameState(GameStates::GameOver);
+		SetGameState(GameStates::GameOver);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -190,7 +199,7 @@ void GPReplay::update() {
 //////////////////////////////////////////////////////////////////////
 
 GPPractice::GPPractice(gamePlay& _game) : GPBaseState(_game, GameStates::Practice) {
-	Signals::SendSig(7);
+	SendSignal(7);
 	game.field.clear();
 	game.showPressEnterText=false;
     game.startGame();

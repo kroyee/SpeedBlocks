@@ -9,52 +9,24 @@ using std::to_string;
 BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {
 	join=false;
 
-	tgui::Label::Ptr WhL = resources.gfx->themeTG->load("Label");
-	WhL->setPosition(10, 5);
-	WhL->setText("What happened?");
-	panel->add(WhL);
+	loadWidget("Label", {10,5}, "What happened?");
 
-	happened = resources.gfx->themeTG->load("TextBox");
-	happened->setPosition(5, 40);
-	happened->setSize(550, 80);
-	panel->add(happened);
+	happened = loadWidget("TextBox", {5, 40, 550, 80});
 
-	tgui::Label::Ptr WhL2 = resources.gfx->themeTG->load("Label");
-	WhL2->setPosition(10, 125);
-	WhL2->setText("What did you expect to happen?");
-	panel->add(WhL2);
+	loadWidget("Label", {10,125}, "What did you expect to happen?");
 
-	expected = resources.gfx->themeTG->load("TextBox");
-	expected->setPosition(5, 160);
-	expected->setSize(550, 80);
-	panel->add(expected);
+	expected = loadWidget("TextBox", {5, 160, 550, 80});
 
-	tgui::Label::Ptr WhL3 = resources.gfx->themeTG->load("Label");
-	WhL3->setPosition(10, 245);
-	WhL3->setText("How can we reproduce this?");
-	panel->add(WhL3);
+	loadWidget("Label", {10,245}, "How can we reproduce this?");
 
-	reproduce = resources.gfx->themeTG->load("TextBox");
-	reproduce->setPosition(5, 280);
-	reproduce->setSize(550, 80);
-	panel->add(reproduce);
+	reproduce = loadWidget("TextBox", {5, 280, 550, 80});
 
-	tgui::Label::Ptr WhL4 = resources.gfx->themeTG->load("Label");
-	WhL4->setPosition(10, 365);
-	WhL4->setText("How can we contact you with questions?");
-	panel->add(WhL4);
+	loadWidget("Label", {10,365}, "How can we contact you with questions?");
 
-	contact = resources.gfx->themeTG->load("TextBox");
-	contact->setPosition(5, 400);
-	contact->setSize(550, 40);
-	panel->add(contact);
+	contact = loadWidget("TextBox", {5, 400, 550, 80});
 
-	tgui::Button::Ptr send = resources.gfx->themeTG->load("Button");
-	send->setPosition(250, 455);
-	send->setSize(60, 30);
-	send->setText("Send");
+	tgui::Button::Ptr send = loadWidget("Button", {250, 495, 60, 30}, "Send");
 	send->connect("Pressed", &BugReport::sendReport, this);
-	panel->add(send);
 }
 
 void BugReport::sendReport() {

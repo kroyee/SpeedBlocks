@@ -5,7 +5,7 @@ void BPMCount::addPiece(const sf::Time& _time) {
 	bpmCount.push_front(_time);
 }
 
-sf::Uint16 BPMCount::calcBpm(const sf::Time& _time) {
+uint16_t BPMCount::calcBpm(const sf::Time& _time) {
 	std::lock_guard<std::mutex> mute(bpmMutex);
 	while (_time > bpmMeasureTiming) {
 		bpmMeasureTiming+=sf::milliseconds(100);

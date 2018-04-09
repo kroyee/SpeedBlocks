@@ -17,28 +17,28 @@
 
 class RecordingEvent {
 public:
-	sf::Uint8 type;
-	sf::Uint8 piece, rotation, color;
-	sf::Uint8 pending, combo, comboTimer, bpm;
-	sf::Int8 x, y;
+	uint8_t type;
+	uint8_t piece, rotation, color;
+	uint8_t pending, combo, comboTimer, bpm;
+	int8_t x, y;
 	sf::Time time;
 };
 
 class Recording {
 public:
 	Recording();
-	sf::Uint8 starting_position[22][10];
+	uint8_t starting_position[22][10];
 	std::vector<RecordingEvent> events;
 	sf::Time duration, startAt, comboSet;
 	sf::String name;
 	sf::Clock timer;
-	sf::Uint32 currentEvent;
+	uint32_t currentEvent;
 
-	sf::Uint8 prevCombo, comboTimer, lastComboTimer;
+	uint8_t prevCombo, comboTimer, lastComboTimer;
 	bool rec, halt;
 
 	void clear();
-	void start(std::array<std::array<sf::Uint8, 10>, 22>);
+	void start(std::array<std::array<uint8_t, 10>, 22>);
 	void stop();
 	void jumpTo(int startTime);
 	void addEvent(RecordingEvent& event);

@@ -26,7 +26,7 @@ public:
 
 	void clear();
 	sf::String displayTime(const sf::Time& time);
-	void openChallenge(sf::Uint16 whichPanel);
+	void openChallenge(uint16_t whichPanel);
 
 	void hideStartChallengeButton();
 	void hide();

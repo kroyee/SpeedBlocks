@@ -1,6 +1,13 @@
 #include "TrainingUI.h"
 #include "GameSignals.h"
 
+static auto& AmountAI = Signal<void, uint8_t>::get("AmountAI");
+static auto& SpeedAI = Signal<void, uint16_t>::get("SpeedAI");
+static auto& StartCountDown = Signal<void>::get("StartCountDown");
+static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
+static auto& ShowGameFields = Signal<void>::get("ShowGameFields");
+static auto& Show = Signal<void, int>::get("Show");
+
 TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
 	widget0->setPosition(171,27);
@@ -86,11 +93,11 @@ TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	widget5->setSize(120,30);
 	widget5->setText("Start!");
 	widget5->connect("pressed", [&](){
-		Signals::AmountAI(amount_slider->getValue());
-		Signals::SpeedAI(speed_slider->getValue());
-		Signals::StartCountDown();
-		Signals::SetGameState(GameStates::CountDown);
-		Signals::ShowGameFields();
+		AmountAI(amount_slider->getValue());
+		SpeedAI(speed_slider->getValue());
+		StartCountDown();
+		SetGameState(GameStates::CountDown);
+		ShowGameFields();
 	});
 	panel->add(widget5);
 
@@ -100,7 +107,7 @@ TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	widget6->setText("Back");
 	widget6->connect("pressed", [&](){
 		hide();
-		Signals::Show(0);
+		Show(0);
 	});
 	panel->add(widget6);
 

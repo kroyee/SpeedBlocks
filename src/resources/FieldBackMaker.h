@@ -7,10 +7,10 @@
 // Style 2 = intersection crosses
 // Style 3 = no transparency at intersection, fading in between
 
-void makeVerticalLines(sf::RenderTexture* texture, sf::Uint8 style);
+void makeVerticalLines(sf::RenderTexture* texture, uint8_t style);
 
-void makeHorizontalLines(sf::RenderTexture* texture, sf::Uint8 style);
+void makeHorizontalLines(sf::RenderTexture* texture, uint8_t style);
 
-sf::Texture makeBackground(bool vertical, bool horizontal, sf::Uint8 style, bool lineColorVal);
+sf::Texture makeBackground(bool vertical, bool horizontal, uint8_t style, bool lineColorVal);
 
 #endif

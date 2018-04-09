@@ -18,6 +18,18 @@ using std::endl;
 
 #define PI 3.14159265
 
+static auto& IsVisible = Signal<bool, int>::get("IsVisible");
+static auto& UpdateChallengesUI = Signal<void, GameplayData&>::get("UpdateChallengesUI");
+static auto& PlaySound = Signal<void, int>::get("PlaySound");
+static auto& Cheese30L = Signal<bool>::get("Cheese30L");
+static auto& SeedRander = Signal<void, int, int>::get("SeedRander");
+static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
+static auto& SetRoundlenghtForScore = Signal<void, int>::get("SetRoundlenghtForScore");
+static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t>::get("AddLocalScore");
+static auto& GetName = Signal<const sf::String&>::get("GetName");
+static auto& UpdateReplayUI = Signal<void, sf::Time>::get("UpdateReplayUI");
+static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
+
 gamePlay::gamePlay(Resources& _resources) :
 field(_resources),
 options(*_resources.options),
@@ -51,31 +63,31 @@ showPressEnterText(true)
     field.background.setTexture(field.backgroundTexture);
     field.background.setPosition(5,5);
 
-    Signals::Ready.connect(&gamePlay::ready, this);
-    Signals::Away.connect(&gamePlay::away, this);
-    Signals::SetAway.connect(&gamePlay::setAway, this);
-    Signals::SetGameBackColor.connect(&gamePlay::setBackgroundColor, this);
-    Signals::SetDrawMe.connect(&gamePlay::setDrawMe, this);
-    Signals::MakeBackgroundLines.connect(&gamePlay::makeBackgroundLines, this);
-    Signals::UpdateGamePieces.connect(&gamePlay::updateBasePieces, this);
-    Signals::StartCountDown.connect(&gamePlay::startCountdown, this);
-    Signals::GetName.connect([&]() -> const sf::String& { return field.text.name; });
-    Signals::SetName.connect(&gamePlay::setName, this);
-    Signals::RecUpdateScreen.connect(&gamePlay::updateReplayScreen, this);
-    Signals::GetGameData.connect([&]() -> GameplayData& { return data; });
-    Signals::GetGameTime.connect([&](){ return gameclock.getElapsedTime(); });
-    Signals::GameOver.connect(&gamePlay::gameOver, this);
-    Signals::PushGarbage.connect(&gamePlay::pushGarbage, this);
-    Signals::GameClear.connect([&](){ field.clear(); });
-    Signals::GameDraw.connect(&gamePlay::draw, this);
-    Signals::GameSetup.connect(&gamePlay::startSetup, this);
-    Signals::AddGarbage.connect(&gamePlay::addGarbage, this);
-    Signals::SetGameState.connect([&](GameStates newState){ GPBaseState::set(state, newState); });
-    Signals::MakeDrawCopy.connect(&gamePlay::makeDrawCopy, this);
-    Signals::GameDrawSprite.connect([&](){ resources.window.draw(field.sprite); });
+    connectSignal("Ready", &gamePlay::ready, this);
+    connectSignal("Away", &gamePlay::away, this);
+    connectSignal("SetAway", &gamePlay::setAway, this);
+    connectSignal("SetGameBackColor", &gamePlay::setBackgroundColor, this);
+    connectSignal("SetDrawMe", &gamePlay::setDrawMe, this);
+    connectSignal("MakeBackgroundLines", &gamePlay::makeBackgroundLines, this);
+    connectSignal("UpdateGamePieces", &gamePlay::updateBasePieces, this);
+    connectSignal("StartCountDown", &gamePlay::startCountdown, this);
+    connectSignal("GetName", [&]() -> const sf::String& { return field.text.name; });
+    connectSignal("SetName", &gamePlay::setName, this);
+    connectSignal("RecUpdateScreen", &gamePlay::updateReplayScreen, this);
+    connectSignal("GetGameData", [&]() -> GameplayData& { return data; });
+    connectSignal("GetGameTime", [&](){ return gameclock.getElapsedTime(); });
+    connectSignal("GameOver", &gamePlay::gameOver, this);
+    connectSignal("PushGarbage", &gamePlay::pushGarbage, this);
+    connectSignal("GameClear", [&](){ field.clear(); });
+    connectSignal("GameDraw", &gamePlay::draw, this);
+    connectSignal("GameSetup", &gamePlay::startSetup, this);
+    connectSignal("AddGarbage", &gamePlay::addGarbage, this);
+    connectSignal("SetGameState", [&](GameStates newState){ GPBaseState::set(state, newState); });
+    connectSignal("MakeDrawCopy", &gamePlay::makeDrawCopy, this);
+    connectSignal("GameDrawSprite", [&](){ resources.window.draw(field.sprite); });
 
     Net::takeSignal(9, &gamePlay::addGarbage, this);
-    Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
+    Net::takeSignal(13, [&](uint16_t id1, uint16_t id2){
 		if (id1 == resources.myId) {
 			field.text.setPosition(id2);
 			drawMe=true;
@@ -208,7 +220,7 @@ void gamePlay::makeNewPiece() {
 	}
 }
 
-void gamePlay::copyPiece(sf::Uint8 np) {
+void gamePlay::copyPiece(uint8_t np) {
 	for (int x=0; x<4; x++)
 		for (int y=0; y<4; y++)
 			field.piece.grid[y][x] = basepiece[np].grid[y][x];
@@ -308,20 +320,20 @@ void gamePlay::delayCheck() {
 		}
 	}
 
-	sf::Uint16 comboLinesSent = combo.check(gameclock.getElapsedTime());
+	uint16_t comboLinesSent = combo.check(gameclock.getElapsedTime());
 	if (comboLinesSent) {
 		comboLinesSent = garbage.block(comboLinesSent, gameclock.getElapsedTime(), false);
 		field.text.setPending(garbage.count());
 		data.linesSent += comboLinesSent;
 		if (comboLinesSent) {
 			if (resources.gamestate == GameStates::Game)
-				Signals::SendSig(2, comboLinesSent);
+				SendSignal(2, comboLinesSent);
 			aiManager.distributeLines(0, comboLinesSent);
 		}
 		drawMe=true;
 	}
 
-	sf::Uint16 newbpm = bpmCounter.calcBpm(gameclock.getElapsedTime());
+	uint16_t newbpm = bpmCounter.calcBpm(gameclock.getElapsedTime());
 	if (newbpm != data.bpm) {
 		field.text.setBpm(newbpm);
 		data.bpm = newbpm;
@@ -348,8 +360,8 @@ void gamePlay::delayCheck() {
 			lockdown=false;
 	}
 
-	if (Signals::IsVisible(8))
-		Signals::UpdateChallengesUI(data);
+	if (IsVisible(8))
+		UpdateChallengesUI(data);
 
 	field.offset = garbage.getOffset(gameclock.getElapsedTime());
 	if (field.offset)
@@ -394,24 +406,24 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 	data.garbageCleared+=lines.y;
 	if (lines.y)
 		if (resources.gamestate == GameStates::Game)
-			Signals::SendSig(3, lines.y);
+			SendSignal(3, lines.y);
 	data.linesCleared+=lines.x;
 	if (lines.x==0) {
 		combo.noClear();
-		Signals::PlaySound(0);
+		PlaySound(0);
 		return;
 	}
-	sf::Uint16 amount = garbage.block(lines.x-1, gameclock.getElapsedTime());
+	uint16_t amount = garbage.block(lines.x-1, gameclock.getElapsedTime());
 	data.linesSent += amount;
 	if (amount) {
 		if (resources.gamestate == GameStates::Game)
-			Signals::SendSig(2, amount);
+			SendSignal(2, amount);
 		aiManager.distributeLines(0, amount);
 	}
 	field.text.setPending(garbage.count());
 	combo.increase(gameclock.getElapsedTime(), lines.x);
 
-	Signals::PlaySound(1);
+	PlaySound(1);
 	playComboSound(combo.comboCount);
 
 	setComboTimer();
@@ -421,23 +433,23 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 		addRecEvent(5, 0);
 }
 
-void gamePlay::playComboSound(sf::Uint8 combo) {
+void gamePlay::playComboSound(uint8_t combo) {
 	if (combo==5)
-		Signals::PlaySound(6);
+		PlaySound(6);
 	else if (combo==8)
-		Signals::PlaySound(7);
+		PlaySound(7);
 	else if (combo==10)
-		Signals::PlaySound(8);
+		PlaySound(8);
 	else if (combo==12)
-		Signals::PlaySound(9);
+		PlaySound(9);
 	else if (combo==14)
-		Signals::PlaySound(10);
+		PlaySound(10);
 	else if (combo==16)
-		Signals::PlaySound(11);
+		PlaySound(11);
 	else if (combo==18)
-		Signals::PlaySound(12);
+		PlaySound(12);
 	else if (combo==20)
-		Signals::PlaySound(13);
+		PlaySound(13);
 }
 
 void gamePlay::addGarbage(int amount) {
@@ -450,14 +462,14 @@ void gamePlay::addGarbage(int amount) {
 	if (recorder.rec)
 		addRecEvent(5, 0);
 
-	Signals::PlaySound(2);
+	PlaySound(2);
 }
 
 void gamePlay::pushGarbage() {
 	garbage.setOffset(gameclock.getElapsedTime());
 	field.text.setPending(garbage.count());
 
-	sf::Uint8 hole = (Signals::Cheese30L() ? rander.getHole(true) : rander.getHole());
+	uint8_t hole = (Cheese30L() ? rander.getHole(true) : rander.getHole());
 	addGarbageLine(hole);
 
 	if (recorder.rec)
@@ -480,14 +492,14 @@ void gamePlay::pushGarbage() {
 }
 
 void gamePlay::addGarbageLine() {
-	sf::Uint8 hole = rander.getHole();
+	uint8_t hole = rander.getHole();
 	addGarbageLine(hole);
 
 	if (recorder.rec)
 		addRecEvent(4, hole);
 }
 
-void gamePlay::addGarbageLine(sf::Uint8 hole) {
+void gamePlay::addGarbageLine(uint8_t hole) {
 	for (int y=0; y<21; y++)
 		for (int x=0; x<10; x++)
 			field.square[y][x]=field.square[y+1][x];
@@ -497,7 +509,7 @@ void gamePlay::addGarbageLine(sf::Uint8 hole) {
 }
 
 bool gamePlay::setComboTimer() {
-	sf::Uint8 count = combo.timerCount(gameclock.getElapsedTime());
+	uint8_t count = combo.timerCount(gameclock.getElapsedTime());
 	return field.text.setComboTimer(count);
 }
 
@@ -506,7 +518,7 @@ void gamePlay::startCountdown() {
 	countDowncount = 3;
 
 	if (!aiManager.empty())
-		Signals::SeedRander(rander.getHole()*rander.getPiece(), rander.getHole()*rander.getPiece());
+		SeedRander(rander.uniqueRnd()*100000, rander.uniqueRnd()*100000);
 
 	field.clear();
 	makeNewPiece();
@@ -535,11 +547,11 @@ bool gamePlay::countDown() {
 		if (recorder.rec)
 			addRecEvent(7, countDowncount);
 		if (countDowncount) {
-			Signals::PlaySound(14);
+			PlaySound(14);
 			drawMe=true;
 		}
 		else {
-			Signals::PlaySound(15);
+			PlaySound(15);
 			return true;
 		}
 	}
@@ -550,7 +562,7 @@ bool gamePlay::countDown(short c) {
 	if (c==255)
 		return false;
 	field.text.setCountdown(c);
-	(c ? Signals::PlaySound(14) : Signals::PlaySound(15));
+	(c ? PlaySound(14) : PlaySound(15));
 	drawMe=true;
 	dataSender.state();
 	if (recorder.rec)
@@ -593,11 +605,11 @@ void gamePlay::gameOver(int winner) {
 		field.text.setGameover(1);
 
 	dataSender.gameover(winner);
-	Signals::SetGameState(GameStates::GameOver);
+	SetGameState(GameStates::GameOver);
 	if (!resources.playonline) {
-		Signals::SetRoundlenghtForScore(gameclock.getElapsedTime().asSeconds());
+		SetRoundlenghtForScore(gameclock.getElapsedTime().asSeconds());
 		if (aiManager.empty())
-			Signals::AddLocalScore(data, 0, Signals::GetName(), 0);
+			AddLocalScore(data, 0, GetName(), 0);
 		else
 			aiManager.setScore(data);
 	}
@@ -612,7 +624,7 @@ void gamePlay::away() {
 void gamePlay::setAway(bool away) {
 	if (away) {
 		resources.away=true;
-		Signals::SendSig(5);
+		SendSignal(5);
 		gameOver(0);
 		field.text.away=true;
 		autoaway=false;
@@ -621,7 +633,7 @@ void gamePlay::setAway(bool away) {
 	else {
 		resources.away=false;
 		autoaway=false;
-		Signals::SendSig(6);
+		SendSignal(6);
 		field.text.away=false;
 		drawMe=true;
 	}
@@ -630,11 +642,11 @@ void gamePlay::setAway(bool away) {
 void gamePlay::ready() {
 	if (resources.gamestate == GameStates::GameOver) {
 		if (field.text.ready) {
-			Signals::SendSig(8);
+			SendSignal(8);
 			field.text.ready=false;
 		}
 		else {
-			Signals::SendSig(7);
+			SendSignal(7);
 			field.text.ready=true;
 		}
 		drawMe=true;
@@ -650,7 +662,7 @@ void gamePlay::drawNextPiece() {
             	}
 }
 
-void gamePlay::addRecEvent(sf::Uint8 type, sf::Uint8 value) {
+void gamePlay::addRecEvent(uint8_t type, uint8_t value) {
 	RecordingEvent event;
 	event.type = type;
 	switch (type) {
@@ -756,7 +768,7 @@ bool gamePlay::playReplay() {
 				sf::Vector2i lines = field.clearlines();
 				data.linesCleared+=lines.x;
 				data.garbageCleared+=lines.y;
-				(lines.x ? Signals::PlaySound(1) : Signals::PlaySound(0));
+				(lines.x ? PlaySound(1) : PlaySound(0));
 				drawMe = true;
 			}
 			break;
@@ -775,13 +787,13 @@ bool gamePlay::playReplay() {
 			break;
 			case 7:
 				field.text.setCountdown(event.pending);
-				(event.pending ? Signals::PlaySound(14) : Signals::PlaySound(15));
+				(event.pending ? PlaySound(14) : PlaySound(15));
 				drawMe=true;
 			break;
 		}
 	}
 	field.text.setBpm(bpmCounter.calcBpm(currentTime));
-	sf::Int16 timer = recorder.comboTimer-(((currentTime-recorder.comboSet).asMilliseconds()/6.0)/10.0);
+	int16_t timer = recorder.comboTimer-(((currentTime-recorder.comboSet).asMilliseconds()/6.0)/10.0);
 	if (timer<0)
 		timer=0;
 	if (timer != recorder.lastComboTimer) {
@@ -789,9 +801,9 @@ bool gamePlay::playReplay() {
 		recorder.lastComboTimer = timer;
 		drawMe=true;
 	}
-	Signals::UpdateReplayUI(Signals::GetRecTime());
-	if (Signals::IsVisible(8))
-		Signals::UpdateChallengesUI(data);
+	UpdateReplayUI(GetRecTime());
+	if (IsVisible(8))
+		UpdateChallengesUI(data);
 	field.offset = garbage.getOffset(currentTime);
 	if (field.offset)
 		drawMe = true;

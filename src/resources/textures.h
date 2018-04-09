@@ -25,7 +25,7 @@ public:
 
     sf::Font typewriter, printFont, standard;
 
-    tgui::Texture rotate_n, rotate_h, color_n, color_h;
+    sf::Texture rotate, color;
 
     tgui::Theme::Ptr themeTG;
 
@@ -34,7 +34,7 @@ public:
     sf::Color gameFieldTextColor;
 
     sf::String loadTextures();
-    void setGhostPieceAlpha(sf::Uint8 alpha);
+    void setGhostPieceAlpha(uint8_t alpha);
 };
 
 #endif

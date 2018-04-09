@@ -2,6 +2,10 @@
 #include "GameSignals.h"
 #include "optionSet.h"
 
+static auto& Show = Signal<void, int>::get("Show");
+static auto& Hide = Signal<void, int>::get("Hide");
+static auto& ShowOptions = Signal<void, int>::get("ShowOptions");
+
 SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), active(false), mouseOver(false) {
 
 	background = tgui::Picture::create(resources.gfx->menuBackground_light);
@@ -28,8 +32,8 @@ SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res),
 	
 	posX = 920;
 
-	Signals::ShowAlert.connect(&SlideMenu::showAlert, this);
-	Signals::HideAlert.connect(&SlideMenu::hideAlert, this);
+	connectSignal("ShowAlert", &SlideMenu::showAlert, this);
+	connectSignal("HideAlert", &SlideMenu::hideAlert, this);
 }
 
 void SlideMenu::handleEvent(sf::Event& event) {
@@ -79,26 +83,26 @@ void SlideMenu::hide() { panel->hide(); }
 void SlideMenu::tabSelect(std::string selected) {
 	hideAllTabs();
 	if (selected == "Alerts")
-		Signals::Show(15);
+		Show(15);
 	if (selected == "Server")
-		Signals::Show(14);
+		Show(14);
 	if (selected == "Game play")
-		Signals::ShowOptions(1);
+		ShowOptions(1);
 	if (selected == "Visual")
-		Signals::ShowOptions(0);
+		ShowOptions(0);
 	if (selected == "Video")
-		Signals::ShowOptions(2);
+		ShowOptions(2);
 	if (selected == "Sound")
-		Signals::ShowOptions(3);
+		ShowOptions(3);
 	if (selected == "Bugs")
-		Signals::Show(7);
+		Show(7);
 }
 
 void SlideMenu::hideAllTabs() {
-	Signals::Hide(2);
-	Signals::Hide(7);
-	Signals::Hide(15);
-	Signals::Hide(14);
+	Hide(2);
+	Hide(7);
+	Hide(15);
+	Hide(14);
 }
 
 void SlideMenu::dark() {

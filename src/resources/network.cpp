@@ -6,17 +6,17 @@
 using std::cout;
 using std::endl;
 
-network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
+network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	udpSock.bind(sf::Socket::AnyPort);
 	curl_global_init(CURL_GLOBAL_ALL);
 
-	Signals::SendSignal.connect(&network::sendSignal, this);
-	Signals::SendPacket.connect(&network::sendTCP, this);
-	Signals::SendPacketUDP.connect(&network::sendUDP, this);
-	Signals::SendPing.connect(&network::sendPing, this);
-	Signals::Disconnect.connect(&network::disconnect, this);
+	connectSignal("SendSignal", &network::sendSignal, this);
+	connectSignal("SendPacket", &network::sendTCP, this);
+	connectSignal("SendPacketUDP", &network::sendUDP, this);
+	connectSignal("SendPing", &network::sendPing, this);
+	connectSignal("Disconnect", &network::disconnect, this);
 }
 
 network::~network() {
@@ -28,23 +28,23 @@ void network::sendUDP(sf::Packet& packet) { udpSock.send(packet, serverAdd, udpP
 
 void network::sendSignal(int signalID, int val1, int val2) {
 	sf::Packet packet;
-	packet << (sf::Uint8)254 << static_cast<sf::Uint8>(signalID);
+	packet << (uint8_t)254 << static_cast<uint8_t>(signalID);
 	if (val1 > -1)
-		packet << static_cast<sf::Uint16>(val1);
+		packet << static_cast<uint16_t>(val1);
 	if (val2 > -1)
-		packet << static_cast<sf::Uint16>(val2);
+		packet << static_cast<uint16_t>(val2);
 	sendTCP(packet);
 }
 
-void network::sendUdpConfirm(sf::Uint16 id) {
+void network::sendUdpConfirm(uint16_t id) {
 	sf::Packet packet;
-	packet << (sf::Uint8)99 << id;
+	packet << (uint8_t)99 << id;
 	sendUDP(packet);
 }
 
 void network::sendPing(int myID, int pingID) {
 	sf::Packet packet;
-	packet << (sf::Uint8)102 << static_cast<sf::Uint16>(myID) << static_cast<sf::Uint8>(pingID);
+	packet << (uint8_t)102 << static_cast<uint16_t>(myID) << static_cast<uint8_t>(pingID);
 	sendUDP(packet);
 }
 
@@ -73,7 +73,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
   return realsize;
 }
 
-sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postData, sf::Uint8 type) {
+sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postData, uint8_t type) {
 	CURL *curl;
 	CURLcode res;
 
@@ -147,8 +147,8 @@ sf::Socket::Status network::connect() {
 }
 
 void getSignal(sf::Packet &packet) {
-	sf::Uint8 signalId;
-	sf::Uint16 id1, id2;
+	uint8_t signalId;
+	uint16_t id1, id2;
 
 	packet >> signalId;
 	if (!packet.endOfPacket()) {
@@ -167,13 +167,15 @@ void getSignal(sf::Packet &packet) {
 		cout << "Error passing on signal " << signalId << "()" << endl;
 }
 
+static auto& Disconnect = Signal<void, int>::get("Disconnect");
+
 bool network::receiveData() {
 	sf::Packet packet;
 	sf::Socket::Status status = tcpSock.receive(packet);
-	sf::Uint8 packetid;
+	uint8_t packetid;
 	if (status == sf::Socket::Disconnected) {
 		cout << "TCP disconnected" << endl;
-		Signals::Disconnect(1);
+		Disconnect(1);
 		return true;
 	}
 	if (status == sf::Socket::Done) {

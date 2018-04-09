@@ -2,6 +2,12 @@
 #include "optionSet.h"
 #include "GameSignals.h"
 
+static auto& Show = Signal<void, int>::get("Show");
+static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& IsLoginThreadJoinable = Signal<bool>::get("IsLoginThreadJoinable");
+static auto& TellPatcherToQuit = Signal<void>::get("TellPatcherToQuit");
+static auto& ApplyPatch = Signal<bool>::get("ApplyPatch");
+
 Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
 	label = resources.gfx->themeTG->load("Label");
@@ -25,12 +31,12 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	cancel->hide();
 	cancel->connect("pressed", [&](){
 		label->setText("Aborting... waiting for thread to return");
-		if (Signals::IsLoginThreadJoinable()) {
+		if (IsLoginThreadJoinable()) {
 			hide();
-			Signals::Show(0);
+			Show(0);
 		}
 		else
-			Signals::TellPatcherToQuit();
+			TellPatcherToQuit();
 	});
 	panel->add(cancel);
 
@@ -42,19 +48,19 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	apply->disable();
 	apply->connect("pressed", [&](){
 		resources.options->saveOptions();
-		if (Signals::ApplyPatch()) {
+		if (ApplyPatch()) {
 			resources.restart=true;
 			resources.window.close();
 		}
 		else {
-			Signals::QuickMsg("Failed to apply patch");
+			QuickMsg("Failed to apply patch");
 			hide();
-			Signals::Show(0);
+			Show(0);
 		}
 	});
 	panel->add(apply);
 
-	Signals::SetConnectingText.connect(&Connecting::setText, this);
+	connectSignal("SetConnectingText", &Connecting::setText, this);
 }
 
 void Connecting::setText(const sf::String& text) {

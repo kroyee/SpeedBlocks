@@ -329,8 +329,8 @@ void TournamentUI::getInfo(sf::Packet &packet) {
 }
 
 void TournamentUI::getUpdate(sf::Packet &packet) {
-	sf::Uint16 tournamentId;
-	sf::Uint8 part;
+	uint16_t tournamentId;
+	uint8_t part;
 	packet >> tournamentId >> part;
 	if (tournamentId != id)
 		return;
@@ -345,7 +345,7 @@ void TournamentUI::getUpdate(sf::Packet &packet) {
 		getBracket(packet);
 	}
 	else if (part == 4) {
-		sf::Uint16 gameId;
+		uint16_t gameId;
 		packet >> gameId;
 		for (auto&& game : games)
 			if (game.id == gameId) {
@@ -363,7 +363,7 @@ void TournamentUI::getUpdate(sf::Packet &packet) {
 }
 
 void TournamentUI::getNewGameNames(TGame& game, sf::Packet &packet) {
-	sf::Uint16 newid;
+	uint16_t newid;
 	packet >> newid;
 	if (newid) {
 		game.player1_id = newid;
@@ -384,7 +384,7 @@ void TournamentUI::getParticipants(sf::Packet &packet) {
 	playerList->removeAllItems();
 	participants.clear();
 	signUpButton->setText("Sign Up!");
-	for (sf::Uint16 i=0; i<players; i++) {
+	for (uint16_t i=0; i<players; i++) {
 		Participant newplayer;
 		packet >> newplayer.id >> newplayer.name;
 		participants.push_back(newplayer);
@@ -397,11 +397,11 @@ void TournamentUI::getParticipants(sf::Packet &packet) {
 }
 
 void TournamentUI::getModerators(sf::Packet &packet) {
-	sf::Uint8 mod_count;
-	sf::Uint16 mod_id;
+	uint8_t mod_count;
+	uint16_t mod_id;
 	packet >> mod_count;
 	moderator = false;
-	for (sf::Uint8 i = 0; i < mod_count; i++) {
+	for (uint8_t i = 0; i < mod_count; i++) {
 		packet >> mod_id;
 		if (mod_id == resources.myId)
 			moderator = true;
@@ -462,16 +462,16 @@ void TournamentUI::getResult(TGame& game, sf::Packet &packet) {
 	packet >> game.result.p1_sets >> game.result.p2_sets;
 
 	game.result.p1_rounds.clear();
-	sf::Uint8 setcount, roundcount;
+	uint8_t setcount, roundcount;
 	packet >> setcount;
-	for (sf::Uint8 i=0; i<setcount; i++) {
+	for (uint8_t i=0; i<setcount; i++) {
 		packet >> roundcount;
 		game.result.p1_rounds.push_back(roundcount);
 	}
 
 	game.result.p2_rounds.clear();
 	packet >> setcount;
-	for (sf::Uint8 i=0; i<setcount; i++) {
+	for (uint8_t i=0; i<setcount; i++) {
 		packet >> roundcount;
 		game.result.p2_rounds.push_back(roundcount);
 	}
@@ -673,17 +673,17 @@ void TournamentUI::setModeratorButtons() {
 
 void TournamentUI::signUpPressed() {
 	if (signUpButton->getText() == "Sign Up!")
-		Signals::SendSig(9, id);
+		SendSignal(9, id);
 	else
-		Signals::SendSig(10, id);
+		SendSignal(10, id);
 }
 
 void TournamentUI::closeSignPressed() {
-	Signals::SendSig(11, id);
+	SendSignal(11, id);
 }
 
 void TournamentUI::startTournamentPressed() {
-	Signals::SendSig(12, id);
+	SendSignal(12, id);
 }
 
 void TournamentUI::gamePressed(TGame& game) {
@@ -746,7 +746,7 @@ void TournamentUI::setGameResults(TGame& game) {
 }
 
 void TournamentUI::playPressed(TGame& game) {
-	Signals::SendSig(13, id, game.id);
+	SendSignal(13, id, game.id);
 }
 
 void TournamentUI::goBack() {
@@ -762,10 +762,10 @@ void TournamentUI::goBack() {
 }
 
 void TournamentUI::spectate(TGame& game) {
-	Signals::SendSig(19, id, game.id);
+	SendSignal(19, id, game.id);
 }
 
 void TournamentUI::hide() {
-	Signals::SendSig(14, id);
+	SendSignal(14, id);
 	panel->hide();
 }

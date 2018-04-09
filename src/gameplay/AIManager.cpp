@@ -4,10 +4,16 @@
 using std::cout;
 using std::endl;
 
+static auto& AddField = Signal<obsField&, int, const sf::String&>::get("AddField");
+static auto& RemoveField = Signal<void, int>::get("RemoveField");
+static auto& AddGarbage = Signal<void, int>::get("AddGarbage");
+static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t>::get("AddLocalScore");
+static auto& GetName = Signal<const sf::String&>::get("GetName");
+
 AIManager::AIManager(sf::Clock& _gameclock) : gameclock(_gameclock) {
-	Signals::DistributeLinesLocally.connect(&AIManager::distributeLines, this);
-	Signals::AmountAI.connect(&AIManager::setAmount, this);
-	Signals::SpeedAI.connect(&AIManager::setSpeed, this);
+	connectSignal("DistributeLinesLocally", &AIManager::distributeLines, this);
+	connectSignal("AmountAI", &AIManager::setAmount, this);
+	connectSignal("SpeedAI", &AIManager::setSpeed, this);
 }
 
 void AIManager::setAmount(uint8_t amount) {
@@ -16,10 +22,10 @@ void AIManager::setAmount(uint8_t amount) {
 	static uint16_t id_count = 60000;
 	while (bots.size() < amount) {
 		if (botsCache.empty())
-			bots.emplace_back(Signals::AddField(id_count, "AI" + std::to_string(id_count)), gameclock);
+			bots.emplace_back(AddField(id_count, "AI" + std::to_string(id_count)), gameclock);
 		else {
 			bots.splice(bots.end(), botsCache, botsCache.begin());
-			bots.back().setField(Signals::AddField(id_count, "AI" + std::to_string(id_count)));
+			bots.back().setField(AddField(id_count, "AI" + std::to_string(id_count)));
 		}
 		bots.back().startAI();
 		bots.back().id = id_count;
@@ -29,7 +35,7 @@ void AIManager::setAmount(uint8_t amount) {
 	}
 
 	while (bots.size() > amount) {
-		Signals::RemoveField(bots.front().id);
+		RemoveField(bots.front().id);
 		botsCache.splice(botsCache.end(), bots, bots.begin());
 	}
 
@@ -125,7 +131,7 @@ void AIManager::distributeLines(int id, int lines) {
 		playersIncomingLines += amount;
 		if (playersIncomingLines >= 1) {
 			int rounded = playersIncomingLines;
-			Signals::AddGarbage(rounded);
+			AddGarbage(rounded);
 			playersIncomingLines -= rounded;
 		}
 	}
@@ -144,7 +150,7 @@ void AIManager::resetScore() {
 void AIManager::setScore(GameplayData & data) {
 	playerScore += bots.size() - alive;
 
-	using sPair = std::pair<uint16_t, sf::Uint16>;
+	using sPair = std::pair<uint16_t, uint16_t>;
 
 	std::vector<sPair> sorting;
 	for (auto it = bots.begin(); it != bots.end(); it++)
@@ -156,10 +162,10 @@ void AIManager::setScore(GameplayData & data) {
 
 	for (auto& pair : sorting) {
 		if (pair.second == 200)
-			Signals::AddLocalScore(data, pair.second, Signals::GetName(), playerScore);
+			AddLocalScore(data, pair.second, GetName(), playerScore);
 		else for (auto it = bots.begin(); it != bots.end(); it++)
 			if (it->id == pair.second) {
-				Signals::AddLocalScore(it->data, it->id, it->field->text.name, it->score);
+				AddLocalScore(it->data, it->id, it->field->text.name, it->score);
 				break;
 			}
 	}

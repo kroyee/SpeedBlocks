@@ -10,17 +10,17 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	setPosition(465, 40);
 	setSize(450, 555);
 
-	Signals::ShowGameFields.connect(&GameFieldDrawer::show, this);
-	Signals::HideGameFields.connect(&GameFieldDrawer::hide, this);
-	Signals::SetFieldsBackColor.connect(&GameFieldDrawer::setBackgroundColor, this);
-	Signals::AreThereFields.connect(&GameFieldDrawer::areThereFields, this);
-	Signals::SetFieldsSize.connect(&GameFieldDrawer::setSize, this);
-	Signals::GameFieldsIsVisible.connect(&GameFieldDrawer::isVisible, this);
-	Signals::AddField.connect(&GameFieldDrawer::addField, this);
-	Signals::RemoveField.connect(&GameFieldDrawer::removeField, this);
-	Signals::RemoveAllFields.connect(&GameFieldDrawer::removeAllFields, this);
+	connectSignal("ShowGameFields", &GameFieldDrawer::show, this);
+	connectSignal("HideGameFields", &GameFieldDrawer::hide, this);
+	connectSignal("SetFieldsBackColor", &GameFieldDrawer::setBackgroundColor, this);
+	connectSignal("AreThereFields", &GameFieldDrawer::areThereFields, this);
+	connectSignal("SetFieldsSize", &GameFieldDrawer::setSize, this);
+	connectSignal("GameFieldsIsVisible", &GameFieldDrawer::isVisible, this);
+	connectSignal("AddField", &GameFieldDrawer::addField, this);
+	connectSignal("RemoveField", &GameFieldDrawer::removeField, this);
+	connectSignal("RemoveAllFields", &GameFieldDrawer::removeAllFields, this);
 
-	Net::takeSignal(11, [&](sf::Uint16 id1){
+	Net::takeSignal(11, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.away=true;
@@ -28,7 +28,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 				return;
 			}
 	});
-	Net::takeSignal(12, [&](sf::Uint16 id1){
+	Net::takeSignal(12, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.away=false;
@@ -36,7 +36,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 				return;
 			}
 	});
-	Net::takeSignal(13, [&](sf::Uint16 id1, sf::Uint16 id2){
+	Net::takeSignal(13, [&](uint16_t id1, uint16_t id2){
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.setPosition(id2);
@@ -44,7 +44,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 				return;
 			}
 	});
-	Net::takeSignal(15, [&](sf::Uint16 id1){
+	Net::takeSignal(15, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.ready=true;
@@ -52,7 +52,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 				return;
 			}
 	});
-	Net::takeSignal(16, [&](sf::Uint16 id1){
+	Net::takeSignal(16, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
 				field.text.ready=false;

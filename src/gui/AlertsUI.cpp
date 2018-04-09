@@ -3,6 +3,10 @@
 #include "GameSignals.h"
 #include <SFML/Network.hpp>
 
+static auto& PlaySound = Signal<void, int>::get("PlaySound");
+static auto& HideAlert = Signal<void>::get("HideAlert");
+static auto& ShowAlert = Signal<void>::get("ShowAlert");
+
 AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {
 
 	empty = resources.gfx->themeTG->load("Label");
@@ -24,7 +28,7 @@ AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent)
 	clearAll->hide();
 	panel->add(clearAll);
 
-	Signals::AddAlert.connect(&AlertsUI::addAlert, this);
+	connectSignal("AddAlert", &AlertsUI::addAlert, this);
 
 	Net::takePacket(10, [&](sf::Packet &packet){
 		sf::String msg;
@@ -50,10 +54,10 @@ void AlertsUI::addAlert(const sf::String& msg) {
 	panel->add(alerts.back().button);
 
 	update();
-	Signals::PlaySound(16);
+	PlaySound(16);
 }
 
-void AlertsUI::removeAlert(sf::Uint16 _id) {
+void AlertsUI::removeAlert(uint16_t _id) {
 	for (auto it = alerts.begin(); it != alerts.end(); it++)
 		if (it->id == _id) {
 			panel->remove(it->button);
@@ -75,13 +79,13 @@ void AlertsUI::removeAll() {
 
 void AlertsUI::update() {
 	if (alerts.empty()) {
-		Signals::HideAlert();
+		HideAlert();
 		info->hide();
 		clearAll->hide();
 		empty->show();
 		return;
 	}
-	Signals::ShowAlert();
+	ShowAlert();
 	info->show();
 	clearAll->show();
 	empty->hide();

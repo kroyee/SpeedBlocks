@@ -21,7 +21,7 @@ class TestField : public BasicField {
 public:
 	TestField(Resources& _resources);
 
-	std::array<std::array<sf::Uint8, 10>, 22> backupField, holeMap;
+	std::array<std::array<uint8_t, 10>, 22> backupField, holeMap;
 	MoveInfo move, finesseMove;
 
 	std::array<double, 10> weights;

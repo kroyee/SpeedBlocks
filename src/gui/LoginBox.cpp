@@ -8,6 +8,14 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
+static auto& Show = Signal<void, int>::get("Show");
+static auto& Hide = Signal<void, int>::get("Hide");
+static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& SetName = Signal<void, const sf::String&>::get("SetName");
+static auto& Disconnect = Signal<void, int>::get("Disconnect");
+static auto& SetRoomListTime = Signal<void>::get("SetRoomListTime");
+static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
+
 LoginBox::LoginBox(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) :
 guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resources) {
 
@@ -103,14 +111,14 @@ guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiB3->connect("pressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiB3);
 
-	Signals::IsLoginThreadJoinable.connect([&](){ return t.joinable(); });
-	Signals::TellPatcherToQuit.connect([&](){ patcher.quit=true; });
+	connectSignal("IsLoginThreadJoinable", [&](){ return t.joinable(); });
+	connectSignal("TellPatcherToQuit", [&](){ patcher.quit=true; });
 }
 
-void LoginBox::launchLogin(sf::Uint8 guest) {
+void LoginBox::launchLogin(uint8_t guest) {
 	if (guest && !LiE3->getText().getSize())
 		return;
-	Signals::Hide(0);
+	Hide(0);
 	connectingScreen.show();
 	connectingScreen.label->setText("Connecting to server...");
 	if (t.joinable())
@@ -121,7 +129,7 @@ void LoginBox::launchLogin(sf::Uint8 guest) {
 		t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
 }
 
-void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
+void LoginBox::login(sf::String name, sf::String pass, uint8_t guest) {
 	patcher.status=1;
 	if (resources.net->connect() == sf::Socket::Done) {
 		sf::String hash;
@@ -148,15 +156,15 @@ void LoginBox::login(sf::String name, sf::String pass, sf::Uint8 guest) {
 		else {
 			patcher.status=3;
 			sendLogin(name, guest);
-			Signals::SetName(name);
+			SetName(name);
 			resources.name = name;
 		}
 		resources.playonline=true;
-		Signals::SetRoomListTime();
-		Signals::Show(11);
+		SetRoomListTime();
+		Show(11);
 	}
 	else {
-		Signals::Disconnect(2);
+		Disconnect(2);
 		patcher.status=-1;
 	}
 }
@@ -174,15 +182,15 @@ void LoginBox::checkStatus() {
 		connectingScreen.label->setText("Waiting for auth-response from game-server...");
 	else if (patcher.status == -1) {
 		t.join();
-		Signals::QuickMsg("Could not connect to server");
+		QuickMsg("Could not connect to server");
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	else if (patcher.status == 4) {
 		t.join();
-		Signals::QuickMsg("No new version found");
+		QuickMsg("No new version found");
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	else if (patcher.status == 5) {
 		connectingScreen.label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
@@ -199,32 +207,32 @@ void LoginBox::checkStatus() {
 	}
 	else if (patcher.status == -2) {
 		t.join();
-		Signals::QuickMsg("Error talking to patch server");
+		QuickMsg("Error talking to patch server");
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	else if (patcher.status == -3) {
 		t.join();
-		Signals::QuickMsg("Error downloading file");
+		QuickMsg("Error downloading file");
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	else if (patcher.status == -4) {
 		t.join();
-		Signals::QuickMsg("The md5-sum for downloaded file did not match, aborting");
+		QuickMsg("The md5-sum for downloaded file did not match, aborting");
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	else if (patcher.status == -5) {
 		t.join();
-		Signals::QuickMsg("Error saving file");
+		QuickMsg("Error saving file");
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	else if (patcher.status == -6) {
 		t.join();
 		connectingScreen.hide();
-		Signals::Show(0);
+		Show(0);
 	}
 	patcher.status=0;
 }
@@ -234,10 +242,10 @@ void LoginBox::show() {
 	LiE1->focus();
 }
 
-void LoginBox::sendLogin(const sf::String& hashorname, sf::Uint8 guest) {
+void LoginBox::sendLogin(const sf::String& hashorname, uint8_t guest) {
 	sf::Packet packet;
-	packet << (sf::Uint8)2 << resources.clientVersion << guest << hashorname;
-	Signals::SendPacket(packet);
+	packet << (uint8_t)2 << resources.clientVersion << guest << hashorname;
+	SendPacket(packet);
 }
 
 void LoginBox::regPressed() {

@@ -55,7 +55,7 @@ public:
 	void colPiece(short i);
 	void initSprites();
 
-	void setGhostPieceAlpha(sf::Uint8 alpha);
+	void setGhostPieceAlpha(uint8_t alpha);
 };
 
 sf::String SFKeyToString(unsigned int keycode);

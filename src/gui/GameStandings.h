@@ -15,13 +15,13 @@ public:
 	tgui::Label::Ptr p1_rounds;
 	tgui::Label::Ptr p2_rounds;
 
-	sf::Uint16 p1_id, p2_id;
-	sf::Uint8 _p1_sets, _p2_sets, _p1_rounds, _p2_rounds;
+	uint16_t p1_id, p2_id;
+	uint8_t _p1_sets, _p2_sets, _p1_rounds, _p2_rounds;
 
 	GameStandings(sf::Rect<int> _pos, Resources& _res);
 
 	void setResults(sf::Packet &packet);
-	void setWaitTime(sf::Uint16 time);
+	void setWaitTime(uint16_t time);
 	void alignResult();
 };
 

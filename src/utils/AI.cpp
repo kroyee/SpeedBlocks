@@ -215,7 +215,7 @@ void AI::setMode(Mode _mode, bool vary) {
 
 	if (vary)
 		for (int i=0; i<10; i++)
-			weights[i] += rander.piece_dist(rander.AI_gen)*0.2 - 0.1;
+			weights[i] += rander.uniqueRnd()*0.2 - 0.1;
 
 	firstMove.weights = weights;
 	secondMove.weights = weights;
@@ -260,7 +260,7 @@ void AI::aiThreadRun() {
 			setMode(Mode::Stack);
 
 		firstMove.calcHolesBeforePiece();
-		float pieceAdjust = (data.pieceCount < 5 ? rander.piece_dist(rander.AI_gen) * 0.5 - 0.25 : 0);
+		float pieceAdjust = (data.pieceCount < 5 ? rander.uniqueRnd() * 0.5 - 0.25 : 0);
 		firstMove.tryAllMoves(secondMove, nextpiece, pieceAdjust);
 		startMove();
 	}
@@ -309,6 +309,8 @@ void AI::endRound(const sf::Time& _time, bool winner) {
 	field->drawMe=true;
 }
 
+static auto& DistributeLinesLocally = Signal<void, int, int>::get("DistributeLinesLocally");
+
 void AI::delayCheck(const sf::Time& t) {
 	if (pieceDropDelay.check(t)) {
 		if (field->mDown()) {
@@ -329,7 +331,7 @@ void AI::delayCheck(const sf::Time& t) {
 		field->text.setPending(garbage.count());
 		data.linesSent += comboLinesSent;
 		if (comboLinesSent)
-			Signals::DistributeLinesLocally(id, comboLinesSent);
+			DistributeLinesLocally(id, comboLinesSent);
 		drawMe=true;
 	}
 
@@ -368,7 +370,7 @@ void AI::delayCheck(const sf::Time& t) {
 }
 
 bool AI::setComboTimer(const sf::Time& t) {
-	sf::Uint8 count = combo.timerCount(t);
+	uint8_t count = combo.timerCount(t);
 	return field->text.setComboTimer(count);
 }
 
@@ -379,10 +381,10 @@ void AI::sendLines(sf::Vector2i lines, const sf::Time& t) {
 		combo.noClear();
 		return;
 	}
-	sf::Uint16 amount = garbage.block(lines.x-1, t);
+	uint16_t amount = garbage.block(lines.x-1, t);
 	data.linesSent += amount;
 	if (amount)
-		Signals::DistributeLinesLocally(id, amount);
+		DistributeLinesLocally(id, amount);
 	field->text.setPending(garbage.count());
 	combo.increase(t, lines.x);
 

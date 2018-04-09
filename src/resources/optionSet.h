@@ -46,14 +46,14 @@ public:
     sf::Time frameDelay;
     sf::Time inputDelay;
 
-    sf::Uint8 piecerotation[7];
-    sf::Uint8 colormap[7];
+    uint8_t piecerotation[7];
+    uint8_t colormap[7];
     basePieces basepiece[7];
 
-    sf::Uint8 theme;
-    sf::Uint8 ghostPieceAlpha;
-    sf::Uint8 fieldBackground;
-    sf::Uint8 lineStyle;
+    uint8_t theme;
+    uint8_t ghostPieceAlpha;
+    uint8_t fieldBackground;
+    uint8_t lineStyle;
     bool lineColor;
     bool fieldVLines;
     bool fieldHLines;
@@ -72,7 +72,7 @@ public:
     void saveOptions();
     std::vector<short> pieceArray();
 
-    void setPieceColor(short, sf::Uint8);
+    void setPieceColor(short, uint8_t);
     void setDelay(short, sf::String);
 };
 

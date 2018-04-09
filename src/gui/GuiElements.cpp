@@ -6,6 +6,12 @@
 #include "gameField.h"
 #include <SFML/Network.hpp>
 
+static auto& AddField = Signal<obsField&, int, const sf::String&>::get("AddField");
+static auto& QuickMSG = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
+static auto& SetName = Signal<void, const sf::String&>::get("SetName");
+static auto& Disconnect = Signal<void, int>::get("Disconnect");
+
 GuiElements::GuiElements(Resources &_resources) :
 resources(_resources),
 animatedBackground		(resources, 7),
@@ -68,17 +74,17 @@ udpConfirmed			(false)
 	elements.push_back(&alertsUI);
 	elements.push_back(&trainingUI);
 
-	Signals::Show.connect([&](int elem){ elements[elem]->show(); });
-	Signals::Hide.connect([&](int elem){ elements[elem]->hide(); });
-	Signals::Enable.connect([&](int elem){ elements[elem]->enable(); });
-	Signals::Disable.connect([&](int elem){ elements[elem]->disable(); });
-	Signals::IsVisible.connect([&](int elem){ return elements[elem]->isVisible(); });
-	Signals::QuickMsg.connect([&](const sf::String& msg){
+	connectSignal("Show", [&](int elem){ elements[elem]->show(); });
+	connectSignal("Hide", [&](int elem){ elements[elem]->hide(); });
+	connectSignal("Enable", [&](int elem){ elements[elem]->enable(); });
+	connectSignal("Disable", [&](int elem){ elements[elem]->disable(); });
+	connectSignal("IsVisible", [&](int elem){ return elements[elem]->isVisible(); });
+	connectSignal("QuickMsg", [&](const sf::String& msg){
 		QuickMsg->setText(msg);
 		QuickMsg->show();
 		quickMsgTime = resources.delayClock.getElapsedTime();
 	});
-	Signals::Disconnect.connect([&](int showMsg){
+	connectSignal("Disconnect", [&](int showMsg){
 		if (showMsg == 2)
 			return;
 		resources.playonline=false;
@@ -92,9 +98,9 @@ udpConfirmed			(false)
 		loginBox.connectingScreen.hide();
 		challengesGameUI.hide();
 		replayUI.hide();
-		Signals::SetGameState(GameStates::MainMenu);
+		SetGameState(GameStates::MainMenu);
 		if (showMsg)
-			Signals::QuickMsg("Disconnected from server");
+			QuickMSG("Disconnected from server");
 	});
 
 	Net::takePacket(0, [&](sf::Packet& packet){
@@ -107,19 +113,19 @@ udpConfirmed			(false)
 	});
 	Net::takePacket(4, [&](sf::Packet &packet){
 		sf::String name;
-		sf::Uint16 id;
+		uint16_t id;
 		packet >> id >> name;
-		Signals::AddField(id, name);
+		AddField(id, name);
 		if (gameStandings.isVisible())
 			gameStandings.alignResult();
 	});
 	Net::takePacket(7, [&](sf::Packet &packet){
 		sf::String text;
 		packet >> text;
-		Signals::QuickMsg("Your score of " + text);
+		QuickMSG("Your score of " + text);
 	});
 
-	Net::takeSignal(6, [&](sf::Uint16 id1){
+	Net::takeSignal(6, [&](uint16_t id1){
 		gameFieldDrawer.removeField(id1);
 		if (gameStandings.isVisible())
 			gameStandings.alignResult();
@@ -129,26 +135,26 @@ udpConfirmed			(false)
 	Net::takeSignal(19, [&](){ onlineplayUI.matchButton->setText("Leave 1vs1 matchmaking"); });
 	Net::takeSignal(20, [&](){ onlineplayUI.matchButton->setText("Join 1vs1 matchmaking"); });
 	Net::takeSignal(21, [&](){
-		Signals::QuickMsg("You were removed from the matchmaking queue");
+		QuickMSG("You were removed from the matchmaking queue");
 		onlineplayUI.matchButton->setText("Join 1vs1 matchmaking");
 	});
-	Net::takeSignal(17, [&](sf::Uint16 reason){
+	Net::takeSignal(17, [&](uint16_t reason){
 		if (reason == 1)
-			Signals::QuickMsg("Kicked: game Clock out of sync");
+			QuickMSG("Kicked: game Clock out of sync");
 		else
-			Signals::QuickMsg("Kicked from room for unknown reason");
-		Signals::SetGameState(GameStates::MainMenu);
+			QuickMSG("Kicked from room for unknown reason");
+		SetGameState(GameStates::MainMenu);
 	});
 }
 
 void GuiElements::getAuthResult(sf::Packet &packet) {
 	if (loginBox.t.joinable())
 		loginBox.t.join();
-	sf::Uint8 success;
+	uint8_t success;
 	packet >> success;
 	if (success == 1) {
 		packet >> resources.name >> resources.myId;
-		Signals::SetName(resources.name);
+		SetName(resources.name);
 		loginBox.connectingScreen.hide();
 		onlineplayUI.show();
 		onlineplayUI.opTab->select(0);
@@ -162,17 +168,17 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 	}
 	else {
 		if (success == 3) {
-			Signals::Disconnect(2);
+			Disconnect(2);
 			loginBox.connectingScreen.label->setText("You have the wrong client version, attempting to patch...");
 			performanceOutput.ping->hide();
 			loginBox.t = std::thread(&PatchCheck::check, &loginBox.patcher, resources.clientVersion);
 			return;
 		}
 		else if (success == 4)
-			Signals::QuickMsg("Name already in use");
+			QuickMSG("Name already in use");
 		else
-			Signals::QuickMsg("Authentication failed");
-		Signals::Disconnect(0);
+			QuickMSG("Authentication failed");
+		Disconnect(0);
 		loginBox.connectingScreen.hide();
 		mainMenu.show();
 		loginBox.show();
@@ -194,12 +200,12 @@ void GuiElements::delayCheck(const sf::Time& currentTime) {
 			if (onlineplayUI.roomList.isVisible())
 				if (currentTime - onlineplayUI.updateRoomListTime > sf::seconds(5)) {
 					onlineplayUI.updateRoomListTime = currentTime;
-					Signals::SendSig(16);
+					SendSignal(16);
 				}
 			if (onlineplayUI.tournamentList.isVisible())
 				if (currentTime - onlineplayUI.updateTournamentListTime > sf::seconds(5)) {
 					onlineplayUI.updateTournamentListTime = currentTime;
-					Signals::SendSig(15);
+					SendSignal(15);
 				}
 		}
 	}

@@ -9,12 +9,14 @@
 using std::cout;
 using std::endl;
 
+static auto& MakeDrawCopy = Signal<void>::get("MakeDrawCopy");
+static auto& GameDrawTexture = Signal<void>::get("GameDraw");
+static auto& GameDrawSprite = Signal<void>::get("GameDrawSprite");
+
 GameDraw::GameDraw(Resources& _res, GuiElements& _elems, bool& _drawMe) :
 resources(_res),
 guiElements(_elems),
-drawMe(_drawMe) {
-    Signals::FieldFinishedDrawing.connect([&](){ fieldsDone++; });
-}
+drawMe(_drawMe) {}
 
 void GameDraw::draw() {
     if (status == 3) {
@@ -32,7 +34,7 @@ void GameDraw::draw() {
     }
     if (status == 1 && current > nextDraw) {
         if (drawMe)
-            Signals::MakeDrawCopy();
+            MakeDrawCopy();
         while (nextDraw <= resources.delayClock.getElapsedTime())
             nextDraw+=resources.options->frameDelay;
         status = 2;
@@ -75,8 +77,8 @@ void GameDraw::drawThreadLoop() {
         	}
             if (internal == 2 && status == 2) {
                 if (resources.gamestate != GameStates::MainMenu && resources.gamestate != GameStates::Spectating) {
-                    Signals::GameDraw();
-                    Signals::GameDrawSprite();
+                    GameDrawTexture();
+                    GameDrawSprite();
                 }
                 resources.window.setActive(false);
                 status = 3;

@@ -4,6 +4,16 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
+static auto& GetRecName = Signal<const sf::String&>::get("GetRecName");
+static auto& HideStartChallengeButton = Signal<void>::get("HideStartChallengeButton");
+static auto& RecJumpTo = Signal<void, int>::get("RecJumpTo");
+static auto& RecUpdateScreen = Signal<void>::get("RecUpdateScreen");
+static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
+static auto& GetRecDuration = Signal<const sf::Time&>::get("GetRecDuration");
+static auto& IsVisible = Signal<bool, int>::get("IsVisible");
+static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
+static auto& SetName = Signal<void, const sf::String&>::get("SetName");
+
 ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
 	timeTotal = resources.gfx->themeTG->load("Label");
@@ -65,7 +75,7 @@ ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	sets->setText("Set: 1");
 	panel->add(sets);
 
-	Signals::UpdateReplayUI.connect(&ReplayUI::update, this);
+	connectSignal("UpdateReplayUI", &ReplayUI::update, this);
 }
 
 void ReplayUI::show(bool showTournamentControls) {
@@ -85,23 +95,23 @@ void ReplayUI::show(bool showTournamentControls) {
 		setForward->hide();
 		gameBack->hide();
 		gameForward->hide();
-		Signals::SetName(Signals::GetRecName());
+		SetName(GetRecName());
 		backup=true;
 	}
 	panel->show();
-	sf::Time duration = Signals::GetRecDuration();
+	sf::Time duration = GetRecDuration();
 	seekbar->setMaximum(duration.asSeconds());
 	timeTotal->setText(displayTime(duration.asSeconds()+1));
 	playPause->setText("Pause");
 
-	if (Signals::IsVisible(8))
-		Signals::HideStartChallengeButton();
+	if (IsVisible(8))
+		HideStartChallengeButton();
 }
 
 void ReplayUI::hide() {
 	if (backup) {
 		backup=false;
-		Signals::SetName(resources.name);
+		SetName(resources.name);
 	}
 	panel->hide();
 }
@@ -113,16 +123,16 @@ void ReplayUI::update(sf::Time recTime) {
 }
 
 void ReplayUI::seek(sf::Vector2f mouse) {
-	sf::Uint32 value = (mouse.x/(float)seekbar->getSize().x)*(float)seekbar->getMaximum();
+	uint32_t value = (mouse.x/(float)seekbar->getSize().x)*(float)seekbar->getMaximum();
 	seekbar->setValue(value);
-	Signals::RecJumpTo(value*1000);
+	RecJumpTo(value*1000);
 	if (resources.gamestate == GameStates::GameOver) {
-		Signals::RecUpdateScreen();
+		RecUpdateScreen();
 		pauseTime = sf::seconds(value);
 	}
 }
 
-sf::String ReplayUI::displayTime(sf::Uint16 timeVal) {
+sf::String ReplayUI::displayTime(uint16_t timeVal) {
 	int minutes=0;
 	while (timeVal >= 60) {
 		timeVal-=60;
@@ -141,13 +151,13 @@ sf::String ReplayUI::displayTime(sf::Uint16 timeVal) {
 
 void ReplayUI::pause() {
 	if (resources.gamestate == GameStates::Replay) {
-		Signals::SetGameState(GameStates::GameOver);
-		pauseTime = Signals::GetRecTime();
+		SetGameState(GameStates::GameOver);
+		pauseTime = GetRecTime();
 		playPause->setText("Play");
 	}
 	else {
-		Signals::SetGameState(GameStates::Replay);
-		Signals::RecJumpTo(pauseTime.asMilliseconds());
+		SetGameState(GameStates::Replay);
+		RecJumpTo(pauseTime.asMilliseconds());
 		playPause->setText("Pause");
 	}
 }

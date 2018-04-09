@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
+#include <deque>
 class obsField;
 class gamePlay;
 class Recording;
@@ -12,21 +13,21 @@ public:
 	gamePlay* game;
 	obsField* field;
 
-	sf::Uint8 tmp[100];
-	sf::Uint8 bitcount=0;
-	sf::Uint8 tmpcount=0;
+	std::deque<uint8_t> tmp;
+	uint8_t bitcount=0;
+	uint16_t tmpcount=0;
 
 	//Tempstorage for validation
-	sf::Uint8 square[22][10];
-	sf::Int8 posX, posY;
-	sf::Uint8 piece, color, rotation;
-	sf::Uint8 nextpiece, npcol, nprot;
-	sf::Uint8 comboText, pendingText, bpmText;
-	sf::Uint8 comboTimerCount;
-	sf::Uint8 countdown;
+	uint8_t square[22][10];
+	int8_t posX, posY;
+	uint8_t piece, color, rotation;
+	uint8_t nextpiece, npcol, nprot;
+	uint8_t comboText, pendingText, bpmText;
+	uint8_t comboTimerCount;
+	uint8_t countdown;
 
 	//Tracker for replay time
-	sf::Uint32 lastTime;
+	uint32_t lastTime;
 
 	void compressReplay(Recording&, sf::Packet&);
 	void dumpTmp(sf::Packet&);
@@ -36,8 +37,8 @@ public:
 	void getTimeStamp(sf::Time&);
 	void compress();
 	void extract();
-	void addBits(const sf::Uint8&, sf::Uint8);
-	void getBits(sf::Uint8&, sf::Uint8);
+	void addBits(uint8_t, uint8_t);
+	void getBits(uint8_t&, uint8_t);
 	void clear();
 	void copy();
 	bool validate();

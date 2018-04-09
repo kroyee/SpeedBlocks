@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 
 template<typename... T>
 class Signal;
@@ -33,6 +34,15 @@ public:
 	void disconnect() {
 		function.clear();
 	}
+
+	static Signal& get(std::string signal_name) {
+		static std::unordered_map<std::string, Signal> signal_map;
+		
+		if (signal_map.find(signal_name) == signal_map.end())
+			signal_map[signal_name] = Signal();
+
+		return signal_map[signal_name];
+	}
 };
 
 template<typename ReturnType, typename... Args>
@@ -54,6 +64,15 @@ public:
 		function = [instance, func](Args&&... args) -> ReturnType {
 			return (instance->*func)(std::forward<Args>(args)...);
 		};
+	}
+
+	static Signal& get(std::string signal_name) {
+		static std::unordered_map<std::string, Signal> signal_map;
+		
+		if (signal_map.find(signal_name) == signal_map.end())
+			signal_map[signal_name] = Signal();
+
+		return signal_map[signal_name];
 	}
 };
 
@@ -84,109 +103,34 @@ struct GameplayData {
 	}
 };
 
-struct Signals {
-									//GUI
-	static Signal<void, int>				Show;
-	static Signal<void, int>				Hide;
-	static Signal<void, int>				Enable;
-	static Signal<void, int>				Disable;
-	static Signal<bool, int>				IsVisible;
-	static Signal<void, const sf::Time&>	EnableBackground;
-	static Signal<void>						DisableBackground;
-	static Signal<void>						ShowAlert;
-	static Signal<void>						HideAlert;
-	static Signal<void>						LeaveRoom;
-	static Signal<void, int>				Disconnect;
-	static Signal<void, GameStates>			SetGameState;
-	static Signal<bool>						IsLoginThreadJoinable;
-	static Signal<void>						TellPatcherToQuit;
-	static Signal<bool>						ApplyPatch;
-	static Signal<void, const sf::String&>	QuickMsg;
-	static Signal<void>						LightTheme;
-	static Signal<void>						DarkTheme;
-	static Signal<void, int>				SetFieldsBackColor;
-	static Signal<void, int, int>			SetFieldsSize;
-	static Signal<void>						MakeBackgroundLines;
-	static Signal<int, int>					AreThereFields;
-	static Signal<void, const sf::String&>	SetConnectingText;
-	static Signal<void>						SetRoomListTime;
-	static Signal<void, const sf::String&>	SetAreYouSure;
-	static Signal<void, const sf::String&>	AddAlert;
-	static Signal<void>						HideStartChallengeButton;
-	static Signal<void, int>				JoinRoom;
-	static Signal<void, int>				ShowOptions;
-	static Signal<void, GameplayData&>		UpdateGamedata;
-	static Signal<void, GameplayData&>		UpdateChallengesUI;
-	static Signal<void, sf::Time>			UpdateReplayUI;
-	static Signal<bool>						Survivor;
-	static Signal<bool>						Cheese30L;
-	static Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t> AddLocalScore;
-	static Signal<void, int>				SetRoundlenghtForScore;
-	static Signal<void>						FieldFinishedDrawing;
+// Signal connection functions
 
-									//GameFieldDrawer
-	static Signal<void>						ShowGameFields;
-	static Signal<void>						HideGameFields;
-	static Signal<bool>						GameFieldsIsVisible;
-	static Signal<obsField&, int, const sf::String&> AddField;
-	static Signal<void, int>				RemoveField;
-	static Signal<void>						RemoveAllFields;
+template<typename T>
+struct SignalSignature {};
 
-									//Network
-	static Signal<void, int, int, int>		SendSignal;
-	static Signal<void, sf::Packet&>		SendPacket;
-	static Signal<void, sf::Packet&>		SendPacketUDP;
-	static Signal<void, int, int>			SendPing;
-
-									//Sound
-	static Signal<void, int>				PlaySound;
-	static Signal<void, int>				SetEffectVolume;
-	static Signal<void, int>				SetMusicVolume;
-	static Signal<void, int>				SetAlertsVolume;
-	static Signal<void>						EnableSound;
-	static Signal<void>						DisableSound;
-
-									//Game
-	static Signal<void>						StartCountDown;
-	static Signal<void, int>				GameOver;
-	static Signal<void>						Ready;
-	static Signal<void>						Away;
-	static Signal<void, bool>				SetAway;
-	static Signal<void>						SetDrawMe;
-	static Signal<void, int>				SetGameBackColor;
-	static Signal<void, const sf::String&>	SetName;
-	static Signal<const sf::String&>		GetName;
-	static Signal<void>						UpdateGamePieces;
-	static Signal<GameplayData&>			GetGameData;
-	static Signal<sf::Time>					GetGameTime;
-	static Signal<void>						SendGameState;
-	static Signal<void>						PushGarbage;
-	static Signal<void, int, int>			SeedRander;
-	static Signal<void>						GameClear;
-	static Signal<void>						GameDraw;
-	static Signal<void, int>				GameSetup;
-	static Signal<void, int>				GameAddDelay;
-	static Signal<void, int>				AddGarbage;
-	static Signal<void>						MakeDrawCopy;
-	static Signal<void>						GameDrawSprite;
-
-									//AI
-	static Signal<void, int, int>			DistributeLinesLocally;
-	static Signal<void, uint8_t>			AmountAI;
-	static Signal<void, uint16_t>			SpeedAI;
-
-									//Recording
-	static Signal<const sf::Time&>			GetRecDuration;
-	static Signal<sf::Time>					GetRecTime;
-	static Signal<void, int>				RecJumpTo;
-	static Signal<const sf::String&>		GetRecName;
-	static Signal<void>						RecUpdateScreen;
-	static Signal<void, int>				SendRecording;
-
-	static void SendSig(int x, int y=-1, int z=-1) {
-		SendSignal(x,y,z);
-	}
+template<typename ReturnType, typename Class, typename... Args>
+struct SignalSignature<ReturnType(Class::*)(Args...)> {
+	using Type = Signal<ReturnType, Args...>;
 };
+
+template<typename ReturnType, typename Class, typename... Args>
+struct SignalSignature<ReturnType(Class::*)(Args...) const> {
+	using Type = Signal<ReturnType, Args...>;
+};
+
+template<typename Func>
+void connectSignal(std::string signal_name, Func func) {
+	using Type = typename SignalSignature<decltype(&Func::operator())>::Type;
+	Type::get(signal_name).connect(std::forward<Func&&>(func));
+}
+
+template<typename Func, typename Instance>
+void connectSignal(std::string signal_name, Func func, Instance instance) {
+	using Type = typename SignalSignature<Func>::Type;
+	Type::get(signal_name).connect(std::forward<Func&&>(func), std::forward<Instance&&>(instance));
+}
+
+void SendSignal(int x, int y=-1, int z=-1);
 
 /* GUI Elements (Hide/Show ect)				Sounds (PlaySound)
 -------------------------------------------------------

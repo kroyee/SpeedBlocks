@@ -220,7 +220,7 @@ void gameField::drawEdges() {
     texture.draw(rect);
 }
 
-void gameField::drawTile(sf::Uint8 color, sf::Uint8 x, sf::Uint8 y) {
+void gameField::drawTile(uint8_t color, uint8_t x, uint8_t y) {
     if (y<3 || color == 0)
         return;
     color--;
@@ -276,7 +276,7 @@ void gameField::drawGhostPiece() {
     }
 }
 
-void gameField::setBackColor(sf::Uint8 val) {
+void gameField::setBackColor(uint8_t val) {
     backRect.setFillColor(sf::Color(val,val,val,225));
 }
 

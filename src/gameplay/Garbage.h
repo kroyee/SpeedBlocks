@@ -21,13 +21,13 @@ public:
 	uint16_t & linesBlocked;
 	sf::Time minRemaining, offsetTime, addDelay;
 
-	sf::Uint16 count();
+	uint16_t count();
 	void clear();
-	void add(sf::Uint16 amount, const sf::Time& _time);
-	sf::Uint16 block(sf::Uint16 amount, const sf::Time& _time, bool freeze_incoming=true);
+	void add(uint16_t amount, const sf::Time& _time);
+	uint16_t block(uint16_t amount, const sf::Time& _time, bool freeze_incoming=true);
 	bool check(const sf::Time& _time);
 	void setAddDelay(int delay);
-	sf::Uint8 getOffset(const sf::Time& _time);
+	uint8_t getOffset(const sf::Time& _time);
 	void setOffset(const sf::Time& _time);
 };
 

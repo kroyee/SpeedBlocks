@@ -53,7 +53,7 @@ public:
 
 	void matchmakingPressed();
 
-	void alertMsg(const sf::Uint16 id1);
+	void alertMsg(const uint16_t id1);
 
 	void back();
 

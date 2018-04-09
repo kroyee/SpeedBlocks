@@ -30,7 +30,7 @@ using std::endl;
 #endif
 
 PatchCheck::PatchCheck() {
-	Signals::ApplyPatch.connect(&PatchCheck::apply, this);
+	connectSignal("ApplyPatch", &PatchCheck::apply, this);
 }
 
 std::string PatchCheck::exec(const std::string& cmd) {

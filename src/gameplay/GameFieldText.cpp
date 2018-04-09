@@ -66,7 +66,7 @@ void GameFieldText::setName(const sf::String& n) {
     nameTag.setPosition(x, 555);
 }
 
-void GameFieldText::setPosition(const sf::Int8 _position) {
+void GameFieldText::setPosition(const int8_t _position) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
 	position = _position;
 	if (position == 1)
@@ -79,14 +79,14 @@ void GameFieldText::setPosition(const sf::Int8 _position) {
         positionText.setString(to_string((int)position) + "th");
 }
 
-void GameFieldText::setCountdown(const sf::Int8 _countdown) {
+void GameFieldText::setCountdown(const int8_t _countdown) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
 	countdown = _countdown;
 	if (countdown)
 		countdownText.setString(to_string(countdown));
 }
 
-void GameFieldText::setGameover(const sf::Int8 _gameover) {
+void GameFieldText::setGameover(const int8_t _gameover) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
 	gameover = _gameover;
 	if (gameover == 1)
@@ -96,7 +96,7 @@ void GameFieldText::setGameover(const sf::Int8 _gameover) {
 }
 
 const float PI = 3.14159265;
-bool GameFieldText::setComboTimer(sf::Uint8 count) {
+bool GameFieldText::setComboTimer(uint8_t count) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
     if (count>100)
         count=100;
@@ -111,7 +111,7 @@ bool GameFieldText::setComboTimer(sf::Uint8 count) {
     return true;
 }
 
-void GameFieldText::setBpm(const sf::Uint16 _bpm) {
+void GameFieldText::setBpm(const uint16_t _bpm) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
 	if (bpm != _bpm) {
 		bpm = _bpm;
@@ -119,7 +119,7 @@ void GameFieldText::setBpm(const sf::Uint16 _bpm) {
 	}
 }
 
-void GameFieldText::setCombo(const sf::Uint8 _combo) {
+void GameFieldText::setCombo(const uint8_t _combo) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
 	if (combo != _combo) {
 		combo = _combo;
@@ -127,7 +127,7 @@ void GameFieldText::setCombo(const sf::Uint8 _combo) {
 	}
 }
 
-void GameFieldText::setPending(const sf::Uint8 _pending) {
+void GameFieldText::setPending(const uint8_t _pending) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
 	if (pending != _pending) {
 		pending = _pending;

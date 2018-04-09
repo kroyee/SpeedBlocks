@@ -7,10 +7,10 @@ class CountdownHandle {
 private:
 	bool countdownOngoing;
 	sf::Time countdownTime;
-	sf::Uint8 countdownCount;
+	uint8_t countdownCount;
 public:
 	void set(const sf::Time& t, sf::Packet& packet);
-	sf::Uint8 check(const sf::Time& t);
+	uint8_t check(const sf::Time& t);
 	void start(const sf::Time& t);
 	void stop();
 	bool ongoing();

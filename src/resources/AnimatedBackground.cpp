@@ -90,7 +90,7 @@ void MovingPoint::drawLast(sf::RenderWindow& window) {
 	window.draw(line);
 }
 
-AnimatedBackground::AnimatedBackground(Resources& resources, sf::Uint8 count) :
+AnimatedBackground::AnimatedBackground(Resources& resources, uint8_t count) :
 background_light(resources.gfx->background_light), background_dark(resources.gfx->background_dark) {
 	for (int i=0; i<count; i++)
 		points.push_back(MovingPoint(sf::Vector2f(i*960/count, i*600/count)));
@@ -98,8 +98,8 @@ background_light(resources.gfx->background_light), background_dark(resources.gfx
 	enabled=true;
 	color = sf::Color(220, 220, 220);
 
-	Signals::EnableBackground.connect(&AnimatedBackground::enable, this);
-	Signals::DisableBackground.connect(&AnimatedBackground::disable, this);
+	connectSignal("EnableBackground", &AnimatedBackground::enable, this);
+	connectSignal("DisableBackground", &AnimatedBackground::disable, this);
 }
 
 void AnimatedBackground::draw(sf::RenderWindow& window, const sf::Time& current) {
@@ -130,7 +130,7 @@ void AnimatedBackground::update(const sf::Time& current) {
 			else
 				point.pos.front().y -=30;
 			point.distance-=30;
-			sf::Uint8 turn = rand() % 3;
+			uint8_t turn = rand() % 3;
 			if (turn == 2) {}
 			else if (turn < point.turnVal) {
 				point.turnVal--;

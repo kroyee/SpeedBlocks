@@ -15,7 +15,7 @@ class GameDraw {
 	bool& drawMe;
 
 	std::thread drawThread;
-	std::atomic<uint8_t> status, fieldsDone, fieldsTotal;
+	std::atomic<uint8_t> status;
 
 	void drawThreadLoop();
 

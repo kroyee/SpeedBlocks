@@ -9,20 +9,20 @@ class OnlineplayUI;
 namespace sf { class Packet; }
 
 struct Result {
-	sf::Uint8 p1_sets;
-	sf::Uint8 p2_sets;
+	uint8_t p1_sets;
+	uint8_t p2_sets;
 
-	std::vector<sf::Uint8> p1_rounds;
-	std::vector<sf::Uint8> p2_rounds;
+	std::vector<uint8_t> p1_rounds;
+	std::vector<uint8_t> p2_rounds;
 
 	sf::String finalScore;
 };
 
 struct TGame {
-	sf::Uint16 id;
-	sf::Uint8 depth, status;
-	sf::Uint8 player1_type, player2_type;
-	sf::Uint16 player1_id, player2_id;
+	uint16_t id;
+	uint8_t depth, status;
+	uint8_t player1_type, player2_type;
+	uint16_t player1_id, player2_id;
 	sf::String player1_name, player2_name;
 	time_t startingTime;
 
@@ -35,7 +35,7 @@ struct TGame {
 };
 
 struct Participant {
-	sf::Uint16 id;
+	uint16_t id;
 	sf::String name;
 };
 
@@ -76,8 +76,8 @@ public:
 	tgui::EditBox::Ptr p1[7];
 	tgui::EditBox::Ptr p2[7];
 
-	sf::Uint8 sets, rounds, status, grade;
-	sf::Uint16 id, players;
+	uint8_t sets, rounds, status, grade;
+	uint16_t id, players;
 	bool moderator;
 	time_t startingTime;
 

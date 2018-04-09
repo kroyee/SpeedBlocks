@@ -31,9 +31,11 @@ Menu::Menu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	panel->add(version);
 }
 
+static auto& Show = Signal<void, int>::get("Show");
+
 void Menu::Training() {
 	hide();
-	Signals::Show(16);
+	Show(16);
 }
 
 void Menu::quitGame() {

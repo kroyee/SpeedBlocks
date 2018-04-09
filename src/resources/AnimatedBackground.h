@@ -9,7 +9,7 @@ class Resources;
 struct MovingPoint {
 	MovingPoint(sf::Vector2f start);
 	std::list<sf::Vector2f> pos;
-	sf::Uint8 turnVal, direction;
+	uint8_t turnVal, direction;
 	float distance;
 	sf::Color color;
 
@@ -28,7 +28,7 @@ private:
 	bool enabled;
 	sf::Color color;
 public:
-	AnimatedBackground(Resources& resources, sf::Uint8 count);
+	AnimatedBackground(Resources& resources, uint8_t count);
 	void draw(sf::RenderWindow& window, const sf::Time& current);
 	void update(const sf::Time& current);
 	void enable(const sf::Time& current);

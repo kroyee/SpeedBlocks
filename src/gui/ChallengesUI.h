@@ -24,10 +24,10 @@ public:
 
 	std::list<ChallengesRow> rows;
 
-	sf::Uint16 selectedId;
-	sf::Uint16 itemsInScrollPanel;
-	sf::Uint8 columns;
-	sf::Uint16 width[4];
+	uint16_t selectedId;
+	uint16_t itemsInScrollPanel;
+	uint8_t columns;
+	uint16_t width[4];
 
 	ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
 	void makeList(sf::Packet &packet);
@@ -35,7 +35,7 @@ public:
 	void play();
 	virtual void show();
 
-	void viewReplay(sf::Uint16 slot);
+	void viewReplay(uint16_t slot);
 
 	void listScrolled(int scrollpos);
 	void scrolled(sf::Event& event);

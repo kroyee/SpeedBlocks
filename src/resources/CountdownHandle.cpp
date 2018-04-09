@@ -2,13 +2,13 @@
 #include <iostream>
 
 void CountdownHandle::set(const sf::Time& t, sf::Packet& packet) {
-	sf::Uint16 newcd;
+	uint16_t newcd;
 	packet >> newcd;
 	countdownTime = std::min(countdownTime, t-(sf::milliseconds(3000)-sf::milliseconds(newcd)));
 }
 
-sf::Uint8 CountdownHandle::check(const sf::Time& t) {
-	sf::Uint8 currentcd = 4-(t-countdownTime).asSeconds();
+uint8_t CountdownHandle::check(const sf::Time& t) {
+	uint8_t currentcd = 4-(t-countdownTime).asSeconds();
 	if (currentcd < countdownCount) {
 		countdownCount=currentcd;
 		if (!currentcd)

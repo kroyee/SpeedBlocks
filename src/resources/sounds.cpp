@@ -8,10 +8,10 @@
 #endif
 
 soundBank::soundBank(bool& _sound) : sound(_sound) {
-	Signals::PlaySound.connect(&soundBank::playSound, this);
-	Signals::SetEffectVolume.connect(&soundBank::setEffectVolume, this);
-	Signals::SetMusicVolume.connect(&soundBank::setMusicVolume, this);
-	Signals::SetAlertsVolume.connect(&soundBank::setAlertVolume, this);
+	connectSignal("PlaySound", &soundBank::playSound, this);
+	connectSignal("SetEffectVolume", &soundBank::setEffectVolume, this);
+	connectSignal("SetMusicVolume", &soundBank::setMusicVolume, this);
+	connectSignal("SetAlertsVolume", &soundBank::setAlertVolume, this);
 }
 
 sf::String soundBank::loadSounds() {

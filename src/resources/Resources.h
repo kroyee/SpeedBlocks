@@ -16,7 +16,7 @@ enum class GameStates : unsigned int { MainMenu, CountDown, Game, GameOver, Repl
 
 struct clientInfo {
 public:
-	sf::Uint16 id;
+	uint16_t id;
 	sf::String name;
 };
 
@@ -40,15 +40,15 @@ public:
 
 	sf::Clock delayClock;
 
-	sf::Uint16 myId;
+	uint16_t myId;
 
 	sf::String name;
 	std::list<clientInfo> clientList;
 
-	sf::Uint8 version_major;
-	sf::Uint8 version_minor;
-	sf::Uint8 version_patch;
-	sf::Uint16 clientVersion;
+	uint8_t version_major;
+	uint8_t version_minor;
+	uint8_t version_patch;
+	uint16_t clientVersion;
 
 	bool init();
 };

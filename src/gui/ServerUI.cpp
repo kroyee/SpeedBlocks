@@ -73,7 +73,7 @@ void ServerUI::makeClientList(sf::Packet &packet) {
 	LobbyList->removeAllItems();
 	resources.clientList.clear();
 	clientInfo client;
-	sf::Uint16 clientCount;
+	uint16_t clientCount;
 
 	packet >> clientCount;
 
@@ -100,7 +100,7 @@ void ServerUI::addClient(sf::Packet &packet) {
 	LobbyList->addItem(client.name);
 }
 
-void ServerUI::putClient(sf::Uint16 id, const sf::String& name) {
+void ServerUI::putClient(uint16_t id, const sf::String& name) {
 	clientInfo client;
 	client.id = id;
 	std::cout << "Adding client " << name.toAnsiString() << std::endl;
@@ -110,7 +110,7 @@ void ServerUI::putClient(sf::Uint16 id, const sf::String& name) {
 }
 
 void ServerUI::removeClient(sf::Packet &packet) {
-	sf::Uint16 id;
+	uint16_t id;
 
 	packet >> id;
 
@@ -122,7 +122,7 @@ void ServerUI::removeClient(sf::Packet &packet) {
 		}
 }
 
-void ServerUI::linkPressed(sf::Uint8 type) {
+void ServerUI::linkPressed(uint8_t type) {
 	std::string url;
 	#ifdef _WIN32
 		url = "start ";

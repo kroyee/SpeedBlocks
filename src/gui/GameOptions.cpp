@@ -9,6 +9,21 @@ using std::to_string;
 #include "EmptyResourcePath.h"
 #endif
 
+static auto& EnableBackground = Signal<void, const sf::Time&>::get("EnableBackground");
+static auto& DisableBackground = Signal<void>::get("DisableBackground");
+static auto& LightTheme = Signal<void>::get("LightTheme");
+static auto& DarkTheme = Signal<void>::get("DarkTheme");
+static auto& SetGameBackColor = Signal<void, int>::get("SetGameBackColor");
+static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
+static auto& SetFieldsBackColor = Signal<void, int>::get("SetFieldsBackColor");
+static auto& MakeBackgroundLines = Signal<void>::get("MakeBackgroundLines");
+static auto& Show = Signal<void, int>::get("Show");
+static auto& Hide = Signal<void, int>::get("Hide");
+static auto& SetMusicVolume = Signal<void, int>::get("SetMusicVolume");
+static auto& SetEffectVolume = Signal<void, int>::get("SetEffectVolume");
+static auto& SetAlertsVolume = Signal<void, int>::get("SetAlertsVolume");
+static auto& UpdateGamePieces = Signal<void>::get("UpdateGamePieces");
+
 GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : guiBase(_pos, _res, parentPanel) {
 
 	GenOpt = tgui::Panel::create();
@@ -172,14 +187,24 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
 	tgui::Button::Ptr Cc[7];
+
+	tgui::Texture rotate_n(resources.gfx->rotate);
+	tgui::Texture rotate_h(resources.gfx->rotate);
+	rotate_n.setColor({0,0,0});
+
+	tgui::Texture color_n(resources.gfx->color);
+	tgui::Texture color_h(resources.gfx->color);
+	color_n.setColor({0,0,0});
+
 	for (int i=0; i<7; i++) {
 		Rp[i] = tgui::Button::create();
-		Rp[i]->getRenderer()->setNormalTexture(resources.gfx->rotate_n);
-		Rp[i]->getRenderer()->setHoverTexture(resources.gfx->rotate_h);
+		Rp[i]->getRenderer()->setNormalTexture(rotate_n);
+		Rp[i]->getRenderer()->setHoverTexture(rotate_h);
+		Rp[i]->getRenderer()->setBackgroundColorHover({100,100,100});
 		Rp[i]->getRenderer()->setBorders({0,0,0,0});
 		Cc[i] = tgui::Button::create();
-		Cc[i]->getRenderer()->setNormalTexture(resources.gfx->color_n);
-		Cc[i]->getRenderer()->setHoverTexture(resources.gfx->color_h);
+		Cc[i]->getRenderer()->setNormalTexture(color_n);
+		Cc[i]->getRenderer()->setHoverTexture(color_h);
 		Cc[i]->getRenderer()->setBorders({0,0,0,0});
 
 		Rp[i]->setPosition(i*80+10, 365);
@@ -406,8 +431,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	tgui::CheckBox::Ptr animBack = resources.gfx->themeTG->load("CheckBox");
 	animBack->setPosition(20, 50);
 	animBack->setText("Show background animation");
-	animBack->connect("Checked", [&](){ Signals::EnableBackground(resources.delayClock.getElapsedTime()); });
-	animBack->connect("Unchecked", [&](){ Signals::DisableBackground(); });
+	animBack->connect("Checked", [&](){ EnableBackground(resources.delayClock.getElapsedTime()); });
+	animBack->connect("Unchecked", [&](){ DisableBackground(); });
 	if (resources.options->animatedBackground)
 		animBack->check();
 	VisOpt->add(animBack);
@@ -440,8 +465,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	else
 		r_darkTheme->check();
 
-	r_lightTheme->connect("Checked", [&](){ Signals::LightTheme(); });
-	r_darkTheme->connect("Checked", [&](){ Signals::DarkTheme(); });
+	r_lightTheme->connect("Checked", [&](){ LightTheme(); });
+	r_darkTheme->connect("Checked", [&](){ DarkTheme(); });
 
 	tgui::Label::Ptr fbcLabel = resources.gfx->themeTG->load("Label");
 	fbcLabel->setPosition(100, 260);
@@ -455,9 +480,9 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	fieldBackColor->setValue(resources.options->fieldBackground);
 	fieldBackColor->connect("ValueChanged", [&](int val){
 		resources.options->fieldBackground=val;
-		Signals::SetGameBackColor(val);
-		Signals::SetDrawMe();
-		Signals::SetFieldsBackColor(val);
+		SetGameBackColor(val);
+		SetDrawMe();
+		SetFieldsBackColor(val);
 	});
 	VisOpt->add(fieldBackColor);
 
@@ -468,13 +493,13 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		vlines->check();
 	vlines->connect("Checked", [&](){
 		resources.options->fieldVLines=true;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	vlines->connect("Unchecked", [&](){
 		resources.options->fieldVLines=false;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	VisOpt->add(vlines);
 
@@ -485,13 +510,13 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		hlines->check();
 	hlines->connect("Checked", [&](){
 		resources.options->fieldHLines=true;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	hlines->connect("Unchecked", [&](){
 		resources.options->fieldHLines=false;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	VisOpt->add(hlines);
 
@@ -508,8 +533,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		style1->check();
 	style1->connect("Checked", [&](){
 		resources.options->lineStyle=1;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	linestyle->add(style1);
 
@@ -520,8 +545,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		style2->check();
 	style2->connect("Checked", [&](){
 		resources.options->lineStyle=2;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	linestyle->add(style2);
 
@@ -532,8 +557,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		style3->check();
 	style3->connect("Checked", [&](){
 		resources.options->lineStyle=3;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	linestyle->add(style3);
 
@@ -550,8 +575,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		darkLines->check();
 	darkLines->connect("Checked", [&](){
 		resources.options->lineColor=true;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	linecolor->add(darkLines);
 
@@ -562,8 +587,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		lightLines->check();
 	lightLines->connect("Checked", [&](){
 		resources.options->lineColor=false;
-		Signals::MakeBackgroundLines();
-		Signals::SetDrawMe();
+		MakeBackgroundLines();
+		SetDrawMe();
 	});
 	linecolor->add(lightLines);
 
@@ -576,7 +601,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	mouseMenu->connect("Unchecked", [&](){ resources.options->mouseMenu=false; });
 	VisOpt->add(mouseMenu);
 
-	Signals::ShowOptions.connect(&GameOptions::show, this);
+	connectSignal("ShowOptions", &GameOptions::show, this);
 }
 
 void GameOptions::show(int index) {
@@ -659,11 +684,11 @@ void GameOptions::applyVideo() {
 
 	if (performanceOutput->isChecked()) {
 		resources.options->performanceOutput = true;
-		Signals::Show(6);
+		Show(6);
 	}
 	else {
 		resources.options->performanceOutput = false;
-		Signals::Hide(6);
+		Hide(6);
 	}
 
 	std::string fd = FrameDelay->getText();
@@ -683,15 +708,15 @@ void GameOptions::applyVideo() {
 void GameOptions::volSlide(short i, short vol) {
 	if (i == 1) {
 		resources.options->MusicVolume = vol;
-		Signals::SetMusicVolume(vol);
+		SetMusicVolume(vol);
 	}
 	else if (i == 2) {
 		resources.options->EffectVolume = vol;
-		Signals::SetEffectVolume(vol);
+		SetEffectVolume(vol);
 	}
 	else if (i == 3) {
 		resources.options->ChatVolume = vol;
-		Signals::SetAlertsVolume(vol);
+		SetAlertsVolume(vol);
 	}
 }
 
@@ -778,7 +803,7 @@ void GameOptions::rotPiece(short i) {
 	if (resources.options->piecerotation[i]>3)
 		resources.options->piecerotation[i]=0;
 	piecePreview[i]->m_sprite.setRotation(resources.options->piecerotation[i]*90);
-	Signals::UpdateGamePieces();
+	UpdateGamePieces();
 }
 
 void GameOptions::colPiece(short i) {
@@ -787,7 +812,7 @@ void GameOptions::colPiece(short i) {
 	else
 		resources.options->setPieceColor(i, resources.options->basepiece[i].tile+1);
 	piecePreview[i]->m_sprite.setColor(pColor(resources.options->basepiece[i].tile));
-	Signals::UpdateGamePieces();
+	UpdateGamePieces();
 }
 
 void GameOptions::initSprites() {
@@ -934,8 +959,8 @@ sf::String SFKeyToString(unsigned int keycode) {
     }
 }
 
-void GameOptions::setGhostPieceAlpha(sf::Uint8 alpha) {
+void GameOptions::setGhostPieceAlpha(uint8_t alpha) {
 	resources.options->ghostPieceAlpha = alpha;
 	resources.gfx->setGhostPieceAlpha(alpha);
-	Signals::SetDrawMe();
+	SetDrawMe();
 }

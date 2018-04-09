@@ -300,7 +300,7 @@ void optionSet::getVideoModes() {
     }
 }
 
-void optionSet::setPieceColor(short i, sf::Uint8 newcolor) {
+void optionSet::setPieceColor(short i, uint8_t newcolor) {
     colormap[i] = newcolor;
     basepiece[i].tile = newcolor;
 	for (int x=0; x<4; x++)
@@ -327,39 +327,39 @@ void optionSet::setDelay(short i, sf::String string) {
 
 std::vector<short> optionSet::pieceArray() {
 	std::vector<short> value = { 0, 4, 0, 0,
-						 0, 4, 0, 0,
-						 0, 4, 4, 0,
-						 0, 0, 0, 0,
+								 0, 4, 0, 0,
+								 0, 4, 4, 0,
+								 0, 0, 0, 0,
 
-						 0, 3, 0, 0,
-						 0, 3, 0, 0,
-						 3, 3, 0, 0,
-						 0, 0, 0, 0,
+								 0, 3, 0, 0,
+								 0, 3, 0, 0,
+								 3, 3, 0, 0,
+								 0, 0, 0, 0,
 
-						 0, 5, 0, 0,
-						 0, 5, 5, 0,
-						 0, 0, 5, 0,
-						 0, 0, 0, 0,
+								 0, 5, 0, 0,
+								 0, 5, 5, 0,
+								 0, 0, 5, 0,
+								 0, 0, 0, 0,
 
-						 0, 7, 0, 0,
-						 7, 7, 0, 0,
-						 7, 0, 0, 0,
-						 0, 0, 0, 0,
+								 0, 7, 0, 0,
+								 7, 7, 0, 0,
+								 7, 0, 0, 0,
+								 0, 0, 0, 0,
 
-						 0, 2, 0, 0,
-						 0, 2, 0, 0,
-						 0, 2, 0, 0,
-						 0, 2, 0, 0,
+								 0, 2, 0, 0,
+								 0, 2, 0, 0,
+								 0, 2, 0, 0,
+								 0, 2, 0, 0,
 
-						 0, 0, 0, 0,
-						 1, 1, 1, 0,
-						 0, 1, 0, 0,
-						 0, 0, 0, 0,
+								 0, 0, 0, 0,
+								 1, 1, 1, 0,
+								 0, 1, 0, 0,
+								 0, 0, 0, 0,
 
-						 0, 0, 0, 0,
-						 0, 6, 6, 0,
-						 0, 6, 6, 0,
-						 0, 0, 0, 0 };
+								 0, 0, 0, 0,
+								 0, 6, 6, 0,
+								 0, 6, 6, 0,
+								 0, 0, 0, 0 };
 
 	return value;
 }

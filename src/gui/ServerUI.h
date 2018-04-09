@@ -15,9 +15,9 @@ public:
 	void makeClientList(sf::Packet &packet);
 	void makeLobbyList();
 	void addClient(sf::Packet &packet);
-	void putClient(sf::Uint16 id, const sf::String& name);
+	void putClient(uint16_t id, const sf::String& name);
 	void removeClient(sf::Packet &packet);
-	void linkPressed(sf::Uint8 type);
+	void linkPressed(uint8_t type);
 	void clear();
 };
 

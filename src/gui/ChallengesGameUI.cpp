@@ -2,6 +2,13 @@
 #include "GameSignals.h"
 using std::to_string;
 
+static auto& Ready = Signal<void>::get("Ready");
+static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
+static auto& GetGameTime = Signal<sf::Time>::get("GetGameTime");
+static auto& GameOver = Signal<void, int>::get("GameOver");
+static auto& GameAddDelay = Signal<void, int>::get("GameAddDelay");
+static auto& PushGarbage = Signal<void>::get("PushGarbage");
+
 ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), challenge(nullptr) {
 
 	header = resources.gfx->themeTG->load("Label");
@@ -33,7 +40,7 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBas
 	startChallenge->setPosition(550,510);
 	startChallenge->setSize(200,40);
 	startChallenge->setText("Start challenge");
-	startChallenge->connect("pressed", [&](){ Signals::Ready(); });
+	startChallenge->connect("pressed", [&](){ Ready(); });
 	panel->add(startChallenge);
 
 	specLabel = resources.gfx->themeTG->load("Label");
@@ -52,17 +59,17 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBas
 	specEditBox->hide();
 	panel->add(specEditBox);
 
-	Signals::HideStartChallengeButton.connect(&ChallengesGameUI::hideStartChallengeButton, this);
-	Signals::UpdateChallengesUI.connect([&](GameplayData& data){
+	connectSignal("HideStartChallengeButton", &ChallengesGameUI::hideStartChallengeButton, this);
+	connectSignal("UpdateChallengesUI", [&](GameplayData& data){
 		if (challenge != nullptr)
 			challenge->update(data);
 	});
-	Signals::Survivor.connect([&]() -> bool {
+	connectSignal("Survivor", [&]() -> bool {
 		if (panel->isVisible() && challenge->type == Challenges::Survivor)
 			return true;
 		return false;
 	});
-	Signals::Cheese30L.connect([&]() -> bool {
+	connectSignal("Cheese30L", [&]() -> bool {
 		if (panel->isVisible() && challenge->type == Challenges::Cheese30L)
 			return true;
 		return false;
@@ -76,8 +83,8 @@ void ChallengesGameUI::clear() {
 
 sf::String ChallengesGameUI::displayTime(const sf::Time& time) {
 	sf::String timeString;
-	sf::Uint16 total = time.asSeconds();
-	sf::Uint16 count = 0;
+	uint16_t total = time.asSeconds();
+	uint16_t count = 0;
 	while (total >= 60) {
 		total-=60;
 		count++;
@@ -93,7 +100,7 @@ sf::String ChallengesGameUI::displayTime(const sf::Time& time) {
 	return timeString;
 }
 
-void ChallengesGameUI::openChallenge(sf::Uint16 whichPanel) {
+void ChallengesGameUI::openChallenge(uint16_t whichPanel) {
 	challenge.reset(nullptr);
 	if (whichPanel == 20000)
 		challenge = std::unique_ptr<BaseChallenge>(new CH_Race(*this));
@@ -151,9 +158,9 @@ void BaseChallenge::updateSpec() {
 }
 void BaseChallenge::setTime() {
 	if (ref.resources.gamestate == GameStates::Replay)
-		ref.editBox[0]->setText(ref.displayTime(Signals::GetRecTime()));
+		ref.editBox[0]->setText(ref.displayTime(GetRecTime()));
 	else
-		ref.editBox[0]->setText(ref.displayTime(Signals::GetGameTime()));
+		ref.editBox[0]->setText(ref.displayTime(GetGameTime()));
 }
 void BaseChallenge::clear() {
 	for (int i=0; i<LabelCount; i++)
@@ -187,7 +194,7 @@ void CH_Race::update(GameplayData& data) {
 	ref.editBox[1]->setText(to_string(40 - data.linesCleared));
 	ref.editBox[2]->setText(to_string(data.pieceCount));
 	if (data.linesCleared > 39)
-		Signals::GameOver(1);
+		GameOver(1);
 
 	setTime();
 	updateSpec();
@@ -207,7 +214,7 @@ void CH_Cheese::update(GameplayData& data) {
 	ref.editBox[1]->setText(to_string(9 - data.garbageCleared));
 	ref.editBox[2]->setText(to_string(data.pieceCount));
 	if (data.garbageCleared > 8)
-		Signals::GameOver(1);
+		GameOver(1);
 
 	setTime();
 	updateSpec();
@@ -223,11 +230,11 @@ CH_Survivor::CH_Survivor(ChallengesGameUI& ref) : BaseChallenge(ref) {
 	setSpec(0);
 
 	lineAdd = sf::seconds(0);
-	Signals::GameAddDelay(2000);
+	GameAddDelay(2000);
 }
 
 CH_Survivor::~CH_Survivor() {
-	Signals::GameAddDelay(450);
+	GameAddDelay(450);
 }
 
 void CH_Survivor::update(GameplayData& data) {
@@ -235,9 +242,9 @@ void CH_Survivor::update(GameplayData& data) {
 	ref.editBox[2]->setText(to_string(data.pieceCount));
 
 	if (ref.resources.gamestate == GameStates::Game)
-		if (Signals::GetGameTime() > lineAdd) {
+		if (GetGameTime() > lineAdd) {
 			lineAdd += sf::seconds(2);
-			Signals::PushGarbage();
+			PushGarbage();
 		}
 
 	setTime();
@@ -271,9 +278,9 @@ void CH_Cheese30L::update(GameplayData& data) {
 
 	if (ref.resources.gamestate == GameStates::Game) {
 		if (data.garbageCleared > 29)
-			Signals::GameOver(1);
+			GameOver(1);
 		while (linesAdded < 30 && linesAdded - data.garbageCleared < 6) {
-			Signals::PushGarbage();
+			PushGarbage();
 			linesAdded++;
 		}
 	}

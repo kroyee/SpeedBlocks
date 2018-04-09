@@ -75,7 +75,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 
 	Net::takePacket(12, [&](sf::Packet &packet){
 		sf::String name, msg;
-		sf::Uint8 type;
+		uint8_t type;
 		packet >> type >> name >> msg;
 		if (type == 3)
 			privto = name;
@@ -147,19 +147,21 @@ void ChatScreen::send() {
 		}
 }
 
+static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
+
 void ChatScreen::sendMsg(const sf::String& to, const sf::String& msg) {
 	sf::Packet packet;
-	packet << (sf::Uint8)10;
+	packet << (uint8_t)10;
 	if (to == "Room")
-		packet << (sf::Uint8)1 << msg;
+		packet << (uint8_t)1 << msg;
 	else if (to == "Lobby")
-		packet << (sf::Uint8)2 << msg;
+		packet << (uint8_t)2 << msg;
 	else
-		packet << (sf::Uint8)3 << to << msg;
-	Signals::SendPacket(packet);
+		packet << (uint8_t)3 << to << msg;
+	SendPacket(packet);
 }
 
-void ChatScreen::addLine(const sf::String& msg, sf::Uint8 type) { //1=room, 2=lobby, 3=priv, 4=self, 5=privself
+void ChatScreen::addLine(const sf::String& msg, uint8_t type) { //1=room, 2=lobby, 3=priv, 4=self, 5=privself
 	sf::Color color = t1;
 	if (type == 2)
 		color = t2;
@@ -188,7 +190,7 @@ void ChatScreen::fade(const sf::Time& t) {
 		else break;
 	}
 
-	sf::Uint8 amount = fadingChatBox->getScrollbar()->getMaximum();
+	uint8_t amount = fadingChatBox->getScrollbar()->getMaximum();
 	if (!amount || isActive())
 		fadingChatBox->hide();
 	else {

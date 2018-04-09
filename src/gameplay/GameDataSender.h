@@ -7,7 +7,7 @@ class gamePlay;
 class GameDataSender {
 	gamePlay & game;
 	sf::Time sendTime;
-	sf::Uint8 count;
+	uint8_t count;
 public:
 	GameDataSender(gamePlay&);
 

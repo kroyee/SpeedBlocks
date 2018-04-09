@@ -3,6 +3,9 @@
 #include <SFML/Network.hpp>
 using std::to_string;
 
+static auto& AreThereFields = Signal<int, int>::get("AreThereFields");
+static auto& SetFieldsSize = Signal<void, int, int>::get("SetFieldsSize");
+
 GameStandings::GameStandings(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
 	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
@@ -55,8 +58,8 @@ void GameStandings::setResults(sf::Packet &packet) {
 
     if (resources.gamestate == GameStates::Spectating) {
     	bool p2=true;
-    	if (Signals::AreThereFields(1))
-	    	if (p1_id == Signals::AreThereFields(1)) {
+    	if (AreThereFields(1))
+	    	if (p1_id == AreThereFields(1)) {
 		        p1_sets->setText(to_string(_p1_sets));
 		        p2_sets->setText(to_string(_p2_sets));
 		        p1_rounds->setText(to_string(_p1_rounds));
@@ -98,7 +101,7 @@ void GameStandings::setResults(sf::Packet &packet) {
     show();
 }
 
-void GameStandings::setWaitTime(sf::Uint16 time) {
+void GameStandings::setWaitTime(uint16_t time) {
 	if (resources.gamestate == GameStates::Spectating)
 		panel->setPosition(365, 195);
 	else
@@ -112,8 +115,8 @@ void GameStandings::setWaitTime(sf::Uint16 time) {
 
 void GameStandings::alignResult() {
 	bool p2=true;
-	if (Signals::AreThereFields(1))
-    	if (p1_id == Signals::AreThereFields(1)) {
+	if (AreThereFields(1))
+    	if (p1_id == AreThereFields(1)) {
 	        p1_sets->setText(to_string(_p1_sets));
 	        p2_sets->setText(to_string(_p2_sets));
 	        p1_rounds->setText(to_string(_p1_rounds));
@@ -134,8 +137,8 @@ void GameStandings::alignResult() {
     }
     p1_rounds->setPosition(10,75);
 
-    if (Signals::AreThereFields(0) == 1)
-    	Signals::SetFieldsSize(450, 555);
+    if (AreThereFields(0) == 1)
+    	SetFieldsSize(450, 555);
     else
-    	Signals::SetFieldsSize(910, 555);
+    	SetFieldsSize(910, 555);
 }

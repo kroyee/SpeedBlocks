@@ -5,6 +5,10 @@ using std::to_string;
 using std::cout;
 using std::endl;
 
+static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
+static auto& SetAreYouSure = Signal<void, const sf::String&>::get("SetAreYouSure");
+static auto& AddAlert = Signal<void, const sf::String&>::get("AddAlert");
+
 OnlineplayUI::OnlineplayUI(sf::Rect<int> _pos, Resources& _res) :
 guiBase(_pos, _res),
 roomList(sf::Rect<int>(0,100,450,500), _res, panel),
@@ -165,12 +169,12 @@ challengesUI(sf::Rect<int>(0,100,960,500), _res, panel)
 	CrB->connect("Pressed", &OnlineplayUI::createRoom, this, std::bind(&tgui::EditBox::getText, NorE), std::bind(&tgui::EditBox::getText, NopE));
 	CreateRoom->add(CrB);
 
-	Signals::SetRoomListTime.connect(&OnlineplayUI::setRoomListTime, this);
+	connectSignal("SetRoomListTime", &OnlineplayUI::setRoomListTime, this);
 
 	Net::takePacket(16, &OnlineplayUI::makeRoomList, this);
 	Net::takePacket(17, &OnlineplayUI::addRoom, this);
 	Net::takePacket(18, [&](sf::Packet &packet){
-		sf::Uint16 id;
+		uint16_t id;
 		packet >> id;
 		roomList.removeItem(id);
 	});
@@ -199,7 +203,7 @@ void OnlineplayUI::opTabSelect(const std::string& tab) {
 		challengesUI.show();
 	}
 	else if (tab == "Back") {
-		Signals::SetAreYouSure("Leave the server?");
+		SetAreYouSure("Leave the server?");
 	}
 }
 
@@ -221,15 +225,15 @@ void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplaye
 	if (!maxplayers.getSize())
 		return;
 	sf::Packet packet;
-	packet << (sf::Uint8)11 << name << (sf::Uint8)stoi(maxplayers.toAnsiString());
-	Signals::SendPacket(packet);
+	packet << (uint8_t)11 << name << (uint8_t)stoi(maxplayers.toAnsiString());
+	SendPacket(packet);
 	hideAllPanels();
 	roomList.show();
 	roomSidePanel->show();
 }
 
 void OnlineplayUI::makeRoomList(sf::Packet &packet) {
-	sf::Uint8 roomCount;
+	uint8_t roomCount;
 
 	packet >> roomCount;
 	auto scrollpos = roomList.scroll->getValue();
@@ -240,7 +244,7 @@ void OnlineplayUI::makeRoomList(sf::Packet &packet) {
 
 	roomList.scroll->setValue(scrollpos);
 
-	sf::Uint16 inqueue, inplay;
+	uint16_t inqueue, inplay;
 	packet >> inqueue >> inplay;
 	matchQueueing->setText("In queue: " + to_string(inqueue));
 	matchPlaying->setText("Playing: " + to_string(inplay));
@@ -248,8 +252,8 @@ void OnlineplayUI::makeRoomList(sf::Packet &packet) {
 
 void OnlineplayUI::addRoom(sf::Packet &packet) {
 	sf::String name;
-	sf::Uint8 maxPlayers, currentPlayers;
-	sf::Uint16 id;
+	uint8_t maxPlayers, currentPlayers;
+	uint16_t id;
 	packet >> id >> name >> currentPlayers >> maxPlayers;
 	sf::String roomlabel = to_string(currentPlayers);
 	if (maxPlayers)
@@ -259,7 +263,7 @@ void OnlineplayUI::addRoom(sf::Packet &packet) {
 }
 
 void OnlineplayUI::makeTournamentList(sf::Packet &packet) {
-	sf::Uint8 tournamentCount;
+	uint8_t tournamentCount;
 
 	packet >> tournamentCount;
 	auto scrollpos = tournamentList.scroll->getValue();
@@ -273,8 +277,8 @@ void OnlineplayUI::makeTournamentList(sf::Packet &packet) {
 
 void OnlineplayUI::addTournament(sf::Packet &packet) {
 	sf::String name;
-	sf::Uint8 status;
-	sf::Uint16 id, players;
+	uint8_t status;
+	uint16_t id, players;
 	packet >> id >> name >> status >> players;
 	sf::String label;
 	if (status == 0)
@@ -305,9 +309,9 @@ void OnlineplayUI::createTournamentPressed() {
 
 void OnlineplayUI::matchmakingPressed() {
 	if (matchButton->getText() == "Join 1vs1 matchmaking")
-		Signals::SendSig(21);
+		SendSignal(21);
 	else
-		Signals::SendSig(22);
+		SendSignal(22);
 }
 
 void OnlineplayUI::back() {
@@ -321,21 +325,21 @@ void OnlineplayUI::back() {
 void OnlineplayUI::createTournament() {
 	if (!tournamentName->getText().getSize() || !sets->getText().getSize() || !rounds->getText().getSize())
 		return;
-	sf::Uint8 setcount = stoi(sets->getText().toAnsiString());
-	sf::Uint8 roundcount = stoi(rounds->getText().toAnsiString());
+	uint8_t setcount = stoi(sets->getText().toAnsiString());
+	uint8_t roundcount = stoi(rounds->getText().toAnsiString());
 	sf::Packet packet;
-	packet << (sf::Uint8)21 << tournamentName->getText() << setcount << roundcount;
-	Signals::SendPacket(packet);
+	packet << (uint8_t)21 << tournamentName->getText() << setcount << roundcount;
+	SendPacket(packet);
 	back();
 	updateTournamentListTime -= sf::seconds(5);
 }
 
-void OnlineplayUI::alertMsg(const sf::Uint16 id1) {
+void OnlineplayUI::alertMsg(const uint16_t id1) {
 	sf::String msg = "Tournament game ready";
 	for (auto&& tournament : tournamentList.items)
 		if (tournament.id == id1)
 			msg += " in " + tournament.name;
-	Signals::AddAlert(msg);
+	AddAlert(msg);
 }
 
 void OnlineplayUI::setRoomListTime() {

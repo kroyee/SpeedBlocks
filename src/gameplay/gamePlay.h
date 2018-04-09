@@ -66,7 +66,7 @@ public:
 	sf::Time lockDownTime;
 	bool lockdown;
 
-	sf::Uint8 nextpiece, nextpieceCopy;
+	uint8_t nextpiece, nextpieceCopy;
 
 	sf::Text pressEnterText;
 	bool showPressEnterText;
@@ -95,7 +95,7 @@ public:
 
 	void addPiece(const sf::Time&);
 	void makeNewPiece();
-	void copyPiece(sf::Uint8 np);
+	void copyPiece(uint8_t np);
 
 	void draw();
 
@@ -107,12 +107,12 @@ public:
 	void updateBasePieces();
 
 	void sendLines(sf::Vector2i lines);
-	void playComboSound(sf::Uint8 combo);
+	void playComboSound(uint8_t combo);
 
 	void addGarbage(int amount);
 	void pushGarbage();
 	void addGarbageLine();
-	void addGarbageLine(sf::Uint8 hole);
+	void addGarbageLine(uint8_t hole);
 	void clearGarbage();
 
 	bool setComboTimer();
@@ -130,7 +130,7 @@ public:
 
 	void drawNextPiece();
 
-	void addRecEvent(sf::Uint8 type, sf::Uint8 value);
+	void addRecEvent(uint8_t type, uint8_t value);
 	void startReplay();
 	bool playReplay();
 	void updateReplayText(RecordingEvent& event);

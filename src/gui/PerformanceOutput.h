@@ -17,7 +17,7 @@ public:
 	tgui::Label::Ptr pingHeader;
 
 	bool pingReturned;
-	sf::Uint8 pingIdCount;
+	uint8_t pingIdCount;
 	sf::Time pingTime;
 
 	sf::Time longestFrame, secCount;

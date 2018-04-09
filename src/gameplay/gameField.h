@@ -16,7 +16,7 @@ public:
     //BasicField(const BasicField& field);
     Resources& resources;
 
-    std::array<std::array<sf::Uint8, 10>, 22> square;
+    std::array<std::array<uint8_t, 10>, 22> square;
     basePieces piece;
 
     bool possible();
@@ -49,11 +49,11 @@ public:
 
     GameFieldText text;
 
-    sf::Uint8 offset;
+    uint8_t offset;
 
     bool drawMe;
 
-    std::array<std::array<sf::Uint8, 10>, 22> squareCopy;
+    std::array<std::array<uint8_t, 10>, 22> squareCopy;
     basePieces pieceCopy;
 
     std::thread drawThread;
@@ -66,7 +66,7 @@ public:
 
     bool possibleCopy();
 
-    void drawTile(sf::Uint8 color, sf::Uint8 x, sf::Uint8 y);
+    void drawTile(uint8_t color, uint8_t x, uint8_t y);
 
     void drawField(bool drawLines);
     void drawEdges();
@@ -74,7 +74,7 @@ public:
     void drawPiece();
     void drawGhostPiece();
 
-    void setBackColor(sf::Uint8 val);
+    void setBackColor(uint8_t val);
 };
 
 class obsField : public gameField {
@@ -83,11 +83,11 @@ public:
     
     obsField(Resources& _resources);
 
-    sf::Uint16 id;
-    sf::Uint8 nextpiece, nprot, npcol;
+    uint16_t id;
+    uint8_t nextpiece, nprot, npcol;
     float scale;
     bool mouseover;
-    sf::Uint8 datacount;
+    uint8_t datacount;
 
     basePieces npPiece;
 

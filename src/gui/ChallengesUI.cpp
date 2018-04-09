@@ -5,6 +5,9 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
+static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& SendRecording = Signal<void, int>::get("SendRecording");
+
 ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) :
 guiBase(_pos, _res, parentPanel),
 challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
@@ -49,18 +52,18 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	Net::takePacket(6, [&](sf::Packet &packet){
 		sf::String text;
 		packet >> text;
-		Signals::QuickMsg("You improved your score from " + text);
-		Signals::SendRecording(selectedId);
+		QuickMsg("You improved your score from " + text);
+		SendRecording(selectedId);
 	});
 }
 
 void ChallengesUI::makeList(sf::Packet &packet) {
-	sf::Uint8 count;
+	uint8_t count;
 	packet >> count;
 
 	challengeList.removeAllItems();
 
-	sf::Uint16 id;
+	uint16_t id;
 	sf::String name, label;
 	for (int i=0; i<count; i++) {
 		packet >> id >> name >> label;
@@ -108,7 +111,7 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 	rows.clear();
 	ChallengesRow row;
 	packet >> itemsInScrollPanel;
-	for (sf::Uint16 c=0; c<itemsInScrollPanel; c++) {
+	for (uint16_t c=0; c<itemsInScrollPanel; c++) {
 
 		row.label[0] = resources.gfx->themeTG->load("Label");
 		row.label[0]->setPosition(0, c*30+7);
@@ -116,7 +119,7 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 		row.label[0]->setTextSize(14);
 		scrollPanel->add(row.label[0]);
 
-		for (sf::Uint8 i=1; i<columns; i++) {
+		for (uint8_t i=1; i<columns; i++) {
 			packet >> string;
 			row.label[i] = resources.gfx->themeTG->load("Label");
 			row.label[i]->setPosition(width[i], c*30+7);
@@ -150,7 +153,7 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 }
 
 void ChallengesUI::play() {
-	Signals::SendSig(17, selectedId);
+	SendSignal(17, selectedId);
 }
 
 void ChallengesUI::show() {
@@ -158,15 +161,15 @@ void ChallengesUI::show() {
 	leaderPanel->hide();
 }
 
-void ChallengesUI::viewReplay(sf::Uint16 slot) {
-	Signals::SendSig(18, selectedId, slot);
+void ChallengesUI::viewReplay(uint16_t slot) {
+	SendSignal(18, selectedId, slot);
 }
 
 void ChallengesUI::listScrolled(int scrollpos) {
 	for (auto it = rows.begin(); it != rows.end(); it++) {
 		int i = std::distance(rows.begin(), it);
 		it->button->setPosition(400, i*30+5 - scrollpos*30);
-		for (sf::Uint8 c=0; c<columns; c++)
+		for (uint8_t c=0; c<columns; c++)
 			it->label[c]->setPosition(width[c], i*30+7 - scrollpos*30);
 	}
 }

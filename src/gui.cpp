@@ -16,6 +16,17 @@ using std::move;
 #include "EmptyResourcePath.h"
 #endif
 
+static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& SeedRander = Signal<void, int, int>::get("SeedRander");
+static auto& StartCountDown = Signal<void>::get("StartCountDown");
+static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
+static auto& GameSetup = Signal<void, int>::get("GameSetup");
+static auto& GameOver = Signal<void, int>::get("GameOver");
+static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
+static auto& AddField = Signal<obsField&, int, const sf::String&>::get("AddField");
+static auto& GameClear = Signal<void>::get("GameClear");
+static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
+
 UI::UI(sf::RenderWindow& window_,
 	gamePlay& game_)
     : resources(game_.resources),
@@ -31,11 +42,11 @@ UI::UI(sf::RenderWindow& window_,
 
     guiElements->trainingUI.hide();
 
-	Signals::LeaveRoom.connect(&UI::leaveRoom, this);
-	Signals::SetGameState.connect([&](GameStates _state){ UIBaseState::set(state, _state); });
-	Signals::LightTheme.connect(&UI::lightTheme, this);
-	Signals::DarkTheme.connect(&UI::darkTheme, this);
-	Signals::JoinRoom.connect(&UI::joinRoom, this);
+	connectSignal("LeaveRoom", &UI::leaveRoom, this);
+	connectSignal("SetGameState", [&](GameStates _state){ UIBaseState::set(state, _state); });
+	connectSignal("LightTheme", &UI::lightTheme, this);
+	connectSignal("DarkTheme", &UI::darkTheme, this);
+	connectSignal("JoinRoom", &UI::joinRoom, this);
 
 	Net::takePacket(100, &UI::getGameState, this);
 	Net::takePacket(1, &UI::receiveRecording, this);
@@ -45,47 +56,47 @@ UI::UI(sf::RenderWindow& window_,
 	});
 	Net::takePacket(103, &UI::setCountdown, this);
 
-	Net::takeSignal(0, [&](){ Signals::QuickMsg("Not enough players to start tournament"); });
-	Net::takeSignal(2, [&](){ Signals::QuickMsg("You can't do that as guest, register at https://speedblocks.se"); });
-	Net::takeSignal(4, [&](sf::Uint16 id1, sf::Uint16 id2){
-		Signals::SeedRander(id1, id2);
-		Signals::StartCountDown();
+	Net::takeSignal(0, [&](){ QuickMsg("Not enough players to start tournament"); });
+	Net::takeSignal(2, [&](){ QuickMsg("You can't do that as guest, register at https://speedblocks.se"); });
+	Net::takeSignal(4, [&](uint16_t id1, uint16_t id2){
+		SeedRander(id1, id2);
+		StartCountDown();
 		guiElements->gameFieldDrawer.resetOppFields();
-		Signals::SetGameState(GameStates::CountDown);
+		SetGameState(GameStates::CountDown);
 		countdown.start(delayClock.getElapsedTime());
 		if (guiElements->challengesGameUI.isVisible()) {
 			guiElements->challengesGameUI.clear();
 			if (guiElements->challengesGameUI.challenge->type == Challenges::Cheese)
-				Signals::GameSetup(1);
+				GameSetup(1);
 			else if (guiElements->challengesGameUI.challenge->type == Challenges::Cheese30L)
-				Signals::GameSetup(2);
+				GameSetup(2);
 		}
 	});
-	Net::takeSignal(5, [&](sf::Uint16 id1){
+	Net::takeSignal(5, [&](uint16_t id1){
 		if (!id1 && gamestate==GameStates::Game)
-			Signals::GameOver(0);
+			GameOver(0);
 		countdown.stop();
 	});
 	Net::takeSignal(7, [&](){
 		if (gamestate != GameStates::Practice)
-			Signals::GameOver(0);
+			GameOver(0);
 		countdown.stop();
 	});
 	Net::takeSignal(8, [&](){
-		Signals::GameOver(1);
+		GameOver(1);
 		countdown.stop();
 	});
-	Net::takeSignal(10, [&](sf::Uint16 id1, sf::Uint16 id2){
+	Net::takeSignal(10, [&](uint16_t id1, uint16_t id2){
 		guiElements->gameFieldDrawer.resetOppFields();
-		Signals::SeedRander(id1, id2);
+		SeedRander(id1, id2);
 		if (gamestate != GameStates::Spectating) {
-			Signals::GameClear();
-			Signals::SetDrawMe();
+			GameClear();
+			SetDrawMe();
 		}
 		countdown.start(delayClock.getElapsedTime());
 	});
-	Net::takeSignal(18, [&](){ Signals::QuickMsg("You need to reach rank 0 to join the Hero room"); });
-	Net::takeSignal(22, [&](){ Signals::QuickMsg("You are still in the matchmaking queue"); });
+	Net::takeSignal(18, [&](){ QuickMsg("You need to reach rank 0 to join the Hero room"); });
+	Net::takeSignal(22, [&](){ QuickMsg("You are still in the matchmaking queue"); });
 
 	if (options.theme == 1)
 		lightTheme();
@@ -100,14 +111,14 @@ UI::~UI() {
 }
 
 void UI::joinRoom(int id) {
-	Signals::SendSig(0, id);
+	SendSignal(0, id);
 	away=false;
 	game.autoaway=false;
 }
 
 void UI::leaveRoom() {
-	Signals::SendSig(1);
-	Signals::SetGameState(GameStates::MainMenu);
+	SendSignal(1);
+	SetGameState(GameStates::MainMenu);
 }
 
 void UI::chatFocus(bool i) {
@@ -122,10 +133,10 @@ void UI::chatFocus(bool i) {
 }
 
 void UI::receiveRecording(sf::Packet &packet) {
-	sf::Uint16 type;
+	uint16_t type;
 	packet >> type;
 	game.recorder.receiveRecording(packet);
-	Signals::SetGameState(GameStates::Replay);
+	SetGameState(GameStates::Replay);
 	if (type >= 20000) {
 		guiElements->gameFieldDrawer.hide();
 		guiElements->challengesGameUI.openChallenge(type);
@@ -142,13 +153,13 @@ void UI::delayCheck() {
 			if (currentTime - udpPortTime > sf::milliseconds(500)) {
 				udpPortTime = currentTime;
 				sf::Packet packet;
-				packet << (sf::Uint8)99 << myId;
-				Signals::SendPacketUDP(packet);
+				packet << (uint8_t)99 << myId;
+				SendPacketUDP(packet);
 			}
 
 		if (gamestate == GameStates::CountDown)
 			if (game.countDown(countdown.check(currentTime)))
-				Signals::SetGameState(GameStates::Game);
+				SetGameState(GameStates::Game);
 
 		guiElements->performanceOutput.setPing(ping.send(currentTime, myId));
 	}
@@ -236,14 +247,14 @@ void UI::setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets) {
 }
 
 void UI::getGameState(sf::Packet& packet) {
-	sf::Uint16 clientid;
-	sf::Uint8 datacount;
+	uint16_t clientid;
+	uint8_t datacount;
 	packet >> clientid >> datacount;
 	for (auto&& field : guiElements->gameFieldDrawer.fields)
 		if (field.id==clientid) {
 			if (datacount>field.datacount || (datacount<50 && field.datacount>200)) {
 				field.datacount=datacount;
-				for (int c=0; packet >> resources.compressor->tmp[c]; c++) {}
+				resources.compressor->loadTmp(packet);
 				resources.compressor->extract();
 				if (resources.compressor->validate()) {
 					resources.compressor->field = &field;
@@ -258,22 +269,22 @@ void UI::getGameState(sf::Packet& packet) {
 void UI::setCountdown(sf::Packet &packet) {
 	countdown.set(delayClock.getElapsedTime(), packet);
 	if (countdown.ongoing() && !away && gamestate != GameStates::CountDown) {
-		Signals::SetGameState(GameStates::CountDown);
+		SetGameState(GameStates::CountDown);
 		game.startCountdown();
 	}
 }
 
 void UI::joinRoomResponse(sf::Packet &packet) {
-	sf::Uint16 joinok;
+	uint16_t joinok;
 	packet >> joinok;
 	if (joinok == 1 || joinok == 1000) {
-		sf::Uint8 playersinroom;
-		sf::Uint16 playerid, seed1, seed2;
+		uint8_t playersinroom;
+		uint16_t playerid, seed1, seed2;
 		packet >> seed1 >> seed2 >> playersinroom;
-		Signals::SeedRander(seed1, seed2);
+		SeedRander(seed1, seed2);
 
 		if (joinok == 1) {
-			Signals::SetGameState(GameStates::GameOver);
+			SetGameState(GameStates::GameOver);
 			game.pressEnterText.setString("press P to start practice");
 			game.field.clear();
 			game.drawMe=true;
@@ -281,7 +292,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 			guiElements->gameFieldDrawer.setSize(450, 555);
 		}
 		else {
-			Signals::SetGameState(GameStates::Spectating);
+			SetGameState(GameStates::Spectating);
 			guiElements->gameFieldDrawer.setPosition(5, 40);
 			guiElements->gameFieldDrawer.setSize(910, 555);
 		}
@@ -289,7 +300,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 		sf::String name;
 		for (int c=0; c<playersinroom; c++) {
 			packet >> playerid >> name;
-			Signals::AddField(playerid, name);
+			AddField(playerid, name);
 		}
 		if (gamestate == GameStates::Spectating)
 			guiElements->gameStandings.alignResult();
@@ -297,13 +308,13 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 		guiElements->chatScreen.sendTo("Room");
 	}
 	else if (joinok == 2)
-		Signals::QuickMsg("Room is full");
+		QuickMsg("Room is full");
 	else if (joinok == 3)
-		Signals::QuickMsg("Please wait for server to get your user-data");
+		QuickMsg("Please wait for server to get your user-data");
 	else if (joinok == 4)
-		Signals::QuickMsg("This is not your game");
+		QuickMsg("This is not your game");
 	else if (joinok >= 20000) {
-		Signals::SetGameState(GameStates::GameOver);
+		SetGameState(GameStates::GameOver);
 		guiElements->gameFieldDrawer.hide();
 		game.pressEnterText.setString("press P to start challenge");
 		game.field.clear();

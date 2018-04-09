@@ -4,6 +4,8 @@
 using std::cout;
 using std::endl;
 
+static auto& JoinRoom = Signal<void, int>::get("JoinRoom");
+
 ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 	pos = _pos;
 
@@ -28,14 +30,14 @@ ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr par
 	panel->add(scroll);
 }
 
-void ScrollList::addItem(const sf::String& name, const sf::String& labelStr, sf::Uint16 id) {
+void ScrollList::addItem(const sf::String& name, const sf::String& labelStr, uint16_t id) {
 	ListItem newItem;
 	items.push_back(newItem);
 	items.back().name = name;
 	items.back().button = resources.gfx->themeTG->load("Button");
 	items.back().button->setText(name);
 	items.back().button->setSize(300, 100);
-	items.back().button->connect("Pressed", [=](){ Signals::JoinRoom(id); });
+	items.back().button->connect("Pressed", [=](){ JoinRoom(id); });
 	panel->add(items.back().button);
 
 	items.back().label = resources.gfx->themeTG->load("Label");
@@ -49,7 +51,7 @@ void ScrollList::addItem(const sf::String& name, const sf::String& labelStr, sf:
 	setItemPos();
 }
 
-void ScrollList::removeItem(sf::Uint16 id) {
+void ScrollList::removeItem(uint16_t id) {
 	for (auto it = items.begin(); it != items.end(); it++) {
 		if (it->id == id) {
 			panel->remove(it->button);

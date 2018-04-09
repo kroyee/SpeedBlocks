@@ -54,6 +54,7 @@ public:
     void seedHole(short seedNr);
     void seedPiece(short seedNr);
 	short getPiece();
+    double uniqueRnd();
 	void reset();
 };
 

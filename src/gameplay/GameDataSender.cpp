@@ -4,8 +4,12 @@
 #include "GameSignals.h"
 #include "packetcompress.h"
 
+static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
+static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
+static auto& Survivor = Signal<bool>::get("Survivor");
+
 GameDataSender::GameDataSender(gamePlay& _game) : game(_game), sendTime(sf::seconds(0)), count(251) {
-	Signals::SendGameState.connect(&GameDataSender::state, this);
+	connectSignal("SendGameState", &GameDataSender::state, this);
 }
 
 void GameDataSender::sendstate() {
@@ -28,7 +32,7 @@ void GameDataSender::state() {
 		return;
 	
 	if (game.resources.gamestate == GameStates::CountDown) {
-		sf::Uint8 tmp = game.field.piece.piece;
+		uint8_t tmp = game.field.piece.piece;
 		game.field.piece.piece = 7; // makes the current piece not draw on other players screen (since it's countdown)
 		game.resources.compressor->compress();
 		game.field.piece.piece = tmp;
@@ -36,13 +40,11 @@ void GameDataSender::state() {
 	else
 		game.resources.compressor->compress();
 	sf::Packet packet;
-	packet << (sf::Uint8)100 << game.resources.myId << count;
+	packet << (uint8_t)100 << game.resources.myId << count;
 	count++;
-	for (int i=0; i<game.resources.compressor->tmpcount; i++)
-		packet << game.resources.compressor->tmp[i];
-	if (game.resources.compressor->bitcount>0)
-		packet << game.resources.compressor->tmp[game.resources.compressor->tmpcount];
-	Signals::SendPacketUDP(packet);
+	for (auto i : game.resources.compressor->tmp)
+		packet << i;
+	SendPacketUDP(packet);
 }
 
 void GameDataSender::gameover(int winner) {
@@ -50,15 +52,15 @@ void GameDataSender::gameover(int winner) {
 		return;
 
 	sf::Packet packet;
-	if (winner || Signals::Survivor()) {
-		packet << (sf::Uint8)4 << (sf::Uint8)game.combo.maxCombo << (sf::Uint16)game.data.linesSent << (sf::Uint16)game.data.linesRecieved << (sf::Uint16)game.garbage.linesBlocked;
-		packet << (sf::Uint16)game.data.bpm << (sf::Uint32)game.recorder.duration.asMilliseconds();
-		packet << (sf::Uint16)game.data.pieceCount;
+	if (winner || Survivor()) {
+		packet << (uint8_t)4 << (uint8_t)game.combo.maxCombo << (uint16_t)game.data.linesSent << (uint16_t)game.data.linesRecieved << (uint16_t)game.garbage.linesBlocked;
+		packet << (uint16_t)game.data.bpm << (uint32_t)game.recorder.duration.asMilliseconds();
+		packet << (uint16_t)game.data.pieceCount;
 	}
 	else
-		packet << (sf::Uint8)3 << (sf::Uint8)game.combo.maxCombo << (sf::Uint16)game.data.linesSent << (sf::Uint16)game.data.linesRecieved << (sf::Uint16)game.garbage.linesBlocked << (sf::Uint16)game.data.bpm;
+		packet << (uint8_t)3 << (uint8_t)game.combo.maxCombo << (uint16_t)game.data.linesSent << (uint16_t)game.data.linesRecieved << (uint16_t)game.garbage.linesBlocked << (uint16_t)game.data.bpm;
 	
-	Signals::SendPacket(packet);
+	SendPacket(packet);
 	state();
 }
 

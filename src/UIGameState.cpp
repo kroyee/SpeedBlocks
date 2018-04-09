@@ -69,15 +69,15 @@ UIReplay::~UIReplay() {
 	ui.guiElements->replayUI.pauseTime=sf::seconds(0);
 }
 
-
+static auto& SetAway = Signal<void, bool>::get("SetAway");
 UIPractice::UIPractice(UI& _ui) : UIBaseState(_ui, GameStates::Practice) {
 	if (ui.away)
-		Signals::SetAway(false);
+		SetAway(false);
 }
 UIPractice::~UIPractice() {}
 
 
 UISpectating::UISpectating(UI& _ui) : UIBaseState(_ui, GameStates::Spectating) {}
 UISpectating::~UISpectating() {
-	Signals::SendSig(20);
+	SendSignal(20);
 }

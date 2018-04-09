@@ -11,11 +11,11 @@
 #endif
 
 Recording::Recording() : name("") {
-	Signals::GetRecDuration.connect([&]() -> const sf::Time& { return duration; });
-	Signals::GetRecTime.connect([&]() -> sf::Time { return timer.getElapsedTime() + startAt; });
-	Signals::RecJumpTo.connect(&Recording::jumpTo, this);
-	Signals::GetRecName.connect([&]() -> const sf::String& { return name; });
-	Signals::SendRecording.connect(&Recording::sendRecording, this);
+	connectSignal("GetRecDuration", [&]() -> const sf::Time& { return duration; });
+	connectSignal("GetRecTime", [&]() -> sf::Time { return timer.getElapsedTime() + startAt; });
+	connectSignal("RecJumpTo", &Recording::jumpTo, this);
+	connectSignal("GetRecName", [&]() -> const sf::String& { return name; });
+	connectSignal("SendRecording", &Recording::sendRecording, this);
 }
 
 void Recording::clear() {
@@ -27,7 +27,7 @@ void Recording::clear() {
 	events.clear();
 }
 
-void Recording::start(std::array<std::array<sf::Uint8, 10>, 22> start_pos) {
+void Recording::start(std::array<std::array<uint8_t, 10>, 22> start_pos) {
 	clear();
 	for (int y=0; y<22; y++)
 		for (int x=0; x<10; x++)
@@ -72,17 +72,17 @@ void Recording::save(std::string filename) {
 
 	file.write((char*)starting_position, 220);
 
-	sf::Uint32 eventTime;
+	uint32_t eventTime;
 	for (auto&& event : events) {
 		switch(event.type) {
 			case 100:
 				file.write((char*)&event.type, 1);
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 			break;
 			case 101:
 				file.write((char*)&event.type, 1);
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 			break;
 			case 1:
@@ -94,7 +94,7 @@ void Recording::save(std::string filename) {
 				file.write((char*)&event.x, 1);
 				file.write((char*)&event.y, 1);
 
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 
 				file.write((char*)&event.pending, 1);
@@ -111,7 +111,7 @@ void Recording::save(std::string filename) {
 				file.write((char*)&event.x, 1);
 				file.write((char*)&event.y, 1);
 
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 
 				file.write((char*)&event.pending, 1);
@@ -124,7 +124,7 @@ void Recording::save(std::string filename) {
 
 				file.write((char*)&event.x, 1);
 
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 
 				file.write((char*)&event.pending, 1);
@@ -135,7 +135,7 @@ void Recording::save(std::string filename) {
 			case 5:
 				file.write((char*)&event.type, 1);
 
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 
 				file.write((char*)&event.pending, 1);
@@ -148,7 +148,7 @@ void Recording::save(std::string filename) {
 
 				file.write((char*)&event.piece, 1);
 
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 
 				file.write((char*)&event.pending, 1);
@@ -161,7 +161,7 @@ void Recording::save(std::string filename) {
 
 				file.write((char*)&event.pending, 1);
 
-				eventTime = (sf::Uint32)event.time.asMilliseconds();
+				eventTime = (uint32_t)event.time.asMilliseconds();
 				file.write((char*)&eventTime, 4);
 
 				file.write((char*)&event.pending, 1);
@@ -187,7 +187,7 @@ void Recording::load(std::string filename) {
 	file.read((char*)starting_position, 220);
 
 	RecordingEvent event;
-	sf::Uint32 eventTime;
+	uint32_t eventTime;
 	while (!file.eof()) {
 		file.read((char*)&event.type, 1);
 		switch (event.type) {
@@ -271,12 +271,14 @@ void Recording::load(std::string filename) {
 	file.close();
 }
 
+static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
+
 void Recording::sendRecording(int type) {
 	sf::Packet packet;
-	packet << (sf::Uint8)1 << (sf::Uint16)type;
+	packet << (uint8_t)1 << (uint16_t)type;
 	PacketCompress compressor;
 	compressor.compressReplay(*this, packet);
-	Signals::SendPacket(packet);
+	SendPacket(packet);
 }
 
 void Recording::receiveRecording(sf::Packet &packet) {

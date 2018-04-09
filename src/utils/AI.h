@@ -35,7 +35,7 @@ public:
 	uint16_t gameCount;
 	uint16_t score;
 
-	sf::Uint16 id;
+	uint16_t id;
 	float incomingLines;
 
 	Mode mode;

@@ -110,8 +110,8 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _r
 
 	Net::takePacket(8, &ScoreScreen::getScores, this);
 
-	Signals::AddLocalScore.connect(&ScoreScreen::addRowLocal, this);
-	Signals::SetRoundlenghtForScore.connect([&](int lenght){ roundLenght = lenght; clear(); });
+	connectSignal("AddLocalScore", &ScoreScreen::addRowLocal, this);
+	connectSignal("SetRoundlenghtForScore", [&](int lenght){ roundLenght = lenght; clear(); });
 }
 
 void ScoreScreen::clear() {
@@ -123,7 +123,7 @@ void ScoreScreen::clear() {
 }
 
 void ScoreScreen::getScores(sf::Packet& packet) {
-	sf::Uint8 count;
+	uint8_t count;
 	packet >> roundLenght >> count;
 	clear();
 	for (int i=0; i<count; i++)
@@ -251,7 +251,7 @@ void ScoreScreen::setRowLabels(ScoreRow& score, uint8_t type) {
 	rowCount++;
 }
 
-void ScoreScreen::selectRow(sf::Uint8 index) {
+void ScoreScreen::selectRow(uint8_t index) {
 	if (index >= scores.size()) {
 		selected=0;
 		highlight->hide();
@@ -264,7 +264,7 @@ void ScoreScreen::selectRow(sf::Uint8 index) {
 }
 
 void ScoreScreen::scorePressed(sf::Vector2f pos) {
-	sf::Uint8 index=0;
+	uint8_t index=0;
 	while (pos.y > 30) {
 		pos.y-=30;
 		index++;
@@ -306,7 +306,7 @@ void ScoreScreen::handleEvent(sf::Event& event) {
 				}
 }
 
-const sf::String& ScoreScreen::getName(sf::Uint16 id) {
+const sf::String& ScoreScreen::getName(uint16_t id) {
 	for (auto& client : resources.clientList)
 		if (client.id == id)
 			return client.name;

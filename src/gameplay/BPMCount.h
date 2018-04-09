@@ -8,15 +8,15 @@
 class BPMCount {
 	std::mutex bpmMutex;
 public:
-	sf::Uint16 oldbpm[10];
-	sf::Uint8 oldbpmCount;
+	uint16_t oldbpm[10];
+	uint8_t oldbpmCount;
 	sf::Time bpmMeasureTiming;
-	sf::Uint16 bpm;
+	uint16_t bpm;
 
 	std::deque<sf::Time> bpmCount;
 
 	void addPiece(const sf::Time&);
-	sf::Uint16 calcBpm(const sf::Time&);
+	uint16_t calcBpm(const sf::Time&);
 
 	void clear();
 };

@@ -29,7 +29,7 @@ public:
 
 	void update(sf::Time);
 	void seek(sf::Vector2f mouse);
-	sf::String displayTime(sf::Uint16 timeVal);
+	sf::String displayTime(uint16_t timeVal);
 	void pause();
 };
 

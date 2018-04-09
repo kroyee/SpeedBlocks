@@ -45,7 +45,7 @@ public:
 	GameStates& gamestate;
 	std::unique_ptr<UIBaseState> state;
 
-	sf::Uint16& myId;
+	uint16_t& myId;
 
 	void setCountdown(sf::Packet &packet);
 

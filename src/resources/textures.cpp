@@ -58,22 +58,14 @@ sf::String textures::loadTextures() {
     if (!alert.loadFromFile(resourcePath() + "media/alert.png"))
         return "media/alert.png";
 
-    sf::Texture text;
-    if (!text.loadFromFile(resourcePath() + "media/rotate.png"))
+    //sf::Texture text;
+    if (!rotate.loadFromFile(resourcePath() + "media/rotate.png"))
         return "media/rotate.png";
-    text.setSmooth(true);
+    rotate.setSmooth(true);
 
-    rotate_n.load(text);
-    rotate_h.load(text);
-    rotate_n.setColor(sf::Color(0,0,0));
-
-    if (!text.loadFromFile(resourcePath() + "media/choosecolor.png"))
+    if (!color.loadFromFile(resourcePath() + "media/choosecolor.png"))
         return "media/choosecolor.png";
-    text.setSmooth(true);
-
-    color_n.load(text);
-    color_h.load(text);
-    color_n.setColor(sf::Color(0,0,0));
+    color.setSmooth(true);
 
     if (!logoTexture.loadFromFile(resourcePath() + "media/blackwhitelogo.png"))
         return "media/blackwhitelogo.png";
@@ -94,7 +86,7 @@ sf::String textures::loadTextures() {
     return "OK";
 }
 
-void textures::setGhostPieceAlpha(sf::Uint8 alpha) {
+void textures::setGhostPieceAlpha(uint8_t alpha) {
     tile[8].setColor(sf::Color(255,0,0,alpha));
     tile[9].setColor(sf::Color(0,255,0,alpha));
     tile[10].setColor(sf::Color(115,145,255,alpha));

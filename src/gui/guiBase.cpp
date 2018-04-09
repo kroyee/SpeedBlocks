@@ -10,12 +10,7 @@ guiBase::guiBase(sf::Rect<int> _pos, Resources& _res) : resources(_res) {
 }
 
 guiBase::guiBase(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : resources(_res) {
-	panel = tgui::Panel::create();
-	panel->setPosition(_pos.left, _pos.top);
-	panel->setSize(_pos.width, _pos.height);
-	panel->setBackgroundColor(sf::Color(255,255,255,0));
-	panel->hide();
-	parentPanel->add(panel);
+	panel = loadPanelTo(parentPanel, _pos);
 }
 
 guiBase::~guiBase() {}
@@ -37,4 +32,42 @@ bool guiBase::mouseOver(tgui::Widget::Ptr widget) {
 		if (mpos.y>=pos.y-2 && mpos.y<=pos.y+size.y+2)
 			return true;
 	return false;
+}
+
+tgui::WidgetConverter guiBase::loadWidget(const sf::String& widget, const PosAndSize& pos, const sf::String& text) {
+	return loadWidgetTo(panel, widget, pos, text);
+}
+
+tgui::WidgetConverter guiBase::loadWidgetTo(tgui::Panel::Ptr _panel, const sf::String& widget, const PosAndSize& pos, const sf::String& text) {
+	tgui::WidgetConverter wcnv = resources.gfx->themeTG->load(widget);
+	tgui::Widget::Ptr wptr = wcnv;
+	wptr->setPosition(pos.x, pos.y);
+	if (pos.w || pos.h)
+		wptr->setSize(pos.w, pos.h);
+
+	if (text != "") {
+		if (wptr->getWidgetType() == "Button")
+			static_cast<tgui::Button*>(wptr.get())->setText(text);
+		else if (wptr->getWidgetType() == "Label")
+			static_cast<tgui::Label*>(wptr.get())->setText(text);
+	}
+
+	_panel->add(wptr);
+	return wcnv;
+}
+
+tgui::Panel::Ptr guiBase::loadPanel(const PosAndSize& pos, bool hide) {
+	return loadPanelTo(panel, pos, hide);
+}
+
+tgui::Panel::Ptr guiBase::loadPanelTo(tgui::Panel::Ptr toPanel, const PosAndSize& pos, bool hide) {
+	tgui::Panel::Ptr pan = tgui::Panel::create();
+	pan->setPosition(pos.x, pos.y);
+	pan->setSize(pos.w, pos.h);
+	pan->setBackgroundColor(sf::Color(255,255,255,0));
+
+	toPanel->add(pan);
+	if (hide)
+		pan->hide();
+	return pan;
 }

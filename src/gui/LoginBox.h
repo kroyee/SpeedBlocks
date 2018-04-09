@@ -20,10 +20,10 @@ public:
 	PatchCheck patcher;
 	Connecting connectingScreen;
 	LoginBox(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
-	void launchLogin(sf::Uint8 guest);
-	void login(sf::String name, sf::String pass, sf::Uint8 guest);
+	void launchLogin(uint8_t guest);
+	void login(sf::String name, sf::String pass, uint8_t guest);
 	virtual void show();
-	void sendLogin(const sf::String& hashorname, sf::Uint8 guest);
+	void sendLogin(const sf::String& hashorname, uint8_t guest);
 	void regPressed();
 	void forgotPressed();
 	void checkStatus();

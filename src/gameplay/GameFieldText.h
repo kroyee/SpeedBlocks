@@ -25,9 +25,9 @@ public:
     
     sf::ConvexShape comboTimer;
 
-    sf::Uint8 combo, pending;
-    sf::Uint16 bpm;
-    sf::Int8 position, countdown, gameover;
+    uint8_t combo, pending;
+    uint16_t bpm;
+    int8_t position, countdown, gameover;
     bool away, ready;
 
     sf::String name;
@@ -36,13 +36,13 @@ public:
     GameFieldText(const GameFieldText& text);
 
     void setName(const sf::String& n);
-    void setPosition(const sf::Int8 _position);
-    void setCountdown(const sf::Int8 _countdown);
-    void setGameover(const sf::Int8 _gameover);
-    bool setComboTimer(sf::Uint8 count);
-    void setBpm(const sf::Uint16 _bpm);
-    void setCombo(const sf::Uint8 _combo);
-    void setPending(const sf::Uint8 _pending);
+    void setPosition(const int8_t _position);
+    void setCountdown(const int8_t _countdown);
+    void setGameover(const int8_t _gameover);
+    bool setComboTimer(uint8_t count);
+    void setBpm(const uint16_t _bpm);
+    void setCombo(const uint8_t _combo);
+    void setPending(const uint8_t _pending);
     void setColor(sf::Color color);
 
     void clear();
