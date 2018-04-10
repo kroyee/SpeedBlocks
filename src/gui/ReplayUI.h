@@ -20,7 +20,7 @@ public:
 
 	sf::Time pauseTime;
 
-	sf::String nameBackup;
+	std::string nameBackup;
 	bool backup;
 
 	ReplayUI(sf::Rect<int> _pos, Resources& _res);
@@ -29,7 +29,7 @@ public:
 
 	void update(sf::Time);
 	void seek(sf::Vector2f mouse);
-	sf::String displayTime(uint16_t timeVal);
+	std::string displayTime(uint16_t timeVal);
 	void pause();
 };
 

@@ -6,8 +6,8 @@ using std::cout;
 using std::endl;
 
 static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
-static auto& SetAreYouSure = Signal<void, const sf::String&>::get("SetAreYouSure");
-static auto& AddAlert = Signal<void, const sf::String&>::get("AddAlert");
+static auto& SetAreYouSure = Signal<void, const std::string&>::get("SetAreYouSure");
+static auto& AddAlert = Signal<void, const std::string&>::get("AddAlert");
 
 OnlineplayUI::OnlineplayUI(sf::Rect<int> _pos, Resources& _res) :
 guiBase(_pos, _res),
@@ -219,13 +219,13 @@ void OnlineplayUI::hideAllPanels(bool keepTournamentOpen) {
 	roomSidePanel->hide();
 }
 
-void OnlineplayUI::createRoom(const sf::String& name, const sf::String& maxplayers) {
-	if (!name.getSize())
+void OnlineplayUI::createRoom(const std::string& name, const std::string& maxplayers) {
+	if (!name.size())
 		return;
-	if (!maxplayers.getSize())
+	if (!maxplayers.size())
 		return;
 	sf::Packet packet;
-	packet << (uint8_t)11 << name << (uint8_t)stoi(maxplayers.toAnsiString());
+	packet << (uint8_t)11 << name << (uint8_t)std::stoi(maxplayers);
 	SendPacket(packet);
 	hideAllPanels();
 	roomList.show();
@@ -251,11 +251,11 @@ void OnlineplayUI::makeRoomList(sf::Packet &packet) {
 }
 
 void OnlineplayUI::addRoom(sf::Packet &packet) {
-	sf::String name;
+	std::string name;
 	uint8_t maxPlayers, currentPlayers;
 	uint16_t id;
 	packet >> id >> name >> currentPlayers >> maxPlayers;
-	sf::String roomlabel = to_string(currentPlayers);
+	std::string roomlabel = to_string(currentPlayers);
 	if (maxPlayers)
 		roomlabel += "/" + to_string(maxPlayers);
 	roomlabel+= " players";
@@ -276,11 +276,11 @@ void OnlineplayUI::makeTournamentList(sf::Packet &packet) {
 }
 
 void OnlineplayUI::addTournament(sf::Packet &packet) {
-	sf::String name;
+	std::string name;
 	uint8_t status;
 	uint16_t id, players;
 	packet >> id >> name >> status >> players;
-	sf::String label;
+	std::string label;
 	if (status == 0)
 		label = "Sign Up - ";
 	else if (status == 1)
@@ -335,7 +335,7 @@ void OnlineplayUI::createTournament() {
 }
 
 void OnlineplayUI::alertMsg(const uint16_t id1) {
-	sf::String msg = "Tournament game ready";
+	std::string msg = "Tournament game ready";
 	for (auto&& tournament : tournamentList.items)
 		if (tournament.id == id1)
 			msg += " in " + tournament.name;

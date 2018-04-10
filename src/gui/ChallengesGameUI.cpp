@@ -81,8 +81,8 @@ void ChallengesGameUI::clear() {
 		challenge->clear();
 }
 
-sf::String ChallengesGameUI::displayTime(const sf::Time& time) {
-	sf::String timeString;
+std::string ChallengesGameUI::displayTime(const sf::Time& time) {
+	std::string timeString;
 	uint16_t total = time.asSeconds();
 	uint16_t count = 0;
 	while (total >= 60) {
@@ -131,7 +131,7 @@ BaseChallenge::BaseChallenge(ChallengesGameUI &_ref) : ref(_ref), specIndex(Labe
 	setLabel(0, "Time Elapsed");
 	type = Challenges::Base;
 }
-void BaseChallenge::setLabel(int i, const sf::String& text) {
+void BaseChallenge::setLabel(int i, const std::string& text) {
 	if (i >= LabelCount)
 		return;
 	ref.label[i]->show();

@@ -17,7 +17,7 @@ enum class GameStates : unsigned int { MainMenu, CountDown, Game, GameOver, Repl
 struct clientInfo {
 public:
 	uint16_t id;
-	sf::String name;
+	std::string name;
 };
 
 class Resources {
@@ -42,7 +42,7 @@ public:
 
 	uint16_t myId;
 
-	sf::String name;
+	std::string name;
 	std::list<clientInfo> clientList;
 
 	uint8_t version_major;

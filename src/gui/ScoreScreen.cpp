@@ -144,7 +144,7 @@ void ScoreScreen::addRow(sf::Packet& packet) {
 	setRowLabels(score, 1);
 }
 
-void ScoreScreen::addRowLocal(GameplayData & data, uint16_t id, const sf::String& name, uint16_t _score) {
+void ScoreScreen::addRowLocal(GameplayData & data, uint16_t id, const std::string& name, uint16_t _score) {
 	ScoreRow score;
 
 	score.name = name;
@@ -179,7 +179,7 @@ void ScoreScreen::setRowLabels(ScoreRow& score, uint8_t type) {
 		score.labels[2]->setTextSize(14);
 		scrollPanel->add(score.labels[2]);
 
-		sf::String rounding = to_string((int)score.adj); //A bit messy-looking way of rounding float to 1 decimal
+		std::string rounding = to_string((int)score.adj); //A bit messy-looking way of rounding float to 1 decimal
 		rounding += "." + to_string((int)((score.adj - (int)score.adj)*10));
 
 		score.labels[6]->setText(rounding);
@@ -306,7 +306,7 @@ void ScoreScreen::handleEvent(sf::Event& event) {
 				}
 }
 
-const sf::String& ScoreScreen::getName(uint16_t id) {
+const std::string& ScoreScreen::getName(uint16_t id) {
 	for (auto& client : resources.clientList)
 		if (client.id == id)
 			return client.name;

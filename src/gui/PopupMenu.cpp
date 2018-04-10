@@ -5,7 +5,7 @@
 using std::cout;
 using std::endl;
 
-void PopupMenuItem::createLabel(bool _submenu, const sf::String & text) {
+void PopupMenuItem::createLabel(bool _submenu, const std::string & text) {
 	submenu = _submenu;
 	label = resources.gfx->themeTG->load("Label");
 	label->connect("MouseEntered", [&](){
@@ -37,13 +37,13 @@ PopupMenu::PopupMenu(Resources& res) : guiBase({0,0,0,0}, res), parent(nullptr) 
 	stayInside = {0,0,static_cast<int>(resources.window.getSize().x), static_cast<int>(resources.window.getSize().y)};
 }
 
-void PopupMenu::addItem(const sf::String & text, std::function<void()> f) {
+void PopupMenu::addItem(const std::string & text, std::function<void()> f) {
 	items.emplace_back(PopupMenuItem(resources, f));
 	items.back().createLabel(false, text);
 	panel->add(items.back().label);
 }
 
-void PopupMenu::addItem(const sf::String & text) {
+void PopupMenu::addItem(const std::string & text) {
 	items.emplace_back(PopupMenuItem(resources));
 	items.back().createLabel(true, text);
 	items.back().menu->parent = this;
@@ -51,7 +51,7 @@ void PopupMenu::addItem(const sf::String & text) {
 	panel->add(items.back().label);
 }
 
-PopupMenu* PopupMenu::getSubMenu(const sf::String & text) {
+PopupMenu* PopupMenu::getSubMenu(const std::string & text) {
 	for (auto& item : items)
 		if (item.submenu && item.label->getText() == text + " >")
 			return item.menu.get();

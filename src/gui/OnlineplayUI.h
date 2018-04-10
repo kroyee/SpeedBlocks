@@ -38,7 +38,7 @@ public:
 	void opTabSelect(const std::string& tab);
 	void hideAllPanels(bool keepTournamentOpen = false);
 
-	void createRoom(const sf::String& name, const sf::String& maxplayers);
+	void createRoom(const std::string& name, const std::string& maxplayers);
 	void makeRoomList(sf::Packet &packet);
 	void addRoom(sf::Packet &packet);
 

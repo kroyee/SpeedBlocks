@@ -7,7 +7,7 @@ class Resources;
 
 class ListItem {
 public:
-	sf::String name;
+	std::string name;
 	uint16_t id;
 	tgui::Button::Ptr button;
 	tgui::Label::Ptr label;
@@ -21,7 +21,7 @@ public:
 
 	ScrollList(sf::Rect<int> _pos, Resources& _res);
 	ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
-	void addItem(const sf::String& name, const sf::String& labelStr, uint16_t id);
+	void addItem(const std::string& name, const std::string& labelStr, uint16_t id);
 	void removeItem(uint16_t id);
 	void removeAllItems();
 	void setItemPos();

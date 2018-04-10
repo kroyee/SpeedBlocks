@@ -6,7 +6,7 @@
 #include "packetcompress.h"
 #include <TGUI/TGUI.hpp>
 
-bool loadError(sf::String error) {
+bool loadError(std::string error) {
     if (error == "OK")
         return false;
     sf::RenderWindow window;

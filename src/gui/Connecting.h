@@ -12,7 +12,7 @@ public:
 	tgui::Button::Ptr cancel, apply;
 	Connecting(sf::Rect<int> _pos, Resources& _res);
 
-	void setText(const sf::String& text);
+	void setText(const std::string& text);
 };
 
 #endif

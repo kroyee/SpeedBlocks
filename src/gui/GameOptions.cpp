@@ -289,7 +289,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 
 	VideoMode = resources.gfx->themeTG->load("Label");
 	VideoMode->setPosition(240, 90);
-	sf::String cvmname;
+	std::string cvmname;
 	cvmname = to_string(resources.options->modes[VMSlider->getValue()].width) + "x" + to_string(resources.options->modes[VMSlider->getValue()].height);
 	VideoMode->setText(cvmname);
 	VidOpt->add(VideoMode);
@@ -631,13 +631,13 @@ void GameOptions::show(int index) {
 		SndOpt->show();
 }
 
-void GameOptions::changeName(const sf::String& name) {
+void GameOptions::changeName(const std::string& name) {
 	resources.options->name = name;
 	//gui->game.field.text.setName(name);
 }
 
 void GameOptions::vidSlide(short i) {
-	sf::String name;
+	std::string name;
 	name = to_string(resources.options->modes[i].width) + "x" + to_string(resources.options->modes[i].height);
 	VideoMode->setText(name);
 }
@@ -873,7 +873,7 @@ sf::Color pColor(short i) {
 	return col;
 }
 
-sf::String SFKeyToString(unsigned int keycode) {
+std::string SFKeyToString(unsigned int keycode) {
     switch (keycode) {
     case sf::Keyboard::Key::Escape: return "Escape"; break;
     case sf::Keyboard::Key::LControl: return "LControl"; break;
@@ -953,7 +953,7 @@ sf::String SFKeyToString(unsigned int keycode) {
 
     default:
     if (keycode < 26)
-        return (char)(keycode+65);
+        return std::string{(char)(keycode+65)};
     else
     	return "";
     }

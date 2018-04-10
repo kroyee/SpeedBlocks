@@ -66,7 +66,7 @@ void GameFieldDrawer::setPosition(short x, short y) { xPos = x; yPos = y; calFie
 
 void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos(); }
 
-obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
+obsField& GameFieldDrawer::addField(int id, const std::string& name) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
 	if (unusedFields.empty()) {
 		fields.emplace_back(resources);
@@ -75,16 +75,18 @@ obsField& GameFieldDrawer::addField(int id, const sf::String& name) {
 	else
 		fields.splice(fields.end(), unusedFields, unusedFields.begin());
 
-	fields.back().clear();
-	fields.back().id = id;
-	fields.back().text.setName(name);
+	obsField& field = fields.back();
+	field.clear();
+	field.id = id;
+	field.text.setName(name);
 	if (resources.options->theme == 2)
-		fields.back().text.setColor(sf::Color(255,255,255));
+		field.text.setColor(sf::Color(255,255,255));
 	calFieldPos();
-	fields.back().texture.setActive(false);
-	fields.back().drawMe=true;
+	field.texture.setActive(false);
+	field.drawMe=true;
+	field.datacount=0;
 
-	return fields.back();
+	return field;
 }
 
 void GameFieldDrawer::removeField(int id) {

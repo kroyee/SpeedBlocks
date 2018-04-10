@@ -74,7 +74,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	t5 = sf::Color(128,50,50,200);
 
 	Net::takePacket(12, [&](sf::Packet &packet){
-		sf::String name, msg;
+		std::string name, msg;
 		uint8_t type;
 		packet >> type >> name >> msg;
 		if (type == 3)
@@ -106,15 +106,15 @@ void ChatScreen::deactivate() {
 
 void ChatScreen::send() {
 	deactivate();
-	sf::String msg = input->getText();
+	std::string msg = input->getText();
 	input->setText("");
-	while (!msg.isEmpty()) {
+	while (!msg.empty()) {
 		if (msg[0] == ' ')
 			msg.erase(0);
 		else
 			break;
 	}
-	if (!msg.getSize())
+	if (!msg.size())
 		return;
 	
 	if (spamCount>7000) {
@@ -122,20 +122,20 @@ void ChatScreen::send() {
 		spamCount=12000;
 		return;
 	}
-	if (msg.getSize() > 3)
+	if (msg.size() > 3)
 		if (msg[0]=='/' && msg[1]=='w' && msg[2]==' ') {
 			short until = msg.find(' ', 3);
-			sf::String _privto = msg.substring(3, until-3);
-			sf::String privmsg = msg.substring(until, sf::String::InvalidPos);
+			std::string _privto = msg.substr(3, until-3);
+			std::string privmsg = msg.substr(until, std::string::npos);
 			sendMsg(_privto, privmsg);
 			addLine(resources.name + ": " + privmsg, 5);
 			spamCount+=2000;
 			sendTo(_privto, true);
 			return;
 		}
-	sf::String postmsg = resources.name + ": " + msg;
+	std::string postmsg = resources.name + ": " + msg;
 
-	for (unsigned int i=0; i<msg.getSize(); i++)
+	for (unsigned int i=0; i<msg.size(); i++)
 		if (msg[i] != ' ') {
 			if (to == "Lobby" || to == "Room")
 				addLine(postmsg, 4);
@@ -149,7 +149,7 @@ void ChatScreen::send() {
 
 static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 
-void ChatScreen::sendMsg(const sf::String& to, const sf::String& msg) {
+void ChatScreen::sendMsg(const std::string& to, const std::string& msg) {
 	sf::Packet packet;
 	packet << (uint8_t)10;
 	if (to == "Room")
@@ -161,7 +161,7 @@ void ChatScreen::sendMsg(const sf::String& to, const sf::String& msg) {
 	SendPacket(packet);
 }
 
-void ChatScreen::addLine(const sf::String& msg, uint8_t type) { //1=room, 2=lobby, 3=priv, 4=self, 5=privself
+void ChatScreen::addLine(const std::string& msg, uint8_t type) { //1=room, 2=lobby, 3=priv, 4=self, 5=privself
 	sf::Color color = t1;
 	if (type == 2)
 		color = t2;
@@ -232,7 +232,7 @@ void ChatScreen::focus() {
 		input->focus();
 }
 
-void ChatScreen::sendTo(const sf::String& _to, bool force) {
+void ChatScreen::sendTo(const std::string& _to, bool force) {
 	if (to != "Lobby" && to != "Room" && !force)
 		return;
 	to = _to;

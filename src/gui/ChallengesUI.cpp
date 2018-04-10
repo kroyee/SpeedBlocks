@@ -5,7 +5,7 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SendRecording = Signal<void, int>::get("SendRecording");
 
 ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) :
@@ -50,7 +50,7 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	Net::takePacket(2, &ChallengesUI::makeList, this);
 	Net::takePacket(5, &ChallengesUI::makeLeaderboard, this);
 	Net::takePacket(6, [&](sf::Packet &packet){
-		sf::String text;
+		std::string text;
 		packet >> text;
 		QuickMsg("You improved your score from " + text);
 		SendRecording(selectedId);
@@ -64,7 +64,7 @@ void ChallengesUI::makeList(sf::Packet &packet) {
 	challengeList.removeAllItems();
 
 	uint16_t id;
-	sf::String name, label;
+	std::string name, label;
 	for (int i=0; i<count; i++) {
 		packet >> id >> name >> label;
 		challengeList.addItem(name, label, id);
@@ -72,7 +72,7 @@ void ChallengesUI::makeList(sf::Packet &packet) {
 }
 
 void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
-	sf::String oldTitle = title->getText();
+	std::string oldTitle = title->getText();
 	int scrollpos = scroll->getValue();
 
 	leaderPanel->removeAllWidgets();
@@ -88,7 +88,7 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 
 	width[0] = 0;
 	columns++;
-	sf::String string;
+	std::string string;
 	for (int i=1; i<columns; i++) {
 		packet >> width[i];
 		width[i]+=50;

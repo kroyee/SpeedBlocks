@@ -4,11 +4,11 @@
 using std::cout;
 using std::endl;
 
-static auto& AddField = Signal<obsField&, int, const sf::String&>::get("AddField");
+static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
 static auto& RemoveField = Signal<void, int>::get("RemoveField");
 static auto& AddGarbage = Signal<void, int>::get("AddGarbage");
-static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t>::get("AddLocalScore");
-static auto& GetName = Signal<const sf::String&>::get("GetName");
+static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const std::string&, uint16_t>::get("AddLocalScore");
+static auto& GetName = Signal<const std::string&>::get("GetName");
 
 AIManager::AIManager(sf::Clock& _gameclock) : gameclock(_gameclock) {
 	connectSignal("DistributeLinesLocally", &AIManager::distributeLines, this);

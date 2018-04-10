@@ -9,7 +9,7 @@ class Resources;
 struct GameplayData;
 
 struct ScoreRow {
-	sf::String name;
+	std::string name;
 	uint8_t combo, rank, position;
 	uint16_t id, sent, received, blocked, bpm, spm, score, apm, points;
 	float adj;
@@ -27,19 +27,19 @@ private:
 	uint8_t rowCount;
 	std::vector<ScoreRow> scores;
 public:
-	sf::String unknown;
+	std::string unknown;
 	ScoreScreen(sf::Rect<int> _pos, Resources& _res);
 	void clear();
 	void getScores(sf::Packet& packet);
 	void addRow(sf::Packet& packet);
-	void addRowLocal(GameplayData & data, uint16_t id, const sf::String& name, uint16_t score);
+	void addRowLocal(GameplayData & data, uint16_t id, const std::string& name, uint16_t score);
 	void setRowLabels(ScoreRow& row, uint8_t type);
 	void selectRow(uint8_t index);
 	void scorePressed(sf::Vector2f pos);
 	void scrolled(int scrollpos);
 	void setItemPos();
 	void handleEvent(sf::Event& event);
-	const sf::String& getName(uint16_t id);
+	const std::string& getName(uint16_t id);
 };
 
 #endif

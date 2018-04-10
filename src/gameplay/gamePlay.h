@@ -138,7 +138,7 @@ public:
 	void setBackgroundColor(int val);
 	void setDrawMe();
 	void makeBackgroundLines();
-	void setName(const sf::String& name);
+	void setName(const std::string& name);
 	void updateReplayScreen();
 };
 

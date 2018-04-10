@@ -231,7 +231,7 @@ void optionSet::saveOptions() {
 			file << "piece_" << x << "_rotation=" << (int)piecerotation[x] << endl;
 			file << "piece_" << x << "_color=" << (int)colormap[x] << endl;
         }
-		file << "name=" << name.toAnsiString() << endl;
+		file << "name=" << name << endl;
 		file << "currentmode=" << currentmode << endl;
 		file << "musicvolume=" << MusicVolume << endl;
 		file << "effectvolume=" << EffectVolume << endl;
@@ -247,8 +247,8 @@ void optionSet::saveOptions() {
 		file << "theme=" << (int)theme << endl;
 		file << "ghostPieceAlpha=" << (int)ghostPieceAlpha << endl;
 		file << "rememberme=" << rememberme << endl;
-		file << "hash=" << hash.toAnsiString() << endl;
-		file << "username=" << username.toAnsiString() << endl;
+		file << "hash=" << hash << endl;
+		file << "username=" << username << endl;
 		file << "pass=" << pass << endl;
 		file << "fieldBackground=" << (int)fieldBackground << endl;
 		file << "fieldVLines=" << fieldVLines << endl;
@@ -309,10 +309,10 @@ void optionSet::setPieceColor(short i, uint8_t newcolor) {
 				basepiece[i].grid[y][x]=basepiece[i].tile;
 }
 
-void optionSet::setDelay(short i, sf::String string) {
+void optionSet::setDelay(short i, std::string string) {
 	short value;
-	if (string.getSize() > 0)
-		value = stoi(string.toAnsiString());
+	if (string.size() > 0)
+		value = std::stoi(string);
 	else
 		value = 0;
 	if (i == 1)

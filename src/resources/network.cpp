@@ -73,7 +73,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
   return realsize;
 }
 
-sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postData, uint8_t type) {
+std::string network::sendCurlPost(const std::string& URL, const std::string& postData, uint8_t type) {
 	CURL *curl;
 	CURLcode res;
 
@@ -82,13 +82,13 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
   	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
   	chunk.size = 0;    /* no data at this point */ 
 
-  	char * cstr = new char [postData.getSize()+1];
-	std::strcpy (cstr, postData.toAnsiString().c_str());
+  	char * cstr = new char [postData.size()+1];
+	std::strcpy (cstr, postData.c_str());
 
-	char * urlstr = new char [URL.getSize()+1];
-	std::strcpy (urlstr, URL.toAnsiString().c_str());
+	char * urlstr = new char [URL.size()+1];
+	std::strcpy (urlstr, URL.c_str());
 
-	sf::String response;
+	std::string response;
 
 	curl = curl_easy_init();
 	if(curl) {
@@ -131,7 +131,7 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
 	delete[] urlstr;
 
 	if (res == CURLE_OK) {
-		sf::String response(chunk.memory);
+		std::string response(chunk.memory);
 		free(chunk.memory);
 		return response;
 	}

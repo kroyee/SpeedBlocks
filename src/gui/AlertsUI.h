@@ -16,7 +16,7 @@ class AlertsUI : public guiBase {
 public:
 	AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
 
-	void addAlert(const sf::String& msg);
+	void addAlert(const std::string& msg);
 	void removeAlert(uint16_t _id);
 	void removeAll();
 	void update();

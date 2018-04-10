@@ -34,11 +34,11 @@ bool guiBase::mouseOver(tgui::Widget::Ptr widget) {
 	return false;
 }
 
-tgui::WidgetConverter guiBase::loadWidget(const sf::String& widget, const PosAndSize& pos, const sf::String& text) {
+tgui::WidgetConverter guiBase::loadWidget(const std::string& widget, const PosAndSize& pos, const std::string& text) {
 	return loadWidgetTo(panel, widget, pos, text);
 }
 
-tgui::WidgetConverter guiBase::loadWidgetTo(tgui::Panel::Ptr _panel, const sf::String& widget, const PosAndSize& pos, const sf::String& text) {
+tgui::WidgetConverter guiBase::loadWidgetTo(tgui::Panel::Ptr _panel, const std::string& widget, const PosAndSize& pos, const std::string& text) {
 	tgui::WidgetConverter wcnv = resources.gfx->themeTG->load(widget);
 	tgui::Widget::Ptr wptr = wcnv;
 	wptr->setPosition(pos.x, pos.y);

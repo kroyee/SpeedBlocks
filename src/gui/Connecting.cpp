@@ -3,7 +3,7 @@
 #include "GameSignals.h"
 
 static auto& Show = Signal<void, int>::get("Show");
-static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& IsLoginThreadJoinable = Signal<bool>::get("IsLoginThreadJoinable");
 static auto& TellPatcherToQuit = Signal<void>::get("TellPatcherToQuit");
 static auto& ApplyPatch = Signal<bool>::get("ApplyPatch");
@@ -63,6 +63,6 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	connectSignal("SetConnectingText", &Connecting::setText, this);
 }
 
-void Connecting::setText(const sf::String& text) {
+void Connecting::setText(const std::string& text) {
 	label->setText(text);
 }

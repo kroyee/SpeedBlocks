@@ -30,7 +30,7 @@ public:
 	uint8_t starting_position[22][10];
 	std::vector<RecordingEvent> events;
 	sf::Time duration, startAt, comboSet;
-	sf::String name;
+	std::string name;
 	sf::Clock timer;
 	uint32_t currentEvent;
 

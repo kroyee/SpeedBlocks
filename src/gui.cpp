@@ -16,14 +16,14 @@ using std::move;
 #include "EmptyResourcePath.h"
 #endif
 
-static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SeedRander = Signal<void, int, int>::get("SeedRander");
 static auto& StartCountDown = Signal<void>::get("StartCountDown");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& GameSetup = Signal<void, int>::get("GameSetup");
 static auto& GameOver = Signal<void, int>::get("GameOver");
 static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
-static auto& AddField = Signal<obsField&, int, const sf::String&>::get("AddField");
+static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
 static auto& GameClear = Signal<void>::get("GameClear");
 static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
 
@@ -297,7 +297,7 @@ void UI::joinRoomResponse(sf::Packet &packet) {
 			guiElements->gameFieldDrawer.setSize(910, 555);
 		}
 
-		sf::String name;
+		std::string name;
 		for (int c=0; c<playersinroom; c++) {
 			packet >> playerid >> name;
 			AddField(playerid, name);

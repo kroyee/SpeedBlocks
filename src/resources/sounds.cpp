@@ -14,7 +14,7 @@ soundBank::soundBank(bool& _sound) : sound(_sound) {
 	connectSignal("SetAlertsVolume", &soundBank::setAlertVolume, this);
 }
 
-sf::String soundBank::loadSounds() {
+std::string soundBank::loadSounds() {
 	if (!pieceDropBuff.loadFromFile(resourcePath() + "sounds/block.wav"))
 		return "sounds/block.wav";
     if (!lineClearBuff.loadFromFile(resourcePath() + "sounds/clear.wav"))

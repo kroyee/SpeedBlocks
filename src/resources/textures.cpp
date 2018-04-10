@@ -9,7 +9,7 @@
 
 textures::textures(sf::RenderWindow& window) : tGui(window) {}
 
-sf::String textures::loadTextures() {
+std::string textures::loadTextures() {
     if (!tileTexture.loadFromFile(resourcePath() + "media/tile.png"))
         return "media/tile.png";
     tileTexture.setSmooth(true);
