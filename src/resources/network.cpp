@@ -6,7 +6,7 @@
 using std::cout;
 using std::endl;
 
-network::network() : serverAdd("localhost"), tcpPort(21512), udpPort(21514) {
+network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
 	udpSock.setBlocking(false);
 	udpSock.bind(sf::Socket::AnyPort);
@@ -52,43 +52,43 @@ struct MemoryStruct {
   char *memory;
   size_t size;
 };
- 
+
 static size_t
 WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
   size_t realsize = size * nmemb;
   struct MemoryStruct *mem = (struct MemoryStruct *)userp;
- 
+
   mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
   if(mem->memory == NULL) {
-    /* out of memory! */ 
+    /* out of memory! */
     cout << "not enough memory (realloc returned NULL)" << endl;
     return 0;
   }
- 
+
   memcpy(&(mem->memory[mem->size]), contents, realsize);
   mem->size += realsize;
   mem->memory[mem->size] = 0;
- 
+
   return realsize;
 }
 
-sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postData, uint8_t type) {
+std::string network::sendCurlPost(const std::string& URL, const std::string& postData, uint8_t type) {
 	CURL *curl;
 	CURLcode res;
 
 	struct MemoryStruct chunk;
- 
-  	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */ 
-  	chunk.size = 0;    /* no data at this point */ 
 
-  	char * cstr = new char [postData.getSize()+1];
-	std::strcpy (cstr, postData.toAnsiString().c_str());
+  	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
+  	chunk.size = 0;    /* no data at this point */
 
-	char * urlstr = new char [URL.getSize()+1];
-	std::strcpy (urlstr, URL.toAnsiString().c_str());
+  	char * cstr = new char [postData.size()+1];
+	std::strcpy (cstr, postData.c_str());
 
-	sf::String response;
+	char * urlstr = new char [URL.size()+1];
+	std::strcpy (urlstr, URL.c_str());
+
+	std::string response;
 
 	curl = curl_easy_init();
 	if(curl) {
@@ -104,16 +104,16 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
 		headers = curl_slist_append(headers, "Cache-Control: no-cache");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-		/* Now specify the POST data */ 
+		/* Now specify the POST data */
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, cstr);
 
 		// Specify callbackfunction to get the response
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
   		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
 
-		/* Perform the request, res will get the return code */ 
+		/* Perform the request, res will get the return code */
 		res = curl_easy_perform(curl);
-		/* Check for errors */ 
+		/* Check for errors */
 		if(res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 			cout << endl;
@@ -121,7 +121,7 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
 
 		curl_slist_free_all(headers);
 
-		/* always cleanup */ 
+		/* always cleanup */
 		curl_easy_cleanup(curl);
 	}
 	else
@@ -131,7 +131,7 @@ sf::String network::sendCurlPost(const sf::String& URL, const sf::String& postDa
 	delete[] urlstr;
 
 	if (res == CURLE_OK) {
-		sf::String response(chunk.memory);
+		std::string response(chunk.memory);
 		free(chunk.memory);
 		return response;
 	}

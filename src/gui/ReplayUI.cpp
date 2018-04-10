@@ -4,7 +4,7 @@ using std::cout;
 using std::endl;
 using std::to_string;
 
-static auto& GetRecName = Signal<const sf::String&>::get("GetRecName");
+static auto& GetRecName = Signal<const std::string&>::get("GetRecName");
 static auto& HideStartChallengeButton = Signal<void>::get("HideStartChallengeButton");
 static auto& RecJumpTo = Signal<void, int>::get("RecJumpTo");
 static auto& RecUpdateScreen = Signal<void>::get("RecUpdateScreen");
@@ -12,7 +12,7 @@ static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
 static auto& GetRecDuration = Signal<const sf::Time&>::get("GetRecDuration");
 static auto& IsVisible = Signal<bool, int>::get("IsVisible");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
-static auto& SetName = Signal<void, const sf::String&>::get("SetName");
+static auto& SetName = Signal<void, const std::string&>::get("SetName");
 
 ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
@@ -132,13 +132,13 @@ void ReplayUI::seek(sf::Vector2f mouse) {
 	}
 }
 
-sf::String ReplayUI::displayTime(uint16_t timeVal) {
+std::string ReplayUI::displayTime(uint16_t timeVal) {
 	int minutes=0;
 	while (timeVal >= 60) {
 		timeVal-=60;
 		minutes++;
 	}
-	sf::String string = "";
+	std::string string = "";
 	if (minutes < 10)
 		string = "0";
 	string += to_string(minutes) + ":";

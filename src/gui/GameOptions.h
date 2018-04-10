@@ -42,7 +42,7 @@ public:
 
 	GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
 	void show(int index);
-	void changeName(const sf::String& name);
+	void changeName(const std::string& name);
 	void vidSlide(short i);
 	void fsChecked(bool i);
 	void sndChecked(bool i);
@@ -58,7 +58,7 @@ public:
 	void setGhostPieceAlpha(uint8_t alpha);
 };
 
-sf::String SFKeyToString(unsigned int keycode);
+std::string SFKeyToString(unsigned int keycode);
 sf::Color pColor(short i);
 
 #endif

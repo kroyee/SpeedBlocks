@@ -25,8 +25,8 @@ static auto& Cheese30L = Signal<bool>::get("Cheese30L");
 static auto& SeedRander = Signal<void, int, int>::get("SeedRander");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& SetRoundlenghtForScore = Signal<void, int>::get("SetRoundlenghtForScore");
-static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const sf::String&, uint16_t>::get("AddLocalScore");
-static auto& GetName = Signal<const sf::String&>::get("GetName");
+static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const std::string&, uint16_t>::get("AddLocalScore");
+static auto& GetName = Signal<const std::string&>::get("GetName");
 static auto& UpdateReplayUI = Signal<void, sf::Time>::get("UpdateReplayUI");
 static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
 
@@ -71,7 +71,7 @@ showPressEnterText(true)
     connectSignal("MakeBackgroundLines", &gamePlay::makeBackgroundLines, this);
     connectSignal("UpdateGamePieces", &gamePlay::updateBasePieces, this);
     connectSignal("StartCountDown", &gamePlay::startCountdown, this);
-    connectSignal("GetName", [&]() -> const sf::String& { return field.text.name; });
+    connectSignal("GetName", [&]() -> const std::string& { return field.text.name; });
     connectSignal("SetName", &gamePlay::setName, this);
     connectSignal("RecUpdateScreen", &gamePlay::updateReplayScreen, this);
     connectSignal("GetGameData", [&]() -> GameplayData& { return data; });
@@ -836,7 +836,7 @@ void gamePlay::makeBackgroundLines() {
 	field.backgroundTexture = makeBackground(resources.options->fieldVLines, resources.options->fieldHLines, resources.options->lineStyle, resources.options->lineColor);
 }
 
-void gamePlay::setName(const sf::String& name) {
+void gamePlay::setName(const std::string& name) {
 	field.text.setName(name);
 }
 

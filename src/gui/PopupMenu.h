@@ -35,7 +35,7 @@ public:
 
 	PopupMenuItem(Resources& resources);
 	PopupMenuItem(Resources& resources, std::function<void()> f);
-	void createLabel(bool _submenu, const sf::String & text);
+	void createLabel(bool _submenu, const std::string & text);
 };
 
 class PopupMenu : public guiBase {
@@ -48,9 +48,9 @@ public:
 public:
 	PopupMenu(Resources& res);
 
-	void addItem(const sf::String & text, std::function<void()> f);
-	void addItem(const sf::String & text);
-	PopupMenu* getSubMenu(const sf::String & text);
+	void addItem(const std::string & text, std::function<void()> f);
+	void addItem(const std::string & text);
+	PopupMenu* getSubMenu(const std::string & text);
 	void childClosed();
 	void hideMe();
 	void hide();

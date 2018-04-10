@@ -47,7 +47,7 @@ void AreYouSure::ausN() {
 	hide();
 }
 
-void AreYouSure::setAUS(const sf::String& text) {
+void AreYouSure::setAUS(const std::string& text) {
 	label->setText(text);
 	show();
 }

@@ -56,7 +56,7 @@ GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resourc
     away = false; ready = false;
 }
 
-void GameFieldText::setName(const sf::String& n) {
+void GameFieldText::setName(const std::string& n) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
     name = n;
     nameTag.setString(n);

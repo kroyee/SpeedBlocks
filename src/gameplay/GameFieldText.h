@@ -30,12 +30,12 @@ public:
     int8_t position, countdown, gameover;
     bool away, ready;
 
-    sf::String name;
+    std::string name;
 
     GameFieldText(Resources& _resources);
     GameFieldText(const GameFieldText& text);
 
-    void setName(const sf::String& n);
+    void setName(const std::string& n);
     void setPosition(const int8_t _position);
     void setCountdown(const int8_t _countdown);
     void setGameover(const int8_t _gameover);

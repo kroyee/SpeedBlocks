@@ -25,7 +25,7 @@ public:
 	ChallengesGameUI(sf::Rect<int> _pos, Resources& _res);
 
 	void clear();
-	sf::String displayTime(const sf::Time& time);
+	std::string displayTime(const sf::Time& time);
 	void openChallenge(uint16_t whichPanel);
 
 	void hideStartChallengeButton();
@@ -40,7 +40,7 @@ public:
 	int specIndex;
 	Challenges type;
 	BaseChallenge(ChallengesGameUI &_ref);
-	void setLabel(int i, const sf::String& text);
+	void setLabel(int i, const std::string& text);
 	void setSpec(int i);
 	void updateSpec();
 	void setTime();

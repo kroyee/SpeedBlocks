@@ -29,8 +29,8 @@ public:
     bool animatedBackground;
     bool rememberme;
     bool noSound;
-    sf::String hash;
-    sf::String username;
+    std::string hash;
+    std::string username;
     short pass;
 
     short MusicVolume;
@@ -60,7 +60,7 @@ public:
 
     bool mouseMenu;
 
-    sf::String name;
+    std::string name;
 
     std::vector<sf::VideoMode> modes;
     short currentmode;
@@ -73,7 +73,7 @@ public:
     std::vector<short> pieceArray();
 
     void setPieceColor(short, uint8_t);
-    void setDelay(short, sf::String);
+    void setDelay(short, std::string);
 };
 
 #endif

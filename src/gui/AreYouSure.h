@@ -13,7 +13,7 @@ public:
 	void ausY();
 	void ausN();
 
-	void setAUS(const sf::String& text);
+	void setAUS(const std::string& text);
 };
 
 #endif

@@ -33,7 +33,7 @@ public:
 
     sf::Color gameFieldTextColor;
 
-    sf::String loadTextures();
+    std::string loadTextures();
     void setGhostPieceAlpha(uint8_t alpha);
 };
 

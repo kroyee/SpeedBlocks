@@ -30,22 +30,22 @@ BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr paren
 }
 
 void BugReport::sendReport() {
-	sf::String shappened = happened->getText();
-	sf::String sexpected = expected->getText();
-	sf::String sreproduce = reproduce->getText();
-	sf::String scontact = contact->getText();
+	std::string shappened = happened->getText();
+	std::string sexpected = expected->getText();
+	std::string sreproduce = reproduce->getText();
+	std::string scontact = contact->getText();
 
 	#ifdef _WIN32
-		sf::String os = "Win";
+		std::string os = "Win";
 	#elif __APPLE__
-		sf::String os = "Mac";
+		std::string os = "Mac";
 	#else
-		sf::String os = "Linux";
+		std::string os = "Linux";
 	#endif
 
-	sf::String version = to_string(resources.clientVersion);
+	std::string version = to_string(resources.clientVersion);
 
-	sf::String postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
+	std::string postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
 
 	t = std::thread([&]() { resources.net->sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0); join=true; });
 

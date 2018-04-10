@@ -46,7 +46,7 @@ public:
 
 	bool& sound;
 
-	sf::String loadSounds();
+	std::string loadSounds();
 
 	void playSound(int soundId);
 

@@ -68,7 +68,7 @@ ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent)
 	Net::takePacket(20, &ServerUI::addClient, this);
 	Net::takePacket(21, &ServerUI::removeClient, this);
 }
-
+#include <iostream>
 void ServerUI::makeClientList(sf::Packet &packet) {
 	LobbyList->removeAllItems();
 	resources.clientList.clear();
@@ -76,6 +76,7 @@ void ServerUI::makeClientList(sf::Packet &packet) {
 	uint16_t clientCount;
 
 	packet >> clientCount;
+	std::cout << clientCount << std::endl;
 
 	for (int i=0; i<clientCount; i++) {
 		packet >> client.id >> client.name;
@@ -100,10 +101,10 @@ void ServerUI::addClient(sf::Packet &packet) {
 	LobbyList->addItem(client.name);
 }
 
-void ServerUI::putClient(uint16_t id, const sf::String& name) {
+void ServerUI::putClient(uint16_t id, const std::string& name) {
 	clientInfo client;
 	client.id = id;
-	std::cout << "Adding client " << name.toAnsiString() << std::endl;
+	std::cout << "Adding client " << name << std::endl;
 	client.name = name;
 	resources.clientList.push_back(client);
 	LobbyList->addItem(client.name);

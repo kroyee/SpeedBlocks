@@ -31,13 +31,13 @@ AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent)
 	connectSignal("AddAlert", &AlertsUI::addAlert, this);
 
 	Net::takePacket(10, [&](sf::Packet &packet){
-		sf::String msg;
+		std::string msg;
 		packet >> msg;
 		addAlert(msg);
 	});
 }
 
-void AlertsUI::addAlert(const sf::String& msg) {
+void AlertsUI::addAlert(const std::string& msg) {
 	alertData newalert;
 	newalert.id = idcount;
 	idcount++;

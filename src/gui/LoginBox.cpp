@@ -10,8 +10,8 @@ using std::to_string;
 
 static auto& Show = Signal<void, int>::get("Show");
 static auto& Hide = Signal<void, int>::get("Hide");
-static auto& QuickMsg = Signal<void, const sf::String&>::get("QuickMsg");
-static auto& SetName = Signal<void, const sf::String&>::get("SetName");
+static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
+static auto& SetName = Signal<void, const std::string&>::get("SetName");
 static auto& Disconnect = Signal<void, int>::get("Disconnect");
 static auto& SetRoomListTime = Signal<void>::get("SetRoomListTime");
 static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
@@ -47,7 +47,7 @@ guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiE2->setSize(180, 30);
 	LiE2->setPasswordCharacter('*');
 	if (resources.options->rememberme) {
-		sf::String boguspass;
+		std::string boguspass;
 		for (int i=0; i<resources.options->pass; i++)
 			boguspass+="b";
 		LiE2->setText(boguspass);
@@ -129,10 +129,10 @@ void LoginBox::launchLogin(uint8_t guest) {
 		t = std::thread(&LoginBox::login, this, LiE1->getText(), LiE2->getText(), guest);
 }
 
-void LoginBox::login(sf::String name, sf::String pass, uint8_t guest) {
+void LoginBox::login(std::string name, std::string pass, uint8_t guest) {
 	patcher.status=1;
 	if (resources.net->connect() == sf::Socket::Done) {
-		sf::String hash;
+		std::string hash;
 		if (!guest) {
 			patcher.status=2;
 			if (!edited && resources.options->rememberme)
@@ -140,17 +140,17 @@ void LoginBox::login(sf::String name, sf::String pass, uint8_t guest) {
 			else
 				hash = resources.net->sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass + "&machineid=" + machineid::machineHash(), 1);
 			if (resources.options->rememberme) {
-				if (hash.getSize() < 40)
-					cout << hash.toAnsiString() << endl << resources.options->hash.toAnsiString() << endl;
+				if (hash.size() < 40)
+					cout << hash << endl << resources.options->hash << endl;
 				else
-					resources.options->hash = hash.substring(20);
+					resources.options->hash = hash.substr(20);
 			}
 			else
 				resources.options->hash = "null";
 			patcher.status=3;
-			hash = hash.substring(0,20);
+			hash = hash.substr(0,20);
 			resources.options->username=name;
-			resources.options->pass = pass.getSize();
+			resources.options->pass = pass.size();
 			sendLogin(hash, guest);
 		}
 		else {
@@ -242,7 +242,7 @@ void LoginBox::show() {
 	LiE1->focus();
 }
 
-void LoginBox::sendLogin(const sf::String& hashorname, uint8_t guest) {
+void LoginBox::sendLogin(const std::string& hashorname, uint8_t guest) {
 	sf::Packet packet;
 	packet << (uint8_t)2 << resources.clientVersion << guest << hashorname;
 	SendPacket(packet);

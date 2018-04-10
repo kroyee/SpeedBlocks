@@ -14,7 +14,7 @@ Recording::Recording() : name("") {
 	connectSignal("GetRecDuration", [&]() -> const sf::Time& { return duration; });
 	connectSignal("GetRecTime", [&]() -> sf::Time { return timer.getElapsedTime() + startAt; });
 	connectSignal("RecJumpTo", &Recording::jumpTo, this);
-	connectSignal("GetRecName", [&]() -> const sf::String& { return name; });
+	connectSignal("GetRecName", [&]() -> const std::string& { return name; });
 	connectSignal("SendRecording", &Recording::sendRecording, this);
 }
 

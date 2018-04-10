@@ -26,7 +26,7 @@ public:
 	void sendUdpConfirm(uint16_t);
 	void sendPing(int myID, int pingID);
 
-	sf::String sendCurlPost(const sf::String& URL, const sf::String& postData, uint8_t type);
+	std::string sendCurlPost(const std::string& URL, const std::string& postData, uint8_t type);
 
 	bool receiveData();
 };

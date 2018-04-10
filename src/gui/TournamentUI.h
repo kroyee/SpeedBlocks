@@ -15,7 +15,7 @@ struct Result {
 	std::vector<uint8_t> p1_rounds;
 	std::vector<uint8_t> p2_rounds;
 
-	sf::String finalScore;
+	std::string finalScore;
 };
 
 struct TGame {
@@ -23,7 +23,7 @@ struct TGame {
 	uint8_t depth, status;
 	uint8_t player1_type, player2_type;
 	uint16_t player1_id, player2_id;
-	sf::String player1_name, player2_name;
+	std::string player1_name, player2_name;
 	time_t startingTime;
 
 	Result result;
@@ -36,7 +36,7 @@ struct TGame {
 
 struct Participant {
 	uint16_t id;
-	sf::String name;
+	std::string name;
 };
 
 class TournamentUI : public guiBase {

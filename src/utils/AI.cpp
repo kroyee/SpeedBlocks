@@ -48,6 +48,7 @@ void AI::setField(obsField& _field) {
 }
 
 void AI::startMove() {
+	cout << firstMove.move.score << endl;
 	movingPiece=true;
 	//movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
 	movepieceTime = nextmoveTime - moveTime;

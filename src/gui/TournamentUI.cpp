@@ -531,7 +531,7 @@ void TournamentUI::makeBracket() {
 		game.player2->disable(false);
 		bracket->add(game.player2);
 
-		sf::String _gameName = "Game " + to_string(game.id);
+		std::string _gameName = "Game " + to_string(game.id);
 		game.gameName = resources.gfx->themeTG->load("Label");
 		game.gameName->setText(_gameName);
 		game.gameName->setPosition(buttonx + 10, buttony - 22);
@@ -610,7 +610,7 @@ void TournamentUI::setButtonColors() {
 }
 
 void TournamentUI::setStatusText() {
-	sf::String statustext = "Players: " + to_string(players) + " Status: ";
+	std::string statustext = "Players: " + to_string(players) + " Status: ";
 	if (status == 1)
 		statustext += "Pending";
 	else if (status == 2)
@@ -639,7 +639,7 @@ void TournamentUI::setStatusText() {
 
 	for (auto&& item : onlineplayUI.tournamentList.items)
 		if (item.id == id) {
-			sf::String label;
+			std::string label;
 			if (status == 0)
 				label = "Sign Up - ";
 			else if (status == 1)
@@ -687,7 +687,7 @@ void TournamentUI::startTournamentPressed() {
 }
 
 void TournamentUI::gamePressed(TGame& game) {
-	sf::String nameofgame = game.gameName->getText();
+	std::string nameofgame = game.gameName->getText();
 	gameName->setText(nameofgame);
 	player1->setText(game.player1_name);
 	player2->setText(game.player2_name);

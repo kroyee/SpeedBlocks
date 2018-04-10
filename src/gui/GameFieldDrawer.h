@@ -37,7 +37,7 @@ public:
 	void setPosition(short x, short y);
 	void setSize(int w, int h);
 
-	obsField& addField(int id, const sf::String& name);
+	obsField& addField(int id, const std::string& name);
 	void removeField(int id);
 	void updateFields();
 	void calFieldPos();

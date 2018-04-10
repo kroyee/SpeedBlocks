@@ -6,7 +6,7 @@
 #include "packetcompress.h"
 #include <TGUI/TGUI.hpp>
 
-bool loadError(sf::String error) {
+bool loadError(std::string error) {
     if (error == "OK")
         return false;
     sf::RenderWindow window;
@@ -37,7 +37,7 @@ sounds(new soundBank(options->sound)), net(new network), compressor(new PacketCo
 playonline(false), away(false), restart(false), chatFocused(false) {
     version_major = 0;
     version_minor = 1;
-    version_patch = 13;
+    version_patch = 14;
     clientVersion = version_major*10000 + version_minor*100 + version_patch;
 }
 

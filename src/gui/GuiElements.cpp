@@ -6,10 +6,10 @@
 #include "gameField.h"
 #include <SFML/Network.hpp>
 
-static auto& AddField = Signal<obsField&, int, const sf::String&>::get("AddField");
-static auto& QuickMSG = Signal<void, const sf::String&>::get("QuickMsg");
+static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
+static auto& QuickMSG = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
-static auto& SetName = Signal<void, const sf::String&>::get("SetName");
+static auto& SetName = Signal<void, const std::string&>::get("SetName");
 static auto& Disconnect = Signal<void, int>::get("Disconnect");
 
 GuiElements::GuiElements(Resources &_resources) :
@@ -79,7 +79,7 @@ udpConfirmed			(false)
 	connectSignal("Enable", [&](int elem){ elements[elem]->enable(); });
 	connectSignal("Disable", [&](int elem){ elements[elem]->disable(); });
 	connectSignal("IsVisible", [&](int elem){ return elements[elem]->isVisible(); });
-	connectSignal("QuickMsg", [&](const sf::String& msg){
+	connectSignal("QuickMsg", [&](const std::string& msg){
 		QuickMsg->setText(msg);
 		QuickMsg->show();
 		quickMsgTime = resources.delayClock.getElapsedTime();
@@ -99,12 +99,14 @@ udpConfirmed			(false)
 		challengesGameUI.hide();
 		replayUI.hide();
 		SetGameState(GameStates::MainMenu);
+		trainingUI.hide();
+		mainMenu.show();
 		if (showMsg)
 			QuickMSG("Disconnected from server");
 	});
 
 	Net::takePacket(0, [&](sf::Packet& packet){
-		sf::String welcomeMsg;
+		std::string welcomeMsg;
 		packet >> resources.myId >> welcomeMsg;
 		serverUI.motd->setText(welcomeMsg);
 		onlineplayUI.makeRoomList(packet);
@@ -112,7 +114,7 @@ udpConfirmed			(false)
 		performanceOutput.ping->show();
 	});
 	Net::takePacket(4, [&](sf::Packet &packet){
-		sf::String name;
+		std::string name;
 		uint16_t id;
 		packet >> id >> name;
 		AddField(id, name);
@@ -120,7 +122,7 @@ udpConfirmed			(false)
 			gameStandings.alignResult();
 	});
 	Net::takePacket(7, [&](sf::Packet &packet){
-		sf::String text;
+		std::string text;
 		packet >> text;
 		QuickMSG("Your score of " + text);
 	});
@@ -158,13 +160,13 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 		loginBox.connectingScreen.hide();
 		onlineplayUI.show();
 		onlineplayUI.opTab->select(0);
-		serverUI.putClient(resources.myId, resources.name);
+		//serverUI.putClient(resources.myId, resources.name);
 	}
 	else if (success == 2) {
 		loginBox.connectingScreen.hide();
 		onlineplayUI.show();
 		onlineplayUI.opTab->select(0);
-		serverUI.putClient(resources.myId, resources.name);
+		//serverUI.putClient(resources.myId, resources.name);
 	}
 	else {
 		if (success == 3) {

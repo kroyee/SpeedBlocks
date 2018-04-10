@@ -33,8 +33,8 @@ public:
 	bool mouseOver(tgui::Widget::Ptr widget, int x, int y);
 	bool mouseOver(tgui::Widget::Ptr widget);
 
-	tgui::WidgetConverter loadWidget(const sf::String& widget, const PosAndSize& pos = PosAndSize(), const sf::String& text="");
-	tgui::WidgetConverter loadWidgetTo(tgui::Panel::Ptr panel, const sf::String& widget, const PosAndSize& pos = PosAndSize(), const sf::String& text="");
+	tgui::WidgetConverter loadWidget(const std::string& widget, const PosAndSize& pos = PosAndSize(), const std::string& text="");
+	tgui::WidgetConverter loadWidgetTo(tgui::Panel::Ptr panel, const std::string& widget, const PosAndSize& pos = PosAndSize(), const std::string& text="");
 	tgui::Panel::Ptr loadPanel(const PosAndSize& pos = PosAndSize(), bool hide=true);
 	tgui::Panel::Ptr loadPanelTo(tgui::Panel::Ptr toPanel, const PosAndSize& pos = PosAndSize(), bool hide=true);
 };

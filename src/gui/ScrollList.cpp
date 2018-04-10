@@ -30,7 +30,7 @@ ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr par
 	panel->add(scroll);
 }
 
-void ScrollList::addItem(const sf::String& name, const sf::String& labelStr, uint16_t id) {
+void ScrollList::addItem(const std::string& name, const std::string& labelStr, uint16_t id) {
 	ListItem newItem;
 	items.push_back(newItem);
 	items.back().name = name;
