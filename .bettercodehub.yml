@@ -1,5 +1,5 @@
 exclude:
 - /src/utils/.*
-component_depth: 1
+component_depth: 2
 languages:
 - cpp
