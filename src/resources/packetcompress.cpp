@@ -155,7 +155,8 @@ void PacketCompress::copy() {
 	field->nextpiece = nextpiece;
 	field->npcol = npcol;
 	field->nprot = nprot;
-	field->text.setBpm(bpmText);
+	if (!field->text.position)
+		field->text.setBpm(bpmText);
 	field->text.setPending(pendingText);
 	field->text.setCombo(comboText);
 	field->text.setComboTimer(comboTimerCount);

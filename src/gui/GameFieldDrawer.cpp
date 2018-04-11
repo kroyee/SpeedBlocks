@@ -60,6 +60,13 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 				return;
 			}
 	});
+	Net::takeSignal(23,[&](uint16_t id, uint16_t bpm){
+		for (auto& field : fields)
+			if (field.id == id) {
+				field.text.setBpm(bpm);
+				field.drawMe=true;
+			}
+	});
 }
 
 void GameFieldDrawer::setPosition(short x, short y) { xPos = x; yPos = y; calFieldPos(); }
@@ -294,6 +301,6 @@ int GameFieldDrawer::areThereFields(int type) {
 		else
 			return 0;
 	}
-	
+
 	return fields.size();
 }

@@ -61,8 +61,10 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBas
 
 	connectSignal("HideStartChallengeButton", &ChallengesGameUI::hideStartChallengeButton, this);
 	connectSignal("UpdateChallengesUI", [&](GameplayData& data){
-		if (challenge != nullptr)
+		if (challenge != nullptr) {
+			challenge->setTime();
 			challenge->update(data);
+		}
 	});
 	connectSignal("Survivor", [&]() -> bool {
 		if (panel->isVisible() && challenge->type == Challenges::Survivor)
@@ -193,11 +195,11 @@ CH_Race::CH_Race(ChallengesGameUI& ref) : BaseChallenge(ref) {
 void CH_Race::update(GameplayData& data) {
 	ref.editBox[1]->setText(to_string(40 - data.linesCleared));
 	ref.editBox[2]->setText(to_string(data.pieceCount));
+
+	updateSpec();
+
 	if (data.linesCleared > 39)
 		GameOver(1);
-
-	setTime();
-	updateSpec();
 }
 
 ///////// Cheese
@@ -213,11 +215,11 @@ CH_Cheese::CH_Cheese(ChallengesGameUI& ref) : BaseChallenge(ref) {
 void CH_Cheese::update(GameplayData& data) {
 	ref.editBox[1]->setText(to_string(9 - data.garbageCleared));
 	ref.editBox[2]->setText(to_string(data.pieceCount));
+
+	updateSpec();
+
 	if (data.garbageCleared > 8)
 		GameOver(1);
-
-	setTime();
-	updateSpec();
 }
 
 /////// Survivor
@@ -247,8 +249,7 @@ void CH_Survivor::update(GameplayData& data) {
 			PushGarbage();
 		}
 
-	setTime();
-	updateSpec();
+		updateSpec();
 }
 
 void CH_Survivor::clear() {
@@ -285,7 +286,6 @@ void CH_Cheese30L::update(GameplayData& data) {
 		}
 	}
 
-	setTime();
 	updateSpec();
 }
 

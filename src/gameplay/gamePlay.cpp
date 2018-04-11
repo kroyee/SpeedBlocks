@@ -428,7 +428,7 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 
 	setComboTimer();
 	field.text.setCombo(combo.comboCount);
-	
+
 	if (recorder.rec)
 		addRecEvent(5, 0);
 }
@@ -745,6 +745,8 @@ bool gamePlay::playReplay() {
 				recorder.halt=true;
 				drawMe=true;
 				field.text.setBpm((int)(data.pieceCount / ((float)(event.time.asSeconds()))*60.0));
+				if (IsVisible(8))
+					UpdateChallengesUI(data);
 				return false;
 			break;
 			case 1:
