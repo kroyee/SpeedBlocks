@@ -96,7 +96,7 @@ if (WIN32)
 endif()
 
 if (APPLE)
-    set(BUNDLE_PATH ${CMAKE_CURRENT_BINARY_DIR}/Debug/SpeedBlocks.app)
+    set(BUNDLE_PATH ${CMAKE_CURRENT_BINARY_DIR}/Release/SpeedBlocks.app)
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/media DESTINATION ${BUNDLE_PATH}/Contents/Resources)
     install(DIRECTORY ${PROJECT_SOURCE_DIR}/sounds DESTINATION ${BUNDLE_PATH}/Contents/Resources)
     get_filename_component(SFML_LIBRARY_DIR ${SFML_SYSTEM_LIBRARY} DIRECTORY)

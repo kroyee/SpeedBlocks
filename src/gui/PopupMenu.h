@@ -32,9 +32,10 @@ public:
 	std::unique_ptr<PopupMenu> menu;
 	std::function<void()> function;
 	Resources& resources;
+	PopupMenu& parent;
 
-	PopupMenuItem(Resources& resources);
-	PopupMenuItem(Resources& resources, std::function<void()> f);
+	PopupMenuItem(Resources& resources, PopupMenu& parent);
+	PopupMenuItem(Resources& resources, std::function<void()> f, PopupMenu& parent);
 	void createLabel(bool _submenu, const std::string & text);
 };
 
@@ -48,14 +49,15 @@ public:
 public:
 	PopupMenu(Resources& res);
 
-	void addItem(const std::string & text, std::function<void()> f);
-	void addItem(const std::string & text);
-	PopupMenu* getSubMenu(const std::string & text);
+	PopupMenu& add(const std::string & text, std::function<void()> f);
+	PopupMenu& add(const std::string & text);
+	PopupMenu* get(const std::string & text);
 	void childClosed();
 	void hideMe();
 	void hide();
 	void show(int x, int y);
-	void setBoundery(sf::Rect<int> _stayInside);
+	void setBoundery(const sf::Rect<int>& _stayInside);
+	void showIfInside(const sf::Vector2i&);
 
 	void update();
 };

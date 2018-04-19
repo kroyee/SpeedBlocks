@@ -20,7 +20,7 @@ class UniformRealDistribution
     template <class Generator>
     T operator()(Generator &_g)
     {
-        double dScale = (m_b - m_a) / ((T)(_g.max() - _g.min()) + (T)1); 
+        double dScale = (m_b - m_a) / ((T)(_g.max() - _g.min()) + (T)1);
         return (_g() - _g.min()) * dScale  + m_a;
     }
 

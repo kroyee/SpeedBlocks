@@ -22,6 +22,8 @@ struct PatchCheck {
 	int files_total=0;
 	int files_downloaded=0;
 
+	int64_t filesize=0, downloaded=0;
+
 	std::string tmpDir;
 	std::string changelog;
 

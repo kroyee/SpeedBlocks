@@ -177,6 +177,8 @@ void LoginBox::checkStatus() {
 		connectingScreen.cancel->hide();
 		connectingScreen.apply->hide();
 		connectingScreen.apply->disable();
+		connectingScreen.downloadProgress->hide();
+		connectingScreen.progressLabel->hide();
 	}
 	else if (patcher.status == 3)
 		connectingScreen.label->setText("Waiting for auth-response from game-server...");
@@ -195,9 +197,12 @@ void LoginBox::checkStatus() {
 	else if (patcher.status == 5) {
 		connectingScreen.label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
 		connectingScreen.label->setPosition(130, 40);
+		connectingScreen.setDownloadProgress(patcher.filesize, patcher.downloaded);
 		connectingScreen.changelog->setText(patcher.changelog);
 		connectingScreen.changelog->show();
 		connectingScreen.cancel->show();
+		connectingScreen.downloadProgress->show();
+		connectingScreen.progressLabel->show();
 	}
 	else if (patcher.status == 6) {
 		t.join();

@@ -249,7 +249,7 @@ void CH_Survivor::update(GameplayData& data) {
 			PushGarbage();
 		}
 
-		updateSpec();
+	updateSpec();
 }
 
 void CH_Survivor::clear() {

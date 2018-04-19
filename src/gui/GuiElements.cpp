@@ -4,6 +4,7 @@
 #include "optionSet.h"
 #include "GameSignals.h"
 #include "gameField.h"
+#include "TaskQueue.h"
 #include <SFML/Network.hpp>
 
 static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
@@ -12,26 +13,30 @@ static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& SetName = Signal<void, const std::string&>::get("SetName");
 static auto& Disconnect = Signal<void, int>::get("Disconnect");
 
+static auto& Away = Signal<void>::get("Away");
+static auto& Ready = Signal<void>::get("Ready");
+
 GuiElements::GuiElements(Resources &_resources) :
 resources(_resources),
-animatedBackground		(resources, 7),
-mainMenu				({0,0,960,600}, resources),
-loginBox				({500,50,450,550}, resources, mainMenu.panel),
-challengesGameUI		({0,0,960,600}, resources),
+animatedBackground	(resources, 7),
+mainMenu					({0,0,960,600}, resources),
+loginBox					({500,50,450,550}, resources, mainMenu.panel),
+challengesGameUI	({0,0,960,600}, resources),
 onlineplayUI			({0,0,960,600}, resources),
 gameStandings			({330,185,120,100}, resources),
-replayUI				({425,530,490,70}, resources),
+replayUI					({425,530,490,70}, resources),
 trainingUI				({50,50,700,550}, resources),
-performanceOutput		({807,0,113,28}, resources),
+performanceOutput	({807,0,113,28}, resources),
 chatScreen				({440,0,480,600}, resources),
-slideMenu				({920,0,600,600}, resources),
+slideMenu					({920,0,600,600}, resources),
 gameOptions				({40,40,560,560}, resources, slideMenu.panel),
-bugReport				({40,40,560,560}, resources, slideMenu.panel),
-serverUI				({40,40,560,560}, resources, slideMenu.panel),
-alertsUI				({40,40,560,560}, resources, slideMenu.panel),
+bugReport					({40,40,560,560}, resources, slideMenu.panel),
+serverUI					({40,40,560,560}, resources, slideMenu.panel),
+alertsUI					({40,40,560,560}, resources, slideMenu.panel),
 areYouSure				({0,0,960,600}, resources),
 scoreScreen				({30,30,860,540}, resources),
-gameFieldDrawer			(resources),
+gameFieldDrawer		(resources),
+player_popup			(resources),
 udpConfirmed			(false)
 {
 	mainMenu.show();
@@ -73,6 +78,21 @@ udpConfirmed			(false)
 	elements.push_back(&serverUI);
 	elements.push_back(&alertsUI);
 	elements.push_back(&trainingUI);
+
+	player_popup.setBoundery({0,0,380, 600});
+	player_popup.add("Set Handicap")
+		.add("10%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 10); }); })
+		.add("20%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 20); }); })
+		.add("30%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 30); }); })
+		.add("40%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 40); }); })
+		.add("50%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 50); }); })
+		.add("60%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 60); }); })
+		.add("70%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 70); }); })
+		.add("80%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 80); }); })
+		.add("90%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 90); }); });
+	player_popup.add("Away", [](){ Away(); })
+		.add("Ready", [](){ Ready(); })
+		.update();
 
 	connectSignal("Show", [&](int elem){ elements[elem]->show(); });
 	connectSignal("Hide", [&](int elem){ elements[elem]->hide(); });
@@ -160,13 +180,11 @@ void GuiElements::getAuthResult(sf::Packet &packet) {
 		loginBox.connectingScreen.hide();
 		onlineplayUI.show();
 		onlineplayUI.opTab->select(0);
-		//serverUI.putClient(resources.myId, resources.name);
 	}
 	else if (success == 2) {
 		loginBox.connectingScreen.hide();
 		onlineplayUI.show();
 		onlineplayUI.opTab->select(0);
-		//serverUI.putClient(resources.myId, resources.name);
 	}
 	else {
 		if (success == 3) {
@@ -286,15 +304,24 @@ bool GuiElements::keyEvents(sf::Event& event) {
 	return false;
 }
 
+void GuiElements::mouseEvents(sf::Event& event) {
+	if (event.type == sf::Event::MouseButtonPressed) {
+		if (event.mouseButton.button == sf::Mouse::Right) {
+			if (resources.gamestate != GameStates::MainMenu && resources.playonline)
+				player_popup.showIfInside({event.mouseButton.x, event.mouseButton.y});
+		}
+	}
+}
+
 void GuiElements::windowEvents(sf::Event& event) {
 	if (event.type == sf::Event::Closed)
-        resources.window.close();
-    else if (event.type == sf::Event::Resized && !resources.options->fullscreen)
-        resizeWindow(event);
-    else if (event.type == sf::Event::LostFocus)
-    	resources.window.setFramerateLimit(60);
-    else if (event.type == sf::Event::GainedFocus)
-    	resources.window.setFramerateLimit(0);
+      resources.window.close();
+  else if (event.type == sf::Event::Resized && !resources.options->fullscreen)
+      resizeWindow(event);
+  else if (event.type == sf::Event::LostFocus)
+  	resources.window.setFramerateLimit(60);
+  else if (event.type == sf::Event::GainedFocus)
+  	resources.window.setFramerateLimit(0);
 }
 
 void GuiElements::resizeWindow(sf::Event& event) {
@@ -322,6 +349,8 @@ bool GuiElements::handleEvent(sf::Event& event) {
 
 	if (keyEvents(event))
 		return true;
+
+	mouseEvents(event);
 
 	if (gameFieldDrawer.isVisible())
 		gameFieldDrawer.enlargePlayfield(event);

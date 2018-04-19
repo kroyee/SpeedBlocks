@@ -2,6 +2,7 @@
 #include <map>
 #include <iostream>
 #include <utility>
+#include <array>
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -73,25 +74,25 @@ namespace Resources {
 			return "No tile texture for TileSet";
 
 		tileSet[0].setTexture(it->second); tileSet[0].setColor(sf::Color(255,0,0));
-	    tileSet[1].setTexture(it->second); tileSet[1].setColor(sf::Color(0,255,0));
-	    tileSet[2].setTexture(it->second); tileSet[2].setColor(sf::Color(115,145,255));
-	    tileSet[3].setTexture(it->second); tileSet[3].setColor(sf::Color(255,0,255));
-	    tileSet[4].setTexture(it->second); tileSet[4].setColor(sf::Color(0,255,255));
-	    tileSet[5].setTexture(it->second); tileSet[5].setColor(sf::Color(255,255,0));
-	    tileSet[6].setTexture(it->second); tileSet[6].setColor(sf::Color(255,255,255));
-	    tileSet[7].setTexture(it->second); tileSet[7].setColor(sf::Color(170,170,170));
+    tileSet[1].setTexture(it->second); tileSet[1].setColor(sf::Color(0,255,0));
+    tileSet[2].setTexture(it->second); tileSet[2].setColor(sf::Color(115,145,255));
+    tileSet[3].setTexture(it->second); tileSet[3].setColor(sf::Color(255,0,255));
+    tileSet[4].setTexture(it->second); tileSet[4].setColor(sf::Color(0,255,255));
+    tileSet[5].setTexture(it->second); tileSet[5].setColor(sf::Color(255,255,0));
+    tileSet[6].setTexture(it->second); tileSet[6].setColor(sf::Color(255,255,255));
+    tileSet[7].setTexture(it->second); tileSet[7].setColor(sf::Color(170,170,170));
 
-	    tileSet[8].setTexture(it->second); tileSet[8].setColor(sf::Color(255,0,0,120));
-	    tileSet[9].setTexture(it->second); tileSet[9].setColor(sf::Color(0,255,0,120));
-	    tileSet[10].setTexture(it->second); tileSet[10].setColor(sf::Color(115,145,255,120));
-	    tileSet[11].setTexture(it->second); tileSet[11].setColor(sf::Color(255,0,255,120));
-	    tileSet[12].setTexture(it->second); tileSet[12].setColor(sf::Color(0,255,255,120));
-	    tileSet[13].setTexture(it->second); tileSet[13].setColor(sf::Color(255,255,0,120));
-	    tileSet[14].setTexture(it->second); tileSet[14].setColor(sf::Color(255,255,255,120));
-	    tileSet[15].setTexture(it->second); tileSet[15].setColor(sf::Color(170,170,170,120));
+    tileSet[8].setTexture(it->second); tileSet[8].setColor(sf::Color(255,0,0,120));
+    tileSet[9].setTexture(it->second); tileSet[9].setColor(sf::Color(0,255,0,120));
+    tileSet[10].setTexture(it->second); tileSet[10].setColor(sf::Color(115,145,255,120));
+    tileSet[11].setTexture(it->second); tileSet[11].setColor(sf::Color(255,0,255,120));
+    tileSet[12].setTexture(it->second); tileSet[12].setColor(sf::Color(0,255,255,120));
+    tileSet[13].setTexture(it->second); tileSet[13].setColor(sf::Color(255,255,0,120));
+    tileSet[14].setTexture(it->second); tileSet[14].setColor(sf::Color(255,255,255,120));
+    tileSet[15].setTexture(it->second); tileSet[15].setColor(sf::Color(170,170,170,120));
 
-	    for (auto& texture : map)
-	    	texture.second.setSmooth(true);
+    for (auto& texture : map)
+    	texture.second.setSmooth(true);
 
 		return "";
 	}

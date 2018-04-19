@@ -21,6 +21,7 @@
 #include "ServerUI.h"
 #include "GameFieldDrawer.h"
 #include "TrainingUI.h"
+#include "PopupMenu.h"
 
 class Resources;
 
@@ -29,6 +30,7 @@ struct GuiElements {
 	void delayCheck(const sf::Time& currentTime);
 	bool keyEvents(sf::Event& event);
 	void windowEvents(sf::Event& event);
+	void mouseEvents(sf::Event& event);
 	void resizeWindow(sf::Event& event);
 	bool handleEvent(sf::Event& event);
 	void toggleFullscreen();
@@ -58,6 +60,8 @@ struct GuiElements {
 	ScoreScreen scoreScreen;
 
 	GameFieldDrawer gameFieldDrawer;
+
+	PopupMenu player_popup;
 
 	bool udpConfirmed;
 

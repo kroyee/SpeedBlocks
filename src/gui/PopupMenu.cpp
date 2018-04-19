@@ -16,7 +16,7 @@ void PopupMenuItem::createLabel(bool _submenu, const std::string & text) {
 	});
 	label->connect("MouseLeft", [&](){ label->getRenderer()->setBackgroundColor(sf::Color(255,255,255,0)); });
 	if (!submenu) {
-		label->connect("MousePressed", function);
+		label->connect("MousePressed", [&](){ function(); parent.hide(); });
 		label->setText(text);
 	}
 	else {
@@ -27,9 +27,9 @@ void PopupMenuItem::createLabel(bool _submenu, const std::string & text) {
 	}
 }
 
-PopupMenuItem::PopupMenuItem(Resources& _resources) : resources(_resources) {}
+PopupMenuItem::PopupMenuItem(Resources& _resources, PopupMenu& parent_) : resources(_resources), parent(parent_) {}
 
-PopupMenuItem::PopupMenuItem(Resources& _resources, std::function<void()> f) : function(std::move(f)), resources(_resources) {}
+PopupMenuItem::PopupMenuItem(Resources& _resources, std::function<void()> f, PopupMenu& parent_) : function(std::move(f)), resources(_resources), parent(parent_) {}
 
 PopupMenu::PopupMenu(Resources& res) : guiBase({0,0,0,0}, res), parent(nullptr) {
 	panel->connect("MouseLeft", &PopupMenu::hideMe, this);
@@ -37,21 +37,23 @@ PopupMenu::PopupMenu(Resources& res) : guiBase({0,0,0,0}, res), parent(nullptr) 
 	stayInside = {0,0,static_cast<int>(resources.window.getSize().x), static_cast<int>(resources.window.getSize().y)};
 }
 
-void PopupMenu::addItem(const std::string & text, std::function<void()> f) {
-	items.emplace_back(PopupMenuItem(resources, f));
+PopupMenu& PopupMenu::add(const std::string & text, std::function<void()> f) {
+	items.emplace_back(PopupMenuItem(resources, f, *this));
 	items.back().createLabel(false, text);
 	panel->add(items.back().label);
+	return *this;
 }
 
-void PopupMenu::addItem(const std::string & text) {
-	items.emplace_back(PopupMenuItem(resources));
+PopupMenu& PopupMenu::add(const std::string & text) {
+	items.emplace_back(PopupMenuItem(resources, *this));
 	items.back().createLabel(true, text);
 	items.back().menu->parent = this;
 	items.back().menu->stayInside = stayInside;
 	panel->add(items.back().label);
+	return *items.back().menu;
 }
 
-PopupMenu* PopupMenu::getSubMenu(const std::string & text) {
+PopupMenu* PopupMenu::get(const std::string & text) {
 	for (auto& item : items)
 		if (item.submenu && item.label->getText() == text + " >")
 			return item.menu.get();
@@ -119,14 +121,19 @@ void PopupMenu::show(int x, int y) {
 		y=stayInside.top;
 	if (y + height > stayInside.top + stayInside.height)
 		y=stayInside.top + stayInside.height - height;
-	
+
 	panel->setPosition(x, y);
 	panel->show();
 }
 
-void PopupMenu::setBoundery(sf::Rect<int> _stayInside) {
+void PopupMenu::setBoundery(const sf::Rect<int>& _stayInside) {
 	stayInside = _stayInside;
 	for (auto& item : items)
 		if (item.submenu)
 			item.menu->setBoundery(stayInside);
+}
+
+void PopupMenu::showIfInside(const sf::Vector2i& pos) {
+	if (stayInside.contains(pos))
+		show(pos.x, pos.y);
 }

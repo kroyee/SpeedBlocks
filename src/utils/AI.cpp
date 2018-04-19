@@ -48,7 +48,6 @@ void AI::setField(obsField& _field) {
 }
 
 void AI::startMove() {
-	cout << firstMove.move.score << endl;
 	movingPiece=true;
 	//movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
 	movepieceTime = nextmoveTime - moveTime;
@@ -151,7 +150,7 @@ bool AI::executeMove() {
 				return true;
 			}
 		}
-		
+
 		moveQueue.pop_front();
 
 		field->drawMe=true;
@@ -303,7 +302,7 @@ void AI::endRound(const sf::Time& _time, bool winner) {
 	data.bpm = data.pieceCount / _time.asSeconds() * 60.0;
 	field->text.setBpm(data.bpm);
 	field->text.setCombo(data.maxCombo);
-	if (winner) 
+	if (winner)
 		field->text.setGameover(2);
 	else
 		field->text.setGameover(1);

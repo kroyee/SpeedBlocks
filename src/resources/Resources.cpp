@@ -36,8 +36,8 @@ Resources::Resources(sf::RenderWindow& _window) : options(new optionSet), gfx(ne
 sounds(new soundBank(options->sound)), net(new network), compressor(new PacketCompress), window(_window),
 playonline(false), away(false), restart(false), chatFocused(false) {
     version_major = 0;
-    version_minor = 1;
-    version_patch = 14;
+    version_minor = 0;
+    version_patch = 50;
     clientVersion = version_major*10000 + version_minor*100 + version_patch;
 }
 

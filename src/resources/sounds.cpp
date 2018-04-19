@@ -17,8 +17,8 @@ soundBank::soundBank(bool& _sound) : sound(_sound) {
 std::string soundBank::loadSounds() {
 	if (!pieceDropBuff.loadFromFile(resourcePath() + "sounds/block.wav"))
 		return "sounds/block.wav";
-    if (!lineClearBuff.loadFromFile(resourcePath() + "sounds/clear.wav"))
-    	return "sounds/clear.wav";
+  if (!lineClearBuff.loadFromFile(resourcePath() + "sounds/clear.wav"))
+    return "sounds/clear.wav";
 	if (!garbAddBuff.loadFromFile(resourcePath() + "sounds/173958__fins__failure.wav"))
 		return "sounds/173958__fins__failure.wav";
 	if (!lineBlockBuff.loadFromFile(resourcePath() + "sounds/350905__cabled-mess__jump-c-05.wav"))

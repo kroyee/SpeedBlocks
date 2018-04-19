@@ -77,3 +77,5 @@
 // 21 - join Matchmaking
 
 // 22 - leave Matchmaking
+
+// 23 - set handicap, id1=hcp in %

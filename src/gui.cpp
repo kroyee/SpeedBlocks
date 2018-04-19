@@ -5,6 +5,7 @@
 #include "GameSignals.h"
 #include "GuiElements.h"
 #include "UIGameState.h"
+#include "TaskQueue.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -163,6 +164,10 @@ void UI::delayCheck() {
 
 		guiElements->performanceOutput.setPing(ping.send(currentTime, myId));
 	}
+
+	TaskQueue::perform(Task::MainThread);
+	if (resources.gamestate != GameStates::Game)
+		TaskQueue::perform(Task::NotDuringRound);
 }
 
 bool UI::handleEvent(sf::Event& event) {
@@ -205,7 +210,7 @@ void UI::lightTheme() {
 
 void UI::setWidgetTextColor(sf::Color color) {
 	resources.gfx->themeTG->setProperty("Label", "TextColor", color);
-	
+
 	color.a = 215; resources.gfx->themeTG->setProperty("Button", "TextColorNormal", color);
 	color.a = 235; resources.gfx->themeTG->setProperty("Button", "TextColorHover", color);
 	resources.gfx->themeTG->setProperty("Button", "TextColorDown", color);

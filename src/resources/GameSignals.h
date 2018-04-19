@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <string>
 
 template<typename... T>
 class Signal;
@@ -37,7 +38,7 @@ public:
 
 	static Signal& get(std::string signal_name) {
 		static std::unordered_map<std::string, Signal> signal_map;
-		
+
 		if (signal_map.find(signal_name) == signal_map.end())
 			signal_map[signal_name] = Signal();
 
@@ -68,7 +69,7 @@ public:
 
 	static Signal& get(std::string signal_name) {
 		static std::unordered_map<std::string, Signal> signal_map;
-		
+
 		if (signal_map.find(signal_name) == signal_map.end())
 			signal_map[signal_name] = Signal();
 
