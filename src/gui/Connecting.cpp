@@ -6,7 +6,7 @@ static auto& Show = Signal<void, int>::get("Show");
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& IsLoginThreadJoinable = Signal<bool>::get("IsLoginThreadJoinable");
 static auto& TellPatcherToQuit = Signal<void>::get("TellPatcherToQuit");
-static auto& ApplyPatch = Signal<bool>::get("ApplyPatch");
+static auto& ApplyPatch = Signal<int>::get("ApplyPatch");
 
 Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
 
@@ -64,7 +64,10 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	apply->disable();
 	apply->connect("pressed", [&](){
 		resources.options->saveOptions();
-		if (ApplyPatch()) {
+		int result = ApplyPatch();
+		if (result == 2)
+			resources.window.close();
+		else if (result == 1) {
 			resources.restart=true;
 			resources.window.close();
 		}

@@ -150,16 +150,13 @@ int main()
     game.options.saveOptions();
     if (resources.restart) {
         #ifdef _WIN32
-            std::thread relaunch([](){ system("start SpeedBlocks.exe"); });
+            system("start SpeedBlocks.exe");
         #elif __APPLE__
-            std::thread relaunch([](){
-                std::string cmd = "open " + resourcePath() + "../../../SpeedBlocks.app";
-                system(cmd.c_str());
-            });
+            std::string cmd = "open " + resourcePath() + "../../../SpeedBlocks.app";
+            system(cmd.c_str());
         #else
-            std::thread relaunch([](){ system("./SpeedBlocks"); });
+            system("./SpeedBlocks");
         #endif
-        relaunch.detach();
     }
 
     return 0;

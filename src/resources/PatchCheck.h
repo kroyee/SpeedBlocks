@@ -10,7 +10,7 @@ struct PatchCheck {
 	void check(int version);
 	int download_file(const std::string& file);
 	bool check_md5(const std::string& file, const std::string& md5);
-	bool apply();
+	int apply();
 	void parseJson(const std::string& jsonString);
 	bool cancelCheck();
 

@@ -154,9 +154,10 @@ bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
 	return false;
 }
 
-bool PatchCheck::apply() {
+int PatchCheck::apply() {
 	bool applyAsAdmin=false;
 	std::string fullCommand="";
+
 	for (const auto file : j1) {
 		std::string filename = file.first;
 		filename = filename.substr(filename.find('/')+1);
@@ -181,8 +182,6 @@ bool PatchCheck::apply() {
 			if (copyto.compare(""))
 				copyto = copyto + "\\" + filename;
 			std::string cmd = "move /y " + copyfrom + " " + copyto;
-			if (filename == "SpeedBlocks.exe")
-				system("move /y SpeedBlocks.exe SpeedBlocks.exe.old");
 			if (copyto == ".zip")
 				cmd = "unzip.exe -of " + tmpDir + filename;
 			if (system(cmd.c_str())) {
@@ -212,7 +211,7 @@ bool PatchCheck::apply() {
 			if (copyto == ".zip")
 				cmd = "unzip -of " + copyfrom;
 			if (system(cmd.c_str()))
-				return false;
+				return 0;
 			cmd = "chmod +x SpeedBlocks";
 			system(cmd.c_str());
 		#endif
@@ -223,19 +222,13 @@ bool PatchCheck::apply() {
 			fullCommand+= "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
 			runAsAdmin(fullCommand);
 		#elif __WIN32
-			char pwd[500];
-			GetCurrentDirectory(500, pwd);
-			std::string launch(pwd);
-			launch+="apply_patch.exe";
-			if ((int)ShellExecute(NULL, "runas", "apply_patch.exe", fullCommand.c_str(), pwd, 0) > 32) {
-				while (true)
-					sf::sleep(sf::seconds(1));
-			}
+			if (ShellExecute(NULL, NULL, "helper.exe", fullCommand.c_str(), NULL, 0) > 32)
+				return 2;
 			else
-				return false;
+				return 0;
 		#endif
 	}
-	return true;
+	return 1;
 }
 
 std::string PatchCheck::sendPost(const std::string& _request, const std::string& body) {
