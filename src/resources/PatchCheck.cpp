@@ -222,7 +222,7 @@ int PatchCheck::apply() {
 			fullCommand+= "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
 			runAsAdmin(fullCommand);
 		#elif __WIN32
-			if (ShellExecute(NULL, NULL, "helper.exe", fullCommand.c_str(), NULL, 0) > 32)
+			if ((int)ShellExecute(NULL, NULL, "helper.exe", fullCommand.c_str(), NULL, 0) > 32)
 				return 2;
 			else
 				return 0;
