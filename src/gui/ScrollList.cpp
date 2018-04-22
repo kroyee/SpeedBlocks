@@ -1,12 +1,13 @@
 #include "ScrollList.h"
 #include "GameSignals.h"
+#include "Resources.h"
 
 using std::cout;
 using std::endl;
 
 static auto& JoinRoom = Signal<void, int>::get("JoinRoom");
 
-ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	pos = _pos;
 
 	scroll = resources.gfx->themeTG->load("Scrollbar");
@@ -18,7 +19,7 @@ ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res
 	panel->add(scroll);
 }
 
-ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : guiBase(_pos, _res, parentPanel) {
+ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : GuiBase(_pos, _res, parentPanel) {
 	pos = _pos;
 
 	scroll = resources.gfx->themeTG->load("Scrollbar");

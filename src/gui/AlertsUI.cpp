@@ -1,13 +1,14 @@
 #include "AlertsUI.h"
 #include "optionSet.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 
 static auto& PlaySound = Signal<void, int>::get("PlaySound");
 static auto& HideAlert = Signal<void>::get("HideAlert");
 static auto& ShowAlert = Signal<void>::get("ShowAlert");
 
-AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {
+AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
 
 	empty = resources.gfx->themeTG->load("Label");
 	empty->setPosition(100, 50);

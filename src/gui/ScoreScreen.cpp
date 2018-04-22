@@ -1,8 +1,9 @@
 #include "ScoreScreen.h"
 #include "GameSignals.h"
+#include "Resources.h"
 using std::to_string;
 
-ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	panel->setBackgroundColor(sf::Color(100, 100, 100, 200));
 
 	unknown = "Unknown";
@@ -280,7 +281,7 @@ void ScoreScreen::setItemPos() {
 void ScoreScreen::scrolled(int scrollpos) {
 	int c=0;
 	for (auto score : scores) {
-		for (int i=0; i<10; i++) 
+		for (int i=0; i<10; i++)
 			score.labels[i]->setPosition(score.labels[i]->getPosition().x, c*30+5 - scrollpos*30);
 		score.exp->setPosition(score.exp->getPosition().x, c*30+5 - scrollpos*30);
 		c++;

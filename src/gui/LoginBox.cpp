@@ -3,6 +3,7 @@
 #include "optionSet.h"
 #include "network.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -17,7 +18,7 @@ static auto& SetRoomListTime = Signal<void>::get("SetRoomListTime");
 static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 
 LoginBox::LoginBox(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) :
-guiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resources) {
+GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resources) {
 
 	tgui::Label::Ptr header = resources.gfx->themeTG->load("Label");
 	header->setTextSize(42);
@@ -178,6 +179,7 @@ void LoginBox::checkStatus() {
 		connectingScreen.apply->hide();
 		connectingScreen.apply->disable();
 		connectingScreen.downloadProgress->hide();
+		connectingScreen.downloadProgress->setValue(0);
 		connectingScreen.progressLabel->hide();
 	}
 	else if (patcher.status == 3)

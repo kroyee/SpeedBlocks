@@ -1,5 +1,6 @@
 #include "AreYouSure.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <iostream>
 
 static auto& LeaveRoom = Signal<void>::get("LeaveRoom");
@@ -8,7 +9,7 @@ static auto& Disconnect = Signal<void, int>::get("Disconnect");
 static auto& Show = Signal<void, int>::get("Show");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 
-AreYouSure::AreYouSure(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+AreYouSure::AreYouSure(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	tgui::Panel::Ptr box = loadWidget("Panel", {330, 250, 300, 100});
 
 	label = loadWidgetTo(box, "Label", {0, 20, 300, 50}, "Are you sure?");

@@ -1,5 +1,6 @@
 #include "ChallengesUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 using std::cout;
 using std::endl;
@@ -9,9 +10,9 @@ static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SendRecording = Signal<void, int>::get("SendRecording");
 
 ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) :
-guiBase(_pos, _res, parentPanel),
+GuiBase(_pos, _res, parentPanel),
 challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
-	
+
 	challengeList.show();
 
 	leaderPanel = tgui::Panel::create();

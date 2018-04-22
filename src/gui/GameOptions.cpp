@@ -1,6 +1,7 @@
 #include "GameOptions.h"
 #include "optionSet.h"
 #include "GameSignals.h"
+#include "Resources.h"
 using std::to_string;
 
 #ifdef __APPLE__
@@ -24,7 +25,7 @@ static auto& SetEffectVolume = Signal<void, int>::get("SetEffectVolume");
 static auto& SetAlertsVolume = Signal<void, int>::get("SetAlertsVolume");
 static auto& UpdateGamePieces = Signal<void>::get("UpdateGamePieces");
 
-GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : guiBase(_pos, _res, parentPanel) {
+GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : GuiBase(_pos, _res, parentPanel) {
 
 	GenOpt = tgui::Panel::create();
 	GenOpt->setSize(560, 560);

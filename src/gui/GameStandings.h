@@ -1,13 +1,13 @@
 #ifndef GAMESTANDINGS_H
 #define GAMESTANDINGS_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 namespace sf { class Packet; }
 
 class Resources;
 
-class GameStandings : public guiBase {
+class GameStandings : public GuiBase {
 public:
 	tgui::Label::Ptr rounds;
 	tgui::Label::Ptr p1_sets;

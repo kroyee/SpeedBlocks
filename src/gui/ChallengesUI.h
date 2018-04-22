@@ -1,7 +1,7 @@
 #ifndef CHALLENGESUI_H
 #define CHALLENGESUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 #include "ScrollList.h"
 
 namespace sf { class Packet; }
@@ -13,7 +13,7 @@ struct ChallengesRow {
 	tgui::Button::Ptr button;
 };
 
-class ChallengesUI : public guiBase {
+class ChallengesUI : public GuiBase {
 public:
 	ScrollList challengeList;
 	tgui::Panel::Ptr leaderPanel;

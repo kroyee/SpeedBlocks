@@ -1,11 +1,11 @@
 #ifndef PERFORMANCEOUTPUT_H
 #define PERFORMANCEOUTPUT_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class PerformanceOutput : public guiBase {
+class PerformanceOutput : public GuiBase {
 public:
 	tgui::Label::Ptr longest;
 	tgui::Label::Ptr longestHeader;

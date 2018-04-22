@@ -65,7 +65,7 @@ struct GuiElements {
 
 	bool udpConfirmed;
 
-	std::vector<guiBase*> elements;
+	std::vector<GuiBase*> elements;
 	sf::Time quickMsgTime;
 };
 

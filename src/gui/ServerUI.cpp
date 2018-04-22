@@ -1,8 +1,9 @@
 #include "ServerUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 
-ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {
+ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
 
 	tgui::Label::Ptr plist = resources.gfx->themeTG->load("Label");
 	plist->setPosition(410, 20);

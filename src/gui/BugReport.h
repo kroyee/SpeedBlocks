@@ -1,12 +1,12 @@
 #ifndef BUGREPORT_H
 #define BUGREPORT_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 #include <thread>
 
 class Resources;
 
-class BugReport : public guiBase {
+class BugReport : public GuiBase {
 public:
 	sf::Rect<int> pos;
 

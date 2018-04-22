@@ -1,5 +1,6 @@
 #include "OnlineplayUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 using std::to_string;
 using std::cout;
@@ -10,7 +11,7 @@ static auto& SetAreYouSure = Signal<void, const std::string&>::get("SetAreYouSur
 static auto& AddAlert = Signal<void, const std::string&>::get("AddAlert");
 
 OnlineplayUI::OnlineplayUI(sf::Rect<int> _pos, Resources& _res) :
-guiBase(_pos, _res),
+GuiBase(_pos, _res),
 roomList(sf::Rect<int>(0,100,450,500), _res, panel),
 tournamentList(sf::Rect<int>(0,100,450,500), _res, panel),
 tournamentPanel(sf::Rect<int>(0,100,960,500), _res, panel, *this),

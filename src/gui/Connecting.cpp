@@ -1,6 +1,7 @@
 #include "Connecting.h"
 #include "optionSet.h"
 #include "GameSignals.h"
+#include "Resources.h"
 
 static auto& Show = Signal<void, int>::get("Show");
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
@@ -8,7 +9,7 @@ static auto& IsLoginThreadJoinable = Signal<bool>::get("IsLoginThreadJoinable");
 static auto& TellPatcherToQuit = Signal<void>::get("TellPatcherToQuit");
 static auto& ApplyPatch = Signal<int>::get("ApplyPatch");
 
-Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
 	label = resources.gfx->themeTG->load("Label");
 	label->setPosition(130, 290);

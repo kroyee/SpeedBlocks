@@ -1,7 +1,7 @@
 #ifndef CHALLENGESGAMEUI_H
 #define CHALLENGESGAMEUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 #include <array>
 #include <memory>
 
@@ -11,7 +11,7 @@ class BaseChallenge;
 
 static const int LabelCount = 7;
 
-class ChallengesGameUI : public guiBase {
+class ChallengesGameUI : public GuiBase {
 public:
 	tgui::Button::Ptr startChallenge;
 

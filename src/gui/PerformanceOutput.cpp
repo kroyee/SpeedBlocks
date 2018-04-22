@@ -1,8 +1,9 @@
 #include "PerformanceOutput.h"
 #include "optionSet.h"
+#include "Resources.h"
 using std::to_string;
 
-PerformanceOutput::PerformanceOutput(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+PerformanceOutput::PerformanceOutput(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	pingIdCount=0;
 	pingReturned=false;
 

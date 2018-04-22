@@ -1,17 +1,18 @@
 #include "SlideMenu.h"
 #include "GameSignals.h"
 #include "optionSet.h"
+#include "Resources.h"
 
 static auto& Show = Signal<void, int>::get("Show");
 static auto& Hide = Signal<void, int>::get("Hide");
 static auto& ShowOptions = Signal<void, int>::get("ShowOptions");
 
-SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), active(false), mouseOver(false) {
+SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res), active(false), mouseOver(false) {
 
 	background = tgui::Picture::create(resources.gfx->menuBackground_light);
 	background->setOpacity(0.85);
 	panel->add(background);
-	
+
 	alert = tgui::Picture::create(resources.gfx->alert);
 	alert->setPosition(0, 60);
 	alert->hide();
@@ -29,7 +30,7 @@ SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res),
 	tab->select(0);
 	tab->connect("TabSelected", &SlideMenu::tabSelect, this);
 	panel->add(tab);
-	
+
 	posX = 920;
 
 	connectSignal("ShowAlert", &SlideMenu::showAlert, this);

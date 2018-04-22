@@ -4,15 +4,12 @@ namespace TaskQueue {
 
 	namespace {
 		std::mutex queueMutex;
-		std::deque<std::deque<std::function<void()>>> queues;
+		std::deque<std::deque<std::function<void()>>> queues(static_cast<unsigned>(::Task::MAX_SIZE));
 	}
 
 	void add(Task queue_id, std::function<void()> func) {
 		auto queue_nr = static_cast<uint8_t>(queue_id);
 		std::lock_guard<std::mutex> mute(queueMutex);
-
-		if (queue_nr >= queues.size())
-			queues.resize(queue_nr+1);
 
 		queues[queue_nr].emplace_back(std::move(func));
 	}
@@ -26,5 +23,4 @@ namespace TaskQueue {
 
 		queues[queue_nr].clear();
 	}
-
 }

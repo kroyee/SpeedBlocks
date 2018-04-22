@@ -1,11 +1,11 @@
 #ifndef SERVERUI_H
 #define SERVERUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 namespace sf { class Packet; }
 
-class ServerUI : public guiBase {
+class ServerUI : public GuiBase {
 public:
 	tgui::ListBox::Ptr LobbyList;
 	tgui::Label::Ptr motd;

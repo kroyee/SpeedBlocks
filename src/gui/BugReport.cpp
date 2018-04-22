@@ -1,12 +1,13 @@
 #include "BugReport.h"
 #include "network.h"
+#include "Resources.h"
 #include <stdio.h>
 #include <curl/curl.h>
 using std::cout;
 using std::endl;
 using std::to_string;
 
-BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : guiBase(_pos, _res, parent) {
+BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
 	join=false;
 
 	loadWidget("Label", {10,5}, "What happened?");

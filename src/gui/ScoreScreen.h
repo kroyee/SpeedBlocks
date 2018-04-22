@@ -3,7 +3,7 @@
 
 #include <TGUI/TGUI.hpp>
 #include <SFML/Network.hpp>
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 struct GameplayData;
@@ -18,7 +18,7 @@ struct ScoreRow {
 	tgui::ProgressBar::Ptr exp;
 };
 
-class ScoreScreen : public guiBase {
+class ScoreScreen : public GuiBase {
 private:
 	tgui::Panel::Ptr scrollPanel;
 	tgui::Panel::Ptr highlight;

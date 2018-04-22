@@ -8,6 +8,8 @@
 enum class Task {
 	NotDuringRound,
 	MainThread,
+
+	MAX_SIZE
 };
 
 namespace TaskQueue {

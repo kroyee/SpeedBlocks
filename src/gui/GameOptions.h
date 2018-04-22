@@ -1,12 +1,12 @@
 #ifndef GAMEOPTIONS_H
 #define GAMEOPTIONS_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 #include "TextureAndSprite.h"
 
 class Resources;
 
-class GameOptions : public guiBase {
+class GameOptions : public GuiBase {
 public:
 	tgui::Tab::Ptr otab;
 	tgui::Panel::Ptr GenOpt;

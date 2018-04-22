@@ -1,11 +1,11 @@
 #ifndef TRAININGUI_H
 #define TRAININGUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class TrainingUI : public guiBase {
+class TrainingUI : public GuiBase {
 public:
 	tgui::Label::Ptr amount_text;
 	tgui::Slider::Ptr amount_slider;

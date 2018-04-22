@@ -1,7 +1,7 @@
 #ifndef SCROLLLIST_H
 #define SCROLLLIST_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
@@ -13,7 +13,7 @@ public:
 	tgui::Label::Ptr label;
 };
 
-class ScrollList : public guiBase {
+class ScrollList : public GuiBase {
 public:
 	std::list<ListItem> items;
 	tgui::Scrollbar::Ptr scroll;

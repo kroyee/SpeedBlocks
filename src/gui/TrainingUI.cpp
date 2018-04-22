@@ -1,5 +1,6 @@
 #include "TrainingUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 
 static auto& AmountAI = Signal<void, uint8_t>::get("AmountAI");
 static auto& SpeedAI = Signal<void, uint16_t>::get("SpeedAI");
@@ -8,7 +9,7 @@ static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& ShowGameFields = Signal<void>::get("ShowGameFields");
 static auto& Show = Signal<void, int>::get("Show");
 
-TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
 	widget0->setPosition(171,27);
 	widget0->setText("Train against AI");

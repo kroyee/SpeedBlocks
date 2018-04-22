@@ -98,6 +98,8 @@ void PatchCheck::check(int version) {
 	char tmp[500];
 	GetTempPath(500, tmp);
 	tmpDir = std::string(tmp);
+	#else
+	tmpDir = "tmp/";
 	#endif
 
 	for (const auto file : j1) {
@@ -132,25 +134,11 @@ bool PatchCheck::cancelCheck() {
 }
 
 bool PatchCheck::check_md5(const std::string& file, const std::string& md5) {
-	#ifdef __APPLE__
-		std::string filename = file.substr(file.find('/')+1);
-	#elif __WIN32
-		std::string filename = file.substr(file.find('/')+1);
-	#else
-		std::string filename = "tmp/" + file.substr(file.find('/')+1);
-	#endif
-
-	#ifdef _WIN32
-		std::string filehash = md5file((tmpDir + filename).c_str());
-	#elif __APPLE__
-		std::string filehash = md5file((tmpDir + filename).c_str());
-	#else
-		std::string filehash = md5file(filename.c_str());
-	#endif
+	std::string filehash = md5file((tmpDir + file).c_str());
 
 	if (filehash == md5)
 		return true;
-	cout << filehash << " != " << md5 << endl;
+
 	return false;
 }
 
@@ -160,56 +148,26 @@ int PatchCheck::apply() {
 
 	for (const auto file : j1) {
 		std::string filename = file.first;
-		filename = filename.substr(filename.find('/')+1);
-
-		size_t pos = filename.find('.');
-		std::string copyto;
-		if (pos == std::string::npos)
-			copyto = "";
-		else
-			copyto = filename.substr(pos);
-		if (copyto == ".exe")
-			copyto = "";
-		else if (copyto == "")
-			copyto = ".";
-		else if (copyto == ".wav" || copyto == ".ogg")
-			copyto = "sounds";
-		else if (copyto != ".zip")
-			copyto = "media";
 
 		#ifdef _WIN32
-			std::string copyfrom = tmpDir + filename;
-			if (copyto.compare(""))
-				copyto = copyto + "\\" + filename;
-			std::string cmd = "move /y " + copyfrom + " " + copyto;
-			if (copyto == ".zip")
-				cmd = "unzip.exe -of " + tmpDir + filename;
+			std::string	cmd = "unzip.exe -o '" + tmpDir + filename + "'";
+			system("move /y SpeedBlocks.exe SpeedBlocks.exe.old");
 			if (system(cmd.c_str())) {
 				applyAsAdmin=true;
 				fullCommand += " " + filename;
 			}
+			if (applyAsAdmin)
+				system("move /y SpeedBlocks.exe.old SpeedBlocks.exe");
 		#elif __APPLE__
-			std::string copyfrom = tmpDir + filename;
-			if (!copyto.compare("."))
-				copyto = "../MacOS/";
-			else
-				copyto = copyto + "/" + filename;
-			std::string cmd = "mv -f " + copyfrom + " " + resourcePath() + copyto;
-			if (copyto == ".zip")
-				cmd = "unzip -d " resourcePath() + "../ -of " + copyfrom;
+			std::string	cmd = "unzip -d '" + resourcePath() + "../' -o '" + tmpDir + filename + "'";
 			if (system(cmd.c_str())) {
 				applyAsAdmin=true;
 				fullCommand+=cmd + ";";
 			}
-			cmd = "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
+			cmd = "chmod +x '" + resourcePath() + "../MacOS/SpeedBlocks'";
 			system(cmd.c_str());
 		#else
-			std::string copyfrom = "tmp/" + filename;
-			if (copyto != ".zip")
-				copyto = copyto + "/" + filename;
-			std::string cmd = "mv -f " + copyfrom + " " + copyto;
-			if (copyto == ".zip")
-				cmd = "unzip -of " + copyfrom;
+			std::string cmd = std::string("unzip -o ") + "tmp/" + filename;
 			if (system(cmd.c_str()))
 				return 0;
 			cmd = "chmod +x SpeedBlocks";
@@ -219,8 +177,8 @@ int PatchCheck::apply() {
 
 	if (applyAsAdmin) {
 		#ifdef __APPLE__
-			fullCommand+= "chmod +x " + resourcePath() + "../MacOS/SpeedBlocks";
-			runAsAdmin(fullCommand);
+			fullCommand+= "chmod +x '" + resourcePath() + "../MacOS/SpeedBlocks'";
+			return runAsAdmin(fullCommand);
 		#elif __WIN32
 			if ((int)ShellExecute(NULL, NULL, "helper.exe", fullCommand.c_str(), NULL, 0) > 32)
 				return 2;
@@ -237,31 +195,6 @@ std::string PatchCheck::sendPost(const std::string& _request, const std::string&
     request.setField("Content-Type", "application/x-www-form-urlencoded");
 	sf::Http http("http://speedblocks.se");
     return http.sendRequest(request).getBody();
-}
-
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
-static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-  size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-  mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
-  if(mem->memory == NULL) {
-    /* out of memory! */
-    cout << "not enough memory (realloc returned NULL)" << endl;
-    return 0;
-  }
-
-  memcpy(&(mem->memory[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->memory[mem->size] = 0;
-
-  return realsize;
 }
 
 int progress_func(void* ptr, curl_off_t TotalToDownload, curl_off_t NowDownloaded, curl_off_t, curl_off_t) {
@@ -285,81 +218,36 @@ int PatchCheck::download_file(const std::string& file) {
 	CURLcode res;
 	FILE* fp;
 
-	struct MemoryStruct chunk;
-
-  	chunk.memory = (char*)malloc(1);  /* will be grown as needed by the realloc above */
-  	chunk.size = 0;    /* no data at this point */
-
-  	std::string URL = "https://speedblocks.se/update/new/" + file;
-
-	char * urlstr = new char [URL.size()+1];
-	std::strcpy (urlstr, URL.c_str());
+  std::string URL = "https://speedblocks.se/update/new/" + file;
 
 	curl = curl_easy_init();
 	if(curl) {
-		#ifdef __APPLE__
-		std::string filename = tmpDir + file.substr(file.find('/')+1);
-		#elif __WIN32
-		std::string filename = tmpDir + file.substr(file.find('/')+1);
-		#else
-		std::string filename = "tmp/" + file.substr(file.find('/')+1);
-		#endif
+		std::string filename = tmpDir + file;
 		fp = fopen(filename.c_str(), "wb");
-		curl_easy_setopt(curl, CURLOPT_URL, urlstr);
 
-		struct curl_slist *headers = NULL;
-		headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
-		headers = curl_slist_append(headers, "Cache-Control: no-cache");
-		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+		curl_easy_setopt(curl, CURLOPT_URL, URL.c_str());
 
-		// Specify callbackfunction to get the response
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 		curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
 		curl_easy_setopt(curl, CURLOPT_XFERINFODATA, (void *)this);
 		curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_func);
 
-		/* Perform the request, res will get the return code */
 		res = curl_easy_perform(curl);
-		/* Check for errors */
+
 		if(res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 			cout << endl;
 		}
 		fclose(fp);
 
-		curl_slist_free_all(headers);
-
-		/* always cleanup */
 		curl_easy_cleanup(curl);
 	}
 	else
 		cout << "Curl failed to load" << endl;
 
-	delete[] urlstr;
-
-	if (res == CURLE_OK) {
-		/*#ifdef __APPLE__
-		std::string filename = tmpDir + file.substr(file.find('/')+1);
-		#elif __WIN32
-		std::string filename = tmpDir + file.substr(file.find('/')+1);
-		#else
-		std::string filename = "tmp/" + file.substr(file.find('/')+1);
-		#endif
-	  std::ofstream ofile(filename, std::ios::binary);
-		if (!ofile.is_open()) {
-			std::cout << "Error saving file: " << file << std::endl;
-			free(chunk.memory);
-			return -5;
-		}
-
-	  ofile.write(chunk.memory, chunk.size);
-		ofile.close();*/
-		free(chunk.memory);
+	if (res == CURLE_OK)
 		return 0;
-	}
-	else {
-		free(chunk.memory);
-		return -3;
-	}
+
+	return -3;
 }

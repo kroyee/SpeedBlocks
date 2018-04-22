@@ -1,5 +1,6 @@
 #include "ReplayUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 using std::cout;
 using std::endl;
 using std::to_string;
@@ -14,7 +15,7 @@ static auto& IsVisible = Signal<bool, int>::get("IsVisible");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& SetName = Signal<void, const std::string&>::get("SetName");
 
-ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
 	timeTotal = resources.gfx->themeTG->load("Label");
 	timeTotal->setPosition(440,5);

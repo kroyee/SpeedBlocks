@@ -1,5 +1,6 @@
 #include "ChallengesGameUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 using std::to_string;
 
 static auto& Ready = Signal<void>::get("Ready");
@@ -9,7 +10,7 @@ static auto& GameOver = Signal<void, int>::get("GameOver");
 static auto& GameAddDelay = Signal<void, int>::get("GameAddDelay");
 static auto& PushGarbage = Signal<void>::get("PushGarbage");
 
-ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res), challenge(nullptr) {
+ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res), challenge(nullptr) {
 
 	header = resources.gfx->themeTG->load("Label");
 	header->setPosition(450,50);

@@ -3,11 +3,11 @@
 
 #include <TGUI/TGUI.hpp>
 #include <deque>
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class ChatScreen : public guiBase {
+class ChatScreen : public GuiBase {
 private:
 	tgui::EditBox::Ptr input;
 	tgui::ChatBox::Ptr chatBox;

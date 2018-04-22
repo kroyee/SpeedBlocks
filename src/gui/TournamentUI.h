@@ -1,7 +1,7 @@
 #ifndef TOURNAMENTUI_H
 #define TOURNAMENTUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 class OnlineplayUI;
@@ -39,7 +39,7 @@ struct Participant {
 	std::string name;
 };
 
-class TournamentUI : public guiBase {
+class TournamentUI : public GuiBase {
 public:
 	OnlineplayUI& onlineplayUI;
 	std::list<TGame> games;

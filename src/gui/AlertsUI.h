@@ -1,9 +1,9 @@
 #ifndef ALERTSUI_H
 #define ALERTSUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
-class AlertsUI : public guiBase {
+class AlertsUI : public GuiBase {
 	struct alertData {
 		tgui::Label::Ptr label;
 		tgui::Button::Ptr button;

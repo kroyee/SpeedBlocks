@@ -1,14 +1,14 @@
 #ifndef ONLINEPLAYUI_H
 #define ONLINEPLAYUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 #include "ScrollList.h"
 #include "TournamentUI.h"
 #include "ChallengesUI.h"
 
 class Resources;
 
-class OnlineplayUI : public guiBase {
+class OnlineplayUI : public GuiBase {
 public:
 	tgui::Tab::Ptr opTab;
 	tgui::Panel::Ptr CreateRoom;

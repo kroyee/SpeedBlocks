@@ -1,12 +1,13 @@
 #include "GameStandings.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 using std::to_string;
 
 static auto& AreThereFields = Signal<int, int>::get("AreThereFields");
 static auto& SetFieldsSize = Signal<void, int, int>::get("SetFieldsSize");
 
-GameStandings::GameStandings(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+GameStandings::GameStandings(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
 	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
 	widget0->setPosition(31,0);

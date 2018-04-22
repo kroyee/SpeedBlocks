@@ -1,11 +1,11 @@
 #ifndef CONNECTING_H
 #define CONNECTING_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class Connecting : public guiBase {
+class Connecting : public GuiBase {
 public:
 	tgui::Label::Ptr label, progressLabel;
 	tgui::TextBox::Ptr changelog;

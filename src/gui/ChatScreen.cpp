@@ -1,10 +1,11 @@
 #include "ChatScreen.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 
 const unsigned int chatTextSize = 14;
 
-ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	panel->disable(false);
 	to = "Lobby";
 	privto = "";
@@ -116,7 +117,7 @@ void ChatScreen::send() {
 	}
 	if (!msg.size())
 		return;
-	
+
 	if (spamCount>7000) {
 		addLine("I HAVE TO STOP SPAMMING THE CHAT!!!", 4);
 		spamCount=12000;

@@ -1,14 +1,14 @@
 #ifndef LOGINBOX_H
 #define LOGINBOX_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 #include "PatchCheck.h"
 #include "Connecting.h"
 #include <thread>
 
 class Resources;
 
-class LoginBox : public guiBase {
+class LoginBox : public GuiBase {
 private:
 	bool edited=false;
 	std::string name, pass;

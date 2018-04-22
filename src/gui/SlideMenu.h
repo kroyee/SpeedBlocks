@@ -2,11 +2,11 @@
 #define SLIDEMENU_H
 
 #include <TGUI/TGUI.hpp>
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class SlideMenu : public guiBase {
+class SlideMenu : public GuiBase {
 private:
 	tgui::Picture::Ptr background;
 	tgui::Tab::Ptr tab;

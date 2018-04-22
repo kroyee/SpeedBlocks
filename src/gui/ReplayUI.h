@@ -1,11 +1,11 @@
 #ifndef REPLAYUI_H
 #define REPLAYUI_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class ReplayUI : public guiBase {
+class ReplayUI : public GuiBase {
 public:
 	tgui::Label::Ptr timeTotal;
 	tgui::Button::Ptr playPause;

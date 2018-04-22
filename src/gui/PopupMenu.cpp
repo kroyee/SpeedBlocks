@@ -1,5 +1,6 @@
 #include "PopupMenu.h"
 #include "optionSet.h"
+#include "Resources.h"
 
 #include <iostream>
 using std::cout;
@@ -31,7 +32,7 @@ PopupMenuItem::PopupMenuItem(Resources& _resources, PopupMenu& parent_) : resour
 
 PopupMenuItem::PopupMenuItem(Resources& _resources, std::function<void()> f, PopupMenu& parent_) : function(std::move(f)), resources(_resources), parent(parent_) {}
 
-PopupMenu::PopupMenu(Resources& res) : guiBase({0,0,0,0}, res), parent(nullptr) {
+PopupMenu::PopupMenu(Resources& res) : GuiBase({0,0,0,0}, res), parent(nullptr) {
 	panel->connect("MouseLeft", &PopupMenu::hideMe, this);
 	panel->setBackgroundColor(sf::Color(128,128,128,220));
 	stayInside = {0,0,static_cast<int>(resources.window.getSize().x), static_cast<int>(resources.window.getSize().y)};

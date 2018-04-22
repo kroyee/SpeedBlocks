@@ -1,7 +1,8 @@
 #include "MainMenu.h"
 #include "GameSignals.h"
+#include "Resources.h"
 
-Menu::Menu(sf::Rect<int> _pos, Resources& _res) : guiBase(_pos, _res) {
+Menu::Menu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
 	tgui::Picture::Ptr logo = tgui::Picture::create(resources.gfx->logoTexture);
 	logo->setPosition(0, -20);

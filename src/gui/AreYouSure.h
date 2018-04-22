@@ -1,11 +1,11 @@
 #ifndef AREYOUSURE_H
 #define AREYOUSURE_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 class Resources;
 
-class AreYouSure : public guiBase {
+class AreYouSure : public GuiBase {
 public:
 	tgui::Label::Ptr label;
 	

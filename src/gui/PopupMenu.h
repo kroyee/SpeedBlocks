@@ -1,7 +1,7 @@
 #ifndef POPUPMENU_H
 #define POPUPMENU_H
 
-#include "guiBase.h"
+#include "GuiBase.h"
 
 /*	Example usage
 
@@ -39,7 +39,7 @@ public:
 	void createLabel(bool _submenu, const std::string & text);
 };
 
-class PopupMenu : public guiBase {
+class PopupMenu : public GuiBase {
 public:
 	std::deque<PopupMenuItem> items;
 	PopupMenu* parent;

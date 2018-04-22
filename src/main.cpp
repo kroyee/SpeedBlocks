@@ -12,6 +12,7 @@
 #include "network.h"
 #include "GuiElements.h"
 #include "GameDraw.h"
+#include "TaskQueue.h"
 #include <string>
 #include <cmath>
 #include <thread>
@@ -152,7 +153,7 @@ int main()
         #ifdef _WIN32
             system("start SpeedBlocks.exe");
         #elif __APPLE__
-            std::string cmd = "open " + resourcePath() + "../../../SpeedBlocks.app";
+            std::string cmd = "open -n '" + resourcePath() + "../../../SpeedBlocks.app'";
             system(cmd.c_str());
         #else
             system("./SpeedBlocks");

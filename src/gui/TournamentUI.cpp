@@ -1,6 +1,7 @@
 #include "TournamentUI.h"
 #include "OnlineplayUI.h"
 #include "GameSignals.h"
+#include "Resources.h"
 #include <SFML/Network.hpp>
 
 using std::to_string;
@@ -8,7 +9,7 @@ using std::cout;
 using std::endl;
 
 TournamentUI::TournamentUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel, OnlineplayUI& _opui) :
-guiBase(_pos, _res, parentPanel), onlineplayUI(_opui) {
+GuiBase(_pos, _res, parentPanel), onlineplayUI(_opui) {
 
 	signUp = tgui::Panel::create();
 	signUp->setPosition(0,0);
@@ -692,7 +693,7 @@ void TournamentUI::gamePressed(TGame& game) {
 	player1->setText(game.player1_name);
 	player2->setText(game.player2_name);
 	gStartingTime->setText("ASAP");
-	
+
 	setGameStatus(game);
 
 	joinButton->disconnectAll();
