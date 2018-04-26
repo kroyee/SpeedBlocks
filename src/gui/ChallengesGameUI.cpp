@@ -12,7 +12,7 @@ static auto& PushGarbage = Signal<void>::get("PushGarbage");
 
 ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res), challenge(nullptr) {
 
-	header = resources.gfx->themeTG->load("Label");
+	header = resources.gfx->load("Label");
 	header->setPosition(450,50);
 	header->setSize(470,70);
 	header->setTextSize(60);
@@ -20,7 +20,7 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : GuiBas
 	panel->add(header);
 
 	for (int i=0; i<7; i++) {
-		label[i] = resources.gfx->themeTG->load("Label");
+		label[i] = resources.gfx->load("Label");
 		label[i]->setPosition(450,90 + i*60);
 		label[i]->setText("test");
 		label[i]->setSize(200, 40);
@@ -29,7 +29,7 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : GuiBas
 		label[i]->hide();
 		panel->add(label[i]);
 
-		editBox[i] = resources.gfx->themeTG->load("EditBox");
+		editBox[i] = resources.gfx->load("EditBox");
 		editBox[i]->setPosition(660,87 + i*60);
 		editBox[i]->setSize(200,40);
 		editBox[i]->disable();
@@ -37,14 +37,14 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : GuiBas
 		panel->add(editBox[i]);
 	}
 
-	startChallenge = resources.gfx->themeTG->load("Button");
+	startChallenge = resources.gfx->load("Button");
 	startChallenge->setPosition(550,510);
 	startChallenge->setSize(200,40);
 	startChallenge->setText("Start challenge");
 	startChallenge->connect("pressed", [&](){ Ready(); });
 	panel->add(startChallenge);
 
-	specLabel = resources.gfx->themeTG->load("Label");
+	specLabel = resources.gfx->load("Label");
 	specLabel->setPosition(315, 200);
 	specLabel->setText("test");
 	specLabel->setSize(120, 30);
@@ -53,7 +53,7 @@ ChallengesGameUI::ChallengesGameUI(sf::Rect<int> _pos, Resources& _res) : GuiBas
 	specLabel->hide();
 	panel->add(specLabel);
 
-	specEditBox = resources.gfx->themeTG->load("EditBox");
+	specEditBox = resources.gfx->load("EditBox");
 	specEditBox->setPosition(330,230);
 	specEditBox->setSize(90,40);
 	specEditBox->disable();

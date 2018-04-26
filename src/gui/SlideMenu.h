@@ -10,7 +10,6 @@ class SlideMenu : public GuiBase {
 private:
 	tgui::Picture::Ptr background;
 	tgui::Tab::Ptr tab;
-	tgui::Picture::Ptr alert;
 	sf::Time last;
 	bool active, mouseOver;
 public:
@@ -19,8 +18,6 @@ public:
 
 	void handleEvent(sf::Event& event);
 	void update(const sf::Time& now);
-	void showAlert();
-	void hideAlert();
 	virtual void show();
 	virtual void hide();
 	void tabSelect(std::string selected);

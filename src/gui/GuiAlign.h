@@ -121,7 +121,7 @@ namespace tgui {
       Pos(int x, int y) : x(x), y(y) {}
 
       template <typename W>
-      Pos(W& w) : x(w->getPosition().x), y(w->getPosition().y), w(w->getSize().x, h(w->getSize().y)) {}
+      explicit Pos(W& w) : x(w->getPosition().x), y(w->getPosition().y), w(w->getSize().x), h(w->getSize().y) {}
 
       int x, y, w=0, h=0;
     };
@@ -141,7 +141,7 @@ namespace tgui {
     template <>
     struct ApplyProperty<> {
       template <typename W>
-      static void apply(W& w) {}
+      static void apply(W&) {}
     };
 
     template <typename W>
@@ -192,22 +192,25 @@ namespace tgui {
       }
 
       template <typename W, is_widget_t<W> = 0>
-      Align operator<<(W& w) {
+      Align operator<<(std::shared_ptr<W>& w) {
         w->setPosition(x, y);
         apply(w);
         base->add(w);
 
         if (down) {
           if (step)
-            return Align(base, x, y + step + gap, gap, down);
+            y += step;
           else
-            return Align(base, x, y + w->getSize().y + gap, gap, down);
+            y += w->getSize().y + gap;
+        }
+        else {
+          if (step)
+            x += step;
+          else
+            x += w->getSize().x + gap;
         }
 
-        if (step)
-          return Align(base, x + step + gap, y, gap, down);
-        else
-          return Align(base, x + w->getSize().x + gap, y, gap, down);
+        return *this;
       }
 
     private:

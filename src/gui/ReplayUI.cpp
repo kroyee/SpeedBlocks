@@ -17,61 +17,61 @@ static auto& SetName = Signal<void, const std::string&>::get("SetName");
 
 ReplayUI::ReplayUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
-	timeTotal = resources.gfx->themeTG->load("Label");
+	timeTotal = resources.gfx->load("Label");
 	timeTotal->setPosition(440,5);
 	timeTotal->setText("00:00");
 	timeTotal->setTextSize(18);
 	panel->add(timeTotal);
 
-	playPause = resources.gfx->themeTG->load("Button");
+	playPause = resources.gfx->load("Button");
 	playPause->setPosition(116,35);
 	playPause->setSize(85,30);
 	playPause->setText("Pause");
 	playPause->connect("pressed", &ReplayUI::pause, this);
 	panel->add(playPause);
 
-	gameForward = resources.gfx->themeTG->load("Button");
+	gameForward = resources.gfx->load("Button");
 	gameForward->setPosition(212,35);
 	gameForward->setSize(30,30);
 	gameForward->setText(">");
 	panel->add(gameForward);
 
-	setForward = resources.gfx->themeTG->load("Button");
+	setForward = resources.gfx->load("Button");
 	setForward->setPosition(252,35);
 	setForward->setSize(40,30);
 	setForward->setText(">>");
 	panel->add(setForward);
 
-	gameBack = resources.gfx->themeTG->load("Button");
+	gameBack = resources.gfx->load("Button");
 	gameBack->setPosition(75,35);
 	gameBack->setSize(30,30);
 	gameBack->setText("<");
 	panel->add(gameBack);
 
-	setBack = resources.gfx->themeTG->load("Button");
+	setBack = resources.gfx->load("Button");
 	setBack->setPosition(24,35);
 	setBack->setSize(40,30);
 	setBack->setText("<<");
 	panel->add(setBack);
 
-	timePlayed = resources.gfx->themeTG->load("Label");
+	timePlayed = resources.gfx->load("Label");
 	timePlayed->setPosition(0,5);
 	timePlayed->setText("00:00");
 	timePlayed->setTextSize(18);
 	panel->add(timePlayed);
 
-	seekbar = resources.gfx->themeTG->load("ProgressBar");
+	seekbar = resources.gfx->load("ProgressBar");
 	seekbar->setPosition(50, 5);
 	seekbar->setSize(387, 20);
 	seekbar->connect("MousePressed", &ReplayUI::seek, this);
 	panel->add(seekbar);
 
-	rounds = resources.gfx->themeTG->load("Label");
+	rounds = resources.gfx->load("Label");
 	rounds->setPosition(310, 40);
 	rounds->setText("Round: 1");
 	panel->add(rounds);
 
-	sets = resources.gfx->themeTG->load("Label");
+	sets = resources.gfx->load("Label");
 	sets->setPosition(420, 40);
 	sets->setText("Set: 1");
 	panel->add(sets);

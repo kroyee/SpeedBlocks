@@ -43,144 +43,144 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	SelectKey->hide();
 	resources.gfx->tGui.add(SelectKey);
 
-	tgui::Panel::Ptr box = resources.gfx->themeTG->load("Panel");
+	tgui::Panel::Ptr box = resources.gfx->load("Panel");
 	box->setSize(300, 100);
 	box->setPosition(330, 150);
 	SelectKey->add(box);
 
-	tgui::Label::Ptr CKPL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr CKPL = resources.gfx->load("Label");
 	CKPL->setTextSize(32);
 	CKPL->setText("Press any key");
 	CKPL->setPosition(40, 30);
 	box->add(CKPL);
 
-	tgui::Label::Ptr LeL = resources.gfx->themeTG->load("Label"); // Binding Keys
+	tgui::Label::Ptr LeL = resources.gfx->load("Label"); // Binding Keys
 	LeL->setPosition(0, 63);
 	LeL->setSize(90, 30);
 	LeL->setText("Left");
 	LeL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(LeL);
-	BindLeft = resources.gfx->themeTG->load("Button");
+	BindLeft = resources.gfx->load("Button");
 	BindLeft->setPosition(100, 60);
 	BindLeft->connect("pressed", &GameOptions::setKey, this, BindLeft, std::ref(resources.options->left));
 	BindLeft->setText(SFKeyToString(resources.options->left));
 	GenOpt->add(BindLeft);
 
-	tgui::Label::Ptr RiL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr RiL = resources.gfx->load("Label");
 	RiL->setPosition(0, 103);
 	RiL->setSize(90, 30);
 	RiL->setText("Right");
 	RiL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(RiL);
-	BindRight = resources.gfx->themeTG->load("Button");
+	BindRight = resources.gfx->load("Button");
 	BindRight->setPosition(100, 100);
 	BindRight->connect("pressed", &GameOptions::setKey, this, BindRight, std::ref(resources.options->right));
 	BindRight->setText(SFKeyToString(resources.options->right));
 	GenOpt->add(BindRight);
 
-	tgui::Label::Ptr DoL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr DoL = resources.gfx->load("Label");
 	DoL->setPosition(0, 143);
 	DoL->setSize(90, 30);
 	DoL->setText("Down");
 	DoL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(DoL);
-	BindDown = resources.gfx->themeTG->load("Button");
+	BindDown = resources.gfx->load("Button");
 	BindDown->setPosition(100, 140);
 	BindDown->connect("pressed", &GameOptions::setKey, this, BindDown, std::ref(resources.options->down));
 	BindDown->setText(SFKeyToString(resources.options->down));
 	GenOpt-> add(BindDown);
 
-	tgui::Label::Ptr CwL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr CwL = resources.gfx->load("Label");
 	CwL->setPosition(0, 223);
 	CwL->setSize(90, 30);
 	CwL->setText("Rotate >");
 	CwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CwL);
-	BindRCW = resources.gfx->themeTG->load("Button");
+	BindRCW = resources.gfx->load("Button");
 	BindRCW->setPosition(100, 220);
 	BindRCW->connect("pressed", &GameOptions::setKey, this, BindRCW, std::ref(resources.options->rcw));
 	BindRCW->setText(SFKeyToString(resources.options->rcw));
 	GenOpt->add(BindRCW);
 
-	tgui::Label::Ptr CcL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr CcL = resources.gfx->load("Label");
 	CcL->setPosition(0, 183);
 	CcL->setSize(90, 30);
 	CcL->setText("Rotate <");
 	CcL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(CcL);
-	BindRCCW = resources.gfx->themeTG->load("Button");
+	BindRCCW = resources.gfx->load("Button");
 	BindRCCW->setPosition(100, 180);
 	BindRCCW->connect("pressed", &GameOptions::setKey, this, BindRCCW, std::ref(resources.options->rccw));
 	BindRCCW->setText(SFKeyToString(resources.options->rccw));
 	GenOpt->add(BindRCCW);
 
-	tgui::Label::Ptr R1L = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr R1L = resources.gfx->load("Label");
 	R1L->setPosition(200, 63);
 	R1L->setSize(140, 30);
 	R1L->setText("Rotate 180");
 	R1L->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(R1L);
-	BindR180 = resources.gfx->themeTG->load("Button");
+	BindR180 = resources.gfx->load("Button");
 	BindR180->setPosition(350, 60);
 	BindR180->connect("pressed", &GameOptions::setKey, this, BindR180, std::ref(resources.options->r180));
 	BindR180->setText(SFKeyToString(resources.options->r180));
 	GenOpt->add(BindR180);
 
-	tgui::Label::Ptr HdL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr HdL = resources.gfx->load("Label");
 	HdL->setPosition(200, 103);
 	HdL->setSize(140, 30);
 	HdL->setText("Hard Drop");
 	HdL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(HdL);
-	BindHD = resources.gfx->themeTG->load("Button");
+	BindHD = resources.gfx->load("Button");
 	BindHD->setPosition(350, 100);
 	BindHD->connect("pressed", &GameOptions::setKey, this, BindHD, std::ref(resources.options->hd));
 	BindHD->setText(SFKeyToString(resources.options->hd));
 	GenOpt->add(BindHD);
 
-	tgui::Label::Ptr ChL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr ChL = resources.gfx->load("Label");
 	ChL->setPosition(250, 143);
 	ChL->setSize(90, 30);
 	ChL->setText("Menu");
 	ChL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ChL);
-	BindMenu = resources.gfx->themeTG->load("Button");
+	BindMenu = resources.gfx->load("Button");
 	BindMenu->setPosition(350, 140);
 	BindMenu->connect("pressed", &GameOptions::setKey, this, BindMenu, std::ref(resources.options->menu));
 	BindMenu->setText(SFKeyToString(resources.options->menu));
 	GenOpt->add(BindMenu);
 
-	tgui::Label::Ptr ScL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr ScL = resources.gfx->load("Label");
 	ScL->setPosition(250, 183);
 	ScL->setSize(90, 30);
 	ScL->setText("Score");
 	ScL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ScL);
-	BindScore = resources.gfx->themeTG->load("Button");
+	BindScore = resources.gfx->load("Button");
 	BindScore->setPosition(350, 180);
 	BindScore->connect("pressed", &GameOptions::setKey, this, BindScore, std::ref(resources.options->score));
 	BindScore->setText(SFKeyToString(resources.options->score));
 	GenOpt->add(BindScore);
 
-	tgui::Label::Ptr AwL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr AwL = resources.gfx->load("Label");
 	AwL->setPosition(250, 223);
 	AwL->setSize(90, 30);
 	AwL->setText("Away");
 	AwL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(AwL);
-	BindAway = resources.gfx->themeTG->load("Button");
+	BindAway = resources.gfx->load("Button");
 	BindAway->setPosition(350, 220);
 	BindAway->connect("pressed", &GameOptions::setKey, this, BindAway, std::ref(resources.options->away));
 	BindAway->setText(SFKeyToString(resources.options->away));
 	GenOpt->add(BindAway);
 
-	tgui::Label::Ptr ReL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr ReL = resources.gfx->load("Label");
 	ReL->setPosition(250, 263);
 	ReL->setSize(90, 30);
 	ReL->setText("Ready");
 	ReL->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	GenOpt->add(ReL);
-	BindReady = resources.gfx->themeTG->load("Button");
+	BindReady = resources.gfx->load("Button");
 	BindReady->setPosition(350, 260);
 	BindReady->connect("pressed", &GameOptions::setKey, this, BindReady, std::ref(resources.options->ready));
 	BindReady->setText(SFKeyToString(resources.options->ready));
@@ -189,12 +189,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	tgui::Button::Ptr Rp[7]; // Align Pieces
 	tgui::Button::Ptr Cc[7];
 
-	tgui::Texture rotate_n(resources.gfx->rotate);
-	tgui::Texture rotate_h(resources.gfx->rotate);
+	tgui::Texture rotate_n(resources.gfx->texture("rotate"));
+	tgui::Texture rotate_h(resources.gfx->texture("rotate"));
 	rotate_n.setColor({0,0,0});
 
-	tgui::Texture color_n(resources.gfx->color);
-	tgui::Texture color_h(resources.gfx->color);
+	tgui::Texture color_n(resources.gfx->texture("color"));
+	tgui::Texture color_h(resources.gfx->texture("color"));
 	color_n.setColor({0,0,0});
 
 	for (int i=0; i<7; i++) {
@@ -220,13 +220,13 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		GenOpt->add(Cc[i]);
 	}
 
-	tgui::Label::Ptr Rl1 = resources.gfx->themeTG->load("Label"); // Repeat delay & speed
+	tgui::Label::Ptr Rl1 = resources.gfx->load("Label"); // Repeat delay & speed
 	Rl1->setPosition(50, 410);
 	Rl1->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	Rl1->setText("Left & Right Repeat\nDelay         Speed");
 	GenOpt->add(Rl1);
 
-	tgui::EditBox::Ptr Re1 = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr Re1 = resources.gfx->load("EditBox");
 	Re1->setPosition(50, 460);
 	Re1->setSize(70, 30);
 	Re1->setInputValidator(tgui::EditBox::Validator::UInt);
@@ -234,7 +234,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	Re1->connect("TextChanged", &optionSet::setDelay, resources.options, 1);
 	GenOpt->add(Re1);
 
-	tgui::EditBox::Ptr Re2 = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr Re2 = resources.gfx->load("EditBox");
 	Re2->setPosition(150, 460);
 	Re2->setSize(70, 30);
 	Re2->setInputValidator(tgui::EditBox::Validator::UInt);
@@ -242,13 +242,13 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	Re2->connect("TextChanged", &optionSet::setDelay, resources.options, 2);
 	GenOpt->add(Re2);
 
-	tgui::Label::Ptr Rl2 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr Rl2 = resources.gfx->load("Label");
 	Rl2->setPosition(300, 410);
 	Rl2->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	Rl2->setText("Down Repeat\n  Delay         Speed");
 	GenOpt->add(Rl2);
 
-	tgui::EditBox::Ptr Re3 = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr Re3 = resources.gfx->load("EditBox");
 	Re3->setPosition(300, 460);
 	Re3->setSize(70, 30);
 	Re3->setInputValidator(tgui::EditBox::Validator::UInt);
@@ -256,7 +256,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	Re3->connect("TextChanged", &optionSet::setDelay, resources.options, 3);
 	GenOpt->add(Re3);
 
-	tgui::EditBox::Ptr Re4 = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr Re4 = resources.gfx->load("EditBox");
 	Re4->setPosition(400, 460);
 	Re4->setSize(70, 30);
 	Re4->setInputValidator(tgui::EditBox::Validator::UInt);
@@ -271,12 +271,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VidOpt->hide();
 	panel->add(VidOpt);
 
-	tgui::Label::Ptr ViL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr ViL = resources.gfx->load("Label");
 	ViL->setPosition(250, 0);
 	ViL->setText("Video Mode");
 	VidOpt->add(ViL);
 
-	VMSlider = resources.gfx->themeTG->load("Slider");
+	VMSlider = resources.gfx->load("Slider");
 	VMSlider->setPosition(50, 50);
 	VMSlider->setSize(460, 30);
 	VMSlider->setMaximum(resources.options->modes.size()-1);
@@ -288,14 +288,14 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VMSlider->disable();
 	VidOpt->add(VMSlider);
 
-	VideoMode = resources.gfx->themeTG->load("Label");
+	VideoMode = resources.gfx->load("Label");
 	VideoMode->setPosition(240, 90);
 	std::string cvmname;
 	cvmname = to_string(resources.options->modes[VMSlider->getValue()].width) + "x" + to_string(resources.options->modes[VMSlider->getValue()].height);
 	VideoMode->setText(cvmname);
 	VidOpt->add(VideoMode);
 
-	Fullscreen = resources.gfx->themeTG->load("CheckBox");
+	Fullscreen = resources.gfx->load("CheckBox");
 	Fullscreen->setPosition(60, 130);
 	Fullscreen->setText("Fullscreen");
 	Fullscreen->connect("Checked Unchecked", &GameOptions::fsChecked, this);
@@ -305,52 +305,52 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		VMSlider->enable();
 	}
 
-	vSync = resources.gfx->themeTG->load("CheckBox");
+	vSync = resources.gfx->load("CheckBox");
 	vSync->setPosition(220, 130);
 	vSync->setText("VSync");
 	if (resources.options->vSync)
 		vSync->check();
 	VidOpt->add(vSync);
 
-	performanceOutput = resources.gfx->themeTG->load("CheckBox");
+	performanceOutput = resources.gfx->load("CheckBox");
 	performanceOutput->setPosition(320, 130);
 	performanceOutput->setText("Performance output");
 	if (resources.options->performanceOutput)
 		performanceOutput->check();
 	VidOpt->add(performanceOutput);
 
-	tgui::Label::Ptr FdL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr FdL = resources.gfx->load("Label");
 	FdL->setPosition(80, 200);
 	FdL->setText("Frame Rate");
 	VidOpt->add(FdL);
 
-	FrameDelay = resources.gfx->themeTG->load("EditBox");
+	FrameDelay = resources.gfx->load("EditBox");
 	FrameDelay->setPosition(100, 230);
 	FrameDelay->setSize(70, 30);
 	FrameDelay->setInputValidator(tgui::EditBox::Validator::UInt);
 	FrameDelay->setText(to_string(1000000/resources.options->frameDelay.asMicroseconds()));
 	VidOpt->add(FrameDelay);
 
-	tgui::Label::Ptr IdL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr IdL = resources.gfx->load("Label");
 	IdL->setPosition(320, 200);
 	IdL->setText("Input Rate");
 	VidOpt->add(IdL);
 
-	InputDelay = resources.gfx->themeTG->load("EditBox");
+	InputDelay = resources.gfx->load("EditBox");
 	InputDelay->setPosition(310, 230);
 	InputDelay->setSize(110, 30);
 	InputDelay->setInputValidator(tgui::EditBox::Validator::UInt);
 	InputDelay->setText(to_string(1000000/resources.options->inputDelay.asMicroseconds()));
 	VidOpt->add(InputDelay);
 
-	tgui::Button::Ptr AvB = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr AvB = resources.gfx->load("Button");
 	AvB->setText("Apply");
 	AvB->setPosition(240, 300);
 	AvB->setOpacity(0.7);
 	AvB->connect("pressed", &GameOptions::applyVideo, this);
 	VidOpt->add(AvB);
 
-	tgui::Label::Ptr InL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr InL = resources.gfx->load("Label");
 	InL->setPosition(10, 390);
 	InL->setText("Frame Rate = frames drawn per second\nInput Rate = input parsed per second\nNote: Enabling vSync will disable both FrameRate and InputRate.");
 	VidOpt->add(InL);
@@ -364,7 +364,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		SndOpt->disable();
 	panel->add(SndOpt);
 
-	tgui::CheckBox::Ptr EsC = resources.gfx->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr EsC = resources.gfx->load("CheckBox");
 	EsC->setPosition(50, 0);
 	EsC->setText("Sound Enabled");
 	EsC->connect("Checked Unchecked", &GameOptions::sndChecked, this);
@@ -372,7 +372,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	if (resources.options->sound)
 		EsC->check();
 
-	tgui::Slider::Ptr MvS = resources.gfx->themeTG->load("Slider");
+	tgui::Slider::Ptr MvS = resources.gfx->load("Slider");
 	MvS->setPosition(50, 100);
 	MvS->setSize(460,30);
 	MvS->setMaximum(100);
@@ -380,12 +380,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	MvS->setValue(resources.options->MusicVolume);
 	SndOpt->add(MvS);
 
-	tgui::Label::Ptr MvL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr MvL = resources.gfx->load("Label");
 	MvL->setText("Music Volume");
 	MvL->setPosition(240, 50);
 	SndOpt->add(MvL);
 
-	tgui::Slider::Ptr EvS = resources.gfx->themeTG->load("Slider");
+	tgui::Slider::Ptr EvS = resources.gfx->load("Slider");
 	EvS->setPosition(50, 200);
 	EvS->setSize(460,30);
 	EvS->setMaximum(100);
@@ -393,12 +393,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	EvS->setValue(resources.options->EffectVolume);
 	SndOpt->add(EvS);
 
-	tgui::Label::Ptr EvL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr EvL = resources.gfx->load("Label");
 	EvL->setText("Effect Volume");
 	EvL->setPosition(240, 150);
 	SndOpt->add(EvL);
 
-	tgui::Slider::Ptr CvS = resources.gfx->themeTG->load("Slider");
+	tgui::Slider::Ptr CvS = resources.gfx->load("Slider");
 	CvS->setPosition(50, 300);
 	CvS->setSize(460,30);
 	CvS->setMaximum(100);
@@ -406,7 +406,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	CvS->setValue(resources.options->ChatVolume);
 	SndOpt->add(CvS);
 
-	tgui::Label::Ptr CvL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr CvL = resources.gfx->load("Label");
 	CvL->setText("Alert Volume");
 	CvL->setPosition(240, 250);
 	SndOpt->add(CvL);
@@ -418,18 +418,18 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VisOpt->hide();
 	panel->add(VisOpt);
 
-	tgui::Label::Ptr NL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr NL = resources.gfx->load("Label");
 	NL->setPosition(20, 13);
 	NL->setText("Name (for single-player)");
 	VisOpt->add(NL);
-	tgui::EditBox::Ptr NTB = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr NTB = resources.gfx->load("EditBox");
 	NTB->setText(resources.options->name);
 	NTB->setPosition(230, 10);
 	NTB->setSize(270, 30);
 	NTB->connect("TextChanged", &GameOptions::changeName, this);
 	VisOpt->add(NTB);
 
-	tgui::CheckBox::Ptr animBack = resources.gfx->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr animBack = resources.gfx->load("CheckBox");
 	animBack->setPosition(20, 50);
 	animBack->setText("Show background animation");
 	animBack->connect("Checked", [&](){ EnableBackground(resources.delayClock.getElapsedTime()); });
@@ -438,12 +438,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 		animBack->check();
 	VisOpt->add(animBack);
 
-	tgui::Label::Ptr gpaLabel = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr gpaLabel = resources.gfx->load("Label");
 	gpaLabel->setPosition(100, 90);
 	gpaLabel->setText("Ghost piece transparency");
 	VisOpt->add(gpaLabel);
 
-	tgui::Slider::Ptr ghostPieceAlpha = resources.gfx->themeTG->load("Slider");
+	tgui::Slider::Ptr ghostPieceAlpha = resources.gfx->load("Slider");
 	ghostPieceAlpha->setPosition(20, 120);
 	ghostPieceAlpha->setSize(520,30);
 	ghostPieceAlpha->setMaximum(255);
@@ -451,12 +451,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	ghostPieceAlpha->connect("ValueChanged", &GameOptions::setGhostPieceAlpha, this);
 	VisOpt->add(ghostPieceAlpha);
 
-	tgui::RadioButton::Ptr r_lightTheme = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr r_lightTheme = resources.gfx->load("RadioButton");
 	r_lightTheme->setPosition(20, 180);
 	r_lightTheme->setText("Light theme");
 	VisOpt->add(r_lightTheme);
 
-	tgui::RadioButton::Ptr r_darkTheme = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr r_darkTheme = resources.gfx->load("RadioButton");
 	r_darkTheme->setPosition(20, 220);
 	r_darkTheme->setText("Dark theme");
 	VisOpt->add(r_darkTheme);
@@ -469,12 +469,12 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	r_lightTheme->connect("Checked", [&](){ LightTheme(); });
 	r_darkTheme->connect("Checked", [&](){ DarkTheme(); });
 
-	tgui::Label::Ptr fbcLabel = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr fbcLabel = resources.gfx->load("Label");
 	fbcLabel->setPosition(100, 260);
 	fbcLabel->setText("Game field background color and lines");
 	VisOpt->add(fbcLabel);
 
-	tgui::Slider::Ptr fieldBackColor = resources.gfx->themeTG->load("Slider");
+	tgui::Slider::Ptr fieldBackColor = resources.gfx->load("Slider");
 	fieldBackColor->setPosition(20, 290);
 	fieldBackColor->setSize(520,30);
 	fieldBackColor->setMaximum(255);
@@ -487,7 +487,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	});
 	VisOpt->add(fieldBackColor);
 
-	tgui::CheckBox::Ptr vlines = resources.gfx->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr vlines = resources.gfx->load("CheckBox");
 	vlines->setText("Vertical lines");
 	vlines->setPosition(20, 340);
 	if (resources.options->fieldVLines)
@@ -504,7 +504,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	});
 	VisOpt->add(vlines);
 
-	tgui::CheckBox::Ptr hlines = resources.gfx->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr hlines = resources.gfx->load("CheckBox");
 	hlines->setText("Horizontal lines");
 	hlines->setPosition(20, 370);
 	if (resources.options->fieldHLines)
@@ -527,7 +527,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	linestyle->setSize(100,90);
 	VisOpt->add(linestyle);
 
-	tgui::RadioButton::Ptr style1 = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr style1 = resources.gfx->load("RadioButton");
 	style1->setPosition(0,0);
 	style1->setText("Full");
 	if (resources.options->lineStyle==1)
@@ -539,7 +539,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	});
 	linestyle->add(style1);
 
-	tgui::RadioButton::Ptr style2 = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr style2 = resources.gfx->load("RadioButton");
 	style2->setPosition(0,30);
 	style2->setText("Intersections");
 	if (resources.options->lineStyle==2)
@@ -551,7 +551,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	});
 	linestyle->add(style2);
 
-	tgui::RadioButton::Ptr style3 = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr style3 = resources.gfx->load("RadioButton");
 	style3->setPosition(0,60);
 	style3->setText("Faded");
 	if (resources.options->lineStyle==3)
@@ -569,7 +569,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	linecolor->setSize(100,60);
 	VisOpt->add(linecolor);
 
-	tgui::RadioButton::Ptr darkLines = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr darkLines = resources.gfx->load("RadioButton");
 	darkLines->setPosition(0,0);
 	darkLines->setText("Dark");
 	if (resources.options->lineColor)
@@ -581,7 +581,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	});
 	linecolor->add(darkLines);
 
-	tgui::RadioButton::Ptr lightLines = resources.gfx->themeTG->load("RadioButton");
+	tgui::RadioButton::Ptr lightLines = resources.gfx->load("RadioButton");
 	lightLines->setPosition(0,30);
 	lightLines->setText("Light");
 	if (!resources.options->lineColor)
@@ -593,7 +593,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	});
 	linecolor->add(lightLines);
 
-	tgui::CheckBox::Ptr mouseMenu = resources.gfx->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr mouseMenu = resources.gfx->load("CheckBox");
 	mouseMenu->setPosition(20, 500);
 	mouseMenu->setText("Menu responds to mouse hovering");
 	if (resources.options->mouseMenu)

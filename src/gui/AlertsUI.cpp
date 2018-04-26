@@ -5,30 +5,8 @@
 #include <SFML/Network.hpp>
 
 static auto& PlaySound = Signal<void, int>::get("PlaySound");
-static auto& HideAlert = Signal<void>::get("HideAlert");
-static auto& ShowAlert = Signal<void>::get("ShowAlert");
 
-AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
-
-	empty = resources.gfx->themeTG->load("Label");
-	empty->setPosition(100, 50);
-	empty->setText("You have no alerts at the moment.");
-	panel->add(empty);
-
-	info = resources.gfx->themeTG->load("Label");
-	info->setPosition(40, 533);
-	info->setText("Press on the alert to remove it or");
-	info->hide();
-	panel->add(info);
-
-	clearAll = resources.gfx->themeTG->load("Button");
-	clearAll->setPosition(320, 530);
-	clearAll->setSize(80, 25);
-	clearAll->setText("clear all");
-	clearAll->connect("Pressed", &AlertsUI::removeAll, this);
-	clearAll->hide();
-	panel->add(clearAll);
-
+AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	connectSignal("AddAlert", &AlertsUI::addAlert, this);
 
 	Net::takePacket(10, [&](sf::Packet &packet){
@@ -45,12 +23,11 @@ void AlertsUI::addAlert(const std::string& msg) {
 
 	alerts.push_back(newalert);
 
-	alerts.back().label = resources.gfx->themeTG->load("Label");
-	alerts.back().label->setText(msg);
+	alerts.back().label = label1(msg);
 	alerts.back().label->setMaximumTextWidth(520);
 	panel->add(alerts.back().label);
 
-	alerts.back().button = resources.gfx->themeTG->load("Button");
+	alerts.back().button = button3("");
 	alerts.back().button->connect("Pressed", &AlertsUI::removeAlert, this, newalert.id);
 	panel->add(alerts.back().button);
 
@@ -80,22 +57,17 @@ void AlertsUI::removeAll() {
 
 void AlertsUI::update() {
 	if (alerts.empty()) {
-		HideAlert();
-		info->hide();
-		clearAll->hide();
-		empty->show();
+		hide();
 		return;
 	}
-	ShowAlert();
-	info->show();
-	clearAll->show();
-	empty->hide();
-	int posY = 0;
+	show();
+	unsigned posY = 0;
 	for (auto& alert : alerts) {
 		int height = alert.label->getSize().y;
 		alert.button->setPosition(0, posY);
-		alert.button->setSize(560, height+10);
+		alert.button->setSize(560, height+20);
 		alert.label->setPosition(20, posY+10);
-		posY += height+20;
+		posY += height+30;
 	}
+	panel->setSize(panel->getSize().x, posY-10);
 }

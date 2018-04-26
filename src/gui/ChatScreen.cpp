@@ -15,7 +15,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	spamCount=0;
 	spamTime=sf::seconds(0);
 
-	chatBox = resources.gfx->themeTG->load("ChatBox");
+	chatBox = resources.gfx->load("ChatBox");
 	chatBox->setPosition(5, 5);
 	chatBox->setSize(470, 555);
 	chatBox->getRenderer()->setBackgroundColor(sf::Color(200,200,200,128));
@@ -25,7 +25,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	chatBox->hide();
 	panel->add(chatBox);
 
-	chatBoxNoLobby = resources.gfx->themeTG->load("ChatBox");
+	chatBoxNoLobby = resources.gfx->load("ChatBox");
 	chatBoxNoLobby->setPosition(5, 5);
 	chatBoxNoLobby->setSize(470, 555);
 	chatBoxNoLobby->getRenderer()->setBackgroundColor(sf::Color(200,200,200,128));
@@ -35,7 +35,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	chatBoxNoLobby->hide();
 	panel->add(chatBoxNoLobby);
 
-	fadingChatBox = resources.gfx->themeTG->load("ChatBox");
+	fadingChatBox = resources.gfx->load("ChatBox");
 	fadingChatBox->setPosition(5, 5);
 	fadingChatBox->setSize(470, 555);
 	fadingChatBox->getRenderer()->setBackgroundColor(sf::Color(200,200,200,128));
@@ -44,7 +44,7 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	fadingChatBox->disable(false);
 	panel->add(fadingChatBox);
 
-	hideLobby = resources.gfx->themeTG->load("CheckBox");
+	hideLobby = resources.gfx->load("CheckBox");
 	hideLobby->setText("Hide Lobby chat");
 	hideLobby->setPosition(panel->getPosition().x+300, panel->getPosition().y+40);
 	hideLobby->connect("Checked", [&](){ hideLobbyChat=true; chatBox->hide(); chatBoxNoLobby->show(); });
@@ -52,14 +52,14 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	hideLobby->hide();
 	resources.gfx->tGui.add(hideLobby);
 
-	input = resources.gfx->themeTG->load("EditBox");
+	input = resources.gfx->load("EditBox");
 	input->setPosition(panel->getPosition().x+5, panel->getPosition().y+565);
 	input->setSize(470, 30);
 	input->connect("ReturnKeyPressed", &ChatScreen::send, this);
 	input->hide();
 	resources.gfx->tGui.add(input);
 
-	sendToLabel = resources.gfx->themeTG->load("Label");
+	sendToLabel = resources.gfx->load("Label");
 	sendToLabel->setPosition(panel->getPosition().x-100, panel->getPosition().y+568);
 	sendToLabel->setText("Lobby:");
 	sendToLabel->setSize(100, 25);

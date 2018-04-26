@@ -9,18 +9,12 @@ static auto& ShowOptions = Signal<void, int>::get("ShowOptions");
 
 SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res), active(false), mouseOver(false) {
 
-	background = tgui::Picture::create(resources.gfx->menuBackground_light);
+	background = tgui::Picture::create(resources.gfx->texture("menu_light"));
 	background->setOpacity(0.85);
 	panel->add(background);
 
-	alert = tgui::Picture::create(resources.gfx->alert);
-	alert->setPosition(0, 60);
-	alert->hide();
-	panel->add(alert);
-
-	tab = resources.gfx->themeTG->load("Tab");
+	tab = resources.gfx->load("Tab");
 	tab->setPosition(40, 0);
-	tab->add("Alerts");
 	tab->add("Server");
 	tab->add("Game play");
 	tab->add("Visual");
@@ -32,9 +26,6 @@ SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res),
 	panel->add(tab);
 
 	posX = 920;
-
-	connectSignal("ShowAlert", &SlideMenu::showAlert, this);
-	connectSignal("HideAlert", &SlideMenu::hideAlert, this);
 }
 
 void SlideMenu::handleEvent(sf::Event& event) {
@@ -73,18 +64,12 @@ void SlideMenu::update(const sf::Time& now) {
 	panel->setPosition(posX, 0);
 }
 
-void SlideMenu::showAlert() { alert->show(); }
-
-void SlideMenu::hideAlert() { alert->hide(); }
-
 void SlideMenu::show() { panel->show(); }
 
 void SlideMenu::hide() { panel->hide(); }
 
 void SlideMenu::tabSelect(std::string selected) {
 	hideAllTabs();
-	if (selected == "Alerts")
-		Show(15);
 	if (selected == "Server")
 		Show(14);
 	if (selected == "Game play")
@@ -102,20 +87,19 @@ void SlideMenu::tabSelect(std::string selected) {
 void SlideMenu::hideAllTabs() {
 	Hide(2);
 	Hide(7);
-	Hide(15);
 	Hide(14);
 }
 
 void SlideMenu::dark() {
 	panel->remove(background);
-	background = tgui::Picture::create(resources.gfx->menuBackground_dark);
+	background = tgui::Picture::create(resources.gfx->texture("menu_dark"));
 	panel->add(background);
 	background->moveToBack();
 }
 
 void SlideMenu::light() {
 	panel->remove(background);
-	background = tgui::Picture::create(resources.gfx->menuBackground_light);
+	background = tgui::Picture::create(resources.gfx->texture("menu_light"));
 	panel->add(background);
 	background->moveToBack();
 }

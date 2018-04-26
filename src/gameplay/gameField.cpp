@@ -1,6 +1,6 @@
 #include "gameField.h"
 #include "Resources.h"
-#include "textures.h"
+#include "Textures.h"
 #include "optionSet.h"
 #include "GameSignals.h"
 #include <SFML/Graphics.hpp>
@@ -36,7 +36,7 @@ bool BasicField::mLeft() {
     piece.mleft();
     if (possible())
         return true;
-    
+
     piece.mright();
     return false;
 }
@@ -148,7 +148,7 @@ sf::Vector2i BasicField::clearlines () {
     return linescleared;
 }
 
-gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resources.gfx->tile), text(_resources) {
+gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resources.gfx->tileSet()), text(_resources) {
     texture.create(440, 600);
     text.texture = &texture;
     sprite.setTexture(texture.getTexture());
@@ -291,7 +291,7 @@ void obsField::makeDrawCopy() {
 void obsField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(backRect);
-    
+
     drawEdges();
     drawSquares();
     drawPiece();

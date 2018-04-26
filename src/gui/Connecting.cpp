@@ -11,14 +11,14 @@ static auto& ApplyPatch = Signal<int>::get("ApplyPatch");
 
 Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setPosition(130, 290);
 	label->setSize(700, 50);
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	label->setText("Connecting to server...");
 	panel->add(label);
 
-	downloadProgress = resources.gfx->themeTG->load("ProgressBar");
+	downloadProgress = resources.gfx->load("ProgressBar");
 	downloadProgress->setPosition(180, 90);
 	downloadProgress->setSize(600, 30);
 	downloadProgress->setMinimum(0);
@@ -27,21 +27,21 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	downloadProgress->hide();
 	panel->add(downloadProgress);
 
-	progressLabel = resources.gfx->themeTG->load("Label");
+	progressLabel = resources.gfx->load("Label");
 	progressLabel->setPosition(180, 95);
 	progressLabel->setSize(600, 30);
 	progressLabel->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
 	progressLabel->hide();
 	panel->add(progressLabel);
 
-	changelog = resources.gfx->themeTG->load("TextBox");
+	changelog = resources.gfx->load("TextBox");
 	changelog->setPosition(180, 130);
 	changelog->setSize(600, 370);
 	changelog->hide();
 	changelog->disable();
 	panel->add(changelog);
 
-	cancel = resources.gfx->themeTG->load("Button");
+	cancel = resources.gfx->load("Button");
 	cancel->setPosition(390, 520);
 	cancel->setSize(150, 60);
 	cancel->setText("Cancel");
@@ -57,7 +57,7 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	});
 	panel->add(cancel);
 
-	apply = resources.gfx->themeTG->load("Button");
+	apply = resources.gfx->load("Button");
 	apply->setPosition(220, 520);
 	apply->setSize(150, 60);
 	apply->setText("Apply");

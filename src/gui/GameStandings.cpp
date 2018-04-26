@@ -9,37 +9,37 @@ static auto& SetFieldsSize = Signal<void, int, int>::get("SetFieldsSize");
 
 GameStandings::GameStandings(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
-	tgui::Label::Ptr widget0 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr widget0 = resources.gfx->load("Label");
 	widget0->setPosition(31,0);
 	widget0->setText("Sets");
 	widget0->setTextSize(18);
 	panel->add(widget0);
 
-	rounds = resources.gfx->themeTG->load("Label");
+	rounds = resources.gfx->load("Label");
 	rounds->setPosition(16,50);
 	rounds->setText("Rounds");
 	rounds->setTextSize(18);
 	panel->add(rounds);
 
-	p1_sets = resources.gfx->themeTG->load("Label");
+	p1_sets = resources.gfx->load("Label");
 	p1_sets->setPosition(10,25);
 	p1_sets->setText("0");
 	p1_sets->setTextSize(18);
 	panel->add(p1_sets);
 
-	p2_sets = resources.gfx->themeTG->load("Label");
+	p2_sets = resources.gfx->load("Label");
 	p2_sets->setPosition(80,25);
 	p2_sets->setText("0");
 	p2_sets->setTextSize(18);
 	panel->add(p2_sets);
 
-	p1_rounds = resources.gfx->themeTG->load("Label");
+	p1_rounds = resources.gfx->load("Label");
 	p1_rounds->setPosition(10,75);
 	p1_rounds->setText("0");
 	p1_rounds->setTextSize(18);
 	panel->add(p1_rounds);
 
-	p2_rounds = resources.gfx->themeTG->load("Label");
+	p2_rounds = resources.gfx->load("Label");
 	p2_rounds->setPosition(80,75);
 	p2_rounds->setText("0");
 	p2_rounds->setTextSize(18);

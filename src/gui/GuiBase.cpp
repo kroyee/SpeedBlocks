@@ -43,7 +43,7 @@ tgui::WidgetConverter GuiBase::loadWidget(const std::string& widget, const PosAn
 }
 
 tgui::WidgetConverter GuiBase::loadWidgetTo(tgui::Panel::Ptr _panel, const std::string& widget, const PosAndSize& pos, const std::string& text) {
-	tgui::WidgetConverter wcnv = resources.gfx->themeTG->load(widget);
+	tgui::WidgetConverter wcnv = resources.gfx->load(widget);
 	tgui::Widget::Ptr wptr = wcnv;
 	wptr->setPosition(pos.x, pos.y);
 	if (pos.w || pos.h)
@@ -77,45 +77,11 @@ tgui::Panel::Ptr GuiBase::loadPanelTo(tgui::Panel::Ptr toPanel, const PosAndSize
 }
 
 //
-//			LOAD
-//
-
-tgui::WidgetConverter GuiBase::load(const std::string& widget) {
-	return resources.gfx->themeTG->load(widget);
-}
-
-tgui::WidgetConverter GuiBase::load(const std::string& widget, const sf::Vector2f& pos) {
-	auto wcnv = load(widget);
-	tgui::Widget::Ptr wptr = wcnv;
-	wptr->setSize(pos.x, pos.y);
-	return wcnv;
-}
-
-tgui::WidgetConverter GuiBase::load(const std::string& widget, const std::string& text) {
-	auto wcnv = load(widget);
-	tgui::Widget::Ptr wptr = wcnv;
-
-	if (wptr->getWidgetType() == "Button")
-		static_cast<tgui::Button*>(wptr.get())->setText(text);
-	else if (wptr->getWidgetType() == "Label")
-		static_cast<tgui::Label*>(wptr.get())->setText(text);
-
-	return wcnv;
-}
-
-tgui::WidgetConverter GuiBase::load(const std::string& widget, const std::string& text, const sf::Vector2f& pos) {
-	auto wcnv = load(widget, text);
-	tgui::Widget::Ptr wptr = wcnv;
-	wptr->setSize(pos.x, pos.y);
-	return wcnv;
-}
-
-//
 //		LABELS
 //
 
 Label::Ptr GuiBase::label1(const std::string& text, int size) {
-	Label::Ptr label = load("Label", text);
+	Label::Ptr label = resources.gfx->load("Label", text);
 	label->setTextSize(size);
 	return label;
 }
@@ -137,15 +103,15 @@ Label::Ptr GuiBase::label4(const std::string& text) {
 //
 
 Button::Ptr GuiBase::button1(const std::string& text, sf::Vector2f size) {
-	return load("Button", text, size);
+	return resources.gfx->load("Button", text, size);
 }
 
 Button::Ptr GuiBase::button2(const std::string& text) {
-	return load("Button", text, {200, 55});
+	return resources.gfx->load("Button", text, {200, 55});
 }
 
 Button::Ptr GuiBase::button3(const std::string& text) {
-	Button::Ptr b = load("BigButton", text);
+	Button::Ptr b = resources.gfx->load("BigButton", text);
 	b->setSize(300,100);
 	return b;
 }
@@ -155,30 +121,30 @@ Button::Ptr GuiBase::button3(const std::string& text) {
 //
 
 EditBox::Ptr GuiBase::edit1(const sf::Vector2f& size) {
-	return load("EditBox", size);
+	return resources.gfx->load("EditBox", size);
 }
 
 EditBox::Ptr GuiBase::edit2(const sf::Vector2f& size) {
-	EditBox::Ptr edit = load("EditBox", size);
+	EditBox::Ptr edit = resources.gfx->load("EditBox", size);
 	edit->setAlignment(EditBox::Alignment::Center);
 	return edit;
 }
 
 EditBox::Ptr GuiBase::editNum1(const sf::Vector2f& size) {
-	EditBox::Ptr edit = load("EditBox", size);
+	EditBox::Ptr edit = resources.gfx->load("EditBox", size);
 	edit->setInputValidator(EditBox::Validator::UInt);
 	return edit;
 }
 
 EditBox::Ptr GuiBase::editNum2(const sf::Vector2f& size) {
-	EditBox::Ptr edit = load("EditBox", size);
+	EditBox::Ptr edit = resources.gfx->load("EditBox", size);
 	edit->setAlignment(EditBox::Alignment::Center);
 	edit->setInputValidator(EditBox::Validator::UInt);
 	return edit;
 }
 
 EditBox::Ptr GuiBase::password(const sf::Vector2f& size) {
-	EditBox::Ptr edit = load("EditBox", size);
+	EditBox::Ptr edit = resources.gfx->load("EditBox", size);
 	edit->setAlignment(EditBox::Alignment::Center);
 	edit->setPasswordCharacter('*');
 	return edit;
@@ -198,7 +164,7 @@ Panel::Ptr GuiBase::panel1(const PosAndSize& pos, bool hide) {
 }
 
 Panel::Ptr GuiBase::panel2(const PosAndSize& pos, bool hide) {
-	Panel::Ptr panel = load("Panel");
+	Panel::Ptr panel = resources.gfx->load("Panel");
 	panel->setPosition(pos.x, pos.y);
 	panel->setSize(pos.w, pos.h);
 	if (hide)
@@ -211,27 +177,27 @@ Panel::Ptr GuiBase::panel2(const PosAndSize& pos, bool hide) {
 //
 
 TextBox::Ptr GuiBase::text(const sf::Vector2f& size) {
-	return load("TextBox", size);
+	return resources.gfx->load("TextBox", size);
 }
 
 ListBox::Ptr GuiBase::list(const sf::Vector2f& size) {
-	return load("ListBox", size);
+	return resources.gfx->load("ListBox", size);
 }
 
 ChatBox::Ptr GuiBase::chat(const sf::Vector2f& size) {
-	return load("ChatBox", size);
+	return resources.gfx->load("ChatBox", size);
 }
 
 CheckBox::Ptr GuiBase::checkbox(const std::string& text) {
-	return load("CheckBox", text);
+	return resources.gfx->load("CheckBox", text);
 }
 
 RadioButton::Ptr GuiBase::radio(const std::string& text) {
-	return load("RadioButton", text);
+	return resources.gfx->load("RadioButton", text);
 }
 
 Slider::Ptr GuiBase::slider(const std::string& text, const sf::Vector2f& size, int textsize) {
-	Slider::Ptr slide = load("Slider", size);
+	Slider::Ptr slide = resources.gfx->load("Slider", size);
 	if (text != "") {
 		auto slidetext = label1("text", textsize);
 		auto sliderWidth = bindWidth(slide);

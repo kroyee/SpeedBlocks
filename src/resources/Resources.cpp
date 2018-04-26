@@ -1,5 +1,5 @@
 #include "Resources.h"
-#include "textures.h"
+#include "Textures.h"
 #include "network.h"
 #include "sounds.h"
 #include "optionSet.h"
@@ -32,7 +32,7 @@ bool loadError(std::string error) {
     return true;
 }
 
-Resources::Resources(sf::RenderWindow& _window) : options(new optionSet), gfx(new textures(_window)),
+Resources::Resources(sf::RenderWindow& _window) : options(new optionSet), gfx(new Textures(_window)),
 sounds(new soundBank(options->sound)), net(new network), compressor(new PacketCompress), window(_window),
 playonline(false), away(false), restart(false), chatFocused(false) {
     version_major = 0;
@@ -50,7 +50,7 @@ Resources::~Resources() {
 }
 
 bool Resources::init() {
-    if (loadError(gfx->loadTextures()))
+    if (loadError(gfx->loadTextures(window)))
         return false;
     if (!options->noSound) {
         if (loadError(sounds->loadSounds()))

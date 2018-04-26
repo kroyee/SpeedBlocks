@@ -1,6 +1,6 @@
 #include "GuiElements.h"
 #include "Resources.h"
-#include "textures.h"
+#include "Textures.h"
 #include "optionSet.h"
 #include "GameSignals.h"
 #include "gameField.h"
@@ -32,7 +32,7 @@ slideMenu					({920,0,600,600}, resources),
 gameOptions				({40,40,560,560}, resources, slideMenu.panel),
 bugReport					({40,40,560,560}, resources, slideMenu.panel),
 serverUI					({40,40,560,560}, resources, slideMenu.panel),
-alertsUI					({40,40,560,560}, resources, slideMenu.panel),
+alertsUI					({400,40,560,560}, resources),
 areYouSure				({0,0,960,600}, resources),
 scoreScreen				({30,30,860,540}, resources),
 gameFieldDrawer		(resources),
@@ -53,7 +53,6 @@ udpConfirmed			(false)
 	resources.gfx->tGui.add(QuickMsg);
 
 	slideMenu.show();
-	alertsUI.show();
 
 	if (resources.options->performanceOutput)
 		performanceOutput.show();

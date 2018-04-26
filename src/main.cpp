@@ -8,7 +8,7 @@
 #include "AnimatedBackground.h"
 #include "SlideMenu.h"
 #include "optionSet.h"
-#include "textures.h"
+#include "Textures.h"
 #include "network.h"
 #include "GuiElements.h"
 #include "GameDraw.h"
@@ -68,10 +68,11 @@ int main()
     SendMessage(window.getSystemHandle(), WM_SETICON, ICON_BIG, (LPARAM)icon);
     #elif __APPLE__
     #else
-    window.setIcon(128, 128, resources.gfx->icon->getPixelsPtr());
+    {
+      sf::Image icon = resources.gfx->texture("icon").copyToImage();
+      window.setIcon(128, 128, icon.getPixelsPtr());
+    }
     #endif
-
-    delete resources.gfx->icon;
 
     UI gui(window, game);
 
@@ -84,39 +85,42 @@ int main()
 
     // Intro
 
-    bool intro=true;
-    resources.delayClock.restart();
-    while (intro) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::KeyPressed)
-                intro=false;
-            if (event.type == sf::Event::MouseButtonPressed)
-                intro=false;
-            if (event.type == sf::Event::Closed) {
-                window.close();
-                intro=false;
-            }
-        }
-        float timing = resources.delayClock.getElapsedTime().asMilliseconds() / 100.0;
-        if (timing > 10) {
-            timing=10;
-            intro=false;
-        }
-        float posX = 300 - timing*30;
-        float posY = 280-12*pow(timing-5, 2);
-        float scale = 1.5 - timing*0.05;
-        if (posX < 0)
-            posX=0;
-        if (scale < 1)
-            scale=1;
-        resources.gfx->logo.setPosition(posX, posY);
-        resources.gfx->logo.setScale(scale, scale);
-        gui.guiElements->animatedBackground.draw(window, gui.delayClock.getElapsedTime());
-        window.draw(resources.gfx->logo);
-        window.display();
+    {
+      bool intro=true;
+      sf::Sprite logo = resources.gfx->sprite("logo");
+      resources.delayClock.restart();
+      while (intro) {
+          sf::Event event;
+          while (window.pollEvent(event)) {
+              if (event.type == sf::Event::KeyPressed)
+                  intro=false;
+              if (event.type == sf::Event::MouseButtonPressed)
+                  intro=false;
+              if (event.type == sf::Event::Closed) {
+                  window.close();
+                  intro=false;
+              }
+          }
+          float timing = resources.delayClock.getElapsedTime().asMilliseconds() / 100.0;
+          if (timing > 10) {
+              timing=10;
+              intro=false;
+          }
+          float posX = 300 - timing*30;
+          float posY = 280-12*pow(timing-5, 2);
+          float scale = 1.5 - timing*0.05;
+          if (posX < 0)
+              posX=0;
+          if (scale < 1)
+              scale=1;
+          logo.setPosition(posX, posY);
+          logo.setScale(scale, scale);
+          gui.guiElements->animatedBackground.draw(window, gui.delayClock.getElapsedTime());
+          window.draw(logo);
+          window.display();
 
-        sf::sleep(sf::milliseconds(20));
+          sf::sleep(sf::milliseconds(20));
+      }
     }
 
     // The main-loop

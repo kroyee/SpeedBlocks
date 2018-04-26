@@ -10,11 +10,9 @@ class AlertsUI : public GuiBase {
 		uint16_t id;
 	};
 	std::list<alertData> alerts;
-	tgui::Label::Ptr info, empty;
-	tgui::Button::Ptr clearAll;
 	uint16_t idcount=0;
 public:
-	AlertsUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
+	AlertsUI(sf::Rect<int> _pos, Resources& _res);
 
 	void addAlert(const std::string& msg);
 	void removeAlert(uint16_t _id);

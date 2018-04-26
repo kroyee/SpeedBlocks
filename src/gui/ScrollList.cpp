@@ -10,7 +10,7 @@ static auto& JoinRoom = Signal<void, int>::get("JoinRoom");
 ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	pos = _pos;
 
-	scroll = resources.gfx->themeTG->load("Scrollbar");
+	scroll = resources.gfx->load("Scrollbar");
 	scroll->setSize(30, pos.height-10);
 	scroll->setPosition(pos.width-35, 5);
 	scroll->setMaximum(0);
@@ -22,7 +22,7 @@ ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : GuiBase(_pos, _res, parentPanel) {
 	pos = _pos;
 
-	scroll = resources.gfx->themeTG->load("Scrollbar");
+	scroll = resources.gfx->load("Scrollbar");
 	scroll->setSize(30, pos.height-10);
 	scroll->setPosition(pos.width-35, 5);
 	scroll->setMaximum(0);
@@ -35,13 +35,13 @@ void ScrollList::addItem(const std::string& name, const std::string& labelStr, u
 	ListItem newItem;
 	items.push_back(newItem);
 	items.back().name = name;
-	items.back().button = resources.gfx->themeTG->load("Button");
+	items.back().button = resources.gfx->load("Button");
 	items.back().button->setText(name);
 	items.back().button->setSize(300, 100);
 	items.back().button->connect("Pressed", [=](){ JoinRoom(id); });
 	panel->add(items.back().button);
 
-	items.back().label = resources.gfx->themeTG->load("Label");
+	items.back().label = resources.gfx->load("Label");
 	items.back().label->setTextSize(14);
 	items.back().label->setText(labelStr);
 	items.back().label->disable(false);

@@ -5,61 +5,61 @@
 
 ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
 
-	tgui::Label::Ptr plist = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr plist = resources.gfx->load("Label");
 	plist->setPosition(410, 20);
 	plist->setText("Player list");
 	panel->add(plist);
 
-	LobbyList = resources.gfx->themeTG->load("ListBox");
+	LobbyList = resources.gfx->load("ListBox");
 	LobbyList->setPosition(360, 50);
 	LobbyList->setSize(190, 490);
 	panel->add(LobbyList);
 
-	tgui::Label::Ptr header = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr header = resources.gfx->load("Label");
 	header->setText("Message of the Day");
 	header->setTextSize(24);
 	header->setPosition(60, 10);
 	panel->add(header);
 
-	motd = resources.gfx->themeTG->load("Label");
+	motd = resources.gfx->load("Label");
 	motd->setPosition(10, 50);
 	motd->setMaximumTextWidth(340);
 	panel->add(motd);
 
-	tgui::Label::Ptr joinUs = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr joinUs = resources.gfx->load("Label");
 	joinUs->setText("Join speedblocks on");
 	joinUs->setPosition(100, 390);
 	panel->add(joinUs);
 
-	tgui::Button::Ptr discord = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr discord = resources.gfx->load("Button");
 	discord->setPosition(10, 430);
 	discord->setSize(100, 30);
 	discord->setText("Discord");
 	discord->connect("pressed", &ServerUI::linkPressed, this, 1);
 	panel->add(discord);
 
-	tgui::Button::Ptr github = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr github = resources.gfx->load("Button");
 	github->setPosition(130, 430);
 	github->setSize(100, 30);
 	github->setText("GitHub");
 	github->connect("pressed", &ServerUI::linkPressed, this, 2);
 	panel->add(github);
 
-	tgui::Button::Ptr webpage = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr webpage = resources.gfx->load("Button");
 	webpage->setPosition(250, 430);
 	webpage->setSize(100, 30);
 	webpage->setText("WebPage");
 	webpage->connect("pressed", &ServerUI::linkPressed, this, 3);
 	panel->add(webpage);
 
-	tgui::Button::Ptr forum = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr forum = resources.gfx->load("Button");
 	forum->setPosition(10, 480);
 	forum->setSize(100, 30);
 	forum->setText("Forum");
 	forum->connect("pressed", &ServerUI::linkPressed, this, 4);
 	panel->add(forum);
 
-	tgui::Button::Ptr stats = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr stats = resources.gfx->load("Button");
 	stats->setPosition(130, 480);
 	stats->setSize(100, 30);
 	stats->setText("Player stats");

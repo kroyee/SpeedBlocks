@@ -8,7 +8,7 @@ using std::endl;
 
 void PopupMenuItem::createLabel(bool _submenu, const std::string & text) {
 	submenu = _submenu;
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->connect("MouseEntered", [&](){
 		if (resources.options->theme == 2)
 			label->getRenderer()->setBackgroundColor(sf::Color(148,148,148,220));

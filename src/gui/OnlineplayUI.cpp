@@ -18,7 +18,7 @@ tournamentPanel(sf::Rect<int>(0,100,960,500), _res, panel, *this),
 challengesUI(sf::Rect<int>(0,100,960,500), _res, panel)
 {
 
-	opTab = resources.gfx->themeTG->load("Tab");
+	opTab = resources.gfx->load("Tab");
 	opTab->add("Rooms");
 	opTab->add("Tournaments");
 	opTab->add("Challenges");
@@ -39,27 +39,27 @@ challengesUI(sf::Rect<int>(0,100,960,500), _res, panel)
 	roomSidePanel->hide();
 	panel->add(roomSidePanel);
 
-	tgui::Button::Ptr widget8 = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr widget8 = resources.gfx->load("Button");
 	widget8->setPosition(20,20);
 	widget8->setSize(320,75);
 	widget8->setText("Create Room");
 	widget8->connect("pressed", &OnlineplayUI::createRoomPressed, this);
 	roomSidePanel->add(widget8);
 
-	matchButton = resources.gfx->themeTG->load("Button");
+	matchButton = resources.gfx->load("Button");
 	matchButton->setPosition(20, 200);
 	matchButton->setSize(320, 75);
 	matchButton->setText("Join 1vs1 matchmaking");
 	matchButton->connect("pressed", &OnlineplayUI::matchmakingPressed, this);
 	roomSidePanel->add(matchButton);
 
-	matchQueueing = resources.gfx->themeTG->load("Label");
+	matchQueueing = resources.gfx->load("Label");
 	matchQueueing->setPosition(50,290);
 	matchQueueing->setText("In queue: 0");
 	matchQueueing->setTextSize(18);
 	roomSidePanel->add(matchQueueing);
 
-	matchPlaying = resources.gfx->themeTG->load("Label");
+	matchPlaying = resources.gfx->load("Label");
 	matchPlaying->setPosition(220,290);
 	matchPlaying->setText("Playing: 0");
 	matchPlaying->setTextSize(18);
@@ -72,7 +72,7 @@ challengesUI(sf::Rect<int>(0,100,960,500), _res, panel)
 	tournamentSidePanel->hide();
 	panel->add(tournamentSidePanel);
 
-	tgui::Button::Ptr widget0 = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr widget0 = resources.gfx->load("Button");
 	widget0->setPosition(20,20);
 	widget0->setSize(320,75);
 	widget0->setText("Create Tournament");
@@ -86,49 +86,49 @@ challengesUI(sf::Rect<int>(0,100,960,500), _res, panel)
 	createTournamentPanel->hide();
 	panel->add(createTournamentPanel);
 
-	tgui::Label::Ptr widget2 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr widget2 = resources.gfx->load("Label");
 	widget2->setPosition(70,40);
 	widget2->setText("Tournament name");
 	widget2->setTextSize(18);
 	createTournamentPanel->add(widget2);
 
-	tgui::Label::Ptr widget3 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr widget3 = resources.gfx->load("Label");
 	widget3->setPosition(87,100);
 	widget3->setText("Sets");
 	widget3->setTextSize(18);
 	createTournamentPanel->add(widget3);
 
-	tgui::Label::Ptr widget4 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr widget4 = resources.gfx->load("Label");
 	widget4->setPosition(340,100);
 	widget4->setText("Rounds");
 	widget4->setTextSize(18);
 	createTournamentPanel->add(widget4);
 
-	tournamentName = resources.gfx->themeTG->load("EditBox");
+	tournamentName = resources.gfx->load("EditBox");
 	tournamentName->setPosition(255,37);
 	tournamentName->setSize(260,30);
 	createTournamentPanel->add(tournamentName);
 
-	sets = resources.gfx->themeTG->load("EditBox");
+	sets = resources.gfx->load("EditBox");
 	sets->setPosition(140,97);
 	sets->setSize(90,30);
 	sets->setInputValidator(tgui::EditBox::Validator::UInt);
 	createTournamentPanel->add(sets);
 
-	rounds = resources.gfx->themeTG->load("EditBox");
+	rounds = resources.gfx->load("EditBox");
 	rounds->setPosition(420,97);
 	rounds->setSize(90,30);
 	rounds->setInputValidator(tgui::EditBox::Validator::UInt);
 	createTournamentPanel->add(rounds);
 
-	tgui::Button::Ptr widget6 = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr widget6 = resources.gfx->load("Button");
 	widget6->setPosition(229,173);
 	widget6->setSize(140,40);
 	widget6->setText("Create");
 	widget6->connect("pressed", &OnlineplayUI::createTournament, this);
 	createTournamentPanel->add(widget6);
 
-	tgui::Button::Ptr widget7 = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr widget7 = resources.gfx->load("Button");
 	widget7->setPosition(400,173);
 	widget7->setSize(140,40);
 	widget7->setText("Back");
@@ -142,28 +142,28 @@ challengesUI(sf::Rect<int>(0,100,960,500), _res, panel)
 	CreateRoom->setBackgroundColor(sf::Color(255,255,255,0));
 	panel->add(CreateRoom);
 
-	tgui::Label::Ptr NorL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr NorL = resources.gfx->load("Label");
 	NorL->setPosition(30, 30);
 	NorL->setText("Room name");
 	CreateRoom->add(NorL);
 
-	tgui::EditBox::Ptr NorE = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr NorE = resources.gfx->load("EditBox");
 	NorE->setPosition(25, 60);
 	NorE->setSize(250, 40);
 	CreateRoom->add(NorE);
 
-	tgui::Label::Ptr NopL = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr NopL = resources.gfx->load("Label");
 	NopL->setPosition(430, 30);
 	NopL->setText("Max players (0=unlimited)");
 	CreateRoom->add(NopL);
 
-	tgui::EditBox::Ptr NopE = resources.gfx->themeTG->load("EditBox");
+	tgui::EditBox::Ptr NopE = resources.gfx->load("EditBox");
 	NopE->setPosition(425, 60);
 	NopE->setSize(250, 40);
 	NopE->setInputValidator(tgui::EditBox::Validator::UInt);
 	CreateRoom->add(NopE);
 
-	tgui::Button::Ptr CrB = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr CrB = resources.gfx->load("Button");
 	CrB->setPosition(300, 150);
 	CrB->setText("Create");
 	CrB->setSize(100, 40);

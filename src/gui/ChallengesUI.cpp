@@ -22,7 +22,7 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	leaderPanel->hide();
 	panel->add(leaderPanel);
 
-	title = resources.gfx->themeTG->load("Label");
+	title = resources.gfx->load("Label");
 	title->setPosition(113,0);
 	title->setText("Leader board");
 	title->setTextSize(33);
@@ -34,7 +34,7 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	scrollPanel->setBackgroundColor(sf::Color(255,255,255,0));
 	leaderPanel->add(scrollPanel);
 
-	scroll = resources.gfx->themeTG->load("Scrollbar");
+	scroll = resources.gfx->load("Scrollbar");
 	scroll->setSize(30, 360);
 	scroll->setPosition(470, 60);
 	scroll->setMaximum(2);
@@ -42,7 +42,7 @@ challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
 	scroll->connect("ValueChanged", &ChallengesUI::listScrolled, this);
 	leaderPanel->add(scroll);
 
-	playChallenge = resources.gfx->themeTG->load("Button");
+	playChallenge = resources.gfx->load("Button");
 	playChallenge->setSize(180, 50);
 	playChallenge->setPosition(160, 430);
 	playChallenge->setText("Play challenge");
@@ -95,14 +95,14 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 		width[i]+=50;
 
 		packet >> string;
-		tgui::Label::Ptr label = resources.gfx->themeTG->load("Label");
+		tgui::Label::Ptr label = resources.gfx->load("Label");
 		label->setPosition(width[i], 40);
 		label->setText(string);
 		label->setTextSize(16);
 		leaderPanel->add(label);
 	}
 
-	tgui::Label::Ptr position = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr position = resources.gfx->load("Label");
 	position->setPosition(0, 40);
 	position->setText("#");
 	position->setTextSize(16);
@@ -114,7 +114,7 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 	packet >> itemsInScrollPanel;
 	for (uint16_t c=0; c<itemsInScrollPanel; c++) {
 
-		row.label[0] = resources.gfx->themeTG->load("Label");
+		row.label[0] = resources.gfx->load("Label");
 		row.label[0]->setPosition(0, c*30+7);
 		row.label[0]->setText(to_string(c+1));
 		row.label[0]->setTextSize(14);
@@ -122,13 +122,13 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 
 		for (uint8_t i=1; i<columns; i++) {
 			packet >> string;
-			row.label[i] = resources.gfx->themeTG->load("Label");
+			row.label[i] = resources.gfx->load("Label");
 			row.label[i]->setPosition(width[i], c*30+7);
 			row.label[i]->setText(string);
 			row.label[i]->setTextSize(14);
 			scrollPanel->add(row.label[i]);
 		}
-		row.button = resources.gfx->themeTG->load("Button");
+		row.button = resources.gfx->load("Button");
 		row.button->setText("View");
 		row.button->setPosition(400, c*30+5);
 		row.button->setSize(45, 20);

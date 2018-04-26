@@ -1,0 +1,137 @@
+Button {
+    NormalImage : "media/neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
+    HoverImage : "media/neutralUIsheet.png" Part(0, 120, 120, 60) Middle(20, 0, 80, 60);
+    DownImage : "media/neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
+    TextColor : (100, 100, 100);
+}
+
+Button.BigButton {
+    BackgroundColorNormal : rgba(180, 180, 180, 115);
+    BackgroundColorHover : rgba(190, 190, 190, 115);
+    BackgroundColorDown : rgba(150, 150, 150, 115);
+    TextColorNormal : rgba(0, 0, 0, 215);
+    TextColorHover : rgba(0, 0, 0, 235);
+    TextColorDown : rgba(0, 0, 0, 235);
+    BorderColor : rgba(240, 240, 240, 115);
+    Borders : (2, 2, 2, 2);
+}
+
+ChatBox {
+    BackgroundColor : (210, 210, 210, 115);
+    BorderColor : (255, 255, 255);
+    Borders : (2, 2, 2, 2);
+    Scrollbar : "Scrollbar";
+}
+
+CheckBox {
+    CheckedImage : "media/neutralUIsheet.png" Part(740, 144, 37, 36);
+    UncheckedImage : "media/neutralUIsheet.png" Part(740, 180, 37, 36);
+    TextColor : (100, 100, 100);
+}
+
+ChildWindow {
+    TitlebarImage : "media/neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
+    TitleColor : (100, 100, 100);
+    BackgroundColor : (230, 230, 230);
+    BorderColor : (255, 255, 255);
+    Borders : (2, 0, 2, 2);
+    DistanceToSide : 3;
+    CloseButton : "ChildWindowCloseButton";
+}
+
+Button.ChildWindowCloseButton {
+    NormalImage : "media/neutralUIsheet.png" Part(740, 0, 36, 36);
+    HoverImage : "media/neutralUIsheet.png" Part(776, 0, 36, 36);
+    DownImage : "media/neutralUIsheet.png" Part(812, 0, 36, 36);
+}
+
+EditBox {
+    NormalImage : "media/neutralUIsheet.png" Part(0, 0, 120, 60) Middle(20, 0, 80, 60);
+    TextColor : (100, 100, 100);
+    SelectedTextColor : (150, 150, 150);
+    SelectedTextBackgroundColor : (190, 225, 235);
+    CaretColor : (145, 180, 190);
+    Padding : (14, 4, 14, 4);
+}
+
+Label {
+    TextColor : (100, 100, 100);
+}
+
+ListBox {
+    BackgroundColor : (210, 210, 210, 115);
+    TextColor : (100, 100, 100);
+    SelectedBackgroundColor : (190, 225, 235);
+    SelectedTextColor : (150, 150, 150);
+    BorderColor : (255, 255, 255);
+    Borders : (2, 2, 2, 2);
+    Scrollbar : "Scrollbar";
+}
+
+MenuBar {
+    BackgroundColor : (210, 210, 210);
+    TextColor : (100, 100, 100);
+    SelectedBackgroundColor : (190, 225, 235);
+    SelectedTextColor : (150, 150, 150);
+    DistanceToSide : 5;
+}
+
+MessageBox {
+    ChildWindow : "ChildWindow";
+    Button : "Button";
+    TextColor : (100, 100, 100);
+}
+
+Panel {
+    BackgroundColor : rgb(230, 230, 230);
+}
+
+ProgressBar {
+    BackImage : "media/neutralUIsheet.png" Part(0, 180, 120, 60) Middle(30, 0, 60, 60);
+    FrontImage : "media/neutralUIsheet.png" Part(120, 0, 120, 60) Middle(30, 0, 60, 60);
+}
+
+RadioButton {
+    CheckedImage : "media/neutralUIsheet.png" Part(776, 108, 36, 36);
+    UncheckedImage : "media/neutralUIsheet.png" Part(740, 108, 36, 36);
+    TextColor : (100, 100, 100);
+}
+
+Scrollbar {
+    TrackImage : "media/neutralUIsheet.png" Part(821, 144, 30, 50) Middle(0, 10, 30, 30);
+    ThumbImage : "media/neutralUIsheet.png" Part(851, 144, 30, 50) Middle(0, 10, 30, 30);
+    ArrowUpImage : "media/neutralUIsheet.png" Part(848, 45, 30, 45);
+    ArrowDownImage : "media/neutralUIsheet.png" Part(848, 0, 30, 45);
+}
+
+Slider {
+    TrackImage : "media/neutralUIsheet.png" Part(812, 108, 50, 30) Middle(10, 0, 30, 30);
+    ThumbImage : "media/neutralUIsheet.png" Part(848, 45, 30, 45);
+}
+
+Tab {
+    NormalImage : "media/neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
+    SelectedImage : "media/neutralUIsheet.png" Part(120, 180, 120, 60) Middle(20, 0, 80, 60);
+    TextColor : (240, 240, 240);
+    SelectedTextColor : (255, 255, 255);
+    DistanceToSide : 5;
+}
+
+TextBox {
+    BackgroundColor : (210, 210, 210);
+    TextColor : (100, 100, 100);
+    SelectedTextColor : (150, 150, 150);
+    SelectedTextBackgroundColor : (190, 225, 235);
+    CaretColor : (145, 180, 190);
+    BorderColor : (255, 255, 255);
+    Borders : (2, 2, 2, 2);
+    Scrollbar : "Scrollbar";
+}
+
+Label.Tooltip {
+    TextColor       : rgb(100, 100, 100);
+    BackgroundColor : rgb(210, 210, 210);
+    BorderColor     : rgb(255, 255, 255);
+    Borders         : (1, 1, 1, 1);
+    Padding         : (2, 2, 2, 2);
+}

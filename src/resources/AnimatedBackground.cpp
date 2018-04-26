@@ -1,6 +1,6 @@
 #include "AnimatedBackground.h"
 #include "Resources.h"
-#include "textures.h"
+#include "Textures.h"
 #include "GameSignals.h"
 
 #ifdef __APPLE__
@@ -91,7 +91,7 @@ void MovingPoint::drawLast(sf::RenderWindow& window) {
 }
 
 AnimatedBackground::AnimatedBackground(Resources& resources, uint8_t count) :
-background_light(resources.gfx->background_light), background_dark(resources.gfx->background_dark) {
+background_light(resources.gfx->texture("background_light")), background_dark(resources.gfx->texture("background_dark")) {
 	for (int i=0; i<count; i++)
 		points.push_back(MovingPoint(sf::Vector2f(i*960/count, i*600/count)));
 	backSprite.setTexture(background_light);

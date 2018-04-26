@@ -4,7 +4,7 @@
 #include <TGUI/TGUI.hpp>
 #include <type_traits>
 #include "GuiAlign.h"
-#include "textures.h"
+#include "Textures.h"
 
 class Resources;
 
@@ -41,11 +41,6 @@ namespace tgui {
 			tgui::WidgetConverter loadWidgetTo(tgui::Panel::Ptr panel, const std::string& widget, const PosAndSize& pos = PosAndSize(), const std::string& text="");
 			tgui::Panel::Ptr loadPanel(const PosAndSize& pos = PosAndSize(), bool hide=true);
 			tgui::Panel::Ptr loadPanelTo(tgui::Panel::Ptr toPanel, const PosAndSize& pos = PosAndSize(), bool hide=true);
-
-			tgui::WidgetConverter load(const std::string& widget);
-			tgui::WidgetConverter load(const std::string& widget, const sf::Vector2f& pos);
-			tgui::WidgetConverter load(const std::string& widget, const std::string& text);
-			tgui::WidgetConverter load(const std::string& widget, const std::string& text, const sf::Vector2f& pos);
 
 			Label::Ptr label1(const std::string& text, int size=18);
 			Label::Ptr label2(const std::string& text);

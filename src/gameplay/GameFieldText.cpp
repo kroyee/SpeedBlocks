@@ -1,35 +1,35 @@
 #include "GameFieldText.h"
 #include "Resources.h"
-#include "textures.h"
+#include "Textures.h"
 #include <cmath>
 using std::to_string;
 
 GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
-	nameTag.setFont(resources.gfx->typewriter);
+		nameTag.setFont(resources.gfx->font("typewriter"));
     nameTag.setCharacterSize(32);
-    readyText.setFont(resources.gfx->typewriter);
+    readyText.setFont(resources.gfx->font("typewriter"));
     readyText.setCharacterSize(32);
     readyText.setPosition(100, 75); readyText.setString("Ready");
-    awayText.setFont(resources.gfx->typewriter);
+    awayText.setFont(resources.gfx->font("typewriter"));
     awayText.setCharacterSize(48);
     awayText.setPosition(110, 150); awayText.setString("Away");
-    positionText.setFont(resources.gfx->typewriter);
+    positionText.setFont(resources.gfx->font("typewriter"));
     positionText.setCharacterSize(48);
     positionText.setPosition(130, 200);
-    countdownText.setFont(resources.gfx->typewriter);
+    countdownText.setFont(resources.gfx->font("typewriter"));
     countdownText.setCharacterSize(96);
     countdownText.setPosition(130,210);
 
-    comboText.setFont(resources.gfx->typewriter); comboText.setString("0");
-    pendingText.setFont(resources.gfx->typewriter); pendingText.setString("0");
-    bpmText.setFont(resources.gfx->typewriter); bpmText.setString("0");
+    comboText.setFont(resources.gfx->font("typewriter")); comboText.setString("0");
+    pendingText.setFont(resources.gfx->font("typewriter")); pendingText.setString("0");
+    bpmText.setFont(resources.gfx->font("typewriter")); bpmText.setString("0");
     comboText.setCharacterSize(48);
     comboText.setPosition(360,320);
     pendingText.setCharacterSize(48);
     pendingText.setPosition(360,500);
     bpmText.setCharacterSize(48);
     bpmText.setPosition(360, 420);
-    gameOverText.setFont(resources.gfx->typewriter);
+    gameOverText.setFont(resources.gfx->font("typewriter"));
     gameOverText.setPosition(50,250);
     gameOverText.setCharacterSize(48);
 
@@ -40,7 +40,7 @@ GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
     combo = 0; pending = 0; bpm = 0; position = 0; countdown = 0; gameover = 0;
     away = false; ready = false;
 
-    setColor(resources.gfx->gameFieldTextColor);
+    setColor(resources.gfx->color("GameFieldText"));
 }
 
 GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resources) {

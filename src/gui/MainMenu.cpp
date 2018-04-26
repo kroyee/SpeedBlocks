@@ -1,35 +1,24 @@
 #include "MainMenu.h"
 #include "GameSignals.h"
 #include "Resources.h"
+#include "Textures.h"
 
 Menu::Menu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 
-	tgui::Picture::Ptr logo = tgui::Picture::create(resources.gfx->logoTexture);
+	tgui::Picture::Ptr logo = tgui::Picture::create(resources.gfx->texture("logo"));
 	logo->setPosition(0, -20);
 	panel->add(logo);
 
-	tgui::Button::Ptr Tr = resources.gfx->themeTG->load("Button");
-	Tr->setSize(340, 80);
-	Tr->setPosition(60, 300);
-	Tr->setText("Training");
-	Tr->setTextSize(68);
-	Tr->setFont(resources.gfx->typewriter);
-	Tr->connect("pressed", &Menu::Training, this);
-	panel->add(Tr);
+	auto training = button1("Training");
+	training->connect("pressed", &Menu::Training, this);
 
-	tgui::Button::Ptr Quit = resources.gfx->themeTG->load("Button");
-	Quit->setSize(190, 80);
-	Quit->setPosition(135, 420);
-	Quit->setText("Quit");
-	Quit->setTextSize(68);
-	Quit->setFont(resources.gfx->typewriter);
-	Quit->connect("pressed", &Menu::quitGame, this);
-	panel->add(Quit);
+	auto quit = button1("Quit");
+	quit->connect("pressed", &Menu::quitGame, this);
 
-	tgui::Label::Ptr version = resources.gfx->themeTG->load("Label");
-	version->setPosition(5,575);
-	version->setText("v"+std::to_string(resources.version_major)+"."+std::to_string(resources.version_minor)+"."+std::to_string(resources.version_patch));
-	panel->add(version);
+	align<tgui::SBGui::Size<340, 80>>(60, 300, 30) << training << quit;
+
+	auto version_label = label1("v"+std::to_string(resources.version_major)+"."+std::to_string(resources.version_minor)+"."+std::to_string(resources.version_patch));
+	align<>(5,575) << version_label;
 }
 
 static auto& Show = Signal<void, int>::get("Show");

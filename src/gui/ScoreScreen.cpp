@@ -21,7 +21,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	scrollPanel->connect("MousePressed", &ScoreScreen::scorePressed, this);
 	panel->add(scrollPanel);
 
-	scroll = resources.gfx->themeTG->load("Scrollbar");
+	scroll = resources.gfx->load("Scrollbar");
 	scroll->setSize(20, 540);
 	scroll->setPosition(840, 0);
 	scroll->setMaximum(0);
@@ -29,13 +29,13 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	scroll->connect("ValueChanged", &ScoreScreen::scrolled, this);
 	panel->add(scroll);
 
-	tgui::Label::Ptr label = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr label = resources.gfx->load("Label");
 	label->setText("Name");
 	label->setPosition(5, 5);
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("Score");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(65, 5);
@@ -43,7 +43,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("Rank");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(110, 5);
@@ -51,7 +51,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("BPM");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(155, 5);
@@ -59,7 +59,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("Cmb");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(200, 5);
@@ -67,7 +67,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("Sent");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(240, 5);
@@ -75,7 +75,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("Adj");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(275, 5);
@@ -83,7 +83,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("SPM");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(315, 5);
@@ -91,7 +91,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("APM");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(355, 5);
@@ -99,7 +99,7 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 	label->setTextSize(14);
 	panel->add(label);
 
-	label = resources.gfx->themeTG->load("Label");
+	label = resources.gfx->load("Label");
 	label->setText("Blocked");
 	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Right);
 	label->setPosition(420, 5);
@@ -162,10 +162,10 @@ void ScoreScreen::addRowLocal(GameplayData & data, uint16_t id, const std::strin
 
 void ScoreScreen::setRowLabels(ScoreRow& score, uint8_t type) {
 	for (int i=0; i<10; i++)
-		score.labels[i] = resources.gfx->themeTG->load("Label");
+		score.labels[i] = resources.gfx->load("Label");
 
 	if (type == 1) {
-		score.exp = resources.gfx->themeTG->load("ProgressBar");
+		score.exp = resources.gfx->load("ProgressBar");
 		score.exp->setPosition(172, rowCount*30+5);
 		score.exp->setSize(45, 15);
 		score.exp->setMinimum(0);

@@ -1,7 +1,7 @@
 #include "gui.h"
 #include "optionSet.h"
 #include "gamePlay.h"
-#include "textures.h"
+#include "Textures.h"
 #include "GameSignals.h"
 #include "GuiElements.h"
 #include "UIGameState.h"
@@ -187,7 +187,7 @@ void UI::darkTheme() {
 	game.pressEnterText.setOutlineColor(sf::Color(255,255,255));
 	game.drawMe=true;
 	setWidgetTextColor(sf::Color(255,255,255,200));
-	resources.gfx->themeTG->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
+	resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
 	options.theme=2;
 	for (auto& field : guiElements->gameFieldDrawer.fields)
 		field.text.setColor(sf::Color(255,255,255));
@@ -202,44 +202,48 @@ void UI::lightTheme() {
 	game.pressEnterText.setOutlineColor(sf::Color(0,0,0));
 	game.drawMe=true;
 	setWidgetTextColor(sf::Color(0,0,0,200));
-	resources.gfx->themeTG->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
+	resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
 	options.theme=1;
 	for (auto& field : guiElements->gameFieldDrawer.fields)
 		field.text.setColor(sf::Color(0,0,0));
+
+	tgui::Texture texture = tgui::Deserializer::deserialize(tgui::ObjectConverter::Type::Texture, resources.gfx->theme1->getProperty("Button", "DownImage")).getTexture();
+	texture.setColor(sf::Color(255,0,0,115));
+	resources.gfx->theme1->setProperty("Button", "DownImage", texture);
 }
 
 void UI::setWidgetTextColor(sf::Color color) {
-	resources.gfx->themeTG->setProperty("Label", "TextColor", color);
+	resources.gfx->theme1->setProperty("Label", "TextColor", color);
 
-	color.a = 215; resources.gfx->themeTG->setProperty("Button", "TextColorNormal", color);
-	color.a = 235; resources.gfx->themeTG->setProperty("Button", "TextColorHover", color);
-	resources.gfx->themeTG->setProperty("Button", "TextColorDown", color);
+	color.a = 215; resources.gfx->theme1->setProperty("Button", "TextColorNormal", color);
+	color.a = 235; resources.gfx->theme1->setProperty("Button", "TextColorHover", color);
+	resources.gfx->theme1->setProperty("Button", "TextColorDown", color);
 
-	color.a = 215; resources.gfx->themeTG->setProperty("CheckBox", "TextColorNormal", color);
-	color.a = 235; resources.gfx->themeTG->setProperty("CheckBox", "TextColorHover", color);
-	color.a = 180; resources.gfx->themeTG->setProperty("CheckBox", "CheckColorNormal", color);
-	color.a = 200; resources.gfx->themeTG->setProperty("CheckBox", "CheckColorHover", color);
+	color.a = 215; resources.gfx->theme1->setProperty("CheckBox", "TextColorNormal", color);
+	color.a = 235; resources.gfx->theme1->setProperty("CheckBox", "TextColorHover", color);
+	color.a = 180; resources.gfx->theme1->setProperty("CheckBox", "CheckColorNormal", color);
+	color.a = 200; resources.gfx->theme1->setProperty("CheckBox", "CheckColorHover", color);
 
-	color.a = 180; resources.gfx->themeTG->setProperty("EditBox", "TextColor", color);
-	color.a = 225; resources.gfx->themeTG->setProperty("EditBox", "SelectedTextColor", color);
-	color.a = 180; resources.gfx->themeTG->setProperty("EditBox", "DefaultTextColor", color);
-	color.a = 215; resources.gfx->themeTG->setProperty("EditBox", "CaretColor", color);
+	color.a = 180; resources.gfx->theme1->setProperty("EditBox", "TextColor", color);
+	color.a = 225; resources.gfx->theme1->setProperty("EditBox", "SelectedTextColor", color);
+	color.a = 180; resources.gfx->theme1->setProperty("EditBox", "DefaultTextColor", color);
+	color.a = 215; resources.gfx->theme1->setProperty("EditBox", "CaretColor", color);
 
-	color.a = 245; resources.gfx->themeTG->setProperty("ListBox", "SelectedTextColor", color);
-	color.a = 215; resources.gfx->themeTG->setProperty("ListBox", "TextColorNormal", color);
-	color.a = 235; resources.gfx->themeTG->setProperty("ListBox", "TextColorHover", color);
+	color.a = 245; resources.gfx->theme1->setProperty("ListBox", "SelectedTextColor", color);
+	color.a = 215; resources.gfx->theme1->setProperty("ListBox", "TextColorNormal", color);
+	color.a = 235; resources.gfx->theme1->setProperty("ListBox", "TextColorHover", color);
 
-	color.a = 215; resources.gfx->themeTG->setProperty("Tab", "TextColor", color);
-	color.a = 245; resources.gfx->themeTG->setProperty("Tab", "SelectedTextColor", color);
+	color.a = 215; resources.gfx->theme1->setProperty("Tab", "TextColor", color);
+	color.a = 245; resources.gfx->theme1->setProperty("Tab", "SelectedTextColor", color);
 
-	color.a = 215; resources.gfx->themeTG->setProperty("RadioButton", "TextColorNormal", color);
-	color.a = 235; resources.gfx->themeTG->setProperty("RadioButton", "TextColorHover", color);
-	color.a = 180; resources.gfx->themeTG->setProperty("RadioButton", "CheckColorNormal", color);
-	color.a = 200; resources.gfx->themeTG->setProperty("RadioButton", "CheckColorHover", color);
+	color.a = 215; resources.gfx->theme1->setProperty("RadioButton", "TextColorNormal", color);
+	color.a = 235; resources.gfx->theme1->setProperty("RadioButton", "TextColorHover", color);
+	color.a = 180; resources.gfx->theme1->setProperty("RadioButton", "CheckColorNormal", color);
+	color.a = 200; resources.gfx->theme1->setProperty("RadioButton", "CheckColorHover", color);
 
-	color.a = 180; resources.gfx->themeTG->setProperty("TextBox", "TextColor", color);
-	color.a = 225; resources.gfx->themeTG->setProperty("TextBox", "SelectedTextColor", color);
-	color.a = 215; resources.gfx->themeTG->setProperty("TextBox", "CaretColor", color);
+	color.a = 180; resources.gfx->theme1->setProperty("TextBox", "TextColor", color);
+	color.a = 225; resources.gfx->theme1->setProperty("TextBox", "SelectedTextColor", color);
+	color.a = 215; resources.gfx->theme1->setProperty("TextBox", "CaretColor", color);
 }
 
 void UI::setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets) {

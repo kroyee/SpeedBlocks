@@ -2,7 +2,7 @@
 #include "GuiElements.h"
 #include "Resources.h"
 #include "optionSet.h"
-#include "textures.h"
+#include "Textures.h"
 #include "GameSignals.h"
 
 #include <iostream>

@@ -20,30 +20,30 @@ static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 LoginBox::LoginBox(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) :
 GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resources) {
 
-	tgui::Label::Ptr header = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr header = resources.gfx->load("Label");
 	header->setTextSize(42);
 	header->setText("Play online");
 	header->setPosition(20, 0);
-	header->setFont(resources.gfx->typewriter);
+	header->setFont(resources.gfx->font("typewriter"));
 	panel->add(header);
 
-	tgui::Label::Ptr LiL1 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr LiL1 = resources.gfx->load("Label");
 	LiL1->setText("Username");
 	LiL1->setPosition(20, 83);
 	panel->add(LiL1);
 
-	tgui::Label::Ptr LiL2 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr LiL2 = resources.gfx->load("Label");
 	LiL2->setText("Password");
 	LiL2->setPosition(23, 123);
 	panel->add(LiL2);
 
-	LiE1 = resources.gfx->themeTG->load("EditBox");
+	LiE1 = resources.gfx->load("EditBox");
 	LiE1->setPosition(120, 80);
 	LiE1->setSize(180, 30);
 	LiE1->setText(resources.options->username);
 	panel->add(LiE1);
 
-	LiE2 = resources.gfx->themeTG->load("EditBox");
+	LiE2 = resources.gfx->load("EditBox");
 	LiE2->setPosition(120, 120);
 	LiE2->setSize(180, 30);
 	LiE2->setPasswordCharacter('*');
@@ -59,7 +59,7 @@ GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiE2->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiE2);
 
-	tgui::CheckBox::Ptr remember = resources.gfx->themeTG->load("CheckBox");
+	tgui::CheckBox::Ptr remember = resources.gfx->load("CheckBox");
 	remember->setText("Remember me");
 	remember->setPosition(120, 160);
 	if (resources.options->rememberme)
@@ -68,44 +68,44 @@ GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	remember->connect("Unchecked", [&](){ resources.options->rememberme=false; });
 	panel->add(remember);
 
-	tgui::Button::Ptr LiB1 = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr LiB1 = resources.gfx->load("Button");
 	LiB1->setPosition(160, 200);
 	LiB1->setSize(100, 40);
 	LiB1->setText("Login");
 	LiB1->connect("pressed", &LoginBox::launchLogin, this, 0);
 	panel->add(LiB1);
 
-	tgui::Button::Ptr regButton = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr regButton = resources.gfx->load("Button");
 	regButton->setPosition(20, 220);
 	regButton->setSize(100, 30);
 	regButton->setText("Register");
 	regButton->connect("pressed", &LoginBox::regPressed, this);
 	panel->add(regButton);
 
-	tgui::Button::Ptr forgotButton = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr forgotButton = resources.gfx->load("Button");
 	forgotButton->setPosition(20, 260);
 	forgotButton->setSize(160, 30);
 	forgotButton->setText("Forgot password");
 	forgotButton->connect("pressed", &LoginBox::forgotPressed, this);
 	panel->add(forgotButton);
 
-	tgui::Label::Ptr LiL4 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr LiL4 = resources.gfx->load("Label");
 	LiL4->setText("Play as guest");
 	LiL4->setPosition(145, 330);
 	panel->add(LiL4);
 
-	tgui::Label::Ptr LiL3 = resources.gfx->themeTG->load("Label");
+	tgui::Label::Ptr LiL3 = resources.gfx->load("Label");
 	LiL3->setText("Name");
 	LiL3->setPosition(53, 363);
 	panel->add(LiL3);
 
-	LiE3 = resources.gfx->themeTG->load("EditBox");
+	LiE3 = resources.gfx->load("EditBox");
 	LiE3->setPosition(120, 360);
 	LiE3->setSize(180, 30);
 	LiE3->connect("ReturnKeyPressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiE3);
 
-	tgui::Button::Ptr LiB3 = resources.gfx->themeTG->load("Button");
+	tgui::Button::Ptr LiB3 = resources.gfx->load("Button");
 	LiB3->setPosition(135, 410);
 	LiB3->setSize(150, 40);
 	LiB3->setText("Login as Guest");

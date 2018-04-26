@@ -3,7 +3,7 @@
 #include "optionSet.h"
 #include "pieces.h"
 #include "randomizer.h"
-#include "textures.h"
+#include "Textures.h"
 #include "FieldBackMaker.h"
 #include "GameSignals.h"
 #include "Resources.h"
@@ -51,7 +51,7 @@ showPressEnterText(true)
 	dKey=false;
 
 	field.text.setName(options.name);
-	pressEnterText.setFont(resources.gfx->typewriter);
+	pressEnterText.setFont(resources.gfx->font("typewriter"));
 	pressEnterText.setCharacterSize(17);
 	pressEnterText.setColor(sf::Color::White);
 	pressEnterText.setPosition(10,500);

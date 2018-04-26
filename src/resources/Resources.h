@@ -7,7 +7,7 @@
 
 class AQ;
 class optionSet;
-class textures;
+class Textures;
 class soundBank;
 class network;
 class PacketCompress;
@@ -25,7 +25,7 @@ public:
 	Resources(sf::RenderWindow& _window);
 	~Resources();
 	optionSet* options;
-	textures* gfx;
+	Textures* gfx;
 	soundBank* sounds;
 	network* net;
 	PacketCompress* compressor;
