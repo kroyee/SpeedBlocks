@@ -16,6 +16,12 @@ class Signal<void, Args...> {
 public:
 	template<typename... Args2>
 	void operator()(Args2&&... args2) {
+
+		#ifdef DEBUG
+		if (function.empty())
+			std::cout << "WARNING: Using empty signal!!" << std::endl;
+		#endif
+
 		for (auto& func : function)
 			func(std::forward<Args2>(args2)...);
 	}
@@ -52,7 +58,13 @@ class Signal<ReturnType, Args...> {
 public:
 	template<typename... Args2>
 	ReturnType operator()(Args2&&... args2) {
-			return function(std::forward<Args2>(args2)...);
+
+		#ifdef DEBUG
+		if (!function)
+			std::cout << "WARNING: Using empty signal!!" << std::endl;
+		#endif
+
+		return function(std::forward<Args2>(args2)...);
 	}
 
 	template<typename Func>
@@ -69,10 +81,6 @@ public:
 
 	static Signal& get(std::string signal_name) {
 		static std::unordered_map<std::string, Signal> signal_map;
-
-		if (signal_map.find(signal_name) == signal_map.end())
-			signal_map[signal_name] = Signal();
-
 		return signal_map[signal_name];
 	}
 };

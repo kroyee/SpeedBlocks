@@ -613,13 +613,13 @@ bool TestField::doWallKick() {
 		test_path.push_back(240+turnVal);
 		if (tryLeft())
 			return restorePiece(pieceBackup, true);
-		
+
 		piece = pieceBackup2;
 		if (test_path.size() > 1) {
 			test_path.clear();
 			test_path.push_back(240+turnVal);
 		}
-		
+
 		return restorePiece(pieceBackup, tryRight());
 	}
 

@@ -75,12 +75,12 @@ void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos
 
 obsField& GameFieldDrawer::addField(int id, const std::string& name) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
-	if (unusedFields.empty()) {
+	if (unusedFields.empty())
 		fields.emplace_back(resources);
-		queueIt = fields.begin();
-	}
 	else
 		fields.splice(fields.end(), unusedFields, unusedFields.begin());
+
+	queueIt = fields.begin();
 
 	obsField& field = fields.back();
 	field.clear();
@@ -100,10 +100,9 @@ void GameFieldDrawer::removeField(int id) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
-			if (queueIt != fields.end() && queueIt->id == it->id)
-				queueIt++;
 			it->text.away=false;
 			unusedFields.splice(unusedFields.end(), fields, it);
+			queueIt = fields.begin();
 			break;
 		}
 	calFieldPos();

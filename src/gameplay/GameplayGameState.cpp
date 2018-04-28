@@ -4,7 +4,7 @@
 static auto& Show = Signal<void, int>::get("Show");
 static auto& Away = Signal<void>::get("Away");
 static auto& Hide = Signal<void, int>::get("Hide");
-static auto& AmountAI = Signal<void, int>::get("AmountAI");
+static auto& AmountAI = Signal<void, uint8_t>::get("AmountAI");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& SetAway = Signal<void, bool>::get("SetAway");
 static auto& IsVisible = Signal<bool, int>::get("IsVisible");

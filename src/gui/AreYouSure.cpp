@@ -10,18 +10,20 @@ static auto& Show = Signal<void, int>::get("Show");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 
 AreYouSure::AreYouSure(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
-	tgui::Panel::Ptr box = loadWidget("Panel", {330, 250, 300, 100});
+	tgui::Panel::Ptr box = panel2({330, 250, 300, 100});
+	panel->add(box);
 
-	label = loadWidgetTo(box, "Label", {0, 20, 300, 50}, "Are you sure?");
-	label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+	label = label1("Are you syre?");
+	label->setSize(300, 40);
 
-	tgui::Button::Ptr AUSYB = loadWidgetTo(box, "Button", {50, 60, 75, 30}, "Yes");
-	AUSYB->setOpacity(0.7);
-	AUSYB->connect("Pressed", &AreYouSure::ausY, this);
+	auto yes = button1("Yes");
+	yes->connect("Pressed", &AreYouSure::ausY, this);
 
-	tgui::Button::Ptr AUSNB = loadWidgetTo(box, "Button", {175, 60, 75, 30}, "No");
-	AUSNB->setOpacity(0.7);
-	AUSNB->connect("Pressed", &AreYouSure::ausN, this);
+	auto no = button1("No");
+	no->connect("Pressed", &AreYouSure::ausN, this);
+
+	alignOn<TextAlign<tgui::Label::HorizontalAlignment::Center>, Size<300, 40>>(box, 0,20) << label;
+	alignOn<Size<75, 30>>(box, 50, 60, 50, false) << yes << no;
 
 	connectSignal("SetAreYouSure", &AreYouSure::setAUS, this);
 }

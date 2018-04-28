@@ -187,7 +187,7 @@ void UI::darkTheme() {
 	game.pressEnterText.setOutlineColor(sf::Color(255,255,255));
 	game.drawMe=true;
 	setWidgetTextColor(sf::Color(255,255,255,200));
-	resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
+	//resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
 	options.theme=2;
 	for (auto& field : guiElements->gameFieldDrawer.fields)
 		field.text.setColor(sf::Color(255,255,255));
@@ -202,7 +202,7 @@ void UI::lightTheme() {
 	game.pressEnterText.setOutlineColor(sf::Color(0,0,0));
 	game.drawMe=true;
 	setWidgetTextColor(sf::Color(0,0,0,200));
-	resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
+	//resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
 	options.theme=1;
 	for (auto& field : guiElements->gameFieldDrawer.fields)
 		field.text.setColor(sf::Color(0,0,0));

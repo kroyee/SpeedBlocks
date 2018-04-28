@@ -165,6 +165,9 @@ Panel::Ptr GuiBase::panel1(const PosAndSize& pos, bool hide) {
 
 Panel::Ptr GuiBase::panel2(const PosAndSize& pos, bool hide) {
 	Panel::Ptr panel = resources.gfx->load("Panel");
+	tgui::Picture::Ptr pic = tgui::Picture::create(resources.gfx->guiTexture("panel"));
+	pic->setSize(tgui::bindSize(panel));
+	panel->add(pic);
 	panel->setPosition(pos.x, pos.y);
 	panel->setSize(pos.w, pos.h);
 	if (hide)

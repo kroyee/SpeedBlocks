@@ -83,7 +83,7 @@ MessageBox {
 }
 
 Panel {
-    BackgroundColor : rgb(230, 230, 230);
+    BackgroundColor : rgba(255, 255, 255, 0);
 }
 
 ProgressBar {
@@ -98,8 +98,8 @@ RadioButton {
 }
 
 Scrollbar {
-    TrackImage : "media/neutralUIsheet.png" Part(821, 144, 30, 50) Middle(0, 10, 30, 30);
-    ThumbImage : "media/neutralUIsheet.png" Part(851, 144, 30, 50) Middle(0, 10, 30, 30);
+    TrackImage : "media/neutralUIsheet.png" Part(851, 144, 30, 50) Middle(0, 10, 30, 30);
+    ThumbImage : "media/neutralUIsheet.png" Part(823, 144, 29, 50) Middle(0, 10, 30, 30);
     ArrowUpImage : "media/neutralUIsheet.png" Part(848, 45, 30, 45);
     ArrowDownImage : "media/neutralUIsheet.png" Part(848, 0, 30, 45);
 }

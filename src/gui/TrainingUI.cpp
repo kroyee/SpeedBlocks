@@ -6,7 +6,6 @@ static auto& AmountAI = Signal<void, uint8_t>::get("AmountAI");
 static auto& SpeedAI = Signal<void, uint16_t>::get("SpeedAI");
 static auto& StartCountDown = Signal<void>::get("StartCountDown");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
-static auto& ShowGameFields = Signal<void>::get("ShowGameFields");
 static auto& Show = Signal<void, int>::get("Show");
 
 TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
@@ -98,7 +97,6 @@ TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 		SpeedAI(speed_slider->getValue());
 		StartCountDown();
 		SetGameState(GameStates::CountDown);
-		ShowGameFields();
 	});
 	panel->add(widget5);
 

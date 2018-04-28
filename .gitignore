@@ -31,3 +31,6 @@ patch.sh
 
 #use .gitkeep to track empty directories
 !*.gitkeep
+
+#testing directory for developing new parts for the client
+test_develop/

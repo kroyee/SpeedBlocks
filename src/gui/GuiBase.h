@@ -65,8 +65,8 @@ namespace tgui {
 			Slider::Ptr slider(const std::string& text = "", const sf::Vector2f& size = sf::Vector2f(), int textsize = 18);
 			Slider::Ptr slider(const std::string& text, int textsize);
 
-			Panel::Ptr panel1(const PosAndSize& pos = PosAndSize(), bool hide=true);
-			Panel::Ptr panel2(const PosAndSize& pos = PosAndSize(), bool hide=true);
+			Panel::Ptr panel1(const PosAndSize& pos = PosAndSize(), bool hide=false);
+			Panel::Ptr panel2(const PosAndSize& pos = PosAndSize(), bool hide=false);
 
 			template <typename... T>
 			Align<T...> align(int x, int y, int gap=0, bool down = true) {

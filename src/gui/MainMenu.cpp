@@ -15,7 +15,7 @@ Menu::Menu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
 	auto quit = button1("Quit");
 	quit->connect("pressed", &Menu::quitGame, this);
 
-	align<tgui::SBGui::Size<340, 80>>(60, 300, 30) << training << quit;
+	align<Size<340, 80>>(60, 300, 30) << training << quit;
 
 	auto version_label = label1("v"+std::to_string(resources.version_major)+"."+std::to_string(resources.version_minor)+"."+std::to_string(resources.version_patch));
 	align<>(5,575) << version_label;

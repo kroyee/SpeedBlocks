@@ -28,8 +28,7 @@ void AIManager::setAmount(uint8_t amount) {
 			bots.back().setField(AddField(id_count, "AI" + std::to_string(id_count)));
 		}
 		bots.back().startAI();
-		bots.back().id = id_count;
-		id_count++;
+		bots.back().id = id_count++;
 		if (id_count < 60000)
 			id_count = 60000;
 	}
