@@ -2,9 +2,6 @@
 #include "GameSignals.h"
 #include "Resources.h"
 #include <SFML/Network.hpp>
-using std::cout;
-using std::endl;
-using std::to_string;
 
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SendRecording = Signal<void, int>::get("SendRecording");
@@ -116,7 +113,7 @@ void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
 
 		row.label[0] = resources.gfx->load("Label");
 		row.label[0]->setPosition(0, c*30+7);
-		row.label[0]->setText(to_string(c+1));
+		row.label[0]->setText(std::to_string(c+1));
 		row.label[0]->setTextSize(14);
 		scrollPanel->add(row.label[0]);
 

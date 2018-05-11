@@ -1,10 +1,7 @@
 #include "Resources.h"
 #include "GameFieldDrawer.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameSignals.h"
-#include <iostream>
-using std::cout;
-using std::endl;
 
 GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nullptr) {
 	setPosition(465, 40);
@@ -86,7 +83,7 @@ obsField& GameFieldDrawer::addField(int id, const std::string& name) {
 	field.clear();
 	field.id = id;
 	field.text.setName(name);
-	if (resources.options->theme == 2)
+	if (Options::get<uint8_t>("theme") == 2)
 		field.text.setColor(sf::Color(255,255,255));
 	calFieldPos();
 	field.texture.setActive(false);

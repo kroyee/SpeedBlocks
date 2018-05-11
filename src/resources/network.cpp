@@ -3,8 +3,6 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 #include <cstring>
-using std::cout;
-using std::endl;
 
 network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
 	tcpSock.setBlocking(false);
@@ -61,8 +59,9 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 
   mem->memory = (char*)realloc(mem->memory, mem->size + realsize + 1);
   if(mem->memory == NULL) {
-    /* out of memory! */
-    cout << "not enough memory (realloc returned NULL)" << endl;
+    #ifdef DEBUG
+    	std::cout << "not enough memory (realloc returned NULL)" << std::endl;
+	#endif
     return 0;
   }
 
@@ -115,8 +114,10 @@ std::string network::sendCurlPost(const std::string& URL, const std::string& pos
 		res = curl_easy_perform(curl);
 		/* Check for errors */
 		if(res != CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-			cout << endl;
+			#ifdef DEBUG
+				fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+				std::cout << std::endl;
+			#endif
 		}
 
 		curl_slist_free_all(headers);
@@ -124,8 +125,11 @@ std::string network::sendCurlPost(const std::string& URL, const std::string& pos
 		/* always cleanup */
 		curl_easy_cleanup(curl);
 	}
-	else
-		cout << "Curl failed to load" << endl;
+	else {
+		#ifdef DEBUG
+			std::cout << "Curl failed to load" << std::endl;
+		#endif
+	}
 
 	delete[] cstr;
 	delete[] urlstr;
@@ -155,16 +159,25 @@ void getSignal(sf::Packet &packet) {
 			packet >> id1;
 		if (!packet.endOfPacket()) {
 			packet >> id2;
-			if (!Net::passOnSignal(signalId, id1, id2))
-				cout << "Error passing on signal " << signalId << "(x,y)" << endl;
+			if (!Net::passOnSignal(signalId, id1, id2)) {
+				#ifdef DEBUG
+					std::cout << "Error passing on signal " << signalId << "(x,y)" << std::endl;
+				#endif
+			}
 			return;
 		}
-		if (!Net::passOnSignal(signalId, id1))
-			cout << "Error passing on signal " << signalId << "(x)" << endl;
+		if (!Net::passOnSignal(signalId, id1)) {
+			#ifdef DEBUG
+				std::cout << "Error passing on signal " << signalId << "(x)" << std::endl;
+			#endif
+		}
 		return;
 	}
-	if (!Net::passOnSignal(signalId))
-		cout << "Error passing on signal " << signalId << "()" << endl;
+	if (!Net::passOnSignal(signalId)) {
+		#ifdef DEBUG
+			std::cout << "Error passing on signal " << signalId << "()" << std::endl;
+		#endif
+	}
 }
 
 static auto& Disconnect = Signal<void, int>::get("Disconnect");
@@ -174,14 +187,16 @@ bool network::receiveData() {
 	sf::Socket::Status status = tcpSock.receive(packet);
 	uint8_t packetid;
 	if (status == sf::Socket::Disconnected) {
-		cout << "TCP disconnected" << endl;
 		Disconnect(1);
 		return true;
 	}
 	if (status == sf::Socket::Done) {
 		packet >> packetid;
-		if (packetid < 100)
-			cout << "Packet: " << static_cast<int>(packetid) << endl;
+		if (packetid < 100) {
+			#ifdef DEBUG
+				std::cout << "Packet: " << static_cast<int>(packetid) << std::endl;
+			#endif
+		}
 		if (packetid == 254) {
 			getSignal(packet);
 			return true;

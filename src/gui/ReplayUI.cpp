@@ -1,9 +1,6 @@
 #include "ReplayUI.h"
 #include "GameSignals.h"
 #include "Resources.h"
-using std::cout;
-using std::endl;
-using std::to_string;
 
 static auto& GetRecName = Signal<const std::string&>::get("GetRecName");
 static auto& HideStartChallengeButton = Signal<void>::get("HideStartChallengeButton");
@@ -142,10 +139,10 @@ std::string ReplayUI::displayTime(uint16_t timeVal) {
 	std::string string = "";
 	if (minutes < 10)
 		string = "0";
-	string += to_string(minutes) + ":";
+	string += std::to_string(minutes) + ":";
 	if (timeVal < 10)
 		string += "0";
-	string += to_string(timeVal);
+	string += std::to_string(timeVal);
 
 	return string;
 }

@@ -1,13 +1,9 @@
 #include "gameField.h"
 #include "Resources.h"
 #include "Textures.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameSignals.h"
 #include <SFML/Graphics.hpp>
-#include <iostream>
-using std::cout;
-using std::endl;
-using std::to_string;
 
 BasicField::BasicField(Resources& _resources) : resources(_resources) {}
 
@@ -154,7 +150,7 @@ gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resou
     sprite.setTexture(texture.getTexture());
     backRect.setPosition(5,5);
     backRect.setSize({300,540});
-    setBackColor(resources.options->fieldBackground);
+    setBackColor(Options::get<uint8_t>("fieldBackground"));
 
     piece.piece=7;
     pieceCopy.piece=7;
@@ -192,11 +188,9 @@ bool gameField::possibleCopy() {
     return true;
 }
 
-void gameField::drawField(bool drawLines) {
+void gameField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(backRect);
-    if (drawLines)
-        texture.draw(background);
     drawEdges();
     drawSquares();
     drawPiece();
@@ -263,7 +257,9 @@ void gameField::drawPiece() {
 void gameField::drawGhostPiece() {
     if (pieceCopy.piece == 7)
         return;
-    if (resources.options->ghostpiece) {
+
+	static bool& ghostpiece = Options::get<bool>("ghostpiece");
+    if (ghostpiece) {
         short posY = pieceCopy.posY;
         while (possibleCopy()) { pieceCopy.mdown(); }
         pieceCopy.mup();
@@ -313,22 +309,24 @@ void obsField::drawNextPiece() {
 }
 
 void obsField::updatePiece() {
+	static std::array<basePieces, 7>& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
-            if (resources.options->basepiece[piece.piece].grid[y][x])
+            if (basepiece[piece.piece].grid[y][x])
                 piece.grid[y][x] = piece.tile;
             else
                 piece.grid[y][x] = 0;
         }
-    piece.lpiece = resources.options->basepiece[piece.piece].lpiece;
+    piece.lpiece = basepiece[piece.piece].lpiece;
     piece.current_rotation = 0;
     while (piece.current_rotation != piece.rotation)
         piece.rcw();
 }
 
 void obsField::makeNextPieceCopy() {
+	static std::array<basePieces, 7>& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
     if (npPiece.piece != nextpiece)
-        npPiece = resources.options->basepiece[nextpiece];
+        npPiece = basepiece[nextpiece];
     npPiece.tile = npcol-1;
     while (npPiece.current_rotation != nprot)
         npPiece.rcw();

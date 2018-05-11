@@ -1,11 +1,7 @@
 #include "TestField.h"
 #include "Resources.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "randomizer.h"
-
-#include <iostream>
-using std::cout;
-using std::endl;
 
 void MoveInfo::clear() {
 	posX=4;
@@ -34,21 +30,10 @@ void TestField::removePiece() {
 }
 
 void TestField::setPiece(int _piece) {
-	piece.piece = resources.options->basepiece[_piece].piece;
-	piece.tile = resources.options->basepiece[_piece].tile;
-	piece.rotation = resources.options->basepiece[_piece].rotation;
+	static auto& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
+	piece = basepiece[_piece];
 	piece.posX = 3;
 	piece.posY = 0;
-
-	for (int x=0; x<4; x++)
-        for (int y=0; y<4; y++) {
-            if (resources.options->basepiece[piece.piece].grid[y][x])
-                piece.grid[y][x] = piece.tile;
-            else
-                piece.grid[y][x] = 0;
-        }
-    piece.lpiece = resources.options->basepiece[piece.piece].lpiece;
-    piece.current_rotation = 0;
 }
 
 void TestField::checkForHoles(int y, int x) {
@@ -398,7 +383,7 @@ void TestField::checkNextMove(TestField& field, uint8_t nextpiece) {
 	addPiece();
 	auto lines = clearlines();
 	field.square = square;
-	if (field.piece.piece != resources.options->basepiece[nextpiece].piece)
+	if (field.piece.piece != Options::get<std::array<basePieces, 7>>("BasePieces")[nextpiece].piece)
 		field.setPiece(nextpiece);
 	field.findBestMove(lines.x);
 	if (lines.x)

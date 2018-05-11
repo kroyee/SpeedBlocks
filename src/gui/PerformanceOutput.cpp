@@ -1,5 +1,5 @@
 #include "PerformanceOutput.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "Resources.h"
 using std::to_string;
 
@@ -106,7 +106,7 @@ PerformanceOutput::PerformanceOutput(sf::Rect<int> _pos, Resources& _res) : GuiB
 }
 
 void PerformanceOutput::update(sf::Time current, sf::Time lastFrame) {
-	if (resources.options->performanceOutput) {
+	if (Options::get<bool>("performanceOutput")) {
         if (current-lastFrame > longestFrame)
             longestFrame = current-lastFrame;
         frameCount++;

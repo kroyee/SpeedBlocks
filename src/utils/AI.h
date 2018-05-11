@@ -29,6 +29,8 @@ public:
 
 	uint8_t nextpiece;
 
+	std::array<basePieces, 7> basepiece;
+
 	sf::Vector2i well2Pos;
 
 	GameplayData data;

@@ -4,10 +4,9 @@
 #include "GameOptions.h"
 #include "PerformanceOutput.h"
 #include "ReplayUI.h"
-#include <iostream> // just here for quick and simple error testing, remove if you want
 #include "AnimatedBackground.h"
 #include "SlideMenu.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "Textures.h"
 #include "network.h"
 #include "GuiElements.h"
@@ -16,9 +15,6 @@
 #include <string>
 #include <cmath>
 #include <thread>
-
-using std::cout;
-using std::endl;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -46,12 +42,12 @@ int main()
     gamePlay game(resources);
 
     #ifndef DEBUG
-        if (resources.options->fullscreen)
-            window.create(resources.options->modes[resources.options->currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+        if (Options::get<bool>("fullscreen"))
+            window.create(Options::get<std::vector<sf::VideoMode>>("modes")[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
         if (!window.isOpen()) {
             window.create(sf::VideoMode(960, 600), "SpeedBlocks");
-            resources.options->fullscreen=false;
-            resources.options->currentmode=0;
+            Options::get<bool>("fullscreen")=false;
+            Options::get<short>("currentmode")=0;
         }
     #else
         window.create(sf::VideoMode(560,350), "SpeedBlocks");
@@ -59,7 +55,7 @@ int main()
     sf::View view(sf::FloatRect(0, 0, 960, 600));
     window.setView(view);
     window.setKeyRepeatEnabled(false);
-    if (resources.options->vSync)
+    if (Options::get<bool>("vsync"))
         window.setVerticalSyncEnabled(true);
 
     #ifdef __WIN32
@@ -152,7 +148,7 @@ int main()
     if (game.field.drawThread.joinable())
         game.field.drawThread.join();
 
-    game.options.saveOptions();
+    Options::save();
     if (resources.restart) {
         #ifdef _WIN32
             system("start SpeedBlocks.exe");

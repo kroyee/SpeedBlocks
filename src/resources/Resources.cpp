@@ -2,7 +2,7 @@
 #include "Textures.h"
 #include "network.h"
 #include "sounds.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "packetcompress.h"
 #include <TGUI/TGUI.hpp>
 
@@ -32,8 +32,8 @@ bool loadError(std::string error) {
     return true;
 }
 
-Resources::Resources(sf::RenderWindow& _window) : options(new optionSet), gfx(new Textures(_window)),
-sounds(new soundBank(options->sound)), net(new network), compressor(new PacketCompress), window(_window),
+Resources::Resources(sf::RenderWindow& _window) : gfx(new Textures(_window)),
+sounds(new soundBank), net(new network), compressor(new PacketCompress), window(_window),
 playonline(false), away(false), restart(false), chatFocused(false) {
     version_major = 0;
     version_minor = 1;
@@ -42,7 +42,6 @@ playonline(false), away(false), restart(false), chatFocused(false) {
 }
 
 Resources::~Resources() {
-    delete options;
     delete gfx;
     delete sounds;
     delete net;
@@ -50,21 +49,23 @@ Resources::~Resources() {
 }
 
 bool Resources::init() {
+	Options::load();
+
     if (loadError(gfx->loadTextures(window)))
         return false;
-    if (!options->noSound) {
+    if (!Options::get<bool>("noSound")) {
         if (loadError(sounds->loadSounds()))
             return false;
-        sounds->setEffectVolume(options->EffectVolume);
-        sounds->setMusicVolume(options->MusicVolume);
-        sounds->setAlertVolume(options->ChatVolume);
+        sounds->setEffectVolume(Options::get<short>("effectvolume"));
+        sounds->setMusicVolume(Options::get<short>("musicvolume"));
+        sounds->setAlertVolume(Options::get<short>("chatvolume"));
     }
     else
-        options->sound=false;
+        Options::get<bool>("sound") = false;
 
     gamestate = GameStates::MainMenu;
 
-    gfx->setGhostPieceAlpha(options->ghostPieceAlpha);
+    gfx->setGhostPieceAlpha(Options::get<uint8_t>("ghostPieceAlpha"));
 
     return true;
 }

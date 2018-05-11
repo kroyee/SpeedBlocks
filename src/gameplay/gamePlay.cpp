@@ -1,20 +1,15 @@
 #include "gamePlay.h"
 #include "gameField.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "pieces.h"
 #include "randomizer.h"
 #include "Textures.h"
-#include "FieldBackMaker.h"
 #include "GameSignals.h"
 #include "Resources.h"
 #include "packetcompress.h"
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <deque>
 #include <string>
-using std::to_string;
-using std::cout;
-using std::endl;
 
 #define PI 3.14159265
 
@@ -32,7 +27,6 @@ static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
 
 gamePlay::gamePlay(Resources& _resources) :
 field(_resources),
-options(*_resources.options),
 resources(_resources),
 garbage(data.linesBlocked),
 combo(data.maxCombo),
@@ -50,7 +44,7 @@ showPressEnterText(true)
 	lKey=false;
 	dKey=false;
 
-	field.text.setName(options.name);
+	field.text.setName(Options::get<std::string>("name"));
 	pressEnterText.setFont(resources.gfx->font("typewriter"));
 	pressEnterText.setCharacterSize(17);
 	pressEnterText.setColor(sf::Color::White);
@@ -59,16 +53,11 @@ showPressEnterText(true)
 
 	updateBasePieces();
 
-	field.backgroundTexture = makeBackground(options.fieldVLines, options.fieldHLines, options.lineStyle, options.lineColor);
-    field.background.setTexture(field.backgroundTexture);
-    field.background.setPosition(5,5);
-
     connectSignal("Ready", &gamePlay::ready, this);
     connectSignal("Away", &gamePlay::away, this);
     connectSignal("SetAway", &gamePlay::setAway, this);
     connectSignal("SetGameBackColor", &gamePlay::setBackgroundColor, this);
     connectSignal("SetDrawMe", &gamePlay::setDrawMe, this);
-    connectSignal("MakeBackgroundLines", &gamePlay::makeBackgroundLines, this);
     connectSignal("UpdateGamePieces", &gamePlay::updateBasePieces, this);
     connectSignal("StartCountDown", &gamePlay::startCountdown, this);
     connectSignal("GetName", [&]() -> const std::string& { return field.text.name; });
@@ -115,13 +104,14 @@ void gamePlay::startGame() {
 }
 
 void gamePlay::mRKey() {
+	static auto& repeatDelay = Options::get<sf::Time>("repeatdelay");
 	if (!rKey) {
 		if (field.mRight()) {
 			if (recorder.rec)
 				addRecEvent(1, 0);
 			drawMe=true;
 		}
-		rKeyTime=gameclock.getElapsedTime()+options.repeatDelay;
+		rKeyTime=gameclock.getElapsedTime()+repeatDelay;
 		lKey=false;
 	}
 	rKey=true;
@@ -129,13 +119,14 @@ void gamePlay::mRKey() {
 }
 
 void gamePlay::mLKey() {
+	static auto& repeatDelay = Options::get<sf::Time>("repeatdelay");
 	if (!lKey) {
 		if (field.mLeft()) {
 			if (recorder.rec)
 				addRecEvent(1, 0);
 			drawMe=true;
 		}
-		lKeyTime=gameclock.getElapsedTime()+options.repeatDelay;
+		lKeyTime=gameclock.getElapsedTime()+repeatDelay;
 		rKey=false;
 	}
 	lKey=true;
@@ -143,6 +134,7 @@ void gamePlay::mLKey() {
 }
 
 void gamePlay::mDKey() {
+	static auto& repeatDelayDown = Options::get<sf::Time>("repeatdelaydown");
 	if (!dKey) {
 		if (field.mDown()) {
 			if (recorder.rec)
@@ -156,7 +148,7 @@ void gamePlay::mDKey() {
 				lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
 			lockdown=true;
 		}
-		dKeyTime=gameclock.getElapsedTime()+options.repeatDelayDown;
+		dKeyTime=gameclock.getElapsedTime()+repeatDelayDown;
 	}
 	dKey=true;
 	autoaway=false;
@@ -235,7 +227,7 @@ void gamePlay::copyPiece(uint8_t np) {
 void gamePlay::draw() {
 	if (field.status == 0)
 		return;
-	field.drawField(options.fieldVLines | options.fieldHLines);
+	field.drawField();
 	drawNextPiece();
 	if (showPressEnterText)
 		field.texture.draw(pressEnterText);
@@ -267,10 +259,12 @@ void gamePlay::delayCheck() {
 	}
 
 	sf::Time current = gameclock.getElapsedTime();
+	static auto& repeatSpeed = Options::get<sf::Time>("repeatspeed");
+	static auto& repeatSpeedDown = Options::get<sf::Time>("repeatspeeddown");
 	bool update=false;
 	if (rKey) {
 		while (current > rKeyTime) {
-			rKeyTime+=options.repeatSpeed;
+			rKeyTime+=repeatSpeed;
 			if (!field.mRight())
 				break;
 			else
@@ -285,7 +279,7 @@ void gamePlay::delayCheck() {
 	if (lKey) {
 		update=false;
 		while (current > lKeyTime) {
-			lKeyTime+=options.repeatSpeed;
+			lKeyTime+=repeatSpeed;
 			if (!field.mLeft())
 				break;
 			else
@@ -300,7 +294,7 @@ void gamePlay::delayCheck() {
 	if (dKey) {
 		update=false;
 		while (current > dKeyTime) {
-			dKeyTime+=options.repeatSpeedDown;
+			dKeyTime+=repeatSpeedDown;
 			if (!field.mDown()) {
 				if (!lockdown)
 					lockDownTime=gameclock.getElapsedTime()+sf::milliseconds(400);
@@ -375,7 +369,7 @@ void gamePlay::delayCheck() {
 
 void gamePlay::setPieceOrientation() {
 	for (int x=0; x<7; x++) {
-		short rotation=options.piecerotation[x];
+		short rotation=Options::get_piece_rotation(x);
 		while (rotation > 0) {
 			basepiece[x].rcw();
 			rotation--;
@@ -384,17 +378,18 @@ void gamePlay::setPieceOrientation() {
 }
 
 void gamePlay::updateBasePieces() {
+	auto& option_basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
 	for (int p=0; p<7; p++) {
 		basepiece[p].posX=0;
 		basepiece[p].posY=0;
 		basepiece[p].lpiece=false;
-		basepiece[p].tile=options.basepiece[p].tile;
-		basepiece[p].rotation=options.basepiece[p].rotation;
-		basepiece[p].current_rotation=options.basepiece[p].current_rotation;
+		basepiece[p].tile=option_basepiece[p].tile;
+		basepiece[p].rotation=option_basepiece[p].rotation;
+		basepiece[p].current_rotation=option_basepiece[p].current_rotation;
 		basepiece[p].piece=p;
 		for (int y=0; y<4; y++)
 			for (int x=0; x<4; x++)
-				basepiece[p].grid[y][x] = options.basepiece[p].grid[y][x];
+				basepiece[p].grid[y][x] = option_basepiece[p].grid[y][x];
 	}
 	basepiece[4].lpiece=true;
 	basepiece[6].lpiece=true;
@@ -832,10 +827,6 @@ void gamePlay::setBackgroundColor(int val) {
 
 void gamePlay::setDrawMe() {
 	drawMe=true;
-}
-
-void gamePlay::makeBackgroundLines() {
-	field.backgroundTexture = makeBackground(resources.options->fieldVLines, resources.options->fieldHLines, resources.options->lineStyle, resources.options->lineColor);
 }
 
 void gamePlay::setName(const std::string& name) {

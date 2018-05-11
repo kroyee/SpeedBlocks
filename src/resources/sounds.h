@@ -5,7 +5,7 @@
 
 class soundBank {
 public:
-	soundBank(bool& _sound);
+	soundBank();
 
 	sf::SoundBuffer pieceDropBuff;
 	sf::SoundBuffer lineClearBuff;
@@ -43,8 +43,6 @@ public:
 	sf::Sound alertSound;
 
 	std::vector<sf::Sound> soundList;
-
-	bool& sound;
 
 	std::string loadSounds();
 

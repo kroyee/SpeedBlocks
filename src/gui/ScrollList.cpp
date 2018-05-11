@@ -2,9 +2,6 @@
 #include "GameSignals.h"
 #include "Resources.h"
 
-using std::cout;
-using std::endl;
-
 static auto& JoinRoom = Signal<void, int>::get("JoinRoom");
 
 ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {

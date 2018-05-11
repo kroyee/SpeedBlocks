@@ -1,5 +1,6 @@
 #include "sounds.h"
 #include "GameSignals.h"
+#include "Options.h"
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -7,7 +8,7 @@
 #include "EmptyResourcePath.h"
 #endif
 
-soundBank::soundBank(bool& _sound) : sound(_sound) {
+soundBank::soundBank() {
 	connectSignal("PlaySound", &soundBank::playSound, this);
 	connectSignal("SetEffectVolume", &soundBank::setEffectVolume, this);
 	connectSignal("SetMusicVolume", &soundBank::setMusicVolume, this);
@@ -70,12 +71,13 @@ std::string soundBank::loadSounds() {
 }
 
 void soundBank::playSound(int soundId) {
+	static bool& sound = Options::get<bool>("sound");
 	if (sound)
 		soundList[soundId].play();
 }
 
 void soundBank::setEffectVolume(int vol) {
-	for (int i=0; i<16; i++)
+	for (unsigned i=0; i<soundList.size() && i<16; i++)
 		soundList[i].setVolume(vol);
 }
 
@@ -84,5 +86,6 @@ void soundBank::setMusicVolume(int) {
 }
 
 void soundBank::setAlertVolume(int vol) {
-	soundList[16].setVolume(vol);
+	if (soundList.size() >= 17)
+		soundList[16].setVolume(vol);
 }

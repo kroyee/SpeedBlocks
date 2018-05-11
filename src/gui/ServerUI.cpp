@@ -77,7 +77,6 @@ void ServerUI::makeClientList(sf::Packet &packet) {
 	uint16_t clientCount;
 
 	packet >> clientCount;
-	std::cout << clientCount << std::endl;
 
 	for (int i=0; i<clientCount; i++) {
 		packet >> client.id >> client.name;
@@ -105,7 +104,6 @@ void ServerUI::addClient(sf::Packet &packet) {
 void ServerUI::putClient(uint16_t id, const std::string& name) {
 	clientInfo client;
 	client.id = id;
-	std::cout << "Adding client " << name << std::endl;
 	client.name = name;
 	resources.clientList.push_back(client);
 	LobbyList->addItem(client.name);

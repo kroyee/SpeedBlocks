@@ -16,40 +16,50 @@ GPBaseState::GPBaseState(gamePlay& _game, GameStates _state) : state(_state), ga
 GPBaseState::~GPBaseState() {}
 
 void GPBaseState::handleGeneralButtons(sf::Event& event) { // != Replay && MainMenu
+	static auto& score = Options::get<sf::Keyboard::Key>("score");
+	static auto& away = Options::get<sf::Keyboard::Key>("away");
 	if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == game.options.score)
+        if (event.key.code == score)
             Show(13);
-        else if (event.key.code == game.options.away && game.resources.playonline)
+        else if (event.key.code == away && game.resources.playonline)
             Away();
 	}
 	else if (event.type == sf::Event::KeyReleased)
-		if (event.key.code == game.options.score)
+		if (event.key.code == score)
 			Hide(13);
 }
 
 void GPBaseState::handleControlButtons(sf::Event& event) { // == Game || Practice
+	static auto& right = Options::get<sf::Keyboard::Key>("right");
+	static auto& left = Options::get<sf::Keyboard::Key>("left");
+	static auto& rcw = Options::get<sf::Keyboard::Key>("rcw");
+	static auto& rccw = Options::get<sf::Keyboard::Key>("rccw");
+	static auto& r180 = Options::get<sf::Keyboard::Key>("r180");
+	static auto& down = Options::get<sf::Keyboard::Key>("down");
+	static auto& hd = Options::get<sf::Keyboard::Key>("hd");
+
 	if (event.type == sf::Event::KeyPressed && !game.resources.chatFocused) {
-        if (event.key.code == game.options.right)
+        if (event.key.code == right)
             game.mRKey();
-        else if (event.key.code == game.options.left)
+        else if (event.key.code == left)
             game.mLKey();
-        else if (event.key.code == game.options.rcw)
+        else if (event.key.code == rcw)
             game.rcw();
-        else if (event.key.code == game.options.rccw)
+        else if (event.key.code == rccw)
             game.rccw();
-        else if (event.key.code == game.options.r180)
+        else if (event.key.code == r180)
             game.r180();
-        else if (event.key.code == game.options.down)
+        else if (event.key.code == down)
             game.mDKey();
-        else if (event.key.code == game.options.hd)
+        else if (event.key.code == hd)
             game.hd();
     }
     else if (event.type == sf::Event::KeyReleased) {
-        if (event.key.code == game.options.right)
+        if (event.key.code == right)
             game.sRKey();
-        else if (event.key.code == game.options.left)
+        else if (event.key.code == left)
             game.sLKey();
-        else if (event.key.code == game.options.down)
+        else if (event.key.code == down)
             game.sDKey();
     }
 }
@@ -110,16 +120,19 @@ void GPCountDown::update() {
 void GPCountDown::handleEvent(sf::Event& event) {
 	handleGeneralButtons(event);
 
+	static auto& left = Options::get<sf::Keyboard::Key>("left");
+	static auto& right = Options::get<sf::Keyboard::Key>("right");
+
 	if (event.type == sf::Event::KeyPressed && !game.resources.chatFocused) {
-        if (event.key.code == game.options.right)
+        if (event.key.code == right)
             game.rKey=true;
-        else if (event.key.code == game.options.left)
+        else if (event.key.code == left)
             game.lKey=true;
     }
     else if (event.type == sf::Event::KeyReleased) {
-        if (event.key.code == game.options.right)
+        if (event.key.code == right)
             game.rKey=false;
-        else if (event.key.code == game.options.left)
+        else if (event.key.code == left)
             game.lKey=false;
     }
 }
@@ -160,6 +173,7 @@ GPGameOver::~GPGameOver() {}
 
 void GPGameOver::handleEvent(sf::Event& event) {
 	handleGeneralButtons(event);
+	static auto& ready = Options::get<sf::Keyboard::Key>("ready");
 
 	if (event.type == sf::Event::KeyPressed && !game.resources.chatFocused) {
         if (event.key.code == sf::Keyboard::P && !IsVisible(5)) {
@@ -174,7 +188,7 @@ void GPGameOver::handleEvent(sf::Event& event) {
                 game.startCountdown();
         	}
         }
-        else if (event.key.code == game.options.ready && game.resources.playonline)
+        else if (event.key.code == ready && game.resources.playonline)
         	Ready();
     }
 }

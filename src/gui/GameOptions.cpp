@@ -1,5 +1,5 @@
 #include "GameOptions.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameSignals.h"
 #include "Resources.h"
 using std::to_string;
@@ -17,7 +17,6 @@ static auto& DarkTheme = Signal<void>::get("DarkTheme");
 static auto& SetGameBackColor = Signal<void, int>::get("SetGameBackColor");
 static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
 static auto& SetFieldsBackColor = Signal<void, int>::get("SetFieldsBackColor");
-static auto& MakeBackgroundLines = Signal<void>::get("MakeBackgroundLines");
 static auto& Show = Signal<void, int>::get("Show");
 static auto& Hide = Signal<void, int>::get("Hide");
 static auto& SetMusicVolume = Signal<void, int>::get("SetMusicVolume");
@@ -62,8 +61,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(LeL);
 	BindLeft = resources.gfx->load("Button");
 	BindLeft->setPosition(100, 60);
-	BindLeft->connect("pressed", &GameOptions::setKey, this, BindLeft, std::ref(resources.options->left));
-	BindLeft->setText(SFKeyToString(resources.options->left));
+	BindLeft->connect("pressed", &GameOptions::setKey, this, BindLeft, std::ref(Options::get<sf::Keyboard::Key>("left")));
+	BindLeft->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("left")));
 	GenOpt->add(BindLeft);
 
 	tgui::Label::Ptr RiL = resources.gfx->load("Label");
@@ -74,8 +73,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(RiL);
 	BindRight = resources.gfx->load("Button");
 	BindRight->setPosition(100, 100);
-	BindRight->connect("pressed", &GameOptions::setKey, this, BindRight, std::ref(resources.options->right));
-	BindRight->setText(SFKeyToString(resources.options->right));
+	BindRight->connect("pressed", &GameOptions::setKey, this, BindRight, std::ref(Options::get<sf::Keyboard::Key>("right")));
+	BindRight->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("right")));
 	GenOpt->add(BindRight);
 
 	tgui::Label::Ptr DoL = resources.gfx->load("Label");
@@ -86,8 +85,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(DoL);
 	BindDown = resources.gfx->load("Button");
 	BindDown->setPosition(100, 140);
-	BindDown->connect("pressed", &GameOptions::setKey, this, BindDown, std::ref(resources.options->down));
-	BindDown->setText(SFKeyToString(resources.options->down));
+	BindDown->connect("pressed", &GameOptions::setKey, this, BindDown, std::ref(Options::get<sf::Keyboard::Key>("down")));
+	BindDown->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("down")));
 	GenOpt-> add(BindDown);
 
 	tgui::Label::Ptr CwL = resources.gfx->load("Label");
@@ -98,8 +97,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(CwL);
 	BindRCW = resources.gfx->load("Button");
 	BindRCW->setPosition(100, 220);
-	BindRCW->connect("pressed", &GameOptions::setKey, this, BindRCW, std::ref(resources.options->rcw));
-	BindRCW->setText(SFKeyToString(resources.options->rcw));
+	BindRCW->connect("pressed", &GameOptions::setKey, this, BindRCW, std::ref(Options::get<sf::Keyboard::Key>("rcw")));
+	BindRCW->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("rcw")));
 	GenOpt->add(BindRCW);
 
 	tgui::Label::Ptr CcL = resources.gfx->load("Label");
@@ -110,8 +109,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(CcL);
 	BindRCCW = resources.gfx->load("Button");
 	BindRCCW->setPosition(100, 180);
-	BindRCCW->connect("pressed", &GameOptions::setKey, this, BindRCCW, std::ref(resources.options->rccw));
-	BindRCCW->setText(SFKeyToString(resources.options->rccw));
+	BindRCCW->connect("pressed", &GameOptions::setKey, this, BindRCCW, std::ref(Options::get<sf::Keyboard::Key>("rccw")));
+	BindRCCW->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("rccw")));
 	GenOpt->add(BindRCCW);
 
 	tgui::Label::Ptr R1L = resources.gfx->load("Label");
@@ -122,8 +121,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(R1L);
 	BindR180 = resources.gfx->load("Button");
 	BindR180->setPosition(350, 60);
-	BindR180->connect("pressed", &GameOptions::setKey, this, BindR180, std::ref(resources.options->r180));
-	BindR180->setText(SFKeyToString(resources.options->r180));
+	BindR180->connect("pressed", &GameOptions::setKey, this, BindR180, std::ref(Options::get<sf::Keyboard::Key>("r180")));
+	BindR180->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("r180")));
 	GenOpt->add(BindR180);
 
 	tgui::Label::Ptr HdL = resources.gfx->load("Label");
@@ -134,8 +133,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(HdL);
 	BindHD = resources.gfx->load("Button");
 	BindHD->setPosition(350, 100);
-	BindHD->connect("pressed", &GameOptions::setKey, this, BindHD, std::ref(resources.options->hd));
-	BindHD->setText(SFKeyToString(resources.options->hd));
+	BindHD->connect("pressed", &GameOptions::setKey, this, BindHD, std::ref(Options::get<sf::Keyboard::Key>("hd")));
+	BindHD->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("hd")));
 	GenOpt->add(BindHD);
 
 	tgui::Label::Ptr ChL = resources.gfx->load("Label");
@@ -146,8 +145,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(ChL);
 	BindMenu = resources.gfx->load("Button");
 	BindMenu->setPosition(350, 140);
-	BindMenu->connect("pressed", &GameOptions::setKey, this, BindMenu, std::ref(resources.options->menu));
-	BindMenu->setText(SFKeyToString(resources.options->menu));
+	BindMenu->connect("pressed", &GameOptions::setKey, this, BindMenu, std::ref(Options::get<sf::Keyboard::Key>("menu")));
+	BindMenu->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("menu")));
 	GenOpt->add(BindMenu);
 
 	tgui::Label::Ptr ScL = resources.gfx->load("Label");
@@ -158,8 +157,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(ScL);
 	BindScore = resources.gfx->load("Button");
 	BindScore->setPosition(350, 180);
-	BindScore->connect("pressed", &GameOptions::setKey, this, BindScore, std::ref(resources.options->score));
-	BindScore->setText(SFKeyToString(resources.options->score));
+	BindScore->connect("pressed", &GameOptions::setKey, this, BindScore, std::ref(Options::get<sf::Keyboard::Key>("score")));
+	BindScore->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("score")));
 	GenOpt->add(BindScore);
 
 	tgui::Label::Ptr AwL = resources.gfx->load("Label");
@@ -170,8 +169,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(AwL);
 	BindAway = resources.gfx->load("Button");
 	BindAway->setPosition(350, 220);
-	BindAway->connect("pressed", &GameOptions::setKey, this, BindAway, std::ref(resources.options->away));
-	BindAway->setText(SFKeyToString(resources.options->away));
+	BindAway->connect("pressed", &GameOptions::setKey, this, BindAway, std::ref(Options::get<sf::Keyboard::Key>("away")));
+	BindAway->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("away")));
 	GenOpt->add(BindAway);
 
 	tgui::Label::Ptr ReL = resources.gfx->load("Label");
@@ -182,8 +181,8 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	GenOpt->add(ReL);
 	BindReady = resources.gfx->load("Button");
 	BindReady->setPosition(350, 260);
-	BindReady->connect("pressed", &GameOptions::setKey, this, BindReady, std::ref(resources.options->ready));
-	BindReady->setText(SFKeyToString(resources.options->ready));
+	BindReady->connect("pressed", &GameOptions::setKey, this, BindReady, std::ref(Options::get<sf::Keyboard::Key>("ready")));
+	BindReady->setText(SFKeyToString(Options::get<sf::Keyboard::Key>("ready")));
 	GenOpt->add(BindReady);
 
 	tgui::Button::Ptr Rp[7]; // Align Pieces
@@ -230,16 +229,16 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	Re1->setPosition(50, 460);
 	Re1->setSize(70, 30);
 	Re1->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re1->setText(to_string(resources.options->repeatDelay.asMilliseconds()));
-	Re1->connect("TextChanged", &optionSet::setDelay, resources.options, 1);
+	Re1->setText(to_string(Options::get<sf::Time>("repeatdelay").asMilliseconds()));
+	Re1->connect("TextChanged", &Options::setDelay, 1);
 	GenOpt->add(Re1);
 
 	tgui::EditBox::Ptr Re2 = resources.gfx->load("EditBox");
 	Re2->setPosition(150, 460);
 	Re2->setSize(70, 30);
 	Re2->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re2->setText(to_string(resources.options->repeatSpeed.asMilliseconds()));
-	Re2->connect("TextChanged", &optionSet::setDelay, resources.options, 2);
+	Re2->setText(to_string(Options::get<sf::Time>("repeatspeed").asMilliseconds()));
+	Re2->connect("TextChanged", &Options::setDelay, 2);
 	GenOpt->add(Re2);
 
 	tgui::Label::Ptr Rl2 = resources.gfx->load("Label");
@@ -252,16 +251,16 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	Re3->setPosition(300, 460);
 	Re3->setSize(70, 30);
 	Re3->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re3->setText(to_string(resources.options->repeatDelayDown.asMilliseconds()));
-	Re3->connect("TextChanged", &optionSet::setDelay, resources.options, 3);
+	Re3->setText(to_string(Options::get<sf::Time>("repeatdelaydown").asMilliseconds()));
+	Re3->connect("TextChanged", &Options::setDelay, 3);
 	GenOpt->add(Re3);
 
 	tgui::EditBox::Ptr Re4 = resources.gfx->load("EditBox");
 	Re4->setPosition(400, 460);
 	Re4->setSize(70, 30);
 	Re4->setInputValidator(tgui::EditBox::Validator::UInt);
-	Re4->setText(to_string(resources.options->repeatSpeedDown.asMilliseconds()));
-	Re4->connect("TextChanged", &optionSet::setDelay, resources.options, 4);
+	Re4->setText(to_string(Options::get<sf::Time>("repeatspeeddown").asMilliseconds()));
+	Re4->connect("TextChanged", &Options::setDelay, 4);
 	GenOpt->add(Re4);
 
 	VidOpt = tgui::Panel::create(); // Video Options
@@ -279,11 +278,11 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VMSlider = resources.gfx->load("Slider");
 	VMSlider->setPosition(50, 50);
 	VMSlider->setSize(460, 30);
-	VMSlider->setMaximum(resources.options->modes.size()-1);
-	if (resources.options->currentmode == -1)
+	VMSlider->setMaximum(Options::get<std::vector<sf::VideoMode>>("modes").size()-1);
+	if (Options::get<short>("currentmode") == -1)
 		VMSlider->setValue(0);
 	else
-		VMSlider->setValue(resources.options->currentmode);
+		VMSlider->setValue(Options::get<short>("currentmode"));
 	VMSlider->connect("ValueChanged", &GameOptions::vidSlide, this);
 	VMSlider->disable();
 	VidOpt->add(VMSlider);
@@ -291,7 +290,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VideoMode = resources.gfx->load("Label");
 	VideoMode->setPosition(240, 90);
 	std::string cvmname;
-	cvmname = to_string(resources.options->modes[VMSlider->getValue()].width) + "x" + to_string(resources.options->modes[VMSlider->getValue()].height);
+	cvmname = to_string(Options::get<std::vector<sf::VideoMode>>("modes")[VMSlider->getValue()].width) + "x" + to_string(Options::get<std::vector<sf::VideoMode>>("modes")[VMSlider->getValue()].height);
 	VideoMode->setText(cvmname);
 	VidOpt->add(VideoMode);
 
@@ -300,7 +299,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	Fullscreen->setText("Fullscreen");
 	Fullscreen->connect("Checked Unchecked", &GameOptions::fsChecked, this);
 	VidOpt->add(Fullscreen);
-	if (resources.options->fullscreen) {
+	if (Options::get<bool>("fullscreen")) {
 		Fullscreen->check();
 		VMSlider->enable();
 	}
@@ -308,14 +307,14 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	vSync = resources.gfx->load("CheckBox");
 	vSync->setPosition(220, 130);
 	vSync->setText("VSync");
-	if (resources.options->vSync)
+	if (Options::get<bool>("vsync"))
 		vSync->check();
 	VidOpt->add(vSync);
 
 	performanceOutput = resources.gfx->load("CheckBox");
 	performanceOutput->setPosition(320, 130);
 	performanceOutput->setText("Performance output");
-	if (resources.options->performanceOutput)
+	if (Options::get<bool>("performanceOutput"))
 		performanceOutput->check();
 	VidOpt->add(performanceOutput);
 
@@ -328,7 +327,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	FrameDelay->setPosition(100, 230);
 	FrameDelay->setSize(70, 30);
 	FrameDelay->setInputValidator(tgui::EditBox::Validator::UInt);
-	FrameDelay->setText(to_string(1000000/resources.options->frameDelay.asMicroseconds()));
+	FrameDelay->setText(to_string(1000000/Options::get<sf::Time>("framedelay").asMicroseconds()));
 	VidOpt->add(FrameDelay);
 
 	tgui::Label::Ptr IdL = resources.gfx->load("Label");
@@ -340,7 +339,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	InputDelay->setPosition(310, 230);
 	InputDelay->setSize(110, 30);
 	InputDelay->setInputValidator(tgui::EditBox::Validator::UInt);
-	InputDelay->setText(to_string(1000000/resources.options->inputDelay.asMicroseconds()));
+	InputDelay->setText(to_string(1000000/Options::get<sf::Time>("inputdelay").asMicroseconds()));
 	VidOpt->add(InputDelay);
 
 	tgui::Button::Ptr AvB = resources.gfx->load("Button");
@@ -360,7 +359,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	SndOpt->setPosition(0, 0);
 	SndOpt->setBackgroundColor(sf::Color(255,255,255,0));
 	SndOpt->hide();
-	if (resources.options->noSound)
+	if (Options::get<bool>("noSound"))
 		SndOpt->disable();
 	panel->add(SndOpt);
 
@@ -369,7 +368,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	EsC->setText("Sound Enabled");
 	EsC->connect("Checked Unchecked", &GameOptions::sndChecked, this);
 	SndOpt->add(EsC, "sndCheck");
-	if (resources.options->sound)
+	if (Options::get<bool>("sound"))
 		EsC->check();
 
 	tgui::Slider::Ptr MvS = resources.gfx->load("Slider");
@@ -377,7 +376,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	MvS->setSize(460,30);
 	MvS->setMaximum(100);
 	MvS->connect("ValueChanged", &GameOptions::volSlide, this, 1);
-	MvS->setValue(resources.options->MusicVolume);
+	MvS->setValue(Options::get<short>("musicvolume"));
 	SndOpt->add(MvS);
 
 	tgui::Label::Ptr MvL = resources.gfx->load("Label");
@@ -390,7 +389,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	EvS->setSize(460,30);
 	EvS->setMaximum(100);
 	EvS->connect("ValueChanged", &GameOptions::volSlide, this, 2);
-	EvS->setValue(resources.options->EffectVolume);
+	EvS->setValue(Options::get<short>("effectvolume"));
 	SndOpt->add(EvS);
 
 	tgui::Label::Ptr EvL = resources.gfx->load("Label");
@@ -403,7 +402,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	CvS->setSize(460,30);
 	CvS->setMaximum(100);
 	CvS->connect("ValueChanged", &GameOptions::volSlide, this, 3);
-	CvS->setValue(resources.options->ChatVolume);
+	CvS->setValue(Options::get<short>("chatvolume"));
 	SndOpt->add(CvS);
 
 	tgui::Label::Ptr CvL = resources.gfx->load("Label");
@@ -423,7 +422,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	NL->setText("Name (for single-player)");
 	VisOpt->add(NL);
 	tgui::EditBox::Ptr NTB = resources.gfx->load("EditBox");
-	NTB->setText(resources.options->name);
+	NTB->setText(Options::get<std::string>("name"));
 	NTB->setPosition(230, 10);
 	NTB->setSize(270, 30);
 	NTB->connect("TextChanged", &GameOptions::changeName, this);
@@ -434,7 +433,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	animBack->setText("Show background animation");
 	animBack->connect("Checked", [&](){ EnableBackground(resources.delayClock.getElapsedTime()); });
 	animBack->connect("Unchecked", [&](){ DisableBackground(); });
-	if (resources.options->animatedBackground)
+	if (Options::get<bool>("animatedBackground"))
 		animBack->check();
 	VisOpt->add(animBack);
 
@@ -447,7 +446,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	ghostPieceAlpha->setPosition(20, 120);
 	ghostPieceAlpha->setSize(520,30);
 	ghostPieceAlpha->setMaximum(255);
-	ghostPieceAlpha->setValue(resources.options->ghostPieceAlpha);
+	ghostPieceAlpha->setValue(Options::get<uint8_t>("ghostPieceAlpha"));
 	ghostPieceAlpha->connect("ValueChanged", &GameOptions::setGhostPieceAlpha, this);
 	VisOpt->add(ghostPieceAlpha);
 
@@ -461,7 +460,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	r_darkTheme->setText("Dark theme");
 	VisOpt->add(r_darkTheme);
 
-	if (resources.options->theme == 1)
+	if (Options::get<uint8_t>("theme") == 1)
 		r_lightTheme->check();
 	else
 		r_darkTheme->check();
@@ -478,128 +477,22 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	fieldBackColor->setPosition(20, 290);
 	fieldBackColor->setSize(520,30);
 	fieldBackColor->setMaximum(255);
-	fieldBackColor->setValue(resources.options->fieldBackground);
+	fieldBackColor->setValue(Options::get<uint8_t>("fieldBackground"));
 	fieldBackColor->connect("ValueChanged", [&](int val){
-		resources.options->fieldBackground=val;
+		Options::get<uint8_t>("fieldBackground")=val;
 		SetGameBackColor(val);
 		SetDrawMe();
 		SetFieldsBackColor(val);
 	});
 	VisOpt->add(fieldBackColor);
 
-	tgui::CheckBox::Ptr vlines = resources.gfx->load("CheckBox");
-	vlines->setText("Vertical lines");
-	vlines->setPosition(20, 340);
-	if (resources.options->fieldVLines)
-		vlines->check();
-	vlines->connect("Checked", [&](){
-		resources.options->fieldVLines=true;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	vlines->connect("Unchecked", [&](){
-		resources.options->fieldVLines=false;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	VisOpt->add(vlines);
-
-	tgui::CheckBox::Ptr hlines = resources.gfx->load("CheckBox");
-	hlines->setText("Horizontal lines");
-	hlines->setPosition(20, 370);
-	if (resources.options->fieldHLines)
-		hlines->check();
-	hlines->connect("Checked", [&](){
-		resources.options->fieldHLines=true;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	hlines->connect("Unchecked", [&](){
-		resources.options->fieldHLines=false;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	VisOpt->add(hlines);
-
-	tgui::Panel::Ptr linestyle = tgui::Panel::create();
-	linestyle->setBackgroundColor(sf::Color(255,255,255,0));
-	linestyle->setPosition(175, 340);
-	linestyle->setSize(100,90);
-	VisOpt->add(linestyle);
-
-	tgui::RadioButton::Ptr style1 = resources.gfx->load("RadioButton");
-	style1->setPosition(0,0);
-	style1->setText("Full");
-	if (resources.options->lineStyle==1)
-		style1->check();
-	style1->connect("Checked", [&](){
-		resources.options->lineStyle=1;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	linestyle->add(style1);
-
-	tgui::RadioButton::Ptr style2 = resources.gfx->load("RadioButton");
-	style2->setPosition(0,30);
-	style2->setText("Intersections");
-	if (resources.options->lineStyle==2)
-		style2->check();
-	style2->connect("Checked", [&](){
-		resources.options->lineStyle=2;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	linestyle->add(style2);
-
-	tgui::RadioButton::Ptr style3 = resources.gfx->load("RadioButton");
-	style3->setPosition(0,60);
-	style3->setText("Faded");
-	if (resources.options->lineStyle==3)
-		style3->check();
-	style3->connect("Checked", [&](){
-		resources.options->lineStyle=3;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	linestyle->add(style3);
-
-	tgui::Panel::Ptr linecolor = tgui::Panel::create();
-	linecolor->setBackgroundColor(sf::Color(255,255,255,0));
-	linecolor->setPosition(320, 340);
-	linecolor->setSize(100,60);
-	VisOpt->add(linecolor);
-
-	tgui::RadioButton::Ptr darkLines = resources.gfx->load("RadioButton");
-	darkLines->setPosition(0,0);
-	darkLines->setText("Dark");
-	if (resources.options->lineColor)
-		darkLines->check();
-	darkLines->connect("Checked", [&](){
-		resources.options->lineColor=true;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	linecolor->add(darkLines);
-
-	tgui::RadioButton::Ptr lightLines = resources.gfx->load("RadioButton");
-	lightLines->setPosition(0,30);
-	lightLines->setText("Light");
-	if (!resources.options->lineColor)
-		lightLines->check();
-	lightLines->connect("Checked", [&](){
-		resources.options->lineColor=false;
-		MakeBackgroundLines();
-		SetDrawMe();
-	});
-	linecolor->add(lightLines);
-
 	tgui::CheckBox::Ptr mouseMenu = resources.gfx->load("CheckBox");
 	mouseMenu->setPosition(20, 500);
 	mouseMenu->setText("Menu responds to mouse hovering");
-	if (resources.options->mouseMenu)
+	if (Options::get<bool>("mouseMenu"))
 		mouseMenu->check();
-	mouseMenu->connect("Checked", [&](){ resources.options->mouseMenu=true; });
-	mouseMenu->connect("Unchecked", [&](){ resources.options->mouseMenu=false; });
+	mouseMenu->connect("Checked", [&](){ Options::get<bool>("mouseMenu")=true; });
+	mouseMenu->connect("Unchecked", [&](){ Options::get<bool>("mouseMenu")=false; });
 	VisOpt->add(mouseMenu);
 
 	connectSignal("ShowOptions", &GameOptions::show, this);
@@ -617,29 +510,29 @@ void GameOptions::show(int index) {
 		GenOpt->show();
 	else if (index == 2) {
 		VidOpt->show();
-		if (resources.options->fullscreen)
+		if (Options::get<bool>("fullscreen"))
 			Fullscreen->check();
 		else
 			Fullscreen->uncheck();
-		if (resources.options->vSync)
+		if (Options::get<bool>("vsync"))
 			vSync->check();
 		else
 			vSync->uncheck();
-		FrameDelay->setText(to_string(1000000/resources.options->frameDelay.asMicroseconds()));
-		InputDelay->setText(to_string(1000000/resources.options->inputDelay.asMicroseconds()));
+		FrameDelay->setText(to_string(1000000/Options::get<sf::Time>("framedelay").asMicroseconds()));
+		InputDelay->setText(to_string(1000000/Options::get<sf::Time>("inputdelay").asMicroseconds()));
 	}
 	else if (index == 3)
 		SndOpt->show();
 }
 
 void GameOptions::changeName(const std::string& name) {
-	resources.options->name = name;
+	Options::get<std::string>("name") = name;
 	//gui->game.field.text.setName(name);
 }
 
 void GameOptions::vidSlide(short i) {
 	std::string name;
-	name = to_string(resources.options->modes[i].width) + "x" + to_string(resources.options->modes[i].height);
+	name = to_string(Options::get<std::vector<sf::VideoMode>>("modes")[i].width) + "x" + to_string(Options::get<std::vector<sf::VideoMode>>("modes")[i].height);
 	VideoMode->setText(name);
 }
 
@@ -651,44 +544,41 @@ void GameOptions::fsChecked(bool i) {
 }
 
 void GameOptions::sndChecked(bool i) {
-	if (i)
-		resources.options->sound = true;
-	else
-		resources.options->sound = false;
+	Options::get<bool>("sound") = i;
 }
 
 void GameOptions::applyVideo() {
 	if (Fullscreen->isChecked()) {
-		if (!resources.options->fullscreen || resources.options->currentmode != VMSlider->getValue()) {
-			resources.options->fullscreen=true;
-			resources.options->currentmode = VMSlider->getValue();
+		if (!Options::get<bool>("fullscreen") || Options::get<short>("currentmode") != VMSlider->getValue()) {
+			Options::get<bool>("fullscreen")=true;
+			Options::get<short>("currentmode") = VMSlider->getValue();
 			resources.window.close();
-			resources.window.create(resources.options->modes[resources.options->currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+			resources.window.create(Options::get<std::vector<sf::VideoMode>>("modes")[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
 			resources.window.setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
 		}
 	}
-	else if (resources.options->fullscreen) {
-		resources.options->fullscreen=false;
+	else if (Options::get<bool>("fullscreen")) {
+		Options::get<bool>("fullscreen")=false;
 		resources.window.close();
 		resources.window.create(sf::VideoMode(960, 600), "SpeedBlocks");
 		resources.window.setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
 	}
 
 	if (vSync->isChecked()) {
-		resources.options->vSync = true;
+		Options::get<bool>("vsync") = true;
 		resources.window.setVerticalSyncEnabled(true);
 	}
 	else {
-		resources.options->vSync = false;
+		Options::get<bool>("vsync") = false;
 		resources.window.setVerticalSyncEnabled(false);
 	}
 
 	if (performanceOutput->isChecked()) {
-		resources.options->performanceOutput = true;
+		Options::get<bool>("performanceOutput") = true;
 		Show(6);
 	}
 	else {
-		resources.options->performanceOutput = false;
+		Options::get<bool>("performanceOutput") = false;
 		Hide(6);
 	}
 
@@ -697,26 +587,26 @@ void GameOptions::applyVideo() {
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		resources.options->frameDelay = sf::microseconds(1000000/value);
+		Options::get<sf::Time>("framedelay") = sf::microseconds(1000000/value);
 	value=0;
 	fd = InputDelay->getText();
 	if (fd.size())
 		value = stoi(fd);
 	if (value)
-		resources.options->inputDelay = sf::microseconds(1000000/value);
+		Options::get<sf::Time>("inputdelay") = sf::microseconds(1000000/value);
 }
 
 void GameOptions::volSlide(short i, short vol) {
 	if (i == 1) {
-		resources.options->MusicVolume = vol;
+		Options::get<short>("musicvolume") = vol;
 		SetMusicVolume(vol);
 	}
 	else if (i == 2) {
-		resources.options->EffectVolume = vol;
+		Options::get<short>("effectvolume") = vol;
 		SetEffectVolume(vol);
 	}
 	else if (i == 3) {
-		resources.options->ChatVolume = vol;
+		Options::get<short>("chatvolume") = vol;
 		SetAlertsVolume(vol);
 	}
 }
@@ -734,58 +624,58 @@ bool GameOptions::putKey(sf::Event& event) {
         else {
         	SelectKey->hide();
 
-			if (event.key.code == resources.options->left) {
-				resources.options->left = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("left")) {
+				Options::get<sf::Keyboard::Key>("left") = sf::Keyboard::Unknown;
 				BindLeft->setText("");
 			}
 
-			if (event.key.code == resources.options->right) {
-				resources.options->right = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("right")) {
+				Options::get<sf::Keyboard::Key>("right") = sf::Keyboard::Unknown;
 				BindRight->setText("");
 			}
 
-			if (event.key.code == resources.options->down) {
-				resources.options->down = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("down")) {
+				Options::get<sf::Keyboard::Key>("down") = sf::Keyboard::Unknown;
 				BindDown->setText("");
 			}
 
-			if (event.key.code == resources.options->rcw) {
-				resources.options->rcw = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("rcw")) {
+				Options::get<sf::Keyboard::Key>("rcw") = sf::Keyboard::Unknown;
 				BindRCW->setText("");
 			}
 
-			if (event.key.code == resources.options->rccw) {
-				resources.options->rccw = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("rccw")) {
+				Options::get<sf::Keyboard::Key>("rccw") = sf::Keyboard::Unknown;
 				BindRCCW->setText("");
 			}
 
-			if (event.key.code == resources.options->r180) {
-				resources.options->r180 = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("r180")) {
+				Options::get<sf::Keyboard::Key>("r180") = sf::Keyboard::Unknown;
 				BindR180->setText("");
 			}
 
-			if (event.key.code == resources.options->hd) {
-				resources.options->hd = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("hd")) {
+				Options::get<sf::Keyboard::Key>("hd") = sf::Keyboard::Unknown;
 				BindHD->setText("");
 			}
 
-			if (event.key.code == resources.options->menu) {
-				resources.options->menu = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("menu")) {
+				Options::get<sf::Keyboard::Key>("menu") = sf::Keyboard::Unknown;
 				BindMenu->setText("");
 			}
 
-			if (event.key.code == resources.options->score) {
-				resources.options->score = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("score")) {
+				Options::get<sf::Keyboard::Key>("score") = sf::Keyboard::Unknown;
 				BindScore->setText("");
 			}
 
-			if (event.key.code == resources.options->away) {
-				resources.options->away = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("away")) {
+				Options::get<sf::Keyboard::Key>("away") = sf::Keyboard::Unknown;
 				BindAway->setText("");
 			}
 
-			if (event.key.code == resources.options->ready) {
-				resources.options->ready = sf::Keyboard::Unknown;
+			if (event.key.code == Options::get<sf::Keyboard::Key>("ready")) {
+				Options::get<sf::Keyboard::Key>("ready") = sf::Keyboard::Unknown;
 				BindReady->setText("");
 			}
 
@@ -800,19 +690,21 @@ bool GameOptions::putKey(sf::Event& event) {
 }
 
 void GameOptions::rotPiece(short i) {
-	resources.options->piecerotation[i]++;
-	if (resources.options->piecerotation[i]>3)
-		resources.options->piecerotation[i]=0;
-	piecePreview[i]->m_sprite.setRotation(resources.options->piecerotation[i]*90);
+	uint8_t& piecerotation = Options::get<uint8_t>("piece_" + std::to_string(i) + "_rotation");
+	piecerotation++;
+	if (piecerotation>3)
+		piecerotation=0;
+	piecePreview[i]->m_sprite.setRotation(piecerotation*90);
 	UpdateGamePieces();
 }
 
 void GameOptions::colPiece(short i) {
-	if (resources.options->basepiece[i].tile+1>7)
-		resources.options->setPieceColor(i, 1);
+	static auto& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
+	if (basepiece[i].tile+1>7)
+		Options::setPieceColor(i, 1);
 	else
-		resources.options->setPieceColor(i, resources.options->basepiece[i].tile+1);
-	piecePreview[i]->m_sprite.setColor(pColor(resources.options->basepiece[i].tile));
+		Options::setPieceColor(i, basepiece[i].tile+1);
+	piecePreview[i]->m_sprite.setColor(pColor(basepiece[i].tile));
 	UpdateGamePieces();
 }
 
@@ -825,7 +717,7 @@ void GameOptions::initSprites() {
 	sf::RenderTexture rendtex;
 	rendtex.create(120,120);
 
-	std::vector<short> value = resources.options->pieceArray();
+	std::vector<short> value = Options::pieceArray();
 
 	for (int p=0; p<7; p++) {
 		rendtex.clear(sf::Color(255,255,255,0));
@@ -851,9 +743,9 @@ void GameOptions::initSprites() {
 		piecePreview[p]->m_sprite.setTexture(piecePreview[p]->m_texture);
 		piecePreview[p]->m_sprite.setScale(0.5, 0.5);
 		piecePreview[p]->m_sprite.setPosition(80*p+40, 330);
-		piecePreview[p]->m_sprite.setColor(pColor(resources.options->basepiece[p].tile));
+		piecePreview[p]->m_sprite.setColor(pColor(Options::get<std::array<basePieces, 7>>("BasePieces")[p].tile));
 		piecePreview[p]->m_sprite.setOrigin(60,60);
-		piecePreview[p]->m_sprite.setRotation(resources.options->piecerotation[p]*90);
+		piecePreview[p]->m_sprite.setRotation(Options::get<uint8_t>("piece_" + std::to_string(p) + "_rotation")*90);
 		GenOpt->add(piecePreview[p]);
 	}
 }
@@ -961,7 +853,7 @@ std::string SFKeyToString(unsigned int keycode) {
 }
 
 void GameOptions::setGhostPieceAlpha(uint8_t alpha) {
-	resources.options->ghostPieceAlpha = alpha;
+	Options::get<uint8_t>("ghostPieceAlpha") = alpha;
 	resources.gfx->setGhostPieceAlpha(alpha);
 	SetDrawMe();
 }

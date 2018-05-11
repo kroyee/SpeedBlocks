@@ -11,7 +11,7 @@
 #include "Garbage.h"
 #include "Combo.h"
 #include "GameSignals.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameDataSender.h"
 #include "DropDelay.h"
 #include "AIManager.h"
@@ -34,7 +34,6 @@ public:
 
 	gameField field;
 	basePieces basepiece[7];
-	optionSet& options;
 
 	Resources& resources;
 
@@ -137,7 +136,6 @@ public:
 
 	void setBackgroundColor(int val);
 	void setDrawMe();
-	void makeBackgroundLines();
 	void setName(const std::string& name);
 	void updateReplayScreen();
 };

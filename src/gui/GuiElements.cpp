@@ -1,7 +1,7 @@
 #include "GuiElements.h"
 #include "Resources.h"
 #include "Textures.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameSignals.h"
 #include "gameField.h"
 #include "TaskQueue.h"
@@ -54,10 +54,10 @@ udpConfirmed			(false)
 
 	slideMenu.show();
 
-	if (resources.options->performanceOutput)
+	if (Options::get<bool>("performanceOutput"))
 		performanceOutput.show();
 
-	if (!resources.options->animatedBackground)
+	if (!Options::get<bool>("animatedBackground"))
 		animatedBackground.disable();
 
 	elements.push_back(&mainMenu);
@@ -239,19 +239,19 @@ void GuiElements::delayCheck(const sf::Time& currentTime) {
 }
 
 void GuiElements::toggleFullscreen() {
-	if (!resources.options->fullscreen) {
-		if (resources.options->currentmode == -1)
-			resources.options->currentmode = 0;
+	if (!Options::get<bool>("fullscreen")) {
+		if (Options::get<short>("currentmode") == -1)
+			Options::get<short>("currentmode") = 0;
 		resources.window.close();
-		resources.window.create(resources.options->modes[resources.options->currentmode], "SpeedBlocks", sf::Style::Fullscreen);
+		resources.window.create(Options::get<std::vector<sf::VideoMode>>("modes")[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
 		resources.window.setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-		resources.options->fullscreen=true;
+		Options::get<bool>("fullscreen")=true;
 	}
-	else if (resources.options->fullscreen || !resources.window.isOpen()) {
+	else if (Options::get<bool>("fullscreen") || !resources.window.isOpen()) {
 		resources.window.close();
 		resources.window.create(sf::VideoMode(960, 600), "SpeedBlocks");
 		resources.window.setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
-		resources.options->fullscreen=false;
+		Options::get<bool>("fullscreen")=false;
 	}
 }
 
@@ -315,7 +315,7 @@ void GuiElements::mouseEvents(sf::Event& event) {
 void GuiElements::windowEvents(sf::Event& event) {
 	if (event.type == sf::Event::Closed)
       resources.window.close();
-  else if (event.type == sf::Event::Resized && !resources.options->fullscreen)
+  else if (event.type == sf::Event::Resized && !Options::get<bool>("fullscreen"))
       resizeWindow(event);
   else if (event.type == sf::Event::LostFocus)
   	resources.window.setFramerateLimit(60);

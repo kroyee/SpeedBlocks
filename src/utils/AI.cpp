@@ -1,16 +1,14 @@
 #include "AI.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "Resources.h"
 #include <fstream>
-#include <iostream>
-using std::cout;
-using std::endl;
 
 AI::AI(obsField& _field, sf::Clock& _gameclock) :
 resources(_field.resources),
 field(&_field),
 firstMove(resources),
 secondMove(resources),
+basepiece(Options::get<std::array<basePieces, 7>>("BasePieces")),
 garbage(data.linesBlocked),
 combo(data.maxCombo),
 gameclock(_gameclock) {
@@ -52,7 +50,7 @@ void AI::startMove() {
 	//movepieceTime = gameclock.getElapsedTime()-sf::microseconds(1);
 	movepieceTime = nextmoveTime - moveTime;
 	currentMove.clear();
-	int rotationValue = firstMove.move.rot - resources.options->basepiece[firstMove.piece.piece].rotation;
+	int rotationValue = firstMove.move.rot - basepiece[firstMove.piece.piece].rotation;
 	if (rotationValue < 0)
 		rotationValue += 4;
 	if (rotationValue)
@@ -161,8 +159,8 @@ bool AI::executeMove() {
 
 void AI::setPiece(int piece) {
 	field->piece.piece = piece;
-	field->piece.tile = resources.options->basepiece[piece].tile;
-	field->piece.rotation = resources.options->basepiece[piece].rotation;
+	field->piece.tile = basepiece[piece].tile;
+	field->piece.rotation = basepiece[piece].rotation;
 	field->piece.posX = 3;
 	field->piece.posY = 0;
 
@@ -171,9 +169,9 @@ void AI::setPiece(int piece) {
 
 void AI::setNextPiece(int piece) {
 	field->nextpiece = piece;
-	field->nprot = resources.options->basepiece[piece].rotation;
-	field->npcol = resources.options->basepiece[piece].tile;
-	field->npPiece = resources.options->basepiece[piece];
+	field->nprot = basepiece[piece].rotation;
+	field->npcol = basepiece[piece].tile;
+	field->npPiece = basepiece[piece];
 	while (field->npPiece.current_rotation != field->nprot)
 		field->npPiece.rcw();
 }

@@ -14,10 +14,6 @@
 
 #include <cstring>
 
-using std::to_string;
-using std::cout;
-using std::endl;
-
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
 #include "RunAsAdmin.hpp"
@@ -65,11 +61,11 @@ void PatchCheck::parseJson(const std::string& jsonString) {
 
 void PatchCheck::check(int version) {
 	#ifdef _WIN32
-		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=win"));
+		parseJson(sendPost("/update/check_for_patch.php", "version=" + std::to_string(version) + "&os=win"));
 	#elif __APPLE__
-		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=mac"));
+		parseJson(sendPost("/update/check_for_patch.php", "version=" + std::to_string(version) + "&os=mac"));
 	#else
-		parseJson(sendPost("/update/check_for_patch.php", "version=" + to_string(version) + "&os=linux"));
+		parseJson(sendPost("/update/check_for_patch.php", "version=" + std::to_string(version) + "&os=linux"));
 	#endif
 	if (cancelCheck()) return;
 	if (j1.find("latest") != j1.end()) {
@@ -236,15 +232,17 @@ int PatchCheck::download_file(const std::string& file) {
 		res = curl_easy_perform(curl);
 
 		if(res != CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-			cout << endl;
+			#ifdef DEBUG
+				fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+				std::cout << std::endl;
+			#endif
 		}
 		fclose(fp);
 
 		curl_easy_cleanup(curl);
 	}
 	else
-		cout << "Curl failed to load" << endl;
+		std::cout << "Curl failed to load" << std::endl;
 
 	if (res == CURLE_OK)
 		return 0;

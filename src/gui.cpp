@@ -1,15 +1,11 @@
 #include "gui.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "gamePlay.h"
 #include "Textures.h"
 #include "GameSignals.h"
 #include "GuiElements.h"
 #include "UIGameState.h"
 #include "TaskQueue.h"
-#include <iostream>
-using std::cout;
-using std::endl;
-using std::move;
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -31,7 +27,6 @@ static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
 UI::UI(sf::RenderWindow& window_,
 	gamePlay& game_)
     : resources(game_.resources),
-      options(*game_.resources.options),
       game(game_),
       guiElements(new GuiElements(resources)),
       window(&window_),
@@ -99,7 +94,7 @@ UI::UI(sf::RenderWindow& window_,
 	Net::takeSignal(18, [&](){ QuickMsg("You need to reach rank 0 to join the Hero room"); });
 	Net::takeSignal(22, [&](){ QuickMsg("You are still in the matchmaking queue"); });
 
-	if (options.theme == 1)
+	if (Options::get<uint8_t>("theme") == 1)
 		lightTheme();
 	else
 		darkTheme();
@@ -188,7 +183,7 @@ void UI::darkTheme() {
 	game.drawMe=true;
 	setWidgetTextColor(sf::Color(255,255,255,200));
 	//resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(25,25,25,200));
-	options.theme=2;
+	Options::get<uint8_t>("theme") = 2;
 	for (auto& field : guiElements->gameFieldDrawer.fields)
 		field.text.setColor(sf::Color(255,255,255));
 }
@@ -203,7 +198,7 @@ void UI::lightTheme() {
 	game.drawMe=true;
 	setWidgetTextColor(sf::Color(0,0,0,200));
 	//resources.gfx->theme1->setProperty("Panel", "BackgroundColor", sf::Color(230,230,230,200));
-	options.theme=1;
+	Options::get<uint8_t>("theme") = 1;
 	for (auto& field : guiElements->gameFieldDrawer.fields)
 		field.text.setColor(sf::Color(0,0,0));
 

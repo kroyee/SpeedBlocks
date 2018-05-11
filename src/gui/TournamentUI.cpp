@@ -4,10 +4,6 @@
 #include "Resources.h"
 #include <SFML/Network.hpp>
 
-using std::to_string;
-using std::cout;
-using std::endl;
-
 TournamentUI::TournamentUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel, OnlineplayUI& _opui) :
 GuiBase(_pos, _res, parentPanel), onlineplayUI(_opui) {
 
@@ -253,7 +249,7 @@ GuiBase(_pos, _res, parentPanel), onlineplayUI(_opui) {
 		resultLabel[i] = resources.gfx->load("Label");
 		resultLabel[i]->setTextSize(18);
 		resultLabel[i]->setPosition(580,190 + i*40);
-		resultLabel[i]->setText("Set " + to_string(i+1));
+		resultLabel[i]->setText("Set " + std::to_string(i+1));
 		gameInfo->add(resultLabel[i]);
 	}
 
@@ -292,8 +288,8 @@ void TournamentUI::getInfo(sf::Packet &packet) {
 	getParticipants(packet);
 	getModerators(packet);
 	getStatus(packet);
-	gRounds->setText(to_string(rounds));
-	gSets->setText(to_string(sets));
+	gRounds->setText(std::to_string(rounds));
+	gSets->setText(std::to_string(sets));
 
 	if (grade == 1)
 		tGrade->setText("Grade A");
@@ -318,8 +314,8 @@ void TournamentUI::getInfo(sf::Packet &packet) {
 			tStartingTime->setText(asctime(localtime(&startingTime)));
 		else
 			tStartingTime->setText("started by moderator");
-		tRounds->setText(to_string(rounds));
-		tSets->setText(to_string(sets));
+		tRounds->setText(std::to_string(rounds));
+		tSets->setText(std::to_string(sets));
 		if (status == 0)
 			tStatus->setText("Sign up open");
 		else
@@ -425,7 +421,7 @@ void TournamentUI::getBracket(sf::Packet &packet) {
 			packet >> newgame.player1_id >> newgame.player1_name;
 		else if (newgame.player1_type == 2) {
 			packet >> newgame.player1_id;
-			newgame.player1_name = "Game " + to_string(newgame.player1_id);
+			newgame.player1_name = "Game " + std::to_string(newgame.player1_id);
 		}
 		else if (newgame.player1_type == 3) {
 			newgame.player1_id = 0;
@@ -438,7 +434,7 @@ void TournamentUI::getBracket(sf::Packet &packet) {
 			packet >> newgame.player2_id >> newgame.player2_name;
 		else if (newgame.player2_type == 2) {
 			packet >> newgame.player2_id;
-			newgame.player2_name = "Game " + to_string(newgame.player2_id);
+			newgame.player2_name = "Game " + std::to_string(newgame.player2_id);
 		}
 		else if (newgame.player2_type == 3) {
 			newgame.player2_id = 0;
@@ -532,7 +528,7 @@ void TournamentUI::makeBracket() {
 		game.player2->disable(false);
 		bracket->add(game.player2);
 
-		std::string _gameName = "Game " + to_string(game.id);
+		std::string _gameName = "Game " + std::to_string(game.id);
 		game.gameName = resources.gfx->load("Label");
 		game.gameName->setText(_gameName);
 		game.gameName->setPosition(buttonx + 10, buttony - 22);
@@ -611,7 +607,7 @@ void TournamentUI::setButtonColors() {
 }
 
 void TournamentUI::setStatusText() {
-	std::string statustext = "Players: " + to_string(players) + " Status: ";
+	std::string statustext = "Players: " + std::to_string(players) + " Status: ";
 	if (status == 1)
 		statustext += "Pending";
 	else if (status == 2)
@@ -653,7 +649,7 @@ void TournamentUI::setStatusText() {
 				label = "Aborted - ";
 			else
 				label = "? - ";
-			label += to_string(players) + " players";
+			label += std::to_string(players) + " players";
 			item.label->setText(label);
 			return;
 		}
@@ -738,9 +734,9 @@ void TournamentUI::setGameResults(TGame& game) {
 	}
 
 	for (unsigned int i=0; i < game.result.p1_rounds.size(); i++) {
-		p1[i]->setText(to_string(game.result.p1_rounds[i]));
+		p1[i]->setText(std::to_string(game.result.p1_rounds[i]));
 		p1[i]->show();
-		p2[i]->setText(to_string(game.result.p2_rounds[i]));
+		p2[i]->setText(std::to_string(game.result.p2_rounds[i]));
 		p2[i]->show();
 		resultLabel[i]->show();
 	}

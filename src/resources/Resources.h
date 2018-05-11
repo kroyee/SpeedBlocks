@@ -6,7 +6,6 @@
 #include <SFML/Graphics.hpp>
 
 class AQ;
-class optionSet;
 class Textures;
 class soundBank;
 class network;
@@ -24,7 +23,6 @@ class Resources {
 public:
 	Resources(sf::RenderWindow& _window);
 	~Resources();
-	optionSet* options;
 	Textures* gfx;
 	soundBank* sounds;
 	network* net;

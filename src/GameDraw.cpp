@@ -1,13 +1,9 @@
 #include "GameDraw.h"
 #include "GuiElements.h"
 #include "Resources.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "Textures.h"
 #include "GameSignals.h"
-
-#include <iostream>
-using std::cout;
-using std::endl;
 
 static auto& MakeDrawCopy = Signal<void>::get("MakeDrawCopy");
 static auto& GameDrawTexture = Signal<void>::get("GameDraw");
@@ -32,20 +28,22 @@ void GameDraw::draw() {
                 field.makeDrawCopy();
         status = 1;
     }
+	static sf::Time& frameDelay = Options::get<sf::Time>("framedelay");
     if (status == 1 && current > nextDraw) {
         if (drawMe)
             MakeDrawCopy();
         while (nextDraw <= resources.delayClock.getElapsedTime())
-            nextDraw+=resources.options->frameDelay;
+            nextDraw+=frameDelay;
         status = 2;
     }
 
+	static sf::Time& inputDelay = Options::get<sf::Time>("inputdelay");
     if (resources.delayClock.getElapsedTime() < nextUpdate) {
         sf::sleep(nextUpdate - resources.delayClock.getElapsedTime() - sf::microseconds(50));
         while (resources.delayClock.getElapsedTime() < nextUpdate) {}
     }
     while (nextUpdate <= resources.delayClock.getElapsedTime())
-        nextUpdate += resources.options->inputDelay;
+        nextUpdate += inputDelay;
 
     guiElements.performanceOutput.update(resources.delayClock.getElapsedTime(), current);
 }

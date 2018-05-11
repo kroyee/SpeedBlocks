@@ -66,7 +66,11 @@ void Recording::save(std::string filename) {
 	}
 	std::ofstream file(filename, std::ios::binary);
 	if (!file.is_open()) {
-		std::cout << "Error saving recording" << std::endl;
+
+		#ifdef DEBUG
+			std::cout << "Error saving recording" << std::endl;
+		#endif
+
 		return;
 	}
 
@@ -178,7 +182,11 @@ void Recording::load(std::string filename) {
 	std::ifstream file(filename, std::ios::binary);
 
 	if (!file.is_open()) {
-		std::cout << "Error loading recording" << std::endl;
+
+		#ifdef DEBUG
+			std::cout << "Error loading recording" << std::endl;
+		#endif
+		
 		return;
 	}
 

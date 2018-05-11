@@ -1,11 +1,6 @@
 #include "BugReport.h"
 #include "network.h"
 #include "Resources.h"
-#include <stdio.h>
-#include <curl/curl.h>
-using std::cout;
-using std::endl;
-using std::to_string;
 
 BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
 	join=false;
@@ -44,7 +39,7 @@ void BugReport::sendReport() {
 		std::string os = "Linux";
 	#endif
 
-	std::string version = to_string(resources.clientVersion);
+	std::string version = std::to_string(resources.clientVersion);
 
 	std::string postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
 

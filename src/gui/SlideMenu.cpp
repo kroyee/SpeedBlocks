@@ -1,6 +1,6 @@
 #include "SlideMenu.h"
 #include "GameSignals.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "Resources.h"
 
 static auto& Show = Signal<void, int>::get("Show");
@@ -30,11 +30,11 @@ SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res),
 
 void SlideMenu::handleEvent(sf::Event& event) {
 	if (event.type == sf::Event::KeyPressed)
-		if (event.key.code == resources.options->menu) {
+		if (event.key.code == Options::get<sf::Keyboard::Key>("menu")) {
 			active = !active;
 			panel->focus();
 		}
-	if (event.type == sf::Event::MouseMoved && resources.options->mouseMenu) {
+	if (event.type == sf::Event::MouseMoved && Options::get<bool>("mouseMenu")) {
 		sf::Vector2f pos = resources.window.mapPixelToCoords(sf::Mouse::getPosition(resources.window));
 		if (pos.x > posX) {
 			active = true;

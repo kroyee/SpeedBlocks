@@ -42,9 +42,6 @@ public:
     sf::Sprite sprite;
     std::array<sf::Sprite, 16>& tile;
 
-    sf::Texture backgroundTexture;
-    sf::Sprite background;
-
     sf::RectangleShape backRect;
 
     GameFieldText text;
@@ -68,7 +65,7 @@ public:
 
     void drawTile(uint8_t color, uint8_t x, uint8_t y);
 
-    void drawField(bool drawLines);
+    void drawField();
     void drawEdges();
     void drawSquares();
     void drawPiece();
@@ -80,7 +77,7 @@ public:
 class obsField : public gameField {
 public:
     //obsField(const obsField& field);
-    
+
     obsField(Resources& _resources);
 
     uint16_t id;

@@ -1,16 +1,12 @@
 #include "PopupMenu.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "Resources.h"
-
-#include <iostream>
-using std::cout;
-using std::endl;
 
 void PopupMenuItem::createLabel(bool _submenu, const std::string & text) {
 	submenu = _submenu;
 	label = resources.gfx->load("Label");
 	label->connect("MouseEntered", [&](){
-		if (resources.options->theme == 2)
+		if (Options::get<uint8_t>("theme") == 2)
 			label->getRenderer()->setBackgroundColor(sf::Color(148,148,148,220));
 		else
 			label->getRenderer()->setBackgroundColor(sf::Color(108,108,108,220));

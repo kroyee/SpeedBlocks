@@ -1,5 +1,5 @@
 #include "Connecting.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameSignals.h"
 #include "Resources.h"
 
@@ -64,7 +64,7 @@ Connecting::Connecting(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 	apply->hide();
 	apply->disable();
 	apply->connect("pressed", [&](){
-		resources.options->saveOptions();
+		Options::save();
 		int result = ApplyPatch();
 		if (result == 2)
 			resources.window.close();

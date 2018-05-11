@@ -2,9 +2,6 @@
 #include "GameSignals.h"
 #include "Resources.h"
 #include <SFML/Network.hpp>
-using std::to_string;
-using std::cout;
-using std::endl;
 
 static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 static auto& SetAreYouSure = Signal<void, const std::string&>::get("SetAreYouSure");
@@ -247,8 +244,8 @@ void OnlineplayUI::makeRoomList(sf::Packet &packet) {
 
 	uint16_t inqueue, inplay;
 	packet >> inqueue >> inplay;
-	matchQueueing->setText("In queue: " + to_string(inqueue));
-	matchPlaying->setText("Playing: " + to_string(inplay));
+	matchQueueing->setText("In queue: " + std::to_string(inqueue));
+	matchPlaying->setText("Playing: " + std::to_string(inplay));
 }
 
 void OnlineplayUI::addRoom(sf::Packet &packet) {
@@ -256,9 +253,9 @@ void OnlineplayUI::addRoom(sf::Packet &packet) {
 	uint8_t maxPlayers, currentPlayers;
 	uint16_t id;
 	packet >> id >> name >> currentPlayers >> maxPlayers;
-	std::string roomlabel = to_string(currentPlayers);
+	std::string roomlabel = std::to_string(currentPlayers);
 	if (maxPlayers)
-		roomlabel += "/" + to_string(maxPlayers);
+		roomlabel += "/" + std::to_string(maxPlayers);
 	roomlabel+= " players";
 	roomList.addItem(name, roomlabel, id);
 }
@@ -294,7 +291,7 @@ void OnlineplayUI::addTournament(sf::Packet &packet) {
 		label = "Aborted - ";
 	else
 		label = "? - ";
-	label += to_string(players) + " players";
+	label += std::to_string(players) + " players";
 	tournamentList.addItem(name, label, id);
 }
 

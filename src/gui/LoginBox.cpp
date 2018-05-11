@@ -1,13 +1,9 @@
 #include "LoginBox.h"
 #include "machineid.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "network.h"
 #include "GameSignals.h"
 #include "Resources.h"
-#include <iostream>
-using std::cout;
-using std::endl;
-using std::to_string;
 
 static auto& Show = Signal<void, int>::get("Show");
 static auto& Hide = Signal<void, int>::get("Hide");
@@ -40,16 +36,16 @@ GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiE1 = resources.gfx->load("EditBox");
 	LiE1->setPosition(120, 80);
 	LiE1->setSize(180, 30);
-	LiE1->setText(resources.options->username);
+	LiE1->setText(Options::get<std::string>("username"));
 	panel->add(LiE1);
 
 	LiE2 = resources.gfx->load("EditBox");
 	LiE2->setPosition(120, 120);
 	LiE2->setSize(180, 30);
 	LiE2->setPasswordCharacter('*');
-	if (resources.options->rememberme) {
+	if (Options::get<bool>("rememberme")) {
 		std::string boguspass;
-		for (int i=0; i<resources.options->pass; i++)
+		for (int i=0; i<Options::get<short>("pass"); i++)
 			boguspass+="b";
 		LiE2->setText(boguspass);
 	}
@@ -62,10 +58,10 @@ GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	tgui::CheckBox::Ptr remember = resources.gfx->load("CheckBox");
 	remember->setText("Remember me");
 	remember->setPosition(120, 160);
-	if (resources.options->rememberme)
+	if (Options::get<bool>("rememberme"))
 		remember->check();
-	remember->connect("Checked", [&](){ resources.options->rememberme=true; });
-	remember->connect("Unchecked", [&](){ resources.options->rememberme=false; });
+	remember->connect("Checked", [&](){ Options::get<bool>("rememberme")=true; });
+	remember->connect("Unchecked", [&](){ Options::get<bool>("rememberme")=false; });
 	panel->add(remember);
 
 	tgui::Button::Ptr LiB1 = resources.gfx->load("Button");
@@ -136,22 +132,20 @@ void LoginBox::login(std::string name, std::string pass, uint8_t guest) {
 		std::string hash;
 		if (!guest) {
 			patcher.status=2;
-			if (!edited && resources.options->rememberme)
-				hash = resources.net->sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + resources.options->hash + "&machineid=" + machineid::machineHash(), 1);
+			if (!edited && Options::get<bool>("rememberme"))
+				hash = resources.net->sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&remember=" + Options::get<std::string>("hash") + "&machineid=" + machineid::machineHash(), 1);
 			else
 				hash = resources.net->sendCurlPost("https://speedblocks.se/secure_auth.php", "name=" + name + "&pass=" + pass + "&machineid=" + machineid::machineHash(), 1);
-			if (resources.options->rememberme) {
-				if (hash.size() < 40)
-					cout << hash << endl << resources.options->hash << endl;
-				else
-					resources.options->hash = hash.substr(20);
+			if (Options::get<bool>("rememberme")) {
+				if (hash.size() >= 40)
+					Options::get<std::string>("hash") = hash.substr(20);
 			}
 			else
-				resources.options->hash = "null";
+				Options::get<std::string>("hash") = "null";
 			patcher.status=3;
 			hash = hash.substr(0,20);
-			resources.options->username=name;
-			resources.options->pass = pass.size();
+			Options::get<std::string>("username")=name;
+			Options::get<short>("pass") = pass.size();
 			sendLogin(hash, guest);
 		}
 		else {
@@ -197,7 +191,7 @@ void LoginBox::checkStatus() {
 		Show(0);
 	}
 	else if (patcher.status == 5) {
-		connectingScreen.label->setText("New patch found, " + to_string(patcher.files_downloaded) + " of " + to_string(patcher.files_total) + " files downloaded");
+		connectingScreen.label->setText("New patch found, " + std::to_string(patcher.files_downloaded) + " of " + std::to_string(patcher.files_total) + " files downloaded");
 		connectingScreen.label->setPosition(130, 40);
 		connectingScreen.setDownloadProgress(patcher.filesize, patcher.downloaded);
 		connectingScreen.changelog->setText(patcher.changelog);

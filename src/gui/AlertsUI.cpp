@@ -1,5 +1,5 @@
 #include "AlertsUI.h"
-#include "optionSet.h"
+#include "Options.h"
 #include "GameSignals.h"
 #include "Resources.h"
 #include <SFML/Network.hpp>

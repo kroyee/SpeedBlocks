@@ -7,6 +7,10 @@
 #include <unordered_map>
 #include <string>
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 template<typename... T>
 class Signal;
 

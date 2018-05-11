@@ -10,7 +10,6 @@
 #include <functional>
 #include <memory>
 
-class optionSet;
 class soundBank;
 class gamePlay;
 class network;
@@ -27,7 +26,6 @@ public:
 	~UI();
 
 	Resources& resources;
-	optionSet& options;
 	gamePlay& game;
 	PingHandle ping;
 	CountdownHandle countdown;

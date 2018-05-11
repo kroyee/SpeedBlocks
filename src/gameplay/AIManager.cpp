@@ -1,8 +1,5 @@
 #include "AIManager.h"
 #include "GameSignals.h"
-#include <iostream>
-using std::cout;
-using std::endl;
 
 static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
 static auto& RemoveField = Signal<void, int>::get("RemoveField");

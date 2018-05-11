@@ -10,6 +10,8 @@ endif()
 
 project(SpeedBlocks)
 
+option(DEBUG "Compile with -g and use extra checks in the code for debugging" OFF)
+
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
 set(CMAKE_CXX_STANDARD 11)
@@ -18,8 +20,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wextra -pedantic")
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	if (DEBUG)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+	endif()
+endif()
+if (DEBUG)
+	add_definitions(-DDEBUG)
 endif()
 add_definitions(-DSFML_NO_DEPRECATED_WARNINGS)
 
