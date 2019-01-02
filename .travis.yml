@@ -12,5 +12,5 @@ jobs:
       directories:
       - $HOME/SFML_OSX
     script:
-      - chmod +x tests/travis_osx.sh
-      - tests/travis_osx.sh
+      - chmod +x travis_osx.sh
+      - ./travis_osx.sh
