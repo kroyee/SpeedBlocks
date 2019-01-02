@@ -13,4 +13,5 @@ jobs:
       - $HOME/SFML_OSX
     script:
       - chmod +x travis_osx.sh
+      - chmod -R +rw /Library/Frameworks
       - ./travis_osx.sh
