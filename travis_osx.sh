@@ -28,7 +28,7 @@ if [[ ! -d "$TGUI_ROOT/lib" ]]; then
   cd TGUI-${TGUI_VERSION}
   cmake -DCMAKE_INSTALL_PREFIX=$TGUI_ROOT -DCMAKE_INSTALL_FRAMEWORK_PREFIX=$TGUI_ROOT/lib -DTGUI_BUILD_FRAMEWORKS=TRUE -DSFML_INCLUDE_DIR=$SFML_ROOT/lib/SFML.framework -DTGUI_OPTIMIZE_SINGLE_BUILD=TRUE .
   make -j2
-  make install
+  sudo make install
   cd ..
 else
   echo "$(tput setaf 2)Using cached SFML directory$(tput sgr 0)"
