@@ -1,0 +1,16 @@
+language: cpp
+
+git:
+  depth: 10
+
+jobs:
+  include:
+  - stage: macOS Build
+    name: macOS
+    os: osx
+    cache:
+      directories:
+      - $HOME/SFML_OSX
+    script:
+      - chmod +x tests/travis_osx.sh
+      - tests/travis_osx.sh
