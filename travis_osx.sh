@@ -11,7 +11,7 @@ if [[ ! -d "$SFML_ROOT/lib" ]]; then
   cd SFML-${SFML_VERSION}
   cmake -DCMAKE_INSTALL_PREFIX=$SFML_ROOT -DCMAKE_INSTALL_FRAMEWORK_PREFIX=$SFML_ROOT/lib -DSFML_BUILD_FRAMEWORKS=TRUE .
   make -j2
-  make install
+  sudo make install
   cd ..
 else
   echo "$(tput setaf 2)Using cached SFML directory$(tput sgr 0)"
