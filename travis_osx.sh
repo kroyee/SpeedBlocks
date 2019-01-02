@@ -9,7 +9,7 @@ if [[ ! -d "$SFML_ROOT/lib" ]]; then
   wget -O SFML.tar.gz https://github.com/SFML/SFML/archive/${SFML_VERSION}.tar.gz
   tar -xzf SFML.tar.gz
   cd SFML-${SFML_VERSION}
-  cmake -DCMAKE_INSTALL_PREFIX=$SFML_ROOT -DCMAKE_INSTALL_FRAMEWORK_PREFIX=$SFML_ROOT/lib -DSFML_BUILD_FRAMEWORKS=TRUE .
+  cmake -DCMAKE_INSTALL_PREFIX=$SFML_ROOT -DCMAKE_INSTALL_FRAMEWORK_PREFIX=$SFML_ROOT -DSFML_BUILD_FRAMEWORKS=TRUE .
   make -j2
   sudo make install
   cd ..
