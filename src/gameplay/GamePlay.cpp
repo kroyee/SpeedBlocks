@@ -1,5 +1,5 @@
-#include "gamePlay.h"
-#include "gameField.h"
+#include "GamePlay.h"
+#include "GameField.h"
 #include "Options.h"
 #include "pieces.h"
 #include "randomizer.h"
@@ -25,8 +25,9 @@ static auto& GetName = Signal<const std::string&>::get("GetName");
 static auto& UpdateReplayUI = Signal<void, sf::Time>::get("UpdateReplayUI");
 static auto& GetRecTime = Signal<sf::Time>::get("GetRecTime");
 
-gamePlay::gamePlay(Resources& _resources) :
+GamePlay::GamePlay(Resources& _resources) :
 field(_resources),
+basepiece(Options::get_basepieces()),
 resources(_resources),
 garbage(data.linesBlocked),
 combo(data.maxCombo),
@@ -51,31 +52,28 @@ showPressEnterText(true)
 	pressEnterText.setPosition(10,500);
 	pressEnterText.setString("press P to start practice");
 
-	updateBasePieces();
-
-    connectSignal("Ready", &gamePlay::ready, this);
-    connectSignal("Away", &gamePlay::away, this);
-    connectSignal("SetAway", &gamePlay::setAway, this);
-    connectSignal("SetGameBackColor", &gamePlay::setBackgroundColor, this);
-    connectSignal("SetDrawMe", &gamePlay::setDrawMe, this);
-    connectSignal("UpdateGamePieces", &gamePlay::updateBasePieces, this);
-    connectSignal("StartCountDown", &gamePlay::startCountdown, this);
+    connectSignal("Ready", &GamePlay::ready, this);
+    connectSignal("Away", &GamePlay::away, this);
+    connectSignal("SetAway", &GamePlay::setAway, this);
+    connectSignal("SetGameBackColor", &GamePlay::setBackgroundColor, this);
+    connectSignal("SetDrawMe", &GamePlay::setDrawMe, this);
+    connectSignal("StartCountDown", &GamePlay::startCountdown, this);
     connectSignal("GetName", [&]() -> const std::string& { return field.text.name; });
-    connectSignal("SetName", &gamePlay::setName, this);
-    connectSignal("RecUpdateScreen", &gamePlay::updateReplayScreen, this);
+    connectSignal("SetName", &GamePlay::setName, this);
+    connectSignal("RecUpdateScreen", &GamePlay::updateReplayScreen, this);
     connectSignal("GetGameData", [&]() -> GameplayData& { return data; });
     connectSignal("GetGameTime", [&](){ return gameclock.getElapsedTime(); });
-    connectSignal("GameOver", &gamePlay::gameOver, this);
-    connectSignal("PushGarbage", &gamePlay::pushGarbage, this);
+    connectSignal("GameOver", &GamePlay::gameOver, this);
+    connectSignal("PushGarbage", &GamePlay::pushGarbage, this);
     connectSignal("GameClear", [&](){ field.clear(); });
-    connectSignal("GameDraw", &gamePlay::draw, this);
-    connectSignal("GameSetup", &gamePlay::startSetup, this);
-    connectSignal("AddGarbage", &gamePlay::addGarbage, this);
+    connectSignal("GameDraw", &GamePlay::draw, this);
+    connectSignal("GameSetup", &GamePlay::startSetup, this);
+    connectSignal("AddGarbage", &GamePlay::addGarbage, this);
     connectSignal("SetGameState", [&](GameStates newState){ GPBaseState::set(state, newState); });
-    connectSignal("MakeDrawCopy", &gamePlay::makeDrawCopy, this);
+    connectSignal("MakeDrawCopy", &GamePlay::makeDrawCopy, this);
     connectSignal("GameDrawSprite", [&](){ resources.window.draw(field.sprite); });
 
-    Net::takeSignal(9, &gamePlay::addGarbage, this);
+    Net::takeSignal(9, &GamePlay::addGarbage, this);
     Net::takeSignal(13, [&](uint16_t id1, uint16_t id2){
 		if (id1 == resources.myId) {
 			field.text.setPosition(id2);
@@ -84,9 +82,9 @@ showPressEnterText(true)
 	});
 }
 
-gamePlay::~gamePlay() {}
+GamePlay::~GamePlay() {}
 
-void gamePlay::startGame() {
+void GamePlay::startGame() {
 	recorder.start(field.square);
 	makeNewPiece();
 	drawMe=true;
@@ -103,7 +101,7 @@ void gamePlay::startGame() {
 		addRecEvent(5, 0);
 }
 
-void gamePlay::mRKey() {
+void GamePlay::mRKey() {
 	static auto& repeatDelay = Options::get<sf::Time>("repeatdelay");
 	if (!rKey) {
 		if (field.mRight()) {
@@ -118,7 +116,7 @@ void gamePlay::mRKey() {
 	autoaway=false;
 }
 
-void gamePlay::mLKey() {
+void GamePlay::mLKey() {
 	static auto& repeatDelay = Options::get<sf::Time>("repeatdelay");
 	if (!lKey) {
 		if (field.mLeft()) {
@@ -133,7 +131,7 @@ void gamePlay::mLKey() {
 	autoaway=false;
 }
 
-void gamePlay::mDKey() {
+void GamePlay::mDKey() {
 	static auto& repeatDelayDown = Options::get<sf::Time>("repeatdelaydown");
 	if (!dKey) {
 		if (field.mDown()) {
@@ -154,7 +152,7 @@ void gamePlay::mDKey() {
 	autoaway=false;
 }
 
-void gamePlay::hd() {
+void GamePlay::hd() {
 	autoaway=false;
 	drawMe=true;
 	field.hd();
@@ -164,7 +162,7 @@ void gamePlay::hd() {
 	makeNewPiece();
 }
 
-void gamePlay::rcw() {
+void GamePlay::rcw() {
 	autoaway=false;
 	drawMe=true;
 	if (field.rcw())
@@ -172,7 +170,7 @@ void gamePlay::rcw() {
 			addRecEvent(1, 0);
 }
 
-void gamePlay::rccw() {
+void GamePlay::rccw() {
 	autoaway=false;
 	drawMe=true;
 	if (field.rccw())
@@ -180,7 +178,7 @@ void gamePlay::rccw() {
 			addRecEvent(1, 0);
 }
 
-void gamePlay::r180() {
+void GamePlay::r180() {
 	autoaway=false;
 	drawMe=true;
 	if (field.r180())
@@ -188,7 +186,7 @@ void gamePlay::r180() {
 			addRecEvent(1, 0);
 }
 
-void gamePlay::addPiece(const sf::Time& _time) {
+void GamePlay::addPiece(const sf::Time& _time) {
 	if (recorder.rec)
 		addRecEvent(2, 0);
 	field.addPiece();
@@ -196,7 +194,7 @@ void gamePlay::addPiece(const sf::Time& _time) {
 	bpmCounter.addPiece(_time);
 }
 
-void gamePlay::makeNewPiece() {
+void GamePlay::makeNewPiece() {
 	copyPiece(nextpiece);
 
 	nextpiece = rander.getPiece();
@@ -212,7 +210,7 @@ void gamePlay::makeNewPiece() {
 	}
 }
 
-void gamePlay::copyPiece(uint8_t np) {
+void GamePlay::copyPiece(uint8_t np) {
 	for (int x=0; x<4; x++)
 		for (int y=0; y<4; y++)
 			field.piece.grid[y][x] = basepiece[np].grid[y][x];
@@ -224,7 +222,7 @@ void gamePlay::copyPiece(uint8_t np) {
 	field.piece.posY = 0;
 }
 
-void gamePlay::draw() {
+void GamePlay::draw() {
 	if (field.status == 0)
 		return;
 	field.drawField();
@@ -235,7 +233,7 @@ void gamePlay::draw() {
     drawMe=false;
 }
 
-void gamePlay::makeDrawCopy() {
+void GamePlay::makeDrawCopy() {
 	nextpieceCopy = nextpiece;
     field.squareCopy = field.square;
     field.pieceCopy = field.piece;
@@ -243,7 +241,7 @@ void gamePlay::makeDrawCopy() {
     field.status = 1;
 }
 
-void gamePlay::delayCheck() {
+void GamePlay::delayCheck() {
 	if (pieceDropDelay.check(gameclock.getElapsedTime())) {
 		if (field.mDown()) {
 			drawMe=true;
@@ -317,7 +315,7 @@ void gamePlay::delayCheck() {
 	uint16_t comboLinesSent = combo.check(gameclock.getElapsedTime());
 	if (comboLinesSent) {
 		comboLinesSent = garbage.block(comboLinesSent, gameclock.getElapsedTime(), false);
-		field.text.setPending(garbage.count());
+		field.text.set<FieldText::Pending>(garbage.count());
 		data.linesSent += comboLinesSent;
 		if (comboLinesSent) {
 			if (resources.gamestate == GameStates::Game)
@@ -329,7 +327,7 @@ void gamePlay::delayCheck() {
 
 	uint16_t newbpm = bpmCounter.calcBpm(gameclock.getElapsedTime());
 	if (newbpm != data.bpm) {
-		field.text.setBpm(newbpm);
+		field.text.set<FieldText::BPM>(newbpm);
 		data.bpm = newbpm;
 		drawMe=true;
 	}
@@ -357,8 +355,7 @@ void gamePlay::delayCheck() {
 	if (IsVisible(8))
 		UpdateChallengesUI(data);
 
-	field.offset = garbage.getOffset(gameclock.getElapsedTime());
-	if (field.offset)
+	if (field.setOffset(garbage.getOffset(gameclock.getElapsedTime())))
 		drawMe = true;
 
 	dataSender.sendstate();
@@ -367,37 +364,7 @@ void gamePlay::delayCheck() {
 		gameOver(1);
 }
 
-void gamePlay::setPieceOrientation() {
-	for (int x=0; x<7; x++) {
-		short rotation=Options::get_piece_rotation(x);
-		while (rotation > 0) {
-			basepiece[x].rcw();
-			rotation--;
-		}
-	}
-}
-
-void gamePlay::updateBasePieces() {
-	auto& option_basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
-	for (int p=0; p<7; p++) {
-		basepiece[p].posX=0;
-		basepiece[p].posY=0;
-		basepiece[p].lpiece=false;
-		basepiece[p].tile=option_basepiece[p].tile;
-		basepiece[p].rotation=option_basepiece[p].rotation;
-		basepiece[p].current_rotation=option_basepiece[p].current_rotation;
-		basepiece[p].piece=p;
-		for (int y=0; y<4; y++)
-			for (int x=0; x<4; x++)
-				basepiece[p].grid[y][x] = option_basepiece[p].grid[y][x];
-	}
-	basepiece[4].lpiece=true;
-	basepiece[6].lpiece=true;
-
-	setPieceOrientation();
-}
-
-void gamePlay::sendLines(sf::Vector2i lines) {
+void GamePlay::sendLines(sf::Vector2i lines) {
 	data.garbageCleared+=lines.y;
 	if (lines.y)
 		if (resources.gamestate == GameStates::Game)
@@ -415,20 +382,20 @@ void gamePlay::sendLines(sf::Vector2i lines) {
 			SendSignal(2, amount);
 		aiManager.distributeLines(0, amount);
 	}
-	field.text.setPending(garbage.count());
+	field.text.set<FieldText::Pending>(garbage.count());
 	combo.increase(gameclock.getElapsedTime(), lines.x);
 
 	PlaySound(1);
 	playComboSound(combo.comboCount);
 
 	setComboTimer();
-	field.text.setCombo(combo.comboCount);
+	field.text.set<FieldText::Combo>(combo.comboCount);
 
 	if (recorder.rec)
 		addRecEvent(5, 0);
 }
 
-void gamePlay::playComboSound(uint8_t combo) {
+void GamePlay::playComboSound(uint8_t combo) {
 	if (combo==5)
 		PlaySound(6);
 	else if (combo==8)
@@ -447,12 +414,12 @@ void gamePlay::playComboSound(uint8_t combo) {
 		PlaySound(13);
 }
 
-void gamePlay::addGarbage(int amount) {
+void GamePlay::addGarbage(int amount) {
 	garbage.add(amount, gameclock.getElapsedTime());
 
 	data.linesRecieved+=amount;
 
-	field.text.setPending(garbage.count());
+	field.text.set<FieldText::Pending>(garbage.count());
 
 	if (recorder.rec)
 		addRecEvent(5, 0);
@@ -460,9 +427,9 @@ void gamePlay::addGarbage(int amount) {
 	PlaySound(2);
 }
 
-void gamePlay::pushGarbage() {
+void GamePlay::pushGarbage() {
 	garbage.setOffset(gameclock.getElapsedTime());
-	field.text.setPending(garbage.count());
+	field.text.set<FieldText::Pending>(garbage.count());
 
 	uint8_t hole = (Cheese30L() ? rander.getHole(true) : rander.getHole());
 	addGarbageLine(hole);
@@ -486,7 +453,7 @@ void gamePlay::pushGarbage() {
 	}
 }
 
-void gamePlay::addGarbageLine() {
+void GamePlay::addGarbageLine() {
 	uint8_t hole = rander.getHole();
 	addGarbageLine(hole);
 
@@ -494,7 +461,7 @@ void gamePlay::addGarbageLine() {
 		addRecEvent(4, hole);
 }
 
-void gamePlay::addGarbageLine(uint8_t hole) {
+void GamePlay::addGarbageLine(uint8_t hole) {
 	for (int y=0; y<21; y++)
 		for (int x=0; x<10; x++)
 			field.square[y][x]=field.square[y+1][x];
@@ -503,12 +470,12 @@ void gamePlay::addGarbageLine(uint8_t hole) {
 	field.square[21][hole]=0;
 }
 
-bool gamePlay::setComboTimer() {
+bool GamePlay::setComboTimer() {
 	uint8_t count = combo.timerCount(gameclock.getElapsedTime());
 	return field.text.setComboTimer(count);
 }
 
-void gamePlay::startCountdown() {
+void GamePlay::startCountdown() {
 	countDownTime = sf::seconds(0);
 	countDowncount = 3;
 
@@ -533,11 +500,11 @@ void gamePlay::startCountdown() {
 		addRecEvent(7, 3);
 }
 
-bool gamePlay::countDown() {
+bool GamePlay::countDown() {
 	if (gameclock.getElapsedTime()>countDownTime) {
 		countDownTime = gameclock.getElapsedTime() + sf::seconds(1);
 		countDowncount--;
-		field.text.setCountdown(countDowncount);
+		field.text.set<FieldText::Countdown>(countDowncount);
 		aiManager.countDown(countDowncount);
 		if (recorder.rec)
 			addRecEvent(7, countDowncount);
@@ -553,10 +520,10 @@ bool gamePlay::countDown() {
 	return false;
 }
 
-bool gamePlay::countDown(short c) {
+bool GamePlay::countDown(short c) {
 	if (c==255)
 		return false;
-	field.text.setCountdown(c);
+	field.text.set<FieldText::Countdown>(c);
 	(c ? PlaySound(14) : PlaySound(15));
 	drawMe=true;
 	dataSender.state();
@@ -568,7 +535,7 @@ bool gamePlay::countDown(short c) {
 		return true;
 }
 
-void gamePlay::startSetup(int type) {
+void GamePlay::startSetup(int type) {
 	if (type == 1)
 		for (int i=0; i<9; i++)
 			addGarbageLine(rander.getHole(true));
@@ -578,7 +545,7 @@ void gamePlay::startSetup(int type) {
 	drawMe=true;
 }
 
-void gamePlay::gameOver(int winner) {
+void GamePlay::gameOver(int winner) {
 	if (resources.gamestate == GameStates::GameOver) {
 		if (winner)
 			dataSender.gameover(winner);
@@ -586,18 +553,18 @@ void gamePlay::gameOver(int winner) {
 	}
 	data.roundDuration = gameclock.getElapsedTime().asMilliseconds();
 	data.bpm = (int)(data.pieceCount / ((float)gameclock.getElapsedTime().asSeconds()) * 60.0);
-	field.text.setBpm(data.bpm);
-	field.text.setCombo(data.maxCombo);
+	field.text.set<FieldText::BPM>(data.bpm);
+	field.text.set<FieldText::Combo>(data.maxCombo);
 
 	addRecEvent(5, 0);
 	recorder.stop();
 
     if (winner) {
-    	field.text.setGameover(2);
+    	field.text.set<FieldText::GameOver>("Winner");
     	autoaway = false;
     }
     else
-		field.text.setGameover(1);
+		field.text.set<FieldText::GameOver>("Game Over");
 
 	dataSender.gameover(winner);
 	SetGameState(GameStates::GameOver);
@@ -611,17 +578,17 @@ void gamePlay::gameOver(int winner) {
 	drawMe=true;
 }
 
-void gamePlay::away() {
+void GamePlay::away() {
 	resources.away = !resources.away;
 	setAway(resources.away);
 }
 
-void gamePlay::setAway(bool away) {
+void GamePlay::setAway(bool away) {
 	if (away) {
 		resources.away=true;
 		SendSignal(5);
 		gameOver(0);
-		field.text.away=true;
+		field.text.show<FieldText::Away>();
 		autoaway=false;
 		drawMe=true;
 	}
@@ -629,35 +596,30 @@ void gamePlay::setAway(bool away) {
 		resources.away=false;
 		autoaway=false;
 		SendSignal(6);
-		field.text.away=false;
+		field.text.hide<FieldText::Away>();
 		drawMe=true;
 	}
 }
 
-void gamePlay::ready() {
+void GamePlay::ready() {
 	if (resources.gamestate == GameStates::GameOver) {
-		if (field.text.ready) {
+		if (field.text.get<FieldText::Ready>()) {
 			SendSignal(8);
-			field.text.ready=false;
+			field.text.hide<FieldText::Ready>();
 		}
 		else {
 			SendSignal(7);
-			field.text.ready=true;
+			field.text.show<FieldText::Ready>();
 		}
 		drawMe=true;
 	}
 }
 
-void gamePlay::drawNextPiece() {
-	for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (basepiece[nextpiece].grid[y][x] != 0) {
-                	field.tile[basepiece[nextpiece].tile-1].setPosition(sf::Vector2f(-15*basepiece[nextpiece].lpiece+330+x*30, 45+y*30));
-                	field.texture.draw(field.tile[basepiece[nextpiece].tile-1]);
-            	}
+void GamePlay::drawNextPiece() {
+	field.drawPiecePreview({nextpiece, basepiece[nextpiece].rotation, basepiece[nextpiece].tile}, {330, 45});
 }
 
-void gamePlay::addRecEvent(uint8_t type, uint8_t value) {
+void GamePlay::addRecEvent(uint8_t type, uint8_t value) {
 	RecordingEvent event;
 	event.type = type;
 	switch (type) {
@@ -666,9 +628,9 @@ void gamePlay::addRecEvent(uint8_t type, uint8_t value) {
 			event.piece = field.piece.piece;
 			event.rotation = field.piece.current_rotation;
 			event.color = field.piece.tile;
-			event.pending = field.text.pending;
-			event.combo = field.text.combo;
-			event.bpm = field.text.bpm;
+			event.pending = field.text.get<FieldText::Pending>();
+			event.combo = field.text.get<FieldText::Combo>();
+			event.bpm = field.text.get<FieldText::BPM>();
 			event.comboTimer = field.text.comboTimer.getPointCount()-2;
 			event.x = field.piece.posX;
 			event.y = field.piece.posY;
@@ -679,9 +641,9 @@ void gamePlay::addRecEvent(uint8_t type, uint8_t value) {
 		case 4:
 			event.x = value;
 		case 5:
-			event.pending = field.text.pending;
-			event.combo = field.text.combo;
-			event.bpm = field.text.bpm;
+			event.pending = field.text.get<FieldText::Pending>();
+			event.combo = field.text.get<FieldText::Combo>();
+			event.bpm = field.text.get<FieldText::BPM>();
 			event.comboTimer = field.text.comboTimer.getPointCount()-2;
 			recorder.addEvent(event);
 		break;
@@ -689,9 +651,9 @@ void gamePlay::addRecEvent(uint8_t type, uint8_t value) {
 			event.piece = basepiece[nextpiece].piece;
 			event.rotation = basepiece[nextpiece].current_rotation;
 			event.color = basepiece[nextpiece].tile;
-			event.pending = field.text.pending;
-			event.combo = field.text.combo;
-			event.bpm = field.text.bpm;
+			event.pending = field.text.get<FieldText::Pending>();
+			event.combo = field.text.get<FieldText::Combo>();
+			event.bpm = field.text.get<FieldText::BPM>();
 			event.comboTimer = field.text.comboTimer.getPointCount()-2;
 			recorder.addEvent(event);
 		break;
@@ -705,7 +667,7 @@ void gamePlay::addRecEvent(uint8_t type, uint8_t value) {
 	}
 }
 
-void gamePlay::startReplay() {
+void GamePlay::startReplay() {
 	recorder.timer.restart();
 	recorder.currentEvent = 0;
 	recorder.prevCombo = 0;
@@ -713,7 +675,7 @@ void gamePlay::startReplay() {
 	recorder.startAt = sf::seconds(0);
 }
 
-bool gamePlay::playReplay() {
+bool GamePlay::playReplay() {
 	if (recorder.halt)
 		return true;
 	sf::Time currentTime = recorder.timer.getElapsedTime() + recorder.startAt;
@@ -739,7 +701,7 @@ bool gamePlay::playReplay() {
 			case 101:
 				recorder.halt=true;
 				drawMe=true;
-				field.text.setBpm((int)(data.pieceCount / ((float)(event.time.asSeconds()))*60.0));
+				field.text.set<FieldText::BPM>((int)(data.pieceCount / ((float)(event.time.asSeconds()))*60.0));
 				if (IsVisible(8))
 					UpdateChallengesUI(data);
 				return false;
@@ -783,13 +745,13 @@ bool gamePlay::playReplay() {
 				drawMe=true;
 			break;
 			case 7:
-				field.text.setCountdown(event.pending);
+				field.text.set<FieldText::Countdown>(event.pending);
 				(event.pending ? PlaySound(14) : PlaySound(15));
 				drawMe=true;
 			break;
 		}
 	}
-	field.text.setBpm(bpmCounter.calcBpm(currentTime));
+	field.text.set<FieldText::BPM>(bpmCounter.calcBpm(currentTime));
 	int16_t timer = recorder.comboTimer-(((currentTime-recorder.comboSet).asMilliseconds()/6.0)/10.0);
 	if (timer<0)
 		timer=0;
@@ -801,15 +763,14 @@ bool gamePlay::playReplay() {
 	UpdateReplayUI(GetRecTime());
 	if (IsVisible(8))
 		UpdateChallengesUI(data);
-	field.offset = garbage.getOffset(currentTime);
-	if (field.offset)
+	if (field.setOffset(garbage.getOffset(currentTime)))
 		drawMe = true;
 	return false;
 }
 
-void gamePlay::updateReplayText(RecordingEvent& event) {
-	field.text.setCombo(event.combo);
-	field.text.setPending(event.pending);
+void GamePlay::updateReplayText(RecordingEvent& event) {
+	field.text.set<FieldText::Combo>(event.combo);
+	field.text.set<FieldText::Pending>(event.pending);
 
 	field.text.setComboTimer(event.comboTimer);
 
@@ -821,19 +782,19 @@ void gamePlay::updateReplayText(RecordingEvent& event) {
 	recorder.prevCombo = event.combo;
 }
 
-void gamePlay::setBackgroundColor(int val) {
+void GamePlay::setBackgroundColor(int val) {
 	field.setBackColor(val);
 }
 
-void gamePlay::setDrawMe() {
+void GamePlay::setDrawMe() {
 	drawMe=true;
 }
 
-void gamePlay::setName(const std::string& name) {
+void GamePlay::setName(const std::string& name) {
 	field.text.setName(name);
 }
 
-void gamePlay::updateReplayScreen() {
+void GamePlay::updateReplayScreen() {
 	playReplay();
 	drawMe=true;
 }

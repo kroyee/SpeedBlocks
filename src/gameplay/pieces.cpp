@@ -51,3 +51,26 @@ void basePieces::rccw() {
 	else
 		current_rotation--;
 }
+
+void basePieces::setRotation(uint8_t new_rotation) {
+	while (new_rotation >= 4)
+		new_rotation -= 4;
+
+	rotation = new_rotation;
+	while (rotation != current_rotation)
+		rcw();
+}
+
+void basePieces::setColor(uint8_t new_color) {
+	while (new_color > 7)
+		new_color -= 7;
+
+	if (new_color < 1)
+		return;
+
+	tile = new_color;
+	for (auto& row : grid)
+		for (auto& block : row)
+			if (block)
+				block = tile;
+}

@@ -3,11 +3,11 @@
 #include "Textures.h"
 #include "Options.h"
 #include "GameSignals.h"
-#include "gameField.h"
+#include "GameField.h"
 #include "TaskQueue.h"
 #include <SFML/Network.hpp>
 
-static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
+static auto& AddField = Signal<ObsField&, int, const std::string&>::get("AddField");
 static auto& QuickMSG = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& SetName = Signal<void, const std::string&>::get("SetName");
@@ -80,6 +80,7 @@ udpConfirmed			(false)
 
 	player_popup.setBoundery({0,0,380, 600});
 	player_popup.add("Set Handicap")
+		.add("0%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 0); }); })
 		.add("10%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 10); }); })
 		.add("20%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 20); }); })
 		.add("30%", [](){ TaskQueue::add(Task::NotDuringRound, [](){ SendSignal(23, 30); }); })
@@ -243,7 +244,7 @@ void GuiElements::toggleFullscreen() {
 		if (Options::get<short>("currentmode") == -1)
 			Options::get<short>("currentmode") = 0;
 		resources.window.close();
-		resources.window.create(Options::get<std::vector<sf::VideoMode>>("modes")[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
+		resources.window.create(Options::get_videomodes()[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
 		resources.window.setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
 		Options::get<bool>("fullscreen")=true;
 	}

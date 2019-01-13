@@ -10,6 +10,13 @@
 
 class Resources;
 
+struct PiecePreviewInfo {
+	PiecePreviewInfo(uint8_t p, uint8_t r=0, uint8_t c=1, float s=1.f) :
+		piece(p), rotation(r), color(c), scale(s) {}
+	uint8_t piece, rotation, color;
+	float scale;
+};
+
 class BasicField {
 public:
     BasicField(Resources& _resources);
@@ -36,7 +43,7 @@ public:
     sf::Vector2i clearlines();
 };
 
-class gameField : public BasicField {
+class GameField : public BasicField {
 public:
     sf::RenderTexture texture;
     sf::Sprite sprite;
@@ -46,7 +53,8 @@ public:
 
     GameFieldText text;
 
-    uint8_t offset;
+    float offset;
+	uint8_t base_offset;
 
     bool drawMe;
 
@@ -56,8 +64,7 @@ public:
     std::thread drawThread;
     std::atomic<uint8_t> status;
 
-    gameField(Resources& _resources);
-    //gameField(const gameField& field);
+    GameField(Resources& _resources);
 
     void clear();
 
@@ -69,16 +76,16 @@ public:
     void drawEdges();
     void drawSquares();
     void drawPiece();
+	void drawPiecePreview(const PiecePreviewInfo& data, sf::Vector2f pos);
     void drawGhostPiece();
 
     void setBackColor(uint8_t val);
+	bool setOffset(uint8_t val);
 };
 
-class obsField : public gameField {
+class ObsField : public GameField {
 public:
-    //obsField(const obsField& field);
-
-    obsField(Resources& _resources);
+    ObsField(Resources& _resources);
 
     uint16_t id;
     uint8_t nextpiece, nprot, npcol;

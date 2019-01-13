@@ -11,22 +11,22 @@
 #include <memory>
 
 class soundBank;
-class gamePlay;
+class GamePlay;
 class network;
 class PacketCompress;
 class textures;
 class Resources;
 struct GuiElements;
-class obsField;
+class ObsField;
 class UIBaseState;
 
 class UI {
 public:
-	UI(sf::RenderWindow& window_, gamePlay& game_);
+	UI(sf::RenderWindow& window_, GamePlay& game_);
 	~UI();
 
 	Resources& resources;
-	gamePlay& game;
+	GamePlay& game;
 	PingHandle ping;
 	CountdownHandle countdown;
 

@@ -3,9 +3,10 @@
 
 #include <SFML/Graphics.hpp>
 #include <deque>
+#include <array>
 #include "pieces.h"
 #include "randomizer.h"
-#include "gameField.h"
+#include "GameField.h"
 #include "Recording.h"
 #include "BPMCount.h"
 #include "Garbage.h"
@@ -27,13 +28,13 @@ public:
 	sf::Time delay;
 };
 
-class gamePlay {
+class GamePlay {
 public:
-	gamePlay(Resources& _resources);
-	~gamePlay();
+	GamePlay(Resources& _resources);
+	~GamePlay();
 
-	gameField field;
-	basePieces basepiece[7];
+	GameField field;
+	std::array<basePieces, 7>& basepiece;
 
 	Resources& resources;
 
@@ -101,9 +102,6 @@ public:
 	void makeDrawCopy();
 
 	void delayCheck();
-
-	void setPieceOrientation();
-	void updateBasePieces();
 
 	void sendLines(sf::Vector2i lines);
 	void playComboSound(uint8_t combo);

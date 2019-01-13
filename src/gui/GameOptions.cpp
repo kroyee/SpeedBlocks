@@ -22,7 +22,6 @@ static auto& Hide = Signal<void, int>::get("Hide");
 static auto& SetMusicVolume = Signal<void, int>::get("SetMusicVolume");
 static auto& SetEffectVolume = Signal<void, int>::get("SetEffectVolume");
 static auto& SetAlertsVolume = Signal<void, int>::get("SetAlertsVolume");
-static auto& UpdateGamePieces = Signal<void>::get("UpdateGamePieces");
 
 GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : GuiBase(_pos, _res, parentPanel) {
 
@@ -278,7 +277,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VMSlider = resources.gfx->load("Slider");
 	VMSlider->setPosition(50, 50);
 	VMSlider->setSize(460, 30);
-	VMSlider->setMaximum(Options::get<std::vector<sf::VideoMode>>("modes").size()-1);
+	VMSlider->setMaximum(Options::get_videomodes().size()-1);
 	if (Options::get<short>("currentmode") == -1)
 		VMSlider->setValue(0);
 	else
@@ -290,7 +289,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr p
 	VideoMode = resources.gfx->load("Label");
 	VideoMode->setPosition(240, 90);
 	std::string cvmname;
-	cvmname = to_string(Options::get<std::vector<sf::VideoMode>>("modes")[VMSlider->getValue()].width) + "x" + to_string(Options::get<std::vector<sf::VideoMode>>("modes")[VMSlider->getValue()].height);
+	cvmname = to_string(Options::get_videomodes()[VMSlider->getValue()].width) + "x" + to_string(Options::get_videomodes()[VMSlider->getValue()].height);
 	VideoMode->setText(cvmname);
 	VidOpt->add(VideoMode);
 
@@ -532,7 +531,7 @@ void GameOptions::changeName(const std::string& name) {
 
 void GameOptions::vidSlide(short i) {
 	std::string name;
-	name = to_string(Options::get<std::vector<sf::VideoMode>>("modes")[i].width) + "x" + to_string(Options::get<std::vector<sf::VideoMode>>("modes")[i].height);
+	name = to_string(Options::get_videomodes()[i].width) + "x" + to_string(Options::get_videomodes()[i].height);
 	VideoMode->setText(name);
 }
 
@@ -553,7 +552,7 @@ void GameOptions::applyVideo() {
 			Options::get<bool>("fullscreen")=true;
 			Options::get<short>("currentmode") = VMSlider->getValue();
 			resources.window.close();
-			resources.window.create(Options::get<std::vector<sf::VideoMode>>("modes")[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
+			resources.window.create(Options::get_videomodes()[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
 			resources.window.setView(sf::View(sf::FloatRect(0, 0, 960, 600)));
 		}
 	}
@@ -690,22 +689,19 @@ bool GameOptions::putKey(sf::Event& event) {
 }
 
 void GameOptions::rotPiece(short i) {
-	uint8_t& piecerotation = Options::get<uint8_t>("piece_" + std::to_string(i) + "_rotation");
-	piecerotation++;
-	if (piecerotation>3)
-		piecerotation=0;
-	piecePreview[i]->m_sprite.setRotation(piecerotation*90);
-	UpdateGamePieces();
+	auto& basepiece = Options::get_basepieces();
+
+	basepiece[i].setRotation(++basepiece[i].rotation);
+
+	piecePreview[i]->m_sprite.setRotation(basepiece[i].rotation*90);
 }
 
 void GameOptions::colPiece(short i) {
-	static auto& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
-	if (basepiece[i].tile+1>7)
-		Options::setPieceColor(i, 1);
-	else
-		Options::setPieceColor(i, basepiece[i].tile+1);
+	auto& basepiece = Options::get_basepieces();
+
+	basepiece[i].setColor(++basepiece[i].tile);
+
 	piecePreview[i]->m_sprite.setColor(pColor(basepiece[i].tile));
-	UpdateGamePieces();
 }
 
 void GameOptions::initSprites() {
@@ -743,7 +739,7 @@ void GameOptions::initSprites() {
 		piecePreview[p]->m_sprite.setTexture(piecePreview[p]->m_texture);
 		piecePreview[p]->m_sprite.setScale(0.5, 0.5);
 		piecePreview[p]->m_sprite.setPosition(80*p+40, 330);
-		piecePreview[p]->m_sprite.setColor(pColor(Options::get<std::array<basePieces, 7>>("BasePieces")[p].tile));
+		piecePreview[p]->m_sprite.setColor(pColor(Options::get_basepieces()[p].tile));
 		piecePreview[p]->m_sprite.setOrigin(60,60);
 		piecePreview[p]->m_sprite.setRotation(Options::get<uint8_t>("piece_" + std::to_string(p) + "_rotation")*90);
 		GenOpt->add(piecePreview[p]);

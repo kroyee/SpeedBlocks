@@ -1,7 +1,7 @@
 #ifndef TESTFIELD_H
 #define TESTFIELD_H
 
-#include "gameField.h"
+#include "GameField.h"
 #include <array>
 
 class Resources;

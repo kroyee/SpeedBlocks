@@ -20,7 +20,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Net::takeSignal(11, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
-				field.text.away=true;
+				field.text.show<FieldText::Away>();
 				field.drawMe=true;
 				return;
 			}
@@ -28,7 +28,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Net::takeSignal(12, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
-				field.text.away=false;
+				field.text.hide<FieldText::Away>();
 				field.drawMe=true;
 				return;
 			}
@@ -36,7 +36,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Net::takeSignal(13, [&](uint16_t id1, uint16_t id2){
 		for (auto&& field : fields)
 			if (field.id == id1) {
-				field.text.setPosition(id2);
+				field.text.set<FieldText::Position>(id2);
 				field.drawMe=true;
 				return;
 			}
@@ -44,7 +44,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Net::takeSignal(15, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
-				field.text.ready=true;
+				field.text.show<FieldText::Ready>();
 				field.drawMe=true;
 				return;
 			}
@@ -52,7 +52,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Net::takeSignal(16, [&](uint16_t id1){
 		for (auto&& field : fields)
 			if (field.id == id1) {
-				field.text.ready=false;
+				field.text.hide<FieldText::Ready>();
 				field.drawMe=true;
 				return;
 			}
@@ -60,7 +60,7 @@ GameFieldDrawer::GameFieldDrawer(Resources& _res) : resources(_res), scaleup(nul
 	Net::takeSignal(23,[&](uint16_t id, uint16_t bpm){
 		for (auto& field : fields)
 			if (field.id == id) {
-				field.text.setBpm(bpm);
+				field.text.set<FieldText::BPM>(bpm);
 				field.drawMe=true;
 			}
 	});
@@ -70,7 +70,7 @@ void GameFieldDrawer::setPosition(short x, short y) { xPos = x; yPos = y; calFie
 
 void GameFieldDrawer::setSize(int w, int h) { width = w; height = h; calFieldPos(); }
 
-obsField& GameFieldDrawer::addField(int id, const std::string& name) {
+ObsField& GameFieldDrawer::addField(int id, const std::string& name) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
 	if (unusedFields.empty())
 		fields.emplace_back(resources);
@@ -79,7 +79,7 @@ obsField& GameFieldDrawer::addField(int id, const std::string& name) {
 
 	queueIt = fields.begin();
 
-	obsField& field = fields.back();
+	ObsField& field = fields.back();
 	field.clear();
 	field.id = id;
 	field.text.setName(name);
@@ -97,7 +97,7 @@ void GameFieldDrawer::removeField(int id) {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
 	for (auto it = fields.begin(); it != fields.end(); it++)
 		if (it->id == id) {
-			it->text.away=false;
+			it->text.hide<FieldText::Away>();
 			unusedFields.splice(unusedFields.end(), fields, it);
 			queueIt = fields.begin();
 			break;
@@ -108,7 +108,7 @@ void GameFieldDrawer::removeField(int id) {
 void GameFieldDrawer::removeAllFields() {
 	std::lock_guard<std::mutex> mute(fieldsMutex);
 	for (auto& field : fields)
-		field.text.away=false;
+		field.text.hide<FieldText::Away>();
 	unusedFields.splice(unusedFields.end(), fields);
 	queueIt = fields.end();
 }
@@ -223,7 +223,7 @@ void GameFieldDrawer::resetOppFields() {
 	}
 }
 
-void GameFieldDrawer::drawOppField(obsField& field) {
+void GameFieldDrawer::drawOppField(ObsField& field) {
 	field.drawField();
 }
 

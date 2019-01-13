@@ -14,10 +14,12 @@ namespace Options {
     void setDelay(short, std::string);
 
 	template <typename T>
-	T& get(const std::string& name);
+	T& get(std::string name);
 
 	uint8_t& get_piece_rotation(int num);
 	uint8_t& get_piece_color(int num);
+	std::array<basePieces, 7>& get_basepieces();
+	std::vector<sf::VideoMode>& get_videomodes();
 }
 
 #endif

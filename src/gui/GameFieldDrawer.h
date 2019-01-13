@@ -5,23 +5,23 @@
 #include <mutex>
 #include <unordered_set>
 #include <deque>
-#include "gameField.h"
+#include "GameField.h"
 
 class Resources;
 
 class GameFieldDrawer {
-	std::list<obsField>::iterator queueIt;
+	std::list<ObsField>::iterator queueIt;
 public:
 	GameFieldDrawer(Resources&);
 
 	Resources& resources;
 
 	std::mutex fieldsMutex;
-	std::list<obsField> fields;
-	std::list<obsField> unusedFields;
+	std::list<ObsField> fields;
+	std::list<ObsField> unusedFields;
 
 	sf::Clock sclock;
-	obsField* scaleup;
+	ObsField* scaleup;
 
 	float currentR;
 
@@ -37,7 +37,7 @@ public:
 	void setPosition(short x, short y);
 	void setSize(int w, int h);
 
-	obsField& addField(int id, const std::string& name);
+	ObsField& addField(int id, const std::string& name);
 	void removeField(int id);
 	void updateFields();
 	void calFieldPos();
@@ -46,7 +46,7 @@ public:
 
 	void resetOppFields();
 
-	void drawOppField(obsField& field);
+	void drawOppField(ObsField& field);
 	void drawFields();
 	bool drawNextField();
 	void drawScaleup();

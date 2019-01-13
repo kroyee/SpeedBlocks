@@ -1,9 +1,17 @@
-#include "gameField.h"
+#include "GameField.h"
 #include "Resources.h"
 #include "Textures.h"
 #include "Options.h"
 #include "GameSignals.h"
 #include <SFML/Graphics.hpp>
+
+static constexpr int BASE_TILE_SIZE = 30;
+static constexpr float TILE_SCALE = 0.90f;
+
+static constexpr float TILE_SIZE = BASE_TILE_SIZE * TILE_SCALE;
+
+static constexpr int X_POS = 5, Y_POS = 60, FIELD_ROWS = 18, FIELD_COLUMNS = 10, BORDER = 5;
+static constexpr int WIDTH = FIELD_COLUMNS * TILE_SIZE, HEIGHT = FIELD_ROWS * TILE_SIZE;
 
 BasicField::BasicField(Resources& _resources) : resources(_resources) {}
 
@@ -144,18 +152,20 @@ sf::Vector2i BasicField::clearlines () {
     return linescleared;
 }
 
-gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resources.gfx->tileSet()), text(_resources) {
+GameField::GameField(Resources& _resources) : BasicField(_resources), tile(resources.gfx->tileSet()), text(_resources, texture) {
     texture.create(440, 600);
-    text.texture = &texture;
     sprite.setTexture(texture.getTexture());
-    backRect.setPosition(5,5);
-    backRect.setSize({300,540});
+    backRect.setPosition(X_POS, Y_POS);
+    backRect.setSize({WIDTH, HEIGHT});
     setBackColor(Options::get<uint8_t>("fieldBackground"));
 
     piece.piece=7;
     pieceCopy.piece=7;
     offset=0;
     status=0;
+
+	for (auto& s : tile)
+		s.setScale(TILE_SCALE, TILE_SCALE);
 
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++) {
@@ -164,7 +174,7 @@ gameField::gameField(Resources& _resources) : BasicField(_resources), tile(resou
         }
 }
 
-void gameField::clear() {
+void GameField::clear() {
     for (int y=0; y<22; y++)
         for (int x=0; x<10; x++) {
             square[y][x] = 0;
@@ -176,7 +186,7 @@ void gameField::clear() {
     offset=0;
 }
 
-bool gameField::possibleCopy() {
+bool GameField::possibleCopy() {
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++)
             if (pieceCopy.grid[y][x]) {
@@ -188,7 +198,7 @@ bool gameField::possibleCopy() {
     return true;
 }
 
-void gameField::drawField() {
+void GameField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(backRect);
     drawEdges();
@@ -199,22 +209,26 @@ void gameField::drawField() {
     status = 0;
 }
 
-void gameField::drawEdges() {
+void GameField::drawEdges() {
     sf::RectangleShape rect;
     rect.setFillColor(sf::Color(127,127,127,200));
-    rect.setPosition(0,0);
-    rect.setSize({310,5});
+
+    rect.setPosition(X_POS - BORDER, Y_POS - BORDER);
+    rect.setSize({WIDTH + BORDER*2, BORDER});
     texture.draw(rect);
-    rect.setPosition(0,545);
+
+    rect.setPosition(X_POS - BORDER, Y_POS + HEIGHT);
     texture.draw(rect);
-    rect.setPosition(0,5);
-    rect.setSize({5,540});
+
+    rect.setPosition(X_POS - BORDER, Y_POS);
+    rect.setSize({BORDER, HEIGHT});
     texture.draw(rect);
-    rect.setPosition(305,5);
+
+    rect.setPosition(X_POS + WIDTH, Y_POS);
     texture.draw(rect);
 }
 
-void gameField::drawTile(uint8_t color, uint8_t x, uint8_t y) {
+void GameField::drawTile(uint8_t color, uint8_t x, uint8_t y) {
     if (y<3 || color == 0)
         return;
     color--;
@@ -222,30 +236,30 @@ void gameField::drawTile(uint8_t color, uint8_t x, uint8_t y) {
     if (y == 3) {
         if (!offset)
             return;
-        tile[color].setTextureRect({0,30-offset,30,offset});
-        tile[color].setPosition(sf::Vector2f(5+x*30, 5));
+        tile[color].setTextureRect({0, BASE_TILE_SIZE-base_offset, BASE_TILE_SIZE, base_offset});
+        tile[color].setPosition(sf::Vector2f(X_POS + x*TILE_SIZE, Y_POS));
         texture.draw(tile[color]);
-        tile[color].setTextureRect({0,0,30,30});
+        tile[color].setTextureRect({0, 0, BASE_TILE_SIZE, BASE_TILE_SIZE});
     }
     else if (y == 21 && offset) {
-        tile[color].setTextureRect({0,0,30,30-offset});
-        tile[color].setPosition(sf::Vector2f(5+x*30, 515 + offset));
+        tile[color].setTextureRect({0, 0, BASE_TILE_SIZE, BASE_TILE_SIZE-base_offset});
+        tile[color].setPosition(sf::Vector2f(X_POS + x*TILE_SIZE, Y_POS + HEIGHT - TILE_SIZE + offset));
         texture.draw(tile[color]);
-        tile[color].setTextureRect({0,0,30,30});
+        tile[color].setTextureRect({0, 0, BASE_TILE_SIZE, BASE_TILE_SIZE});
     }
     else {
-        tile[color].setPosition(sf::Vector2f(5+x*30, 5+(y-4)*30 + offset));
+        tile[color].setPosition(sf::Vector2f(X_POS + x*TILE_SIZE, Y_POS + (y-4)*TILE_SIZE + offset));
         texture.draw(tile[color]);
     }
 }
 
-void gameField::drawSquares() {
+void GameField::drawSquares() {
     for (int y=3; y<22; y++)
         for (int x=0; x<10; x++)
             drawTile(squareCopy[y][x], x, y);
 }
 
-void gameField::drawPiece() {
+void GameField::drawPiece() {
     if (pieceCopy.piece == 7)
         return;
     for (int y=0; y<4; y++)
@@ -254,7 +268,7 @@ void gameField::drawPiece() {
                 drawTile(pieceCopy.tile, pieceCopy.posX+x, pieceCopy.posY+y);
 }
 
-void gameField::drawGhostPiece() {
+void GameField::drawGhostPiece() {
     if (pieceCopy.piece == 7)
         return;
 
@@ -272,11 +286,38 @@ void gameField::drawGhostPiece() {
     }
 }
 
-void gameField::setBackColor(uint8_t val) {
+void GameField::drawPiecePreview(const PiecePreviewInfo& data, sf::Vector2f pos) {
+	auto ppiece = Options::get_basepieces()[data.piece];
+	sf::Sprite& ptile = tile[data.color-1];
+	ptile.setScale(data.scale, data.scale);
+	float tile_offset = 30*data.scale;
+
+	if (ppiece.lpiece)
+		pos += sf::Vector2f{tile_offset/2.f, tile_offset/2.f};
+
+	while (ppiece.current_rotation != data.rotation)
+		ppiece.rcw();
+
+	for (int y=0; y<4; y++)
+        for (int x=0; x<4; x++)
+            if (ppiece.grid[y][x]) {
+                ptile.setPosition(sf::Vector2f(pos.x+x*tile_offset, pos.y+y*tile_offset));
+                texture.draw(ptile);
+            }
+
+	ptile.setScale(TILE_SCALE, TILE_SCALE);
+}
+
+void GameField::setBackColor(uint8_t val) {
     backRect.setFillColor(sf::Color(val,val,val,225));
 }
 
-void obsField::makeDrawCopy() {
+bool GameField::setOffset(uint8_t val) {
+	base_offset = val;
+	return (offset = val * TILE_SCALE);
+}
+
+void ObsField::makeDrawCopy() {
     makeNextPieceCopy();
     squareCopy = square;
     pieceCopy = piece;
@@ -284,7 +325,7 @@ void obsField::makeDrawCopy() {
     status = 1;
 }
 
-void obsField::drawField() {
+void ObsField::drawField() {
     texture.clear(sf::Color(255,255,255,0));
     texture.draw(backRect);
 
@@ -297,19 +338,12 @@ void obsField::drawField() {
     texture.display();
 }
 
-void obsField::drawNextPiece() {
-    if (npPiece.piece == 7)
-        return;
-    for (int y=0; y<4; y++)
-        for (int x=0; x<4; x++)
-            if (npPiece.grid[y][x] != 0) {
-                    tile[npPiece.tile].setPosition(sf::Vector2f(-15*npPiece.lpiece+330+x*30, 45+y*30));
-                    texture.draw(tile[npPiece.tile]);
-                }
+void ObsField::drawNextPiece() {
+	drawPiecePreview({npPiece.piece, npPiece.rotation, npPiece.tile}, {330, 45});
 }
 
-void obsField::updatePiece() {
-	static std::array<basePieces, 7>& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
+void ObsField::updatePiece() {
+	static std::array<basePieces, 7>& basepiece = Options::get_basepieces();
     for (int x=0; x<4; x++)
         for (int y=0; y<4; y++) {
             if (basepiece[piece.piece].grid[y][x])
@@ -323,15 +357,12 @@ void obsField::updatePiece() {
         piece.rcw();
 }
 
-void obsField::makeNextPieceCopy() {
-	static std::array<basePieces, 7>& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
-    if (npPiece.piece != nextpiece)
-        npPiece = basepiece[nextpiece];
-    npPiece.tile = npcol-1;
-    while (npPiece.current_rotation != nprot)
-        npPiece.rcw();
+void ObsField::makeNextPieceCopy() {
+    npPiece.piece = nextpiece;
+    npPiece.tile = npcol;
+    npPiece.rotation = nprot;
 }
 
-obsField::obsField(Resources& _resources) : gameField(_resources) {
+ObsField::ObsField(Resources& _resources) : GameField(_resources) {
     id=0; nextpiece=0; nprot=0; scale=0; npcol=1; mouseover=0; piece.posX=0; piece.posY=0; npPiece.piece=7;
 }

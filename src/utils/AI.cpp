@@ -3,12 +3,12 @@
 #include "Resources.h"
 #include <fstream>
 
-AI::AI(obsField& _field, sf::Clock& _gameclock) :
+AI::AI(ObsField& _field, sf::Clock& _gameclock) :
 resources(_field.resources),
 field(&_field),
 firstMove(resources),
 secondMove(resources),
-basepiece(Options::get<std::array<basePieces, 7>>("BasePieces")),
+basepiece(Options::get_basepieces()),
 garbage(data.linesBlocked),
 combo(data.maxCombo),
 gameclock(_gameclock) {
@@ -41,7 +41,7 @@ gameclock(_gameclock) {
 	stackWeights[9] = -0.771367;
 }
 
-void AI::setField(obsField& _field) {
+void AI::setField(ObsField& _field) {
 	field = &_field;
 }
 
@@ -158,13 +158,9 @@ bool AI::executeMove() {
 }
 
 void AI::setPiece(int piece) {
-	field->piece.piece = piece;
-	field->piece.tile = basepiece[piece].tile;
-	field->piece.rotation = basepiece[piece].rotation;
+	field->piece = Options::get_basepieces()[piece];
 	field->piece.posX = 3;
 	field->piece.posY = 0;
-
-	field->updatePiece();
 }
 
 void AI::setNextPiece(int piece) {
@@ -276,6 +272,7 @@ void AI::startRound() {
 	incomingLines=0;
 	setPiece(field->nextpiece);
 	setNextPiece(rander.getPiece());
+	field->text.hide<FieldText::Countdown>();
 	movepieceTime = sf::seconds(0);
 	nextmoveTime = sf::seconds(0);
 	alive=true;
@@ -291,19 +288,19 @@ void AI::startCountdown() {
 }
 
 void AI::countDown(int count) {
-	field->text.setCountdown(count);
+	field->text.set<FieldText::Countdown>(count);
 	field->drawMe=true;
 }
 
 void AI::endRound(const sf::Time& _time, bool winner) {
 	alive = false;
 	data.bpm = data.pieceCount / _time.asSeconds() * 60.0;
-	field->text.setBpm(data.bpm);
-	field->text.setCombo(data.maxCombo);
+	field->text.set<FieldText::BPM>(data.bpm);
+	field->text.set<FieldText::Combo>(data.maxCombo);
 	if (winner)
-		field->text.setGameover(2);
+		field->text.set<FieldText::GameOver>("Winner");
 	else
-		field->text.setGameover(1);
+		field->text.set<FieldText::GameOver>("Game Over");
 	field->drawMe=true;
 }
 
@@ -326,7 +323,7 @@ void AI::delayCheck(const sf::Time& t) {
 	uint16_t comboLinesSent = combo.check(t);
 	if (comboLinesSent) {
 		comboLinesSent = garbage.block(comboLinesSent, t, false);
-		field->text.setPending(garbage.count());
+		field->text.set<FieldText::Pending>(garbage.count());
 		data.linesSent += comboLinesSent;
 		if (comboLinesSent)
 			DistributeLinesLocally(id, comboLinesSent);
@@ -335,7 +332,7 @@ void AI::delayCheck(const sf::Time& t) {
 
 	uint16_t newbpm = bpmCounter.calcBpm(t);
 	if (newbpm != data.bpm) {
-		field->text.setBpm(newbpm);
+		field->text.set<FieldText::BPM>(newbpm);
 		data.bpm = newbpm;
 		drawMe=true;
 	}
@@ -362,8 +359,7 @@ void AI::delayCheck(const sf::Time& t) {
 			lockdown=false;
 	}*/
 
-	field->offset = garbage.getOffset(t);
-	if (field->offset)
+	if (field->setOffset(garbage.getOffset(t)))
 		drawMe = true;
 }
 
@@ -383,11 +379,11 @@ void AI::sendLines(sf::Vector2i lines, const sf::Time& t) {
 	data.linesSent += amount;
 	if (amount)
 		DistributeLinesLocally(id, amount);
-	field->text.setPending(garbage.count());
+	field->text.set<FieldText::Pending>(garbage.count());
 	combo.increase(t, lines.x);
 
 	setComboTimer(t);
-	field->text.setCombo(combo.comboCount);
+	field->text.set<FieldText::Combo>(combo.comboCount);
 }
 
 void AI::addGarbage(uint16_t amount, const sf::Time& t) {
@@ -395,5 +391,5 @@ void AI::addGarbage(uint16_t amount, const sf::Time& t) {
 
 	data.linesRecieved+=amount;
 
-	field->text.setPending(garbage.count());
+	field->text.set<FieldText::Pending>(garbage.count());
 }

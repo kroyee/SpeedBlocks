@@ -108,6 +108,15 @@ GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0,0,960,600), resour
 	LiB3->connect("pressed", &LoginBox::launchLogin, this, 1);
 	panel->add(LiB3);
 
+	#ifdef DEBUG
+		auto localhost = button1("localhost");
+		localhost->connect("pressed", [&](){
+			resources.net->serverAdd = "localhost";
+			launchLogin(1);
+		});
+		align<>(135, 460) << localhost;
+	#endif
+
 	connectSignal("IsLoginThreadJoinable", [&](){ return t.joinable(); });
 	connectSignal("TellPatcherToQuit", [&](){ patcher.quit=true; });
 }

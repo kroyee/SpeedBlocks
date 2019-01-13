@@ -91,7 +91,7 @@ public:
 
 namespace sf { class String; class Packet; class Time; }
 enum class GameStates : unsigned int;
-class obsField;
+class ObsField;
 
 struct GameplayData {
 	uint16_t linesSent=0;

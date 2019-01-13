@@ -4,14 +4,14 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include <deque>
-class obsField;
-class gamePlay;
+class ObsField;
+class GamePlay;
 class Recording;
 
 class PacketCompress {
 public:
-	gamePlay* game;
-	obsField* field;
+	GamePlay* game;
+	ObsField* field;
 
 	std::deque<uint8_t> tmp;
 	uint8_t bitcount=0;

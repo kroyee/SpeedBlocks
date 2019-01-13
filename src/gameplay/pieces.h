@@ -25,6 +25,9 @@ public:
 	void mright() { posX++; }
 	void mup() { posY--; }
 	void mdown() { posY++; }
+
+	void setRotation(uint8_t new_rotation);
+	void setColor(uint8_t new_color);
 };
 
 #endif

@@ -30,8 +30,7 @@ void TestField::removePiece() {
 }
 
 void TestField::setPiece(int _piece) {
-	static auto& basepiece = Options::get<std::array<basePieces, 7>>("BasePieces");
-	piece = basepiece[_piece];
+	piece = Options::get_basepieces()[_piece];
 	piece.posX = 3;
 	piece.posY = 0;
 }
@@ -383,7 +382,7 @@ void TestField::checkNextMove(TestField& field, uint8_t nextpiece) {
 	addPiece();
 	auto lines = clearlines();
 	field.square = square;
-	if (field.piece.piece != Options::get<std::array<basePieces, 7>>("BasePieces")[nextpiece].piece)
+	if (field.piece.piece != Options::get_basepieces()[nextpiece].piece)
 		field.setPiece(nextpiece);
 	field.findBestMove(lines.x);
 	if (lines.x)

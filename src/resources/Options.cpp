@@ -49,9 +49,14 @@ namespace Options {
 	  return map;
 	}
 
+	void toLower(std::string& str) {
+		std::transform(str.begin(), str.end(), str.begin(), [](char i) -> char { return std::tolower(i); });
+	}
+
 	template <typename T>
-	T& get(const std::string& name) {
+	T& get(std::string name) {
 		static auto& map = getMap();
+		toLower(name);
 
 		#ifdef DEBUG
 			if (map.find(name) == map.end())
@@ -61,25 +66,34 @@ namespace Options {
 		return *reinterpret_cast<T*>(map[name].second);
 	}
 
-	template bool& get<bool> (const std::string& name);
-	template uint8_t& get<uint8_t> (const std::string& name);
-	template std::string& get<std::string> (const std::string& name);
-	template std::vector<sf::VideoMode>& get<std::vector<sf::VideoMode>> (const std::string& name);
-	template sf::Time& get<sf::Time> (const std::string& name);
-	template sf::Keyboard::Key& get<sf::Keyboard::Key> (const std::string& name);
-	template short& get<short> (const std::string& name);
-	template std::array<basePieces, 7>& get<std::array<basePieces, 7>> (const std::string& name);
+	template bool& get<bool> (std::string name);
+	template uint8_t& get<uint8_t> (std::string name);
+	template std::string& get<std::string> (std::string name);
+	template sf::Time& get<sf::Time> (std::string name);
+	template sf::Keyboard::Key& get<sf::Keyboard::Key> (std::string name);
+	template short& get<short> (std::string name);
 
 	uint8_t& get_piece_rotation(int num) {
-		return get<uint8_t>("piece_" + std::to_string(num) + "_rotation");
+		return get_basepieces()[num].rotation;
 	}
 
 	uint8_t& get_piece_color(int num) {
-		return get<uint8_t>("piece_" + std::to_string(num) + "_color");
+		return get_basepieces()[num].tile;
+	}
+
+	std::array<basePieces, 7>& get_basepieces() {
+		static std::array<basePieces, 7>& basepieces = get<std::array<basePieces, 7>>("BasePieces");
+		return basepieces;
+	}
+
+	std::vector<sf::VideoMode>& get_videomodes() {
+		static std::vector<sf::VideoMode>& videomodes = get<std::vector<sf::VideoMode>>("modes");
+		return videomodes;
 	}
 
 	template <typename T>
-	T& add(const std::string& name) {
+	T& add(std::string name) {
+		toLower(name);
 		auto& item = getMap()[name];
 		if (item.first == TypeID::Null) {
 			item.first = getTypeID<T>();
@@ -199,6 +213,12 @@ namespace Options {
 			return;
 		}
 
+		auto& basepiece = get_basepieces();
+		for (int i=0; i<7; ++i) {
+			get<uint8_t>("piece_" + std::to_string(i) + "_rotation") = basepiece[i].rotation;
+			get<uint8_t>("piece_" + std::to_string(i) + "_color") = basepiece[i].tile;
+		}
+
 		for (auto& item : getMap()) {
 			switch (item.second.first) {
 				case TypeID::Key:
@@ -247,7 +267,9 @@ namespace Options {
 	                basepiece[p].grid[y][x] = value[vc];
 					vc++;
 				}
-	        setPieceColor(p, basepiece[p].tile);
+	        basepiece[p].setColor(basepiece[p].tile);
+			while (basepiece[p].rotation != basepiece[p].current_rotation)
+				basepiece[p].rcw();
 		}
 		basepiece[4].lpiece=true;
 		basepiece[6].lpiece=true;
@@ -304,9 +326,10 @@ namespace Options {
 				continue;
 
 			keyword = line.substr(0, delim);
+			toLower(keyword);
 			line = line.substr(delim+1);
 
-			if (line.empty())
+			if (keyword.empty() || line.empty())
 				continue;
 
 			auto& item = map[keyword];
@@ -358,16 +381,6 @@ namespace Options {
 		}
 
 		initBasePieces();
-	}
-
-	void setPieceColor(short i, uint8_t newcolor) {
-	    get_piece_color(i) = newcolor;
-		static auto& basepiece = get<std::array<basePieces, 7>>("BasePieces");
-	    basepiece[i].tile = newcolor;
-		for (int x=0; x<4; x++)
-			for (int y=0; y<4; y++)
-				if (basepiece[i].grid[y][x])
-					basepiece[i].grid[y][x]=basepiece[i].tile;
 	}
 
 	void setDelay(short i, std::string string) {

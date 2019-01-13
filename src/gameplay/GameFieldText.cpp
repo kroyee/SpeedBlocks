@@ -2,97 +2,194 @@
 #include "Resources.h"
 #include "Textures.h"
 #include <cmath>
-using std::to_string;
+#include <tuple>
 
-GameFieldText::GameFieldText(Resources& _resources) : resources(_resources) {
-		nameTag.setFont(resources.gfx->font("typewriter"));
-    nameTag.setCharacterSize(32);
-    readyText.setFont(resources.gfx->font("typewriter"));
-    readyText.setCharacterSize(32);
-    readyText.setPosition(100, 75); readyText.setString("Ready");
-    awayText.setFont(resources.gfx->font("typewriter"));
-    awayText.setCharacterSize(48);
-    awayText.setPosition(110, 150); awayText.setString("Away");
-    positionText.setFont(resources.gfx->font("typewriter"));
-    positionText.setCharacterSize(48);
-    positionText.setPosition(130, 200);
-    countdownText.setFont(resources.gfx->font("typewriter"));
-    countdownText.setCharacterSize(96);
-    countdownText.setPosition(130,210);
+TextObject::TextObject() {
+	text.setCharacterSize(48);
+	headerText.setCharacterSize(24);
+}
 
-    comboText.setFont(resources.gfx->font("typewriter")); comboText.setString("0");
-    pendingText.setFont(resources.gfx->font("typewriter")); pendingText.setString("0");
-    bpmText.setFont(resources.gfx->font("typewriter")); bpmText.setString("0");
-    comboText.setCharacterSize(48);
-    comboText.setPosition(360,320);
-    pendingText.setCharacterSize(48);
-    pendingText.setPosition(360,500);
-    bpmText.setCharacterSize(48);
-    bpmText.setPosition(360, 420);
-    gameOverText.setFont(resources.gfx->font("typewriter"));
-    gameOverText.setPosition(50,250);
-    gameOverText.setCharacterSize(48);
+TextObject& TextObject::set(const std::string& str) {
+	visible=true;
+	text.setString(str);
+	update_origin();
+	return *this;
+}
+
+TextObject& TextObject::set(int32_t val) {
+	value = val;
+	return set(std::to_string(val));
+}
+
+TextObject& TextObject::header(const std::string& str, uint16_t offset) {
+	headerText.setString(str);
+	useHeader = true;
+	header_offset = offset;
+
+	update_origin();
+
+	auto size = headerText.getLocalBounds();
+	auto pos = text.getPosition();
+	pos.y -= size.height + header_offset;
+	headerText.setPosition(pos);
+
+	return *this;
+}
+
+TextObject& TextObject::size(uint8_t text_size, uint8_t header_size) {
+	text.setCharacterSize(text_size);
+
+	if (header_size)
+		headerText.setCharacterSize(header_size);
+
+	return *this;
+}
+
+TextObject& TextObject::setFont(const sf::Font& font) {
+	text.setFont(font);
+	headerText.setFont(font);
+	return *this;
+}
+
+TextObject& TextObject::position(int x, int y) {
+	text.setPosition(x, y);
+
+	if (useHeader) {
+		auto size = headerText.getLocalBounds();
+		y -= size.height + header_offset;
+		headerText.setPosition(x, y);
+	}
+
+	return *this;
+}
+
+TextObject& TextObject::color(const sf::Color& color) {
+	text.setFillColor(color);
+	headerText.setFillColor(color);
+
+	return *this;
+}
+
+TextObject& TextObject::hide() {
+	value = 0;
+	visible = false;
+
+	return *this;
+}
+
+TextObject& TextObject::show() {
+	value = 1;
+	visible = true;
+
+	return *this;
+}
+
+int TextObject::getTextWidth() {
+	return text.getLocalBounds().width;
+}
+
+int32_t TextObject::get() {
+	return value;
+}
+
+void TextObject::draw(sf::RenderTexture& texture) {
+	if (visible) {
+		texture.draw(text);
+
+		if (useHeader)
+			texture.draw(headerText);
+	}
+}
+
+void TextObject::update_origin() {
+	auto text_origin = text.getLocalBounds().width / 2;
+	if (std::abs(text.getOrigin().x - text_origin) > 5)
+		text.setOrigin(text.getLocalBounds().width / 2, 0);
+
+	auto header_origin = headerText.getLocalBounds().width / 2;
+	if (std::abs(headerText.getOrigin().x - header_origin) > 5)
+		headerText.setOrigin(headerText.getLocalBounds().width / 2, 0);
+}
+
+struct TextObjectInitializer {
+	FieldText ft;
+	int size;
+	sf::Vector2f pos;
+	std::string text, header;
+	bool hide;
+};
+
+void initTextObjects(std::vector<TextObject>& vec, const std::vector<TextObjectInitializer>& data) {
+	#ifdef DEBUG
+		if (vec.size() != data.size())
+			std::cout << "Size of TextObject vector does not match size of init-data" << std::endl;
+	#endif
+
+	for (unsigned i = 0; i < vec.size(); ++i) {
+			auto& textObject = vec[static_cast<unsigned>(data[i].ft)];
+			textObject.size(data[i].size, data[i].size/2);
+			textObject.position(data[i].pos.x, data[i].pos.y);
+			textObject.set(data[i].text);
+
+			if (!data[i].header.empty())
+				textObject.header(data[i].header);
+
+			if (data[i].hide)
+				textObject.hide();
+	}
+}
+
+GameFieldText::GameFieldText(Resources& _resources, sf::RenderTexture& tex) : resources(_resources), texture(tex) {
+	unsigned count = static_cast<unsigned>(FieldText::COUNT);
+	text.resize(count);
+
+	setFont(resources.gfx->font("print"));
+
+	initTextObjects(text, {
+		{FieldText::Name,		32, {150, 555},	"Player", "",	false},
+		{FieldText::Away,		48, {150, 150}, "Away", "",		true},
+		{FieldText::Position,	48, {150, 200}, "", "",			true},
+		{FieldText::Ready,		32, {150, 75},	"Ready", "",	true},
+		{FieldText::Combo,		28, {370, 330}, "0", "Combo",	false},
+		{FieldText::Pending,	28, {370, 500}, "0", "Pending", false},
+		{FieldText::Countdown,	96, {130, 210}, "", "",			true},
+		{FieldText::BPM,		28, {370, 420}, "0", "BPM",		false},
+		{FieldText::GameOver,	32, {150, 250},	"", "",			true}
+	});
+
+	text[static_cast<unsigned>(FieldText::Combo)].header("Combo", 50);
 
     comboTimer.setPosition(315, 290);
     comboTimer.setFillColor(sf::Color(255,0,0));
     setComboTimer(0);
 
-    combo = 0; pending = 0; bpm = 0; position = 0; countdown = 0; gameover = 0;
-    away = false; ready = false;
-
     setColor(resources.gfx->color("GameFieldText"));
 }
 
-GameFieldText::GameFieldText(const GameFieldText& text) : resources(text.resources) {
-	nameTag=text.nameTag; readyText=text.readyText; awayText=text.awayText; positionText = text.positionText;
-	countdownText = text.countdownText; comboText = text.comboText; pendingText = text.pendingText;
-	bpmText = text.bpmText; gameOverText = text.gameOverText;
-
-	comboTimer.setPosition(315, 240);
-    comboTimer.setFillColor(sf::Color(255,0,0));
-    setComboTimer(0);
-
-    combo = 0; pending = 0; bpm = 0; position = 0; countdown = 0; gameover = 0;
-    away = false; ready = false;
+void GameFieldText::setFont(const sf::Font& font) {
+	for (auto& t : text)
+		t.setFont(font);
 }
 
-void GameFieldText::setName(const std::string& n) {
+void GameFieldText::setName(const std::string& name_) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
-    name = n;
-    nameTag.setString(n);
-    short x = (310-nameTag.getLocalBounds().width)/2;
-    if (x<0)
-        x=0;
-    nameTag.setPosition(x, 555);
+    name = name_;
+	text[static_cast<unsigned>(FieldText::Name)].set(name);
 }
 
-void GameFieldText::setPosition(const int8_t _position) {
+void GameFieldText::setPosition(int8_t position) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
-	position = _position;
+	auto& positionText = text[static_cast<unsigned>(FieldText::Position)];
 	if (position == 1)
-        positionText.setString("1st");
+        positionText.set("1st");
     else if (position == 2)
-        positionText.setString("2nd");
+        positionText.set("2nd");
     else if (position == 3)
-        positionText.setString("3rd");
+        positionText.set("3rd");
     else if (position)
-        positionText.setString(to_string((int)position) + "th");
-}
-
-void GameFieldText::setCountdown(const int8_t _countdown) {
-    std::lock_guard<std::mutex> mute(fieldTextMutex);
-	countdown = _countdown;
-	if (countdown)
-		countdownText.setString(to_string(countdown));
-}
-
-void GameFieldText::setGameover(const int8_t _gameover) {
-    std::lock_guard<std::mutex> mute(fieldTextMutex);
-	gameover = _gameover;
-	if (gameover == 1)
-		gameOverText.setString("Game Over");
-	else if (gameover == 2)
-		gameOverText.setString("Winner");
+        positionText.set(std::to_string((int)position) + "th");
+	else
+		positionText.hide();
 }
 
 const float PI = 3.14159265;
@@ -111,80 +208,28 @@ bool GameFieldText::setComboTimer(uint8_t count) {
     return true;
 }
 
-void GameFieldText::setBpm(const uint16_t _bpm) {
-    std::lock_guard<std::mutex> mute(fieldTextMutex);
-	if (bpm != _bpm) {
-		bpm = _bpm;
-		bpmText.setString(to_string(bpm));
-	}
-}
-
-void GameFieldText::setCombo(const uint8_t _combo) {
-    std::lock_guard<std::mutex> mute(fieldTextMutex);
-	if (combo != _combo) {
-		combo = _combo;
-		comboText.setString(to_string(combo));
-	}
-}
-
-void GameFieldText::setPending(const uint8_t _pending) {
-    std::lock_guard<std::mutex> mute(fieldTextMutex);
-	if (pending != _pending) {
-		pending = _pending;
-		pendingText.setString(to_string(pending));
-	}
-}
-
 void GameFieldText::setColor(sf::Color color) {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
-    nameTag.setFillColor(color);
-    awayText.setFillColor(color);
-    positionText.setFillColor(color);
-    readyText.setFillColor(color);
-    comboText.setFillColor(color);
-    pendingText.setFillColor(color);
-    countdownText.setFillColor(color);
-    bpmText.setFillColor(color);
-    gameOverText.setFillColor(color);
 
-    nameTag.setOutlineColor(color);
-    awayText.setOutlineColor(color);
-    positionText.setOutlineColor(color);
-    readyText.setOutlineColor(color);
-    comboText.setOutlineColor(color);
-    pendingText.setOutlineColor(color);
-    countdownText.setOutlineColor(color);
-    bpmText.setOutlineColor(color);
-    gameOverText.setOutlineColor(color);
+	for (auto& t : text)
+		t.color(color);
 }
 
 void GameFieldText::clear() {
+	set<FieldText::Combo>(0);
+	set<FieldText::Pending>(0);
+	set<FieldText::BPM>(0);
+	hide<FieldText::Position>();
+	hide<FieldText::Countdown>();
+	hide<FieldText::GameOver>();
+	hide<FieldText::Ready>();
     setComboTimer(0);
-    setCombo(0);
-    setPending(0);
-    setBpm(0);
-    setPosition(0);
-    setCountdown(0);
-    setGameover(0);
-    ready=false;
 }
 
 void GameFieldText::drawText() {
     std::lock_guard<std::mutex> mute(fieldTextMutex);
-    if (away)
-        texture->draw(awayText);
-    if (position)
-        texture->draw(positionText);
-    if (ready)
-    	texture->draw(readyText);
-    if (countdown)
-		texture->draw(countdownText);
-	if (gameover)
-		texture->draw(gameOverText);
 
-    texture->draw(nameTag);
-    texture->draw(comboTimer);
-    texture->draw(comboText);
-    texture->draw(pendingText);
-    texture->draw(bpmText);
+	texture.draw(comboTimer);
+	for (auto& t : text)
+		t.draw(texture);
 }

@@ -1,7 +1,7 @@
 #ifndef AI_H
 #define AI_H
 
-#include "gameField.h"
+#include "GameField.h"
 #include "randomizer.h"
 #include "TestField.h"
 #include "BPMCount.h"
@@ -24,7 +24,7 @@ class AI {
 public:
 	Resources& resources;
 	std::array<double, 10> weights, downstackWeights, stackWeights;
-	obsField* field;
+	ObsField* field;
 	TestField firstMove, secondMove;
 
 	uint8_t nextpiece;
@@ -60,9 +60,9 @@ public:
 	std::mutex moveQueueMutex;
 	std::atomic<bool> alive, adjustDownMove, movingPiece;
 
-	AI(obsField& _field, sf::Clock& _gameclock);
+	AI(ObsField& _field, sf::Clock& _gameclock);
 
-	void setField(obsField& _field);
+	void setField(ObsField& _field);
 	void startMove();
 	void continueMove();
 	bool executeMove();

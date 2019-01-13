@@ -1,5 +1,5 @@
 #include "GameDataSender.h"
-#include "gamePlay.h"
+#include "GamePlay.h"
 #include "Resources.h"
 #include "GameSignals.h"
 #include "packetcompress.h"
@@ -8,7 +8,7 @@ static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
 static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 static auto& Survivor = Signal<bool>::get("Survivor");
 
-GameDataSender::GameDataSender(gamePlay& _game) : game(_game), sendTime(sf::seconds(0)), count(251) {
+GameDataSender::GameDataSender(GamePlay& _game) : game(_game), sendTime(sf::seconds(0)), count(251) {
 	connectSignal("SendGameState", &GameDataSender::state, this);
 }
 

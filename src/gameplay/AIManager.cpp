@@ -1,7 +1,7 @@
 #include "AIManager.h"
 #include "GameSignals.h"
 
-static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
+static auto& AddField = Signal<ObsField&, int, const std::string&>::get("AddField");
 static auto& RemoveField = Signal<void, int>::get("RemoveField");
 static auto& AddGarbage = Signal<void, int>::get("AddGarbage");
 static auto& AddLocalScore = Signal<void, GameplayData&, uint16_t, const std::string&, uint16_t>::get("AddLocalScore");

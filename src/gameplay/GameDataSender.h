@@ -2,14 +2,14 @@
 #define GAMEDATASENDER_H
 
 #include <SFML/Network.hpp>
-class gamePlay;
+class GamePlay;
 
 class GameDataSender {
-	gamePlay & game;
+	GamePlay & game;
 	sf::Time sendTime;
 	uint8_t count;
 public:
-	GameDataSender(gamePlay&);
+	GameDataSender(GamePlay&);
 
 	void sendstate();
 	void state();

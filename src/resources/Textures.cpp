@@ -147,11 +147,10 @@ std::string Textures::loadTextures(sf::RenderWindow& window) {
     return msg;
 
   theme1 = tgui::Theme::create(resourcePath() + "neutralUI.txt");
-  tgui::Label::Ptr test;
   try {
-      test = theme1->load("Label");
+      auto test = theme1->load("Button");
   } catch (tgui::Exception) {
-      return "media/TransparentGrey.txt";
+      return "neutralUI.txt";
   }
 
   tGui.setWindow(window);

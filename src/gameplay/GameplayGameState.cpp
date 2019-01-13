@@ -1,5 +1,5 @@
 #include "GameplayGameState.h"
-#include "gamePlay.h"
+#include "GamePlay.h"
 
 static auto& Show = Signal<void, int>::get("Show");
 static auto& Away = Signal<void>::get("Away");
@@ -10,7 +10,7 @@ static auto& SetAway = Signal<void, bool>::get("SetAway");
 static auto& IsVisible = Signal<bool, int>::get("IsVisible");
 static auto& Ready = Signal<void>::get("Ready");
 
-GPBaseState::GPBaseState(gamePlay& _game, GameStates _state) : state(_state), game(_game) {
+GPBaseState::GPBaseState(GamePlay& _game, GameStates _state) : state(_state), game(_game) {
 	game.resources.gamestate = state;
 }
 GPBaseState::~GPBaseState() {}
@@ -65,7 +65,7 @@ void GPBaseState::handleControlButtons(sf::Event& event) { // == Game || Practic
 }
 
 void GPBaseState::set(std::unique_ptr<GPBaseState>& state, GameStates _state) {
-	gamePlay& gpRef = state->game;
+	GamePlay& gpRef = state->game;
 	state.reset(nullptr);
 	if (_state == GameStates::MainMenu)
 		state = std::unique_ptr<GPBaseState>(new GPMainMenu(gpRef));
@@ -87,10 +87,10 @@ void GPBaseState::set(std::unique_ptr<GPBaseState>& state, GameStates _state) {
 //							Main Menu								//
 //////////////////////////////////////////////////////////////////////
 
-GPMainMenu::GPMainMenu(gamePlay& _game) : GPBaseState(_game, GameStates::MainMenu) {
+GPMainMenu::GPMainMenu(GamePlay& _game) : GPBaseState(_game, GameStates::MainMenu) {
 	game.field.clear();
 	game.autoaway=false;
-	game.field.text.away=false;
+	game.field.text.hide<FieldText::Away>();
 	AmountAI(0);
 }
 GPMainMenu::~GPMainMenu() {
@@ -101,13 +101,13 @@ GPMainMenu::~GPMainMenu() {
 //							Countdown								//
 //////////////////////////////////////////////////////////////////////
 
-GPCountDown::GPCountDown(gamePlay& _game) : GPBaseState(_game, GameStates::CountDown) {
+GPCountDown::GPCountDown(GamePlay& _game) : GPBaseState(_game, GameStates::CountDown) {
 	game.sRKey();
     game.sLKey();
     game.sDKey();
     game.showPressEnterText=false;
     game.drawMe=true;
-    game.field.text.ready=false;
+    game.field.text.hide<FieldText::Ready>();
 }
 GPCountDown::~GPCountDown() {}
 
@@ -141,9 +141,10 @@ void GPCountDown::handleEvent(sf::Event& event) {
 //							Game									//
 //////////////////////////////////////////////////////////////////////
 
-GPGame::GPGame(gamePlay& _game) : GPBaseState(_game, GameStates::Game) {
+GPGame::GPGame(GamePlay& _game) : GPBaseState(_game, GameStates::Game) {
 	game.showPressEnterText=false;
     game.startGame();
+	game.field.text.hide<FieldText::Countdown>();
 }
 GPGame::~GPGame() {
 	game.showPressEnterText=true;
@@ -163,10 +164,10 @@ void GPGame::handleEvent(sf::Event& event) {
 //							Game Over								//
 //////////////////////////////////////////////////////////////////////
 
-GPGameOver::GPGameOver(gamePlay& _game) : GPBaseState(_game, GameStates::GameOver) {
+GPGameOver::GPGameOver(GamePlay& _game) : GPBaseState(_game, GameStates::GameOver) {
 	if (game.autoaway && game.resources.playonline)
     	SetAway(true);
-    game.field.text.setCountdown(0);
+    game.field.text.hide<FieldText::Countdown>();
     game.drawMe=true;
 }
 GPGameOver::~GPGameOver() {}
@@ -197,7 +198,7 @@ void GPGameOver::handleEvent(sf::Event& event) {
 //							Replay									//
 //////////////////////////////////////////////////////////////////////
 
-GPReplay::GPReplay(gamePlay& _game) : GPBaseState(_game, GameStates::Replay) {
+GPReplay::GPReplay(GamePlay& _game) : GPBaseState(_game, GameStates::Replay) {
 	game.showPressEnterText=false;
 	game.startReplay();
 }
@@ -212,7 +213,7 @@ void GPReplay::update() {
 //							Practice								//
 //////////////////////////////////////////////////////////////////////
 
-GPPractice::GPPractice(gamePlay& _game) : GPBaseState(_game, GameStates::Practice) {
+GPPractice::GPPractice(GamePlay& _game) : GPBaseState(_game, GameStates::Practice) {
 	SendSignal(7);
 	game.field.clear();
 	game.showPressEnterText=false;
@@ -220,8 +221,8 @@ GPPractice::GPPractice(gamePlay& _game) : GPBaseState(_game, GameStates::Practic
 }
 GPPractice::~GPPractice() {
 	game.autoaway = false;
-	game.field.text.away=false;
-	game.field.text.ready=true;
+	game.field.text.hide<FieldText::Away>();
+	game.field.text.show<FieldText::Ready>();
 }
 
 void GPPractice::update() {
@@ -237,5 +238,5 @@ void GPPractice::handleEvent(sf::Event& event) {
 //							Spectating								//
 //////////////////////////////////////////////////////////////////////
 
-GPSpectating::GPSpectating(gamePlay& _game) : GPBaseState(_game, GameStates::Spectating) {}
+GPSpectating::GPSpectating(GamePlay& _game) : GPBaseState(_game, GameStates::Spectating) {}
 GPSpectating::~GPSpectating() {}

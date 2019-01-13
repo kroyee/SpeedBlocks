@@ -1,5 +1,5 @@
 #include "packetcompress.h"
-#include "gamePlay.h"
+#include "GamePlay.h"
 #include "Recording.h"
 #include "Options.h"
 
@@ -98,17 +98,17 @@ void PacketCompress::compress() {
 	addBits(game->nextpiece, 3);
 	addBits(game->basepiece[game->nextpiece].tile, 3);
 	addBits(Options::get<uint8_t>("piece_" + std::to_string(game->nextpiece) + "_rotation"), 2);
-	addBits(game->field.text.combo, 5);
-	addBits(game->field.text.pending, 8);
+	addBits(game->field.text.get<FieldText::Combo>(), 5);
+	addBits(game->field.text.get<FieldText::Pending>(), 8);
 	uint8_t tmp;
-	if (game->field.text.bpm > 255)
+	if (game->field.text.get<FieldText::BPM>() > 255)
 		tmp=255;
 	else
-		tmp = game->field.text.bpm;
+		tmp = game->field.text.get<FieldText::BPM>();
 	addBits(tmp, 8);
 	tmp = game->field.text.comboTimer.getPointCount()-2;
 	addBits(tmp, 7);
-	tmp = game->field.text.countdown;
+	tmp = game->field.text.get<FieldText::Countdown>();
 	addBits(tmp, 2);
 	if (!countdown) {
 		uint16_t timevalue = game->gameclock.getElapsedTime().asMilliseconds();
@@ -151,12 +151,15 @@ void PacketCompress::copy() {
 	field->nextpiece = nextpiece;
 	field->npcol = npcol;
 	field->nprot = nprot;
-	if (!field->text.position)
-		field->text.setBpm(bpmText);
-	field->text.setPending(pendingText);
-	field->text.setCombo(comboText);
+	if (!field->text.get<FieldText::Position>())
+		field->text.set<FieldText::BPM>(bpmText);
+	field->text.set<FieldText::Pending>(pendingText);
+	field->text.set<FieldText::Combo>(comboText);
 	field->text.setComboTimer(comboTimerCount);
-	field->text.setCountdown(countdown);
+	if (countdown)
+		field->text.set<FieldText::Countdown>(countdown);
+	else
+		field->text.hide<FieldText::Countdown>();
 }
 
 bool PacketCompress::validate() {

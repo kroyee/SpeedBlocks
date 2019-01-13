@@ -1,7 +1,7 @@
 #include "UIGameState.h"
 #include "gui.h"
 #include "GuiElements.h"
-#include "gamePlay.h"
+#include "GamePlay.h"
 
 UIBaseState::UIBaseState(UI& _ui, GameStates _state) : state(_state), ui(_ui) {
 	ui.gamestate = state;

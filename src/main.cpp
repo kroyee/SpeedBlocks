@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "gamePlay.h"
+#include "GamePlay.h"
 #include "gui.h"
 #include "GameOptions.h"
 #include "PerformanceOutput.h"
@@ -23,7 +23,6 @@
 #else
 #include <X11/Xlib.h>
 #endif
-//#define DEBUG
 
 int main()
 {
@@ -39,11 +38,11 @@ int main()
     if (!resources.init())
         return 0;
 
-    gamePlay game(resources);
+    GamePlay game(resources);
 
     #ifndef DEBUG
         if (Options::get<bool>("fullscreen"))
-            window.create(Options::get<std::vector<sf::VideoMode>>("modes")[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
+            window.create(Options::get_videomodes()[Options::get<short>("currentmode")], "SpeedBlocks", sf::Style::Fullscreen);
         if (!window.isOpen()) {
             window.create(sf::VideoMode(960, 600), "SpeedBlocks");
             Options::get<bool>("fullscreen")=false;

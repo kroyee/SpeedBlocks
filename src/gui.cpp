@@ -1,6 +1,6 @@
 #include "gui.h"
 #include "Options.h"
-#include "gamePlay.h"
+#include "GamePlay.h"
 #include "Textures.h"
 #include "GameSignals.h"
 #include "GuiElements.h"
@@ -20,12 +20,12 @@ static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& GameSetup = Signal<void, int>::get("GameSetup");
 static auto& GameOver = Signal<void, int>::get("GameOver");
 static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
-static auto& AddField = Signal<obsField&, int, const std::string&>::get("AddField");
+static auto& AddField = Signal<ObsField&, int, const std::string&>::get("AddField");
 static auto& GameClear = Signal<void>::get("GameClear");
 static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
 
 UI::UI(sf::RenderWindow& window_,
-	gamePlay& game_)
+	GamePlay& game_)
     : resources(game_.resources),
       game(game_),
       guiElements(new GuiElements(resources)),
