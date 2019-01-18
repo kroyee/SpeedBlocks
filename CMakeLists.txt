@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 
 option(BUILD_THIRD_PARTY "Download and build third party libraries" OFF)
 
@@ -17,7 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -Wextra -pedantic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
@@ -27,6 +27,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
   set(CMAKE_INSTALL_RPATH "$ORIGIN/lib/:$$ORIGIN/lib/")
   set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+endif()
+
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc -static -lpthread")
 endif()
 
 set(EXECUTABLE_NAME SpeedBlocks)
@@ -55,6 +59,10 @@ add_custom_target(run
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(WIN32)
+    set(SFML_STATIC_LIBRARIES TRUE)
+endif()
+
 find_package(SFML 2 COMPONENTS audio network graphics window system)
 if(NOT SFML_FOUND)
     set(SFML_ROOT "" CACHE PATH "SFML root directory")
@@ -63,13 +71,10 @@ endif()
 include_directories(${SFML_INCLUDE_DIR})
 target_link_libraries(${EXECUTABLE_NAME} ${SFML_LIBRARIES})
 
-find_package(TGUI 0.7)
+find_package(TGUI 0.8)
 if(NOT TGUI_FOUND)
     set(TGUI_ROOT "" CACHE PATH "TGUI root directory")
     message(FATAL_ERROR "CMake couldn't find TGUI. Set the TGUI_ROOT entry to TGUI's root directory (containing \"include\" and \"lib\" directories).")
-endif()
-if(TGUI_VERSION_PATCH LESS 4)
-    message(FATAL_ERROR "SpeedBlocks requires TGUI >= 0.7.4")
 endif()
 include_directories(${TGUI_INCLUDE_DIR})
 target_link_libraries(${EXECUTABLE_NAME} ${TGUI_LIBRARY})
