@@ -38,7 +38,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 set(EXECUTABLE_NAME SpeedBlocks)
-file(GLOB SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h  ${CMAKE_SOURCE_DIR}/src/gui/*.cpp ${CMAKE_SOURCE_DIR}/src/gui/*.h  ${CMAKE_SOURCE_DIR}/src/resources/*.cpp ${CMAKE_SOURCE_DIR}/src/resources/*.h  ${CMAKE_SOURCE_DIR}/src/gameplay/*.cpp ${CMAKE_SOURCE_DIR}/src/gameplay/*.h ${CMAKE_SOURCE_DIR}/src/utils/*.hpp ${CMAKE_SOURCE_DIR}/src/utils/*.mm ${CMAKE_SOURCE_DIR}/src/utils/*.h ${CMAKE_SOURCE_DIR}/src/utils/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/*.cpp ${CMAKE_SOURCE_DIR}/src/*.h ${CMAKE_SOURCE_DIR}/src/*.hpp ${CMAKE_SOURCE_DIR}/src/*.mm)
 if(APPLE)
     list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/utils/EmptyResourcePath.h)
     list(REMOVE_ITEM SOURCE_FILES ${CMAKE_SOURCE_DIR}/src/utils/EmptyResourcePath.cpp)
@@ -55,13 +55,32 @@ else()
     add_executable(${EXECUTABLE_NAME} MACOSX_BUNDLE WIN32 ${SOURCE_FILES})
 endif()
 
-target_include_directories(SpeedBlocks PUBLIC ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/src/gui ${CMAKE_SOURCE_DIR}/src/resources ${CMAKE_SOURCE_DIR}/src/gameplay ${CMAKE_SOURCE_DIR}/src/utils)
+file(GLOB_RECURSE INCLUDE_DIRS_TMP ${CMAKE_SOURCE_DIR}/src/*)
+set(INCLUDE_DIRS)
+foreach(f ${INCLUDE_DIRS_TMP})
+    get_filename_component(tmp ${f} DIRECTORY)
+    list(APPEND INCLUDE_DIRS ${tmp})
+endforeach(f)
+list(REMOVE_DUPLICATES INCLUDE_DIRS)
+
+target_include_directories(SpeedBlocks PUBLIC ${INCLUDE_DIRS})
 
 add_custom_target(run
     COMMAND ${EXECUTABLE_NAME}
     DEPENDS SpeedBlocks
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+if(POLICY CMP0074)
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0074 NEW)
+endif()
+
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc -static -lpthread")
+    target_link_libraries(${EXECUTABLE_NAME} iphlpapi.lib)
+    set(SFML_STATIC_LIBRARIES TRUE)
+endif()
 
 find_package(SFML 2 COMPONENTS audio network graphics window system)
 if(NOT SFML_FOUND)
@@ -93,12 +112,12 @@ endif()
 include_directories(${CURL_INCLUDE_DIRS})
 target_link_libraries(${EXECUTABLE_NAME} ${CURL_LIBRARIES})
 
+if(POLICY CMP0074)
+    cmake_policy(POP)
+endif()
+
 find_package(Threads REQUIRED)
 target_link_libraries (${EXECUTABLE_NAME} ${CMAKE_THREAD_LIBS_INIT})
-
-if (WIN32)
-    target_link_libraries(${EXECUTABLE_NAME} iphlpapi.lib)
-endif()
 
 if (APPLE)
     set(BUNDLE_PATH ${CMAKE_CURRENT_BINARY_DIR}/Release/SpeedBlocks.app)

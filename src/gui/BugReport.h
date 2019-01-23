@@ -1,27 +1,27 @@
 #ifndef BUGREPORT_H
 #define BUGREPORT_H
 
-#include "GuiBase.h"
 #include <thread>
+#include "GuiBase.h"
 
 class Resources;
 
 class BugReport : public GuiBase {
-public:
-	sf::Rect<int> pos;
+   public:
+    sf::Rect<int> pos;
 
-	tgui::TextBox::Ptr happened;
-	tgui::TextBox::Ptr expected;
-	tgui::TextBox::Ptr reproduce;
-	tgui::TextBox::Ptr contact;
+    os::TextBox happened;
+    os::TextBox expected;
+    os::TextBox reproduce;
+    os::TextBox contact;
 
-	bool join;
+    bool join;
 
-	std::thread t;
+    std::thread t;
 
-	BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
+    BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
 
-	void sendReport();
+    void sendReport();
 };
 
 #endif

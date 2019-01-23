@@ -6,15 +6,15 @@
 class Resources;
 
 class Connecting : public GuiBase {
-public:
-	tgui::Label::Ptr label, progressLabel;
-	tgui::TextBox::Ptr changelog;
-	tgui::Button::Ptr cancel, apply;
-	tgui::ProgressBar::Ptr downloadProgress;
-	Connecting(sf::Rect<int> _pos, Resources& _res);
+   public:
+    os::Label label;
+    os::TextBox changelog;
+    os::Button cancel, apply;
+    os::ProgressBar downloadProgress;
+    Connecting(sf::Rect<int> _pos, Resources& _res);
 
-	void setText(const std::string& text);
-	void setDownloadProgress(int64_t total, int64_t so_far);
+    void setText(const std::string& text);
+    void setDownloadProgress(int64_t total, int64_t so_far);
 };
 
 #endif

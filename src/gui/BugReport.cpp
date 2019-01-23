@@ -1,52 +1,44 @@
 #include "BugReport.h"
-#include "network.h"
 #include "Resources.h"
+#include "network.h"
 
 BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent) : GuiBase(_pos, _res, parent) {
-	join=false;
+    join = false;
 
-	loadWidget("Label", {10,5}, "What happened?");
+    panel.add(os::Label().text("What happened?").pos(10, 5), os::Label().text("What dod you expect to happen?").pos(10, 125),
+              os::Label().text("How can we reproduce this?").pos(10, 245), os::Label().text("How can we contact you with questions?").pos(10, 365));
 
-	happened = loadWidget("TextBox", {5, 40, 550, 80});
+    os::Size<550, 80>::(happened.pos(5, 40), expected.pos(5, 160), reproduce.pos(5, 220), contact.pos(5, 400));
 
-	loadWidget("Label", {10,125}, "What did you expect to happen?");
-
-	expected = loadWidget("TextBox", {5, 160, 550, 80});
-
-	loadWidget("Label", {10,245}, "How can we reproduce this?");
-
-	reproduce = loadWidget("TextBox", {5, 280, 550, 80});
-
-	loadWidget("Label", {10,365}, "How can we contact you with questions?");
-
-	contact = loadWidget("TextBox", {5, 400, 550, 80});
-
-	tgui::Button::Ptr send = loadWidget("Button", {250, 495, 60, 30}, "Send");
-	send->connect("Pressed", &BugReport::sendReport, this);
+    os::Button().text("Send").pos(250, 495).size(60, 30).connect("Pressed", &BugReport::sendReport, this).add_to(panel);
 }
 
 void BugReport::sendReport() {
-	std::string shappened = happened->getText();
-	std::string sexpected = expected->getText();
-	std::string sreproduce = reproduce->getText();
-	std::string scontact = contact->getText();
+    std::string shappened = happened->getText();
+    std::string sexpected = expected->getText();
+    std::string sreproduce = reproduce->getText();
+    std::string scontact = contact->getText();
 
-	#ifdef _WIN32
-		std::string os = "Win";
-	#elif __APPLE__
-		std::string os = "Mac";
-	#else
-		std::string os = "Linux";
-	#endif
+#ifdef _WIN32
+    std::string os = "Win";
+#elif __APPLE__
+    std::string os = "Mac";
+#else
+    std::string os = "Linux";
+#endif
 
-	std::string version = std::to_string(resources.clientVersion);
+    std::string version = std::to_string(resources.clientVersion);
 
-	std::string postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact + "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
+    std::string postfield = "{\"happening\":\"" + shappened + "\",\"supposed\":\"" + sexpected + "\",\"reproduce\":\"" + sreproduce + "\",\"contact\":\"" + scontact +
+                            "\",\"version\":\"" + version + "\",\"os\":\"" + os + "\"}";
 
-	t = std::thread([&]() { resources.net->sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0); join=true; });
+    t = std::thread([&]() {
+        resources.net->sendCurlPost("https://bugs.speedblocks.se/bugs", postfield, 0);
+        join = true;
+    });
 
-	happened->setText("");
-	expected->setText("");
-	reproduce->setText("");
-	contact->setText("");
+    happened->setText("");
+    expected->setText("");
+    reproduce->setText("");
+    contact->setText("");
 }

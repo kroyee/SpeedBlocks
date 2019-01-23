@@ -1,186 +1,102 @@
 #include "ChallengesUI.h"
+#include <SFML/Network.hpp>
+#include <vector>
 #include "GameSignals.h"
 #include "Resources.h"
-#include <SFML/Network.hpp>
 
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SendRecording = Signal<void, int>::get("SendRecording");
 
-ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) :
-GuiBase(_pos, _res, parentPanel),
-challengeList(sf::Rect<int>(0,0,450,500), _res, panel) {
+ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel)
+    : GuiBase(_pos, _res, parentPanel), challengeList(sf::Rect<int>(0, 0, 450, 500), _res, panel.get()) {
+    challengeList.show();
 
-	challengeList.show();
+    leaderPanel.pos(420, 0).size(500, 500).hide().add_to(panel);
 
-	leaderPanel = tgui::Panel::create();
-	leaderPanel->setPosition(420,0);
-	leaderPanel->setSize(500,500);
-	leaderPanel->setBackgroundColor(sf::Color(255,255,255,0));
-	leaderPanel->hide();
-	panel->add(leaderPanel);
+    title.pos(113, 0).text("Leader board").text_size(32).add_to(leaderPanel);
 
-	title = resources.gfx->load("Label");
-	title->setPosition(113,0);
-	title->setText("Leader board");
-	title->setTextSize(33);
-	leaderPanel->add(title);
+    scrollPanel.pos(0, 60).size(470, 390).add_to(leaderPanel);
 
-	scrollPanel = tgui::Panel::create();
-	scrollPanel->setPosition(0,60);
-	scrollPanel->setSize(470,360);
-	scrollPanel->setBackgroundColor(sf::Color(255,255,255,0));
-	leaderPanel->add(scrollPanel);
+    playChallenge.size(180, 50).pos(160, 430).text("Play challenge").connect("pressed", &ChallengesUI::play, this).add_to(leaderPanel);
 
-	scroll = resources.gfx->load("Scrollbar");
-	scroll->setSize(30, 360);
-	scroll->setPosition(470, 60);
-	scroll->setMaximum(2);
-	scroll->setLowValue(1);
-	scroll->connect("ValueChanged", &ChallengesUI::listScrolled, this);
-	leaderPanel->add(scroll);
-
-	playChallenge = resources.gfx->load("Button");
-	playChallenge->setSize(180, 50);
-	playChallenge->setPosition(160, 430);
-	playChallenge->setText("Play challenge");
-	playChallenge->connect("pressed", &ChallengesUI::play, this);
-
-	Net::takePacket(2, &ChallengesUI::makeList, this);
-	Net::takePacket(5, &ChallengesUI::makeLeaderboard, this);
-	Net::takePacket(6, [&](sf::Packet &packet){
-		std::string text;
-		packet >> text;
-		QuickMsg("You improved your score from " + text);
-		SendRecording(selectedId);
-	});
+    Net::takePacket(2, &ChallengesUI::makeList, this);
+    Net::takePacket(5, &ChallengesUI::makeLeaderboard, this);
+    Net::takePacket(6, [&](sf::Packet& packet) {
+        std::string text;
+        packet >> text;
+        QuickMsg("You improved your score from " + text);
+        SendRecording(selectedId);
+    });
 }
 
-void ChallengesUI::makeList(sf::Packet &packet) {
-	uint8_t count;
-	packet >> count;
+void ChallengesUI::makeList(sf::Packet& packet) {
+    uint8_t count;
+    packet >> count;
 
-	challengeList.removeAllItems();
+    challengeList.removeAllItems();
 
-	uint16_t id;
-	std::string name, label;
-	for (int i=0; i<count; i++) {
-		packet >> id >> name >> label;
-		challengeList.addItem(name, label, id);
-	}
+    uint16_t id;
+    std::string name, label;
+    for (int i = 0; i < count; i++) {
+        packet >> id >> name >> label;
+        challengeList.addItem(name, label, id);
+    }
 }
 
-void ChallengesUI::makeLeaderboard(sf::Packet &packet) {
-	std::string oldTitle = title->getText();
-	int scrollpos = scroll->getValue();
+void ChallengesUI::makeLeaderboard(sf::Packet& packet) {
+    leaderPanel.show();
+    uint8_t columns;
+    packet >> selectedId >> columns;
+    for (auto&& chall : challengeList.items)
+        if (chall.id == selectedId) title->setText(chall.name);
 
-	leaderPanel->removeAllWidgets();
-	leaderPanel->add(title);
-	leaderPanel->add(scroll);
-	leaderPanel->add(scrollPanel);
-	leaderPanel->add(playChallenge);
-	leaderPanel->show();
-	packet >> selectedId >> columns;
-	for (auto&& chall : challengeList.items)
-		if (chall.id == selectedId)
-			title->setText(chall.name);
+    std::vector<int> label_positions;
+    label_positions.push_back(0);
+    columns++;
+    std::string string;
 
-	width[0] = 0;
-	columns++;
-	std::string string;
-	for (int i=1; i<columns; i++) {
-		packet >> width[i];
-		width[i]+=50;
+    for (int i = 1; i < columns; i++) {
+        uint16_t width;
+        packet >> width;
+        width += 50;
+        label_positions.push_back(width);
 
-		packet >> string;
-		tgui::Label::Ptr label = resources.gfx->load("Label");
-		label->setPosition(width[i], 40);
-		label->setText(string);
-		label->setTextSize(16);
-		leaderPanel->add(label);
-	}
+        packet >> string;
+        os::Label().pos(width, 40).text(string).text_size(16).add_to(leaderPanel);
+    }
 
-	tgui::Label::Ptr position = resources.gfx->load("Label");
-	position->setPosition(0, 40);
-	position->setText("#");
-	position->setTextSize(16);
-	leaderPanel->add(position);
+    label_positions.push_back(400);
+    scrollPanel.set_positions(label_positions);
 
-	scrollPanel->removeAllWidgets();
-	rows.clear();
-	ChallengesRow row;
-	packet >> itemsInScrollPanel;
-	for (uint16_t c=0; c<itemsInScrollPanel; c++) {
+    os::Label().text("#").pos(0, 40).text_size(16).add_to(leaderPanel);
 
-		row.label[0] = resources.gfx->load("Label");
-		row.label[0]->setPosition(0, c*30+7);
-		row.label[0]->setText(std::to_string(c+1));
-		row.label[0]->setTextSize(14);
-		scrollPanel->add(row.label[0]);
+    uint16_t itemsInScrollPanel;
+    packet >> itemsInScrollPanel;
+    for (uint16_t c = 0; c < itemsInScrollPanel; c++) {
+        std::vector<tgui::Widget::Ptr> row;
 
-		for (uint8_t i=1; i<columns; i++) {
-			packet >> string;
-			row.label[i] = resources.gfx->load("Label");
-			row.label[i]->setPosition(width[i], c*30+7);
-			row.label[i]->setText(string);
-			row.label[i]->setTextSize(14);
-			scrollPanel->add(row.label[i]);
-		}
-		row.button = resources.gfx->load("Button");
-		row.button->setText("View");
-		row.button->setPosition(400, c*30+5);
-		row.button->setSize(45, 20);
-		row.button->connect("pressed", &ChallengesUI::viewReplay, this, c);
-		rows.push_back(row);
-		scrollPanel->add(row.button);
-		scrollPanel->show();
-	}
+        row.push_back(os::Label().text(std::to_string(c + 1)).text_size(14).get());
 
-	int height = itemsInScrollPanel*30+7;
-	if (height <= scrollPanel->getSize().y)
-		scroll->setMaximum(0);
-	else {
-		height-=scrollPanel->getSize().y;
-		height/=30;
-		height++;
-		scroll->setMaximum(height);
-	}
+        for (uint8_t i = 1; i < columns; i++) {
+            packet >> string;
+            row.push_back(os::Label().text(string).text_size(14).get());
+        }
 
-	scroll->setValue(0);
-	if (oldTitle == title->getText())
-		scroll->setValue(scrollpos);
+        row.push_back(os::Button().text("View").size(45, 20).connect("pressed", &ChallengesUI::viewReplay, this, c).get());
+
+        scrollPanel.add(c, std::move(row));
+    }
+    while (scrollPanel.size() > itemsInScrollPanel) {
+        scrollPanel.pop_back();
+    }
+    scrollPanel.show();
 }
 
-void ChallengesUI::play() {
-	SendSignal(17, selectedId);
-}
+void ChallengesUI::play() { SendSignal(17, selectedId); }
 
 void ChallengesUI::show() {
-	panel->show();
-	leaderPanel->hide();
+    panel.show();
+    leaderPanel.hide();
 }
 
-void ChallengesUI::viewReplay(uint16_t slot) {
-	SendSignal(18, selectedId, slot);
-}
-
-void ChallengesUI::listScrolled(int scrollpos) {
-	for (auto it = rows.begin(); it != rows.end(); it++) {
-		int i = std::distance(rows.begin(), it);
-		it->button->setPosition(400, i*30+5 - scrollpos*30);
-		for (uint8_t c=0; c<columns; c++)
-			it->label[c]->setPosition(width[c], i*30+7 - scrollpos*30);
-	}
-}
-
-void ChallengesUI::scrolled(sf::Event& event) {
-	if (leaderPanel->isVisible())
-		if (event.type == sf::Event::MouseWheelScrolled)
-			if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
-				if (mouseOver(scrollPanel, event.mouseWheelScroll.x, event.mouseWheelScroll.y)) {
-					short cur = scroll->getValue();
-					cur-=event.mouseWheelScroll.delta;
-					if (cur<0)
-						cur=0;
-					scroll->setValue(cur);
-				}
-}
+void ChallengesUI::viewReplay(uint16_t slot) { SendSignal(18, selectedId, slot); }

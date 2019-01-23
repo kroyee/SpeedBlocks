@@ -3,42 +3,34 @@
 
 #include "GuiBase.h"
 #include "ScrollList.h"
+#include "ScrollList.hpp"
 
-namespace sf { class Packet; }
+namespace sf {
+class Packet;
+}
 
 class Resources;
 
-struct ChallengesRow {
-	tgui::Label::Ptr label[4];
-	tgui::Button::Ptr button;
-};
-
 class ChallengesUI : public GuiBase {
-public:
-	ScrollList challengeList;
-	tgui::Panel::Ptr leaderPanel;
-	tgui::Panel::Ptr scrollPanel;
-	tgui::Label::Ptr title;
-	tgui::Scrollbar::Ptr scroll;
-	tgui::Button::Ptr playChallenge;
+   public:
+    ScrollList challengeList;
+    os::Panel leaderPanel;
+    os::ScrollList scrollPanel;
+    os::Label title;
+    os::Button playChallenge;
 
-	std::list<ChallengesRow> rows;
+    uint16_t selectedId;
 
-	uint16_t selectedId;
-	uint16_t itemsInScrollPanel;
-	uint8_t columns;
-	uint16_t width[4];
+    ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
+    void makeList(sf::Packet& packet);
+    void makeLeaderboard(sf::Packet& packet);
+    void play();
+    virtual void show();
 
-	ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
-	void makeList(sf::Packet &packet);
-	void makeLeaderboard(sf::Packet &packet);
-	void play();
-	virtual void show();
+    void viewReplay(uint16_t slot);
 
-	void viewReplay(uint16_t slot);
-
-	void listScrolled(int scrollpos);
-	void scrolled(sf::Event& event);
+    void listScrolled(int scrollpos);
+    void scrolled(sf::Event& event);
 };
 
 #endif
