@@ -3,70 +3,69 @@
 
 #include <vector>
 
-#include "MainMenu.h"
-#include "LoginBox.h"
-#include "GameOptions.h"
-#include "OnlineplayUI.h"
+#include "AlertsUI.h"
+#include "AnimatedBackground.h"
 #include "AreYouSure.h"
-#include "PerformanceOutput.h"
 #include "BugReport.h"
 #include "ChallengesGameUI.h"
-#include "ReplayUI.h"
-#include "GameStandings.h"
 #include "ChatScreen.h"
-#include "SlideMenu.h"
-#include "ScoreScreen.h"
-#include "AnimatedBackground.h"
-#include "AlertsUI.h"
-#include "ServerUI.h"
 #include "GameFieldDrawer.h"
-#include "TrainingUI.h"
+#include "GameOptions.h"
+#include "GameStandings.h"
+#include "LoginBox.h"
+#include "MainMenu.h"
+#include "OnlineplayUI.h"
+#include "PerformanceOutput.h"
 #include "PopupMenu.h"
+#include "ReplayUI.h"
+#include "ScoreScreen.h"
+#include "ServerUI.h"
+#include "SlideMenu.h"
+#include "TrainingUI.h"
 
 class Resources;
 
 struct GuiElements {
-	GuiElements(Resources &_resources);
-	void delayCheck(const sf::Time& currentTime);
-	bool keyEvents(sf::Event& event);
-	void windowEvents(sf::Event& event);
-	void mouseEvents(sf::Event& event);
-	void resizeWindow(sf::Event& event);
-	bool handleEvent(sf::Event& event);
-	void toggleFullscreen();
+    GuiElements(Resources& _resources);
+    void delayCheck(const sf::Time& currentTime);
+    bool keyEvents(sf::Event& event);
+    void windowEvents(sf::Event& event);
+    void mouseEvents(sf::Event& event);
+    void resizeWindow(sf::Event& event);
+    bool handleEvent(sf::Event& event);
+    void toggleFullscreen();
 
-	void getAuthResult(sf::Packet &packet);
+    void getAuthResult(sf::Packet& packet);
 
-	Resources &resources;
+    Resources& resources;
 
+    AnimatedBackground animatedBackground;
+    Menu mainMenu;
+    LoginBox loginBox;
+    ChallengesGameUI challengesGameUI;
+    OnlineplayUI onlineplayUI;
+    GameStandings gameStandings;
+    ReplayUI replayUI;
+    TrainingUI trainingUI;
+    PerformanceOutput performanceOutput;
+    ChatScreen chatScreen;
+    SlideMenu slideMenu;
+    GameOptions gameOptions;
+    BugReport bugReport;
+    ServerUI serverUI;
+    AlertsUI alertsUI;
+    AreYouSure areYouSure;
+    os::Label QuickMsg;
+    ScoreScreen scoreScreen;
 
-	AnimatedBackground animatedBackground;
-	Menu mainMenu;
-	LoginBox loginBox;
-	ChallengesGameUI challengesGameUI;
-	OnlineplayUI onlineplayUI;
-	GameStandings gameStandings;
-	ReplayUI replayUI;
-	TrainingUI trainingUI;
-	PerformanceOutput performanceOutput;
-	ChatScreen chatScreen;
-	SlideMenu slideMenu;
-	GameOptions gameOptions;
-	BugReport bugReport;
-	ServerUI serverUI;
-	AlertsUI alertsUI;
-	AreYouSure areYouSure;
-	tgui::Label::Ptr QuickMsg;
-	ScoreScreen scoreScreen;
+    GameFieldDrawer gameFieldDrawer;
 
-	GameFieldDrawer gameFieldDrawer;
+    PopupMenu player_popup;
 
-	PopupMenu player_popup;
+    bool udpConfirmed;
 
-	bool udpConfirmed;
-
-	std::vector<GuiBase*> elements;
-	sf::Time quickMsgTime;
+    std::vector<GuiBase*> elements;
+    sf::Time quickMsgTime;
 };
 
 #endif

@@ -7,8 +7,8 @@
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SendRecording = Signal<void, int>::get("SendRecording");
 
-ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel)
-    : GuiBase(_pos, _res, parentPanel), challengeList(sf::Rect<int>(0, 0, 450, 500), _res, panel.get()) {
+ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel)
+    : GuiBase(_pos, _res, parentPanel), challengeList(sf::Rect<int>(0, 0, 450, 500), _res, panel) {
     challengeList.show();
 
     leaderPanel.pos(420, 0).size(500, 500).hide().add_to(panel);

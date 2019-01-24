@@ -9,7 +9,7 @@ class Resources;
 
 class ChatScreen : public GuiBase {
    private:
-    os::EditBox input;
+    os::Edit input;
     os::ChatBox chatBox;
     os::ChatBox chatBoxNoLobby;
     os::ChatBox fadingChatBox;

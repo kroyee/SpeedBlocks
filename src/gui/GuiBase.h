@@ -3,13 +3,12 @@
 
 #include <TGUI/TGUI.hpp>
 #include <type_traits>
-#include "GuiAlign.h"
 #include "Textures.h"
 #include "TguiWidgets.hpp"
+#include "WidgetAlign.h"
 
 class Resources;
 
-namespace tgui {
 namespace SBGui {
 
 struct PosAndSize {
@@ -27,7 +26,7 @@ class GuiBase {
     Resources& resources;
 
     GuiBase(sf::Rect<int> _pos, Resources& _res);
-    GuiBase(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel);
+    GuiBase(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel);
     virtual ~GuiBase();
     virtual void show() { panel.show(); }
     virtual void hide() { panel.hide(); }
@@ -38,26 +37,29 @@ class GuiBase {
     bool mouseOver(tgui::Widget::Ptr widget, int x, int y);
     bool mouseOver(tgui::Widget::Ptr widget);
 
-    os::Align<> align(int x, int y, int gap = 0, bool down = true) { return os::Align<>(panel, x, y, gap, down); }
+    template <class... T>
+    using Align = typename os::AlignBase<decltype(panel)>::template Align<T...>;
+
+    Align<> align(int x, int y, int gap = 0, bool down = true) { return Align<>(panel, x, y, gap, down); }
 
     template <typename... T>
-    os::Align<T...> align(int x, int y, int gap = 0, bool down = true) {
-        return os::Align<T...>(panel, x, y, gap, down);
+    Align<T...> align(int x, int y, int gap = 0, bool down = true) {
+        return Align<T...>(panel, x, y, gap, down);
     }
 
     template <typename W>
-    os::Align<> under(W& w) {
+    Align<> under(W& w) {
         return {w};
     }
 
     template <typename W>
-    os::Align<> right_of(W& w) {
-        return (os::Align<>{w, 0, false} << os::Vertical{0});
+    Align<> right_of(W& w) {
+        return (Align<>{w, 0, false} << os::Vertical{0});
     }
 };
-}  // namespace SBGui
-}  // namespace tgui
 
-using GuiBase = tgui::SBGui::GuiBase;
+}  // namespace SBGui
+
+using GuiBase = SBGui::GuiBase;
 
 #endif

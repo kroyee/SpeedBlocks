@@ -1,19 +1,16 @@
 #include "GuiBase.h"
 #include "Resources.h"
 
-namespace tgui {
 namespace SBGui {
 
 GuiBase::GuiBase(sf::Rect<int> _pos, Resources& _res) : resources(_res) {
-    panel = Panel::create();
-    panel->setPosition(_pos.left, _pos.top);
-    panel->setSize(_pos.width, _pos.height);
-    panel->setBackgroundColor(sf::Color(255, 255, 255, 0));
-    panel->hide();
-    resources.gfx->tGui.add(panel);
+    panel.pos(_pos.left, _pos.top).size(_pos.width, _pos.height).hide();
+    resources.gfx->tGui.add(panel.get());
 }
 
-GuiBase::GuiBase(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parentPanel) : resources(_res) { panel = loadPanelTo(parentPanel, _pos); }
+GuiBase::GuiBase(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel) : resources(_res) {
+    panel.pos(_pos.left, _pos.top).size(_pos.width, _pos.height).add_to(parentPanel);
+}
 
 GuiBase::~GuiBase() {}
 
@@ -35,4 +32,3 @@ bool GuiBase::mouseOver(tgui::Widget::Ptr widget) {
 }
 
 }  // namespace SBGui
-}  // namespace tgui

@@ -6,17 +6,17 @@
 class Resources;
 
 class TrainingUI : public GuiBase {
-public:
-	tgui::Label::Ptr amount_text;
-	tgui::Slider::Ptr amount_slider;
-	tgui::Label::Ptr speed_text;
-	tgui::Slider::Ptr speed_slider;
-	tgui::Label::Ptr skill_text;
-	tgui::Slider::Ptr skill_slider;
-	tgui::Label::Ptr playstyle_text;
-	tgui::Slider::Ptr playstyle_slider;
+   public:
+    os::Label amount_text;
+    os::Slider amount_slider;
+    os::Label speed_text;
+    os::Slider speed_slider;
+    os::Label skill_text;
+    os::Slider skill_slider;
+    os::Label playstyle_text;
+    os::Slider playstyle_slider;
 
-	TrainingUI(sf::Rect<int> _pos, Resources& _res);
+    TrainingUI(sf::Rect<int> _pos, Resources& _res);
 };
 
 #endif

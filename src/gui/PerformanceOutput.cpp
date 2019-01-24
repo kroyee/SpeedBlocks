@@ -3,172 +3,108 @@
 #include "Resources.h"
 using std::to_string;
 
+void set_properties(Resources& resources, os::Label& label) {
+    label->setAutoSize(false);
+    label->getRenderer()->setFont(resources.gfx->font("print"));
+    label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
+}
+
 PerformanceOutput::PerformanceOutput(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
-	pingIdCount=0;
-	pingReturned=false;
+    pingIdCount = 0;
+    pingReturned = false;
 
-	longestFrame=sf::seconds(0);
-	secCount=sf::seconds(0);
-	frameCount=0;
-	frameRate=0;
+    longestFrame = sf::seconds(0);
+    secCount = sf::seconds(0);
+    frameCount = 0;
+    frameRate = 0;
 
-	longest = tgui::Label::create();
-	longest->setAutoSize(false);
-	longest->setPosition(0,13);
-	longest->setSize(21,15);
-	longest->setText("");
-	longest->setTextSize(12);
-	longest->setTextColor(sf::Color::Black);
-	longest->setFont(resources.gfx->font("print"));
-	longest->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	longest->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(longest);
+    longest.pos(0, 13).size(21, 15).text_size(12).center().add_to(panel)->getRenderer()->setTextColor(sf::Color::Black);
+    set_properties(resources, longest);
 
-	longestHeader = resources.gfx->load("Label");
-	longestHeader->setAutoSize(false);
-	longestHeader->setPosition(0,1);
-	longestHeader->setSize(21,13);
-	longestHeader->setText("LFT");
-	longestHeader->setTextSize(10);
-	longestHeader->setFont(resources.gfx->font("print"));
-	longestHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	longestHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(longestHeader);
+    set_properties(resources, longestHeader);
+    longestHeader.pos(0, 1).size(21, 13).text_size(10).center().add_to(panel).text("LFT");
 
-	input = tgui::Label::create();
-	input->setAutoSize(false);
-	input->setPosition(23,13);
-	input->setSize(28,15);
-	input->setText("");
-	input->setTextSize(12);
-	input->setTextColor(sf::Color::Black);
-	input->setFont(resources.gfx->font("print"));
-	input->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	input->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(input);
+    input.pos(23, 13).size(28, 15).text_size(12).center().add_to(panel)->getRenderer()->setTextColor(sf::Color::Black);
+    set_properties(resources, input);
 
-	inputHeader = resources.gfx->load("Label");
-	inputHeader->setAutoSize(false);
-	inputHeader->setPosition(23,1);
-	inputHeader->setSize(28,13);
-	inputHeader->setText("IPS");
-	inputHeader->setTextSize(10);
-	inputHeader->setFont(resources.gfx->font("print"));
-	inputHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	inputHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(inputHeader);
+    set_properties(resources, inputHeader);
+    inputHeader.pos(23, 1).size(28, 13).text_size(10).center().add_to(panel).text("IPS");
 
-	frame = tgui::Label::create();
-	frame->setAutoSize(false);
-	frame->setPosition(53,13);
-	frame->setSize(28,15);
-	frame->setText("");
-	frame->setTextSize(12);
-	frame->setFont(resources.gfx->font("print"));
-	frame->setTextColor(sf::Color::Black);
-	frame->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	frame->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(frame);
+    frame.pos(53, 13).size(28, 15).text_size(12).center().add_to(panel)->getRenderer()->setTextColor(sf::Color::Black);
+    set_properties(resources, frame);
 
-	frameHeader = resources.gfx->load("Label");
-	frameHeader->setAutoSize(false);
-	frameHeader->setPosition(53,1);
-	frameHeader->setSize(28,13);
-	frameHeader->setText("FPS");
-	frameHeader->setTextSize(10);
-	frameHeader->setFont(resources.gfx->font("print"));
-	frameHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	frameHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(frameHeader);
+    set_properties(resources, frameHeader);
+    frameHeader.pos(53, 1).size(28, 13).text_size(10).center().add_to(panel).text("FPS");
 
-	ping = tgui::Label::create();
-	ping->setAutoSize(false);
-	ping->setPosition(83,13);
-	ping->setSize(28,15);
-	ping->setText("");
-	ping->setTextSize(12);
-	ping->setTextColor(sf::Color::Black);
-	ping->setFont(resources.gfx->font("print"));
-	ping->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	ping->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(ping);
+    ping.pos(83, 13).size(28, 15).text_size(12).center().add_to(panel)->getRenderer()->setTextColor(sf::Color::Black);
+    set_properties(resources, ping);
 
-	pingHeader = resources.gfx->load("Label");
-	pingHeader->setAutoSize(false);
-	pingHeader->setPosition(83,1);
-	pingHeader->setSize(28,13);
-	pingHeader->setText("MS");
-	pingHeader->setTextSize(10);
-	pingHeader->setFont(resources.gfx->font("print"));
-	pingHeader->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-	pingHeader->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-	panel->add(pingHeader);
+    set_properties(resources, pingHeader);
+    pingHeader.pos(83, 1).size(28, 13).text_size(10).center().add_to(panel).text("MS");
 }
 
 void PerformanceOutput::update(sf::Time current, sf::Time lastFrame) {
-	if (Options::get<bool>("performanceOutput")) {
-        if (current-lastFrame > longestFrame)
-            longestFrame = current-lastFrame;
+    if (Options::get<bool>("performanceOutput")) {
+        if (current - lastFrame > longestFrame) longestFrame = current - lastFrame;
         frameCount++;
 
-        if (current-secCount > sf::seconds(1)) {
+        if (current - secCount > sf::seconds(1)) {
             setFrameRate(frameRate);
             setInputRate(frameCount);
             setLongestFrame(longestFrame);
-            frameRate=0;
-            frameCount=0;
-            longestFrame=sf::seconds(0);
-            secCount=current;
+            frameRate = 0;
+            frameCount = 0;
+            longestFrame = sf::seconds(0);
+            secCount = current;
         }
     }
 }
 
 void PerformanceOutput::setFrameRate(int fr) {
-	frame->setText(to_string(fr));
-	int frameRateColor;
+    frame.text(to_string(fr));
+    int frameRateColor;
     if (fr < 40)
         frameRateColor = 0;
     else if (fr < 100)
-        frameRateColor = (fr-40)*4.25;
+        frameRateColor = (fr - 40) * 4.25;
     else
-    	frameRateColor = 255;
-    frame->getRenderer()->setBackgroundColor(sf::Color(255-frameRateColor, frameRateColor, 0));
+        frameRateColor = 255;
+    frame->getRenderer()->setBackgroundColor(sf::Color(255 - frameRateColor, frameRateColor, 0));
 }
 
 void PerformanceOutput::setInputRate(int fc) {
-	input->setText(to_string(fc));
-	int inputRateColor;
+    input.text(to_string(fc));
+    int inputRateColor;
     if (fc > 999)
-        input->setTextSize(9);
+        input.text_size(9);
     else
-        input->setTextSize(12);
+        input.text_size(12);
     if (fc < 255)
         inputRateColor = fc;
     else
-    	inputRateColor = 255;
-    input->getRenderer()->setBackgroundColor(sf::Color(255-inputRateColor, inputRateColor, 0));
+        inputRateColor = 255;
+    input->getRenderer()->setBackgroundColor(sf::Color(255 - inputRateColor, inputRateColor, 0));
 }
 
 void PerformanceOutput::setLongestFrame(sf::Time& lf) {
-	longest->setText(to_string(lf.asMilliseconds()));
-	int longestFrameColor;
+    longest.text(to_string(lf.asMilliseconds()));
+    int longestFrameColor;
     if (lf.asMilliseconds() > 21)
         longestFrameColor = 0;
     else if (lf.asMilliseconds() > 4)
         longestFrameColor = 255 - (lf.asMilliseconds() - 4) * 15;
     else
-    	longestFrameColor = 255;
-    longest->getRenderer()->setBackgroundColor(sf::Color(255-longestFrameColor, longestFrameColor, 0));
+        longestFrameColor = 255;
+    longest->getRenderer()->setBackgroundColor(sf::Color(255 - longestFrameColor, longestFrameColor, 0));
 }
 
 void PerformanceOutput::setPing(int pingResult) {
-	if (pingResult == -1)
-		return;
-	ping->setText(to_string(pingResult));
-	int pingColor;
-	if (pingResult > 255)
-		pingColor = 0;
-	else
-		pingColor = 255-pingResult;
-	ping->getRenderer()->setBackgroundColor(sf::Color(255-pingColor, pingColor, 0));
+    if (pingResult == -1) return;
+    ping.text(to_string(pingResult));
+    int pingColor;
+    if (pingResult > 255)
+        pingColor = 0;
+    else
+        pingColor = 255 - pingResult;
+    ping->getRenderer()->setBackgroundColor(sf::Color(255 - pingColor, pingColor, 0));
 }

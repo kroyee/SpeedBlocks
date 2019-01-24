@@ -4,96 +4,75 @@
 #include <TGUI/TGUI.hpp>
 #include <TGUI/Widgets/ClickableWidget.hpp>
 
-namespace tgui
-{
-    class TextureAndSprite : public ClickableWidget
-    {
-    public:
+namespace tgui {
+class TextureAndSprite : public ClickableWidget {
+   public:
+    typedef std::shared_ptr<TextureAndSprite> Ptr;             ///< Shared widget pointer
+    typedef std::shared_ptr<const TextureAndSprite> ConstPtr;  ///< Shared constant widget pointer
 
-        typedef std::shared_ptr<TextureAndSprite> Ptr; ///< Shared widget pointer
-        typedef std::shared_ptr<const TextureAndSprite> ConstPtr; ///< Shared constant widget pointer
+    TextureAndSprite(const Layout2d& size = {100, 100});
 
-        TextureAndSprite(const Layout2d& size = {100, 100});
+    TextureAndSprite(const Layout& width, const Layout& height);
 
-        TextureAndSprite(const Layout& width, const Layout& height);
+    TextureAndSprite(const TextureAndSprite& copy);
 
-        TextureAndSprite(const TextureAndSprite& copy);
+    TextureAndSprite& operator=(const TextureAndSprite& right);
 
-        TextureAndSprite& operator= (const TextureAndSprite& right);
+    static TextureAndSprite::Ptr create(Layout2d size = {100, 100});
 
+    static TextureAndSprite::Ptr copy(TextureAndSprite::ConstPtr canvas);
 
-        static TextureAndSprite::Ptr create(Layout2d size = {100, 100});
+    virtual void setPosition(const Layout2d& position) override;
+    // using Transformable::setPosition;
 
-        static TextureAndSprite::Ptr copy(TextureAndSprite::ConstPtr canvas);
+    virtual void setSize(const Layout2d& size) override;
+    // using Transformable::setSize;
 
+    void setOpacity(float opacity);
 
-        virtual void setPosition(const Layout2d& position) override;
-        using Transformable::setPosition;
+   protected:
+    virtual Widget::Ptr clone() const override { return std::make_shared<TextureAndSprite>(*this); }
 
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-        virtual void setSize(const Layout2d& size) override;
-        using Transformable::setSize;
+   public:
+    sf::Texture m_texture;
+    sf::Sprite m_sprite;
+};
 
-        virtual void setOpacity(float opacity) override;
+class MySprite : public ClickableWidget {
+   public:
+    typedef std::shared_ptr<MySprite> Ptr;             ///< Shared widget pointer
+    typedef std::shared_ptr<const MySprite> ConstPtr;  ///< Shared constant widget pointer
 
-    protected:
+    MySprite(const Layout2d& size = {100, 100});
 
-        virtual Widget::Ptr clone() const override
-        {
-            return std::make_shared<TextureAndSprite>(*this);
-        }
+    MySprite(const Layout& width, const Layout& height);
 
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    MySprite(const MySprite& copy);
 
-    public:
+    MySprite& operator=(const MySprite& right);
 
-        sf::Texture     m_texture;
-        sf::Sprite      m_sprite;
-    };
+    static MySprite::Ptr create(Layout2d size = {100, 100});
 
-    class Sprite : public ClickableWidget
-    {
-    public:
+    static MySprite::Ptr copy(MySprite::ConstPtr canvas);
 
-        typedef std::shared_ptr<Sprite> Ptr; ///< Shared widget pointer
-        typedef std::shared_ptr<const Sprite> ConstPtr; ///< Shared constant widget pointer
+    virtual void setPosition(const Layout2d& position) override;
+    // using Transformable::setPosition;
 
-        Sprite(const Layout2d& size = {100, 100});
+    virtual void setSize(const Layout2d& size) override;
+    // using Transformable::setSize;
 
-        Sprite(const Layout& width, const Layout& height);
+    void setOpacity(float opacity);
 
-        Sprite(const Sprite& copy);
+   protected:
+    virtual Widget::Ptr clone() const override { return std::make_shared<MySprite>(*this); }
 
-        Sprite& operator= (const Sprite& right);
+    virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-
-        static Sprite::Ptr create(Layout2d size = {100, 100});
-
-        static Sprite::Ptr copy(Sprite::ConstPtr canvas);
-
-
-        virtual void setPosition(const Layout2d& position) override;
-        using Transformable::setPosition;
-
-
-        virtual void setSize(const Layout2d& size) override;
-        using Transformable::setSize;
-
-        virtual void setOpacity(float opacity) override;
-
-    protected:
-
-        virtual Widget::Ptr clone() const override
-        {
-            return std::make_shared<Sprite>(*this);
-        }
-
-        virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-    public:
-
-        sf::Sprite      m_sprite;
-    };
-}
+   public:
+    sf::Sprite m_sprite;
+};
+}  // namespace tgui
 
 #endif

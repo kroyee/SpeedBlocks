@@ -53,7 +53,7 @@ void ChatScreen::activate() {
     sendToLabel.show();
     input.show();
     hideLobby.show();
-    input->focus();
+    input.focus();
     fadingChatBox.hide();
 }
 
@@ -172,7 +172,7 @@ bool ChatScreen::handleEvent(sf::Event& event) {
                     return true;
                 }
             } else
-                input->focus();
+                input.focus();
         }
     return false;
 }
@@ -185,7 +185,7 @@ bool ChatScreen::isActive() {
 }
 
 void ChatScreen::focus() {
-    if (input->isVisible()) input->focus();
+    if (input->isVisible()) input.focus();
 }
 
 void ChatScreen::sendTo(const std::string& _to, bool force) {

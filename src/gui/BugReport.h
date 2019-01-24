@@ -19,7 +19,7 @@ class BugReport : public GuiBase {
 
     std::thread t;
 
-    BugReport(sf::Rect<int> _pos, Resources& _res, tgui::Panel::Ptr parent);
+    BugReport(sf::Rect<int> _pos, Resources& _res, os::Panel& parent);
 
     void sendReport();
 };

@@ -1,63 +1,63 @@
 #ifndef ONLINEPLAYUI_H
 #define ONLINEPLAYUI_H
 
+#include "ChallengesUI.h"
 #include "GuiBase.h"
 #include "ScrollList.h"
 #include "TournamentUI.h"
-#include "ChallengesUI.h"
 
 class Resources;
 
 class OnlineplayUI : public GuiBase {
-public:
-	tgui::Tab::Ptr opTab;
-	tgui::Panel::Ptr CreateRoom;
+   public:
+    os::Tabs opTab;
+    os::Panel CreateRoom;
 
-	ScrollList roomList;
-	ScrollList tournamentList;
+    ScrollList roomList;
+    ScrollList tournamentList;
 
-	TournamentUI tournamentPanel;
+    TournamentUI tournamentPanel;
 
-	ChallengesUI challengesUI;
+    ChallengesUI challengesUI;
 
-	tgui::Panel::Ptr tournamentSidePanel;
-	tgui::Panel::Ptr roomSidePanel;
-	tgui::Button::Ptr matchButton;
-	tgui::Label::Ptr matchQueueing;
-	tgui::Label::Ptr matchPlaying;
+    os::Panel tournamentSidePanel;
+    os::Panel roomSidePanel;
+    os::Button matchButton;
+    os::Label matchQueueing;
+    os::Label matchPlaying;
 
-	tgui::Panel::Ptr createTournamentPanel;
-	tgui::EditBox::Ptr tournamentName;
-	tgui::EditBox::Ptr sets;
-	tgui::EditBox::Ptr rounds;
+    os::Panel createTournamentPanel;
+    os::Edit tournamentName;
+    os::Edit sets;
+    os::Edit rounds;
 
-	sf::Time updateRoomListTime, updateTournamentListTime;
+    sf::Time updateRoomListTime, updateTournamentListTime;
 
-	OnlineplayUI(sf::Rect<int> _pos, Resources& _res);
+    OnlineplayUI(sf::Rect<int> _pos, Resources& _res);
 
-	void opTabSelect(const std::string& tab);
-	void hideAllPanels(bool keepTournamentOpen = false);
+    void opTabSelect(const std::string& tab);
+    void hideAllPanels(bool keepTournamentOpen = false);
 
-	void createRoom(const std::string& name, const std::string& maxplayers);
-	void makeRoomList(sf::Packet &packet);
-	void addRoom(sf::Packet &packet);
+    void createRoom(const std::string& name, const std::string& maxplayers);
+    void makeRoomList(sf::Packet& packet);
+    void addRoom(sf::Packet& packet);
 
-	void createRoomPressed();
+    void createRoomPressed();
 
-	void makeTournamentList(sf::Packet &packet);
-	void addTournament(sf::Packet &packet);
+    void makeTournamentList(sf::Packet& packet);
+    void addTournament(sf::Packet& packet);
 
-	void createTournamentPressed();
+    void createTournamentPressed();
 
-	void createTournament();
+    void createTournament();
 
-	void matchmakingPressed();
+    void matchmakingPressed();
 
-	void alertMsg(const uint16_t id1);
+    void alertMsg(const uint16_t id1);
 
-	void back();
+    void back();
 
-	void setRoomListTime();
+    void setRoomListTime();
 };
 
 #endif

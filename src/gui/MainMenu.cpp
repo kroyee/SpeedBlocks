@@ -4,30 +4,22 @@
 #include "Textures.h"
 
 Menu::Menu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
+    os::Picture logo(resources.gfx->texture("logo"));
+    logo.pos(0, -20).add_to(panel);
 
-	tgui::Picture::Ptr logo = tgui::Picture::create(resources.gfx->texture("logo"));
-	logo->setPosition(0, -20);
-	panel->add(logo);
+    align<os::Size<340, 80>>(60, 300, 30) << os::Button().connect("pressed", &Menu::Training, this) << os::Button().connect("pressed", &Menu::quitGame, this);
 
-	auto training = button1("Training");
-	training->connect("pressed", &Menu::Training, this);
-
-	auto quit = button1("Quit");
-	quit->connect("pressed", &Menu::quitGame, this);
-
-	align<Size<340, 80>>(60, 300, 30) << training << quit;
-
-	auto version_label = label1("v"+std::to_string(resources.version_major)+"."+std::to_string(resources.version_minor)+"."+std::to_string(resources.version_patch));
-	align<>(5,575) << version_label;
+    os::Label()
+        .text("v" + std::to_string(resources.version_major) + "." + std::to_string(resources.version_minor) + "." + std::to_string(resources.version_patch))
+        .pos(5, 575)
+        .add_to(panel);
 }
 
 static auto& Show = Signal<void, int>::get("Show");
 
 void Menu::Training() {
-	hide();
-	Show(16);
+    hide();
+    Show(16);
 }
 
-void Menu::quitGame() {
-	resources.window.close();
-}
+void Menu::quitGame() { resources.window.close(); }
