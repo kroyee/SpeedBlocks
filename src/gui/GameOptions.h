@@ -42,11 +42,11 @@ class GameOptions : public GuiBase {
     GameOptions(sf::Rect<int> _pos, Resources& _res, os::Panel parentPanel);
     void show(int index);
     void changeName(const std::string& name);
-    void vidSlide(short i);
+    void vidSlide(float i);
     void fsChecked(bool i);
     void sndChecked(bool i);
     void applyVideo();
-    void volSlide(short i, short vol);
+    void volSlide(int i, float vol);
     void setKey(os::TitledButton& _button, sf::Keyboard::Key& _key);
     bool putKey(sf::Event& event);
 
@@ -54,7 +54,7 @@ class GameOptions : public GuiBase {
     void colPiece(short i);
     void initSprites();
 
-    void setGhostPieceAlpha(uint8_t alpha);
+    void setGhostPieceAlpha(float alpha);
 };
 
 std::string SFKeyToString(unsigned int keycode);

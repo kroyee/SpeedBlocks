@@ -214,7 +214,7 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, os::Panel parentPa
 
     os::Label().pos(100, 260).text("Game field background color and lines").add_to(VisOpt);
 
-    os::Slider().pos(20, 290).size(520, 30).max(255).set(Options::get<uint8_t>("fieldBackground")).add_to(VisOpt).connect("ValueChanged", [&](int val) {
+    os::Slider().pos(20, 290).size(520, 30).max(255).set(Options::get<uint8_t>("fieldBackground")).add_to(VisOpt).connect("ValueChanged", [&](float val) {
         Options::get<uint8_t>("fieldBackground") = val;
         SetGameBackColor(val);
         SetDrawMe();
@@ -263,7 +263,7 @@ void GameOptions::changeName(const std::string& name) {
     // gui->game.field.text.setName(name);
 }
 
-void GameOptions::vidSlide(short i) {
+void GameOptions::vidSlide(float i) {
     std::string name;
     name = to_string(Options::get_videomodes()[i].width) + "x" + to_string(Options::get_videomodes()[i].height);
     VideoMode.text(name);
@@ -315,7 +315,7 @@ void GameOptions::applyVideo() {
     if (value) Options::get<sf::Time>("inputdelay") = sf::microseconds(1000000 / value);
 }
 
-void GameOptions::volSlide(short i, short vol) {
+void GameOptions::volSlide(int i, float vol) {
     if (i == 1) {
         Options::get<short>("musicvolume") = vol;
         SetMusicVolume(vol);
@@ -745,7 +745,7 @@ std::string SFKeyToString(unsigned int keycode) {
     }
 }
 
-void GameOptions::setGhostPieceAlpha(uint8_t alpha) {
+void GameOptions::setGhostPieceAlpha(float alpha) {
     Options::get<uint8_t>("ghostPieceAlpha") = alpha;
     resources.gfx->setGhostPieceAlpha(alpha);
     SetDrawMe();

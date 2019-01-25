@@ -78,7 +78,7 @@ void ScrollList::setItemPos() {
     listScrolled(scroll->getValue());
 }
 
-void ScrollList::listScrolled(int scrollpos) {
+void ScrollList::listScrolled(unsigned scrollpos) {
     for (auto it = items.begin(); it != items.end(); it++) {
         int i = std::distance(items.begin(), it);
         it->button->setPosition(50, i * 120 - scrollpos * 30 + 10);

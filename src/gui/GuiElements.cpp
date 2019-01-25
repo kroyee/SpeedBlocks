@@ -1,5 +1,6 @@
 #include "GuiElements.h"
 #include <SFML/Network.hpp>
+#include <iostream>
 #include "GameField.h"
 #include "GameSignals.h"
 #include "Options.h"

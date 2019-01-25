@@ -25,7 +25,7 @@ class ScrollList : public GuiBase {
     void removeItem(uint16_t id);
     void removeAllItems();
     void setItemPos();
-    void listScrolled(int scrollpos);
+    void listScrolled(unsigned scrollpos);
     void scrolled(sf::Event& event);
 };
 

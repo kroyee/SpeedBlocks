@@ -15,13 +15,18 @@ TrainingUI::TrainingUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
 
     amount_text.pos(330, 90).text("0").text_size(18).add_to(panel);
 
-    amount_slider.pos(60, 130).size(500, 16).max(20).connect("ValueChanged", [&](int newVal) { amount_text.text(std::to_string(newVal)); }).add_to(panel);
+    amount_slider.pos(60, 130).size(500, 16).max(20).connect("ValueChanged", [&](float newVal) { amount_text.text(std::to_string(newVal)); }).add_to(panel);
 
     os::Label().pos(238, 170).text("Speed:").text_size(18).add_to(panel);
 
     speed_text.pos(330, 170).text("20 BPM").text_size(18).add_to(panel);
 
-    speed_slider.pos(60, 210).size(500, 16).min(20).max(300).connect("ValueChanged", [&](int newVal) { speed_text.text(std::to_string(newVal) + " BPM"); }).add_to(panel);
+    speed_slider.pos(60, 210)
+        .size(500, 16)
+        .min(20)
+        .max(300)
+        .connect("ValueChanged", [&](float newVal) { speed_text.text(std::to_string(newVal) + " BPM"); })
+        .add_to(panel);
 
     os::Label().pos(204, 250).text("Skill level:").text_size(18).add_to(panel).hide();
 

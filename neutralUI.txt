@@ -1,7 +1,7 @@
 Button {
-    Texture = "neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
-    TextureHover = "neutralUIsheet.png" Part(0, 120, 120, 60) Middle(20, 0, 80, 60);
-    TextureDown = "neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
+    Texture = "media/neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
+    TextureHover = "media/neutralUIsheet.png" Part(0, 120, 120, 60) Middle(20, 0, 80, 60);
+    TextureDown = "media/neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
     TextColor = (100, 100, 100);
 }
 
@@ -17,24 +17,27 @@ BigButton {
 }
 
 PanelBackground {
-    Texture = "neutralUIsheet.png" Part(240, 0, 250, 250) Middle(30, 30, 190, 190);
+    Texture = "media/neutralUIsheet.png" Part(240, 0, 250, 250) Middle(30, 30, 190, 190);
+    TextureHover = "media/neutralUIsheet.png" Part(0, 120, 120, 60) Middle(20, 0, 80, 60);
+    TextureDown = "media/neutralUIsheet.png" Part(0, 60, 120, 60) Middle(20, 0, 80, 60);
+    TextColor = (100, 100, 100);
 }
 
 ChatBox {
     BackgroundColor = (200, 200, 200, 128);
     BorderColor = (255, 255, 255);
     Borders = (0, 0, 0, 0);
-    Scrollbar = "Scrollbar";
+    Scrollbar = &Scrollbar;
 }
 
 CheckBox {
-    TextureChecked = "neutralUIsheet.png" Part(740, 144, 37, 36);
-    TextureUnchecked = "neutralUIsheet.png" Part(740, 180, 37, 36);
+    TextureChecked = "media/neutralUIsheet.png" Part(740, 144, 37, 36);
+    TextureUnchecked = "media/neutralUIsheet.png" Part(740, 180, 37, 36);
     TextColor = (100, 100, 100);
 }
 
 ChildWindow {
-    TitlebarImage = "neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
+    TitlebarImage = "media/neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
     TitleColor = (100, 100, 100);
     BackgroundColor = (230, 230, 230);
     BorderColor = (255, 255, 255);
@@ -44,13 +47,13 @@ ChildWindow {
 }
 
 Button.ChildWindowCloseButton {
-    NormalImage = "neutralUIsheet.png" Part(740, 0, 36, 36);
-    HoverImage = "neutralUIsheet.png" Part(776, 0, 36, 36);
-    DownImage = "neutralUIsheet.png" Part(812, 0, 36, 36);
+    NormalImage = "media/neutralUIsheet.png" Part(740, 0, 36, 36);
+    HoverImage = "media/neutralUIsheet.png" Part(776, 0, 36, 36);
+    DownImage = "media/neutralUIsheet.png" Part(812, 0, 36, 36);
 }
 
 EditBox {
-    Texture = "neutralUIsheet.png" Part(0, 0, 120, 60) Middle(20, 0, 80, 60);
+    Texture = "media/neutralUIsheet.png" Part(0, 0, 120, 60) Middle(20, 0, 80, 60);
     TextColor = (100, 100, 100);
     SelectedTextColor = (150, 150, 150);
     SelectedTextBackgroundColor = (190, 225, 235);
@@ -69,7 +72,7 @@ ListBox {
     SelectedTextColor = (150, 150, 150);
     BorderColor = (255, 255, 255);
     Borders = (2, 2, 2, 2);
-    Scrollbar = "Scrollbar";
+    Scrollbar = &Scrollbar;
 }
 
 MenuBar {
@@ -91,45 +94,46 @@ Panel {
 }
 
 ProgressBar {
-    BackImage = "neutralUIsheet.png" Part(0, 180, 120, 60) Middle(30, 0, 60, 60);
-    FrontImage = "neutralUIsheet.png" Part(120, 0, 120, 60) Middle(30, 0, 60, 60);
+    TextureBackground = "media/neutralUIsheet.png" Part(0, 180, 120, 60) Middle(30, 0, 60, 60);
+    TextureFill = "media/neutralUIsheet.png" Part(120, 0, 120, 60) Middle(30, 0, 60, 60);
+    TextColor          = rgb(100, 100, 100);
 }
 
 RadioButton {
-    TextureChecked = "neutralUIsheet.png" Part(776, 108, 36, 36);
-    TextureUnchecked = "neutralUIsheet.png" Part(740, 108, 36, 36);
+    TextureChecked = "media/neutralUIsheet.png" Part(776, 108, 36, 36);
+    TextureUnchecked = "media/neutralUIsheet.png" Part(740, 108, 36, 36);
     TextColor = (100, 100, 100);
 }
 
 Scrollbar {
-    TextureTrack = "neutralUIsheet.png" Part(851, 144, 30, 50) Middle(0, 10, 30, 30);
-    TextureThumb = "neutralUIsheet.png" Part(823, 144, 29, 50) Middle(0, 10, 30, 30);
-    TextureArrowUp = "neutralUIsheet.png" Part(848, 45, 30, 45);
-    TextureArrowDown = "neutralUIsheet.png" Part(848, 0, 30, 45);
+    TextureTrack = "media/neutralUIsheet.png" Part(851, 144, 30, 50) Middle(0, 10, 30, 30);
+    TextureThumb = "media/neutralUIsheet.png" Part(823, 144, 29, 50) Middle(0, 10, 30, 30);
+    TextureArrowUp = "media/neutralUIsheet.png" Part(848, 45, 30, 45);
+    TextureArrowDown = "media/neutralUIsheet.png" Part(848, 0, 30, 45);
 }
 
 Slider {
-    TrackImage = "neutralUIsheet.png" Part(812, 108, 50, 30) Middle(10, 0, 30, 30);
-    ThumbImage = "neutralUIsheet.png" Part(848, 45, 30, 45);
+    TextureTrack = "media/neutralUIsheet.png" Part(812, 108, 50, 30) Middle(10, 0, 30, 30);
+    TextureThumb = "media/neutralUIsheet.png" Part(848, 45, 30, 45);
 }
 
 Tab {
-    NormalImage = "neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
-    SelectedImage = "neutralUIsheet.png" Part(120, 180, 120, 60) Middle(20, 0, 80, 60);
+    NormalImage = "media/neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
+    SelectedImage = "media/neutralUIsheet.png" Part(120, 180, 120, 60) Middle(20, 0, 80, 60);
     TextColor = (240, 240, 240);
     SelectedTextColor = (255, 255, 255);
     DistanceToSide = 5;
 }
 
 TextBox {
-    BackgroundColor = (210, 210, 210);
-    TextColor = (100, 100, 100);
-    SelectedTextColor = (150, 150, 150);
-    SelectedTextBackgroundColor = (190, 225, 235);
-    CaretColor = (145, 180, 190);
-    BorderColor = (255, 255, 255);
-    Borders = (2, 2, 2, 2);
-    Scrollbar = "Scrollbar";
+    BackgroundColor             = rgb(210, 210, 210);
+    TextColor                   = rgb(100, 100, 100);
+    SelectedTextColor           = rgb(150, 150, 150);
+    SelectedTextBackgroundColor = rgb(190, 225, 235);
+    CaretColor                  = rgb(145, 180, 190);
+    BorderColor                 = White;
+    Borders                     = (2, 2, 2, 2);
+    Scrollbar                   = &Scrollbar;
 }
 
 Label.Tooltip {
