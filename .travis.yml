@@ -3,6 +3,11 @@ language: cpp
 git:
   depth: 10
 
+addons:
+  homebrew:
+    packages:
+    - git
+
 jobs:
   include:
   - stage: macOS Build
@@ -11,6 +16,7 @@ jobs:
     cache:
       directories:
       - $HOME/SFML_OSX
+      - $HOME/TGUI_OSX
     script:
       - chmod +x travis_osx.sh
       - ./travis_osx.sh

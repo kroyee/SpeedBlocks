@@ -84,24 +84,25 @@ GameOptions::GameOptions(sf::Rect<int> _pos, Resources& _res, os::Panel parentPa
 
     tgui::Texture rotate_n(resources.gfx->texture("rotate"));
     tgui::Texture rotate_h(resources.gfx->texture("rotate"));
-    // rotate_n.setColor({0, 0, 0});
+    rotate_n.setColor({0, 0, 0});
 
-    tgui::Texture color_n(resources.gfx->texture("color"));
-    tgui::Texture color_h(resources.gfx->texture("color"));
-    // color_n.setColor({0, 0, 0});
+    tgui::Texture color_n(resources.gfx->texture("choosecolor"));
+    tgui::Texture color_h(resources.gfx->texture("choosecolor"));
+    color_n.setColor({0, 0, 0});
 
     for (int i = 0; i < 7; i++) {
         Rp[i]->getRenderer()->setTexture(rotate_n);
         Rp[i]->getRenderer()->setTextureHover(rotate_h);
+        Rp[i]->getRenderer()->setTextureDown(rotate_h);
         Rp[i]->getRenderer()->setBorders({0, 0, 0, 0});
 
         Cc[i]->getRenderer()->setTexture(color_n);
         Cc[i]->getRenderer()->setTextureHover(color_h);
+        Cc[i]->getRenderer()->setTextureDown(color_h);
         Cc[i]->getRenderer()->setBorders({0, 0, 0, 0});
 
         Rp[i].pos(i * 80 + 10, 365).size(25, 25).connect("pressed", &GameOptions::rotPiece, this, i).add_to(GenOpt);
-
-        Cc[i].pos(i * 80 + 10, 365).size(25, 25).connect("pressed", &GameOptions::colPiece, this, i).add_to(GenOpt);
+        Cc[i].pos(i * 80 + 40, 365).size(25, 25).connect("pressed", &GameOptions::colPiece, this, i).add_to(GenOpt);
     }
 
     GenOpt.add(

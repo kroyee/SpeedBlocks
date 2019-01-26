@@ -37,3 +37,7 @@ test_develop/
 
 #VS Code
 /.vscode
+
+#Windows artifacts
+/SpeedBlocks.exe
+**/*.dll

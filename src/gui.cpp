@@ -231,7 +231,7 @@ void UI::setWidgetTextColor(sf::Color color) {
     color.a = 235;
     ListBox_renderer.setTextColorHover(color);
 
-    auto Tab_renderer = tgui::TabsRenderer(resources.gfx->theme1.getRenderer("Tab"));
+    auto Tab_renderer = tgui::TabsRenderer(resources.gfx->theme1.getRenderer("Tabs"));
     color.a = 215;
     Tab_renderer.setTextColor(color);
     color.a = 245;

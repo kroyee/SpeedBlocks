@@ -117,11 +117,11 @@ Slider {
     TextureThumb = "media/neutralUIsheet.png" Part(848, 45, 30, 45);
 }
 
-Tab {
-    NormalImage = "media/neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
-    SelectedImage = "media/neutralUIsheet.png" Part(120, 180, 120, 60) Middle(20, 0, 80, 60);
-    TextColor = (240, 240, 240);
-    SelectedTextColor = (255, 255, 255);
+Tabs {
+    TextureTab = "media/neutralUIsheet.png" Part(120, 60, 120, 60) Middle(20, 0, 80, 60);
+    TextureSelectedTab = "media/neutralUIsheet.png" Part(120, 180, 120, 60) Middle(20, 0, 80, 60);
+    TextColor = rgb(100, 100, 100);
+    SelectedTextColor = rgb(130, 130, 130);
     DistanceToSide = 5;
 }
 

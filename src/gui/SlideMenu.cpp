@@ -7,6 +7,8 @@ static auto& Show = Signal<void, int>::get("Show");
 static auto& Hide = Signal<void, int>::get("Hide");
 static auto& ShowOptions = Signal<void, int>::get("ShowOptions");
 
+#include <iostream>
+
 SlideMenu::SlideMenu(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res), active(false), mouseOver(false) {
     panel.background();
 

@@ -5,8 +5,10 @@
 BugReport::BugReport(sf::Rect<int> _pos, Resources& _res, os::Panel& parent) : GuiBase(_pos, _res, parent) {
     join = false;
 
-    panel.add(os::Label().text("What happened?").pos(10, 5), os::Label().text("What dod you expect to happen?").pos(10, 125),
-              os::Label().text("How can we reproduce this?").pos(10, 245), os::Label().text("How can we contact you with questions?").pos(10, 365));
+    panel
+        .add(os::Label().text("What happened?").pos(10, 5), os::Label().text("What dod you expect to happen?").pos(10, 125),
+             os::Label().text("How can we reproduce this?").pos(10, 245), os::Label().text("How can we contact you with questions?").pos(10, 365))
+        .hide();
 
     os::Size<550, 80>::apply(happened.pos(5, 40), expected.pos(5, 160), reproduce.pos(5, 220), contact.pos(5, 400));
 

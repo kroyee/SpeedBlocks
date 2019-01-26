@@ -1,6 +1,7 @@
 #include "Textures.h"
 #include <TGUI/TGUI.hpp>
 #include <iostream>
+#include "TguiWidgets.hpp"
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -61,6 +62,11 @@ std::string Textures::loadAllTextures() {
                                               {"icon", "media/icon.png"},
                                               {"uisheet", "media/neutralUIsheet.png"}});
     if (msg != "") return msg;
+
+    // Set default background for panels
+
+    os::Picture::default_texture = tgui::Texture(texture("uisheet"), {240, 0, 250, 250}, {30, 30, 190, 190});
+    os::Picture::default_texture.setSmooth(true);
 
     // Load tileSet
 

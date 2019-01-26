@@ -3,7 +3,7 @@ set -e
 export SFML_VERSION=2.5.1
 export SFML_ROOT=$HOME/SFML_OSX
 
-if [[ ! -d "$SFML_ROOT/lib" ]]; then
+if [[ ! -f "$SFML_ROOT/travis-cache-$SFML_VERSION" ]]; then
   echo "$(tput setaf 3)Rebuilding SFML: no cache available$(tput sgr 0)"
 
   wget -O SFML.tar.gz https://github.com/SFML/SFML/archive/${SFML_VERSION}.tar.gz
@@ -13,6 +13,8 @@ if [[ ! -d "$SFML_ROOT/lib" ]]; then
   make -j2
   sudo make install
   cd ..
+  rm $SFML_ROOT/travis-cache-*
+  touch $SFML_ROOT/travis-cache-$SFML_VERSION
 else
   echo "$(tput setaf 2)Using cached SFML directory$(tput sgr 0)"
 fi
@@ -20,7 +22,7 @@ fi
 export TGUI_VERSION=0.8.2
 export TGUI_ROOT=$HOME/TGUI_OSX
 
-if [[ ! -d "$TGUI_ROOT/lib" ]]; then
+if [[ ! -f "$TGUI_ROOT/travis-cache-$TGUI_VERSION" ]]; then
   echo "$(tput setaf 3)Rebuilding TGUI: no cache available$(tput sgr 0)"
 
   wget -O TGUI.tar.gz https://github.com/texus/TGUI/archive/v${TGUI_VERSION}.tar.gz
@@ -30,6 +32,8 @@ if [[ ! -d "$TGUI_ROOT/lib" ]]; then
   make -j2
   sudo make install
   cd ..
+  rm $TGUI_ROOT/travis-cache-*
+  touch $TGUI_ROOT/travis-cache-$TGUI_VERSION
 else
   echo "$(tput setaf 2)Using cached SFML directory$(tput sgr 0)"
 fi
