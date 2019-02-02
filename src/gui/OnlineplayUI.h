@@ -39,21 +39,14 @@ class OnlineplayUI : public GuiBase {
     void hideAllPanels(bool keepTournamentOpen = false);
 
     void createRoom(const std::string& name, const std::string& maxplayers);
-    void makeRoomList(sf::Packet& packet);
-    void addRoom(sf::Packet& packet);
 
     void createRoomPressed();
-
-    void makeTournamentList(sf::Packet& packet);
-    void addTournament(sf::Packet& packet);
 
     void createTournamentPressed();
 
     void createTournament();
 
     void matchmakingPressed();
-
-    void alertMsg(const uint16_t id1);
 
     void back();
 

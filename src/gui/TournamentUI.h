@@ -5,6 +5,8 @@
 
 class Resources;
 class OnlineplayUI;
+struct TournamentGame;
+struct NP_TournamentInfo;
 
 namespace sf {
 class Packet;
@@ -85,14 +87,12 @@ class TournamentUI : public GuiBase {
 
     TournamentUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel, OnlineplayUI& _opui);
 
-    void getInfo(sf::Packet& packet);
-    void getUpdate(sf::Packet& packet);
-    void getNewGameNames(TGame& game, sf::Packet& packet);
-    void getParticipants(sf::Packet& packet);
-    void getModerators(sf::Packet& packet);
-    void getStatus(sf::Packet& packet);
-    void getBracket(sf::Packet& packet);
-    void getResult(TGame& game, sf::Packet& packet);
+    void getInfo(const NP_TournamentInfo& p);
+    void getParticipants(const NP_TournamentInfo& p);
+    void getModerators(const NP_TournamentInfo& p);
+    void getStatus(const NP_TournamentInfo& p);
+    void getBracket(const NP_TournamentInfo& p);
+    void getResult(TGame& game, const TournamentGame& p);
     void makeBracket();
     void setButtonColors();
     void setStatusText();

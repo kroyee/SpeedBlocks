@@ -24,6 +24,7 @@
 #include "TrainingUI.h"
 
 class Resources;
+struct NP_AuthResult;
 
 struct GuiElements {
     GuiElements(Resources& _resources);
@@ -35,7 +36,7 @@ struct GuiElements {
     bool handleEvent(sf::Event& event);
     void toggleFullscreen();
 
-    void getAuthResult(sf::Packet& packet);
+    void getAuthResult(const NP_AuthResult&);
 
     Resources& resources;
 

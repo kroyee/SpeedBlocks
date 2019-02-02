@@ -22,7 +22,7 @@ class GameStandings : public GuiBase {
 
     GameStandings(sf::Rect<int> _pos, Resources& _res);
 
-    void setResults(sf::Packet& packet);
+    void setResults();
     void setWaitTime(uint16_t time);
     void alignResult();
 };

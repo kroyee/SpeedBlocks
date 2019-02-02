@@ -1,5 +1,6 @@
 #include "LoginBox.h"
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Options.h"
 #include "Resources.h"
 #include "machineid.h"
@@ -11,7 +12,6 @@ static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
 static auto& SetName = Signal<void, const std::string&>::get("SetName");
 static auto& Disconnect = Signal<void, int>::get("Disconnect");
 static auto& SetRoomListTime = Signal<void>::get("SetRoomListTime");
-static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 
 LoginBox::LoginBox(sf::Rect<int> _pos, Resources& _res, os::Panel& parent) : GuiBase(_pos, _res, parent), connectingScreen(sf::Rect<int>(0, 0, 960, 600), resources) {
     os::Label().text_size(42).text("Play online").pos(20, 0).add_to(panel);
@@ -190,9 +190,8 @@ void LoginBox::show() {
 }
 
 void LoginBox::sendLogin(const std::string& hashorname, uint8_t guest) {
-    sf::Packet packet;
-    packet << (uint8_t)2 << resources.clientVersion << guest << hashorname;
-    SendPacket(packet);
+    NP_LoginRequest packet{resources.clientVersion, guest, hashorname};
+    PM::write(packet);
 }
 
 void LoginBox::regPressed() {

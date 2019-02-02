@@ -15,38 +15,41 @@
 // 100 : Start of recording
 // 101 : End of recording
 
+struct NP_Replay;
+
 class RecordingEvent {
-public:
-	uint8_t type;
-	uint8_t piece, rotation, color;
-	uint8_t pending, combo, comboTimer, bpm;
-	int8_t x, y;
-	sf::Time time;
+   public:
+    uint8_t type;
+    uint8_t piece, rotation, color;
+    uint8_t pending, combo, comboTimer, bpm;
+    int8_t x, y;
+    sf::Time time;
 };
 
 class Recording {
-public:
-	Recording();
-	uint8_t starting_position[22][10];
-	std::vector<RecordingEvent> events;
-	sf::Time duration, startAt, comboSet;
-	std::string name;
-	sf::Clock timer;
-	uint32_t currentEvent;
+   public:
+    Recording();
+    uint8_t starting_position[22][10];
+    std::vector<RecordingEvent> events;
+    sf::Time duration, startAt, comboSet;
+    std::string name;
+    uint16_t id;
+    sf::Clock timer;
+    uint32_t currentEvent;
 
-	uint8_t prevCombo, comboTimer, lastComboTimer;
-	bool rec, halt;
+    uint8_t prevCombo, comboTimer, lastComboTimer;
+    bool rec, halt;
 
-	void clear();
-	void start(std::array<std::array<uint8_t, 10>, 22>);
-	void stop();
-	void jumpTo(int startTime);
-	void addEvent(RecordingEvent& event);
-	void save(std::string filename="");
-	void load(std::string filename);
+    void clear();
+    void start(std::array<std::array<uint8_t, 10>, 22>);
+    void stop();
+    void jumpTo(int startTime);
+    void addEvent(RecordingEvent& event);
+    void save(std::string filename = "");
+    void load(std::string filename);
 
-	void sendRecording(int type);
-	void receiveRecording(sf::Packet &packet);
+    void sendRecording(int type);
+    void receiveRecording(const NP_Replay&);
 };
 
 #endif

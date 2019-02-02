@@ -8,6 +8,7 @@
 
 class Resources;
 struct GameplayData;
+struct RoundScoreServer;
 
 struct ScoreRow {
     std::string name;
@@ -29,10 +30,8 @@ class ScoreScreen : public GuiBase {
     std::string unknown;
     ScoreScreen(sf::Rect<int> _pos, Resources& _res);
     void clear();
-    void getScores(sf::Packet& packet);
-    void addRow(sf::Packet& packet);
     void addRowLocal(GameplayData& data, uint16_t id, const std::string& name, uint16_t score);
-    void setRowLabels(ScoreRow& row, uint8_t type);
+    void setRowLabels(const RoundScoreServer& row, std::string name = "");
     void selectRow(uint8_t index);
     void scorePressed(sf::Vector2f pos);
     void scrolled(int scrollpos);

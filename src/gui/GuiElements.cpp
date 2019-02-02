@@ -3,6 +3,7 @@
 #include <iostream>
 #include "GameField.h"
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Options.h"
 #include "Resources.h"
 #include "TaskQueue.h"
@@ -112,70 +113,57 @@ GuiElements::GuiElements(Resources& _resources)
         if (showMsg) QuickMSG("Disconnected from server");
     });
 
-    Net::takePacket(0, [&](sf::Packet& packet) {
-        std::string welcomeMsg;
-        packet >> resources.myId >> welcomeMsg;
-        serverUI.motd->setText(welcomeMsg);
-        onlineplayUI.makeRoomList(packet);
-        serverUI.makeClientList(packet);
+    PM::handle_packet([&](const NP_Welcome& p) {
+        resources.myId = p.yourID;
+        serverUI.motd->setText(p.message);
         performanceOutput.ping.show();
     });
-    Net::takePacket(4, [&](sf::Packet& packet) {
-        std::string name;
-        uint16_t id;
-        packet >> id >> name;
-        AddField(id, name);
+    PM::handle_packet([&](const NP_ClientJoinedRoom& p) {
+        AddField(p.player.id, p.player.name);
         if (gameStandings.isVisible()) gameStandings.alignResult();
     });
-    Net::takePacket(7, [&](sf::Packet& packet) {
-        std::string text;
-        packet >> text;
-        QuickMSG("Your score of " + text);
+    PM::handle_packet([&](const NP_ChallengeNotRecord& p) { QuickMSG("Your score of " + p.message); });
+
+    PM::handle_packet([&](const NP_ClientLeftRoom& p) {
+        gameFieldDrawer.removeField(p.id);
+        if (gameStandings.isVisible()) gameStandings.alignResult();
     });
 
-    Net::takeSignal(6, [&](uint16_t id1) {
-        gameFieldDrawer.removeField(id1);
-        if (gameStandings.isVisible()) gameStandings.alignResult();
-    });
-    Net::takePacket(9, &GuiElements::getAuthResult, this);
-    Net::takeSignal(14, [&]() { udpConfirmed = true; });
-    Net::takeSignal(19, [&]() { onlineplayUI.matchButton->setText("Leave 1vs1 matchmaking"); });
-    Net::takeSignal(20, [&]() { onlineplayUI.matchButton->setText("Join 1vs1 matchmaking"); });
-    Net::takeSignal(21, [&]() {
+    PM::handle_packet([&](const NP_AuthResult& p) { getAuthResult(p); });
+    PM::handle_packet<NP_UdpConfirmed>([&]() { udpConfirmed = true; });
+    PM::handle_packet<NP_ClientJoinedMatchmaking>([&]() { onlineplayUI.matchButton->setText("Leave 1vs1 matchmaking"); });
+    PM::handle_packet<NP_ClientLeftMatchmaking>([&]() { onlineplayUI.matchButton->setText("Join 1vs1 matchmaking"); });
+    PM::handle_packet<NP_ClientRemovedMatchmaking>([&]() {
         QuickMSG("You were removed from the matchmaking queue");
         onlineplayUI.matchButton->setText("Join 1vs1 matchmaking");
     });
-    Net::takeSignal(17, [&](uint16_t reason) {
-        if (reason == 1)
-            QuickMSG("Kicked: game Clock out of sync");
-        else
-            QuickMSG("Kicked from room for unknown reason");
+    PM::handle_packet([&](const NP_Kick& p) {
+            QuickMSG("Kicked: " + p.message);
         SetGameState(GameStates::MainMenu);
     });
 }
 
-void GuiElements::getAuthResult(sf::Packet& packet) {
+void GuiElements::getAuthResult(const NP_AuthResult& p) {
     if (loginBox.t.joinable()) loginBox.t.join();
-    uint8_t success;
-    packet >> success;
-    if (success == 1) {
-        packet >> resources.name >> resources.myId;
+    if (p.status == 1) {
+        resources.name = p.name;
+        resources.myId = p.id;
         SetName(resources.name);
         loginBox.connectingScreen.hide();
         onlineplayUI.show();
         onlineplayUI.opTab->select(0);
-    } else if (success == 2) {
+    } else if (p.status == 2) {
         loginBox.connectingScreen.hide();
         onlineplayUI.show();
         onlineplayUI.opTab->select(0);
     } else {
-        if (success == 3) {
+        if (p.status == 3) {
             Disconnect(2);
             loginBox.connectingScreen.label->setText("You have the wrong client version, attempting to patch...");
             performanceOutput.ping.hide();
             loginBox.t = std::thread(&PatchCheck::check, &loginBox.patcher, resources.clientVersion);
             return;
-        } else if (success == 4)
+        } else if (p.status == 4)
             QuickMSG("Name already in use");
         else
             QuickMSG("Authentication failed");

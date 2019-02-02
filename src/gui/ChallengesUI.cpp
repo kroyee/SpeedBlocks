@@ -2,6 +2,7 @@
 #include <SFML/Network.hpp>
 #include <vector>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Resources.h"
 
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");
@@ -19,77 +20,44 @@ ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, os::Panel& paren
 
     playChallenge.size(180, 50).pos(160, 430).text("Play challenge").connect("pressed", &ChallengesUI::play, this).add_to(leaderPanel);
 
-    Net::takePacket(2, &ChallengesUI::makeList, this);
-    Net::takePacket(5, &ChallengesUI::makeLeaderboard, this);
-    Net::takePacket(6, [&](sf::Packet& packet) {
-        std::string text;
-        packet >> text;
-        QuickMsg("You improved your score from " + text);
-        SendRecording(selectedId);
+    PM::handle_packet([&](const NP_ChallengeList& p) {
+        challengeList.removeAllItems();
+        for (auto& c : p.challenges) challengeList.addItem(c.name, c.label, c.id);
     });
-}
+    PM::handle_packet([&](const NP_ChallengeLeaderboard& p) {
+        leaderPanel.show();
 
-void ChallengesUI::makeList(sf::Packet& packet) {
-    uint8_t count;
-    packet >> count;
+        std::vector<int> label_positions;
+        for (auto& c : p.columns) {
+            label_positions.push_back(c.x_pos);
+            os::Label().pos(c.x_pos, 40).text(c.text).text_size(16).add_to(leaderPanel);
+        }
+        scrollPanel.set_positions(label_positions);
 
-    challengeList.removeAllItems();
+        unsigned i;
+        for (i = 0; i < p.scores.size(); ++i) {
+            std::vector<tgui::Widget::Ptr> row;
+            row.push_back(os::Label().text(std::to_string(i + 1)).text_size(14).get());
+            row.push_back(os::Label().text(p.scores[i].name).text_size(14).get());
+            for (auto& s : p.scores[i].scores) {
+                row.push_back(os::Label().text(s.text).text_size(14).get());
+            }
 
-    uint16_t id;
-    std::string name, label;
-    for (int i = 0; i < count; i++) {
-        packet >> id >> name >> label;
-        challengeList.addItem(name, label, id);
-    }
-}
+            row.push_back(os::Button().text("View").size(45, 20).connect("pressed", &ChallengesUI::viewReplay, this, i).get());
 
-void ChallengesUI::makeLeaderboard(sf::Packet& packet) {
-    leaderPanel.show();
-    uint8_t columns;
-    packet >> selectedId >> columns;
-    for (auto&& chall : challengeList.items)
-        if (chall.id == selectedId) title->setText(chall.name);
-
-    std::vector<int> label_positions;
-    label_positions.push_back(0);
-    columns++;
-    std::string string;
-
-    for (int i = 1; i < columns; i++) {
-        uint16_t width;
-        packet >> width;
-        width += 50;
-        label_positions.push_back(width);
-
-        packet >> string;
-        os::Label().pos(width, 40).text(string).text_size(16).add_to(leaderPanel);
-    }
-
-    label_positions.push_back(400);
-    scrollPanel.set_positions(label_positions);
-
-    os::Label().text("#").pos(0, 40).text_size(16).add_to(leaderPanel);
-
-    uint16_t itemsInScrollPanel;
-    packet >> itemsInScrollPanel;
-    for (uint16_t c = 0; c < itemsInScrollPanel; c++) {
-        std::vector<tgui::Widget::Ptr> row;
-
-        row.push_back(os::Label().text(std::to_string(c + 1)).text_size(14).get());
-
-        for (uint8_t i = 1; i < columns; i++) {
-            packet >> string;
-            row.push_back(os::Label().text(string).text_size(14).get());
+            scrollPanel.add(i, std::move(row));
         }
 
-        row.push_back(os::Button().text("View").size(45, 20).connect("pressed", &ChallengesUI::viewReplay, this, c).get());
+        while (scrollPanel.size() > i) {
+            scrollPanel.pop_back();
+        }
 
-        scrollPanel.add(c, std::move(row));
-    }
-    while (scrollPanel.size() > itemsInScrollPanel) {
-        scrollPanel.pop_back();
-    }
-    scrollPanel.show();
+        scrollPanel.show();
+    });
+    PM::handle_packet([&](const NP_ReplayRequest& p) {
+        QuickMsg("You improved your score from " + p.message);
+        SendRecording(selectedId);
+    });
 }
 
 void ChallengesUI::play() { SendSignal(17, selectedId); }

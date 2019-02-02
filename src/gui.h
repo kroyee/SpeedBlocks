@@ -2,13 +2,13 @@
 #define GUI_H
 
 #include <TGUI/TGUI.hpp>
-#include "packetcompress.h"
-#include "Resources.h"
-#include "GameFieldDrawer.h"
-#include "PingHandle.h"
-#include "CountdownHandle.h"
 #include <functional>
 #include <memory>
+#include "CountdownHandle.h"
+#include "GameFieldDrawer.h"
+#include "PingHandle.h"
+#include "Resources.h"
+#include "packetcompress.h"
 
 class soundBank;
 class GamePlay;
@@ -19,56 +19,56 @@ class Resources;
 struct GuiElements;
 class ObsField;
 class UIBaseState;
+struct NP_Gamestate;
+struct NP_JoinResponse;
 
 class UI {
-public:
-	UI(sf::RenderWindow& window_, GamePlay& game_);
-	~UI();
+   public:
+    UI(sf::RenderWindow& window_, GamePlay& game_);
+    ~UI();
 
-	Resources& resources;
-	GamePlay& game;
-	PingHandle ping;
-	CountdownHandle countdown;
+    Resources& resources;
+    GamePlay& game;
+    PingHandle ping;
+    CountdownHandle countdown;
 
-	GuiElements *guiElements;
+    GuiElements* guiElements;
 
-	sf::RenderWindow* window;
+    sf::RenderWindow* window;
 
-	bool away;
+    bool away;
 
-	sf::Time quickMsgTime;
-	sf::Time udpPortTime;
-	sf::Clock& delayClock;
+    sf::Time quickMsgTime;
+    sf::Time udpPortTime;
+    sf::Clock& delayClock;
 
-	GameStates& gamestate;
-	std::unique_ptr<UIBaseState> state;
+    GameStates& gamestate;
+    std::unique_ptr<UIBaseState> state;
 
-	uint16_t& myId;
+    uint16_t& myId;
 
-	void setCountdown(sf::Packet &packet);
+    void joinRoom(int);
+    void leaveRoom();
 
-	void joinRoom(int);
-	void leaveRoom();
+    void chatFocus(bool i);
 
-	void chatFocus(bool i);
+    void receiveRecording(const NP_Replay&);
 
-	void receiveRecording(sf::Packet &packet);
+    void getAlert();
 
-	void getAlert();
+    bool handleEvent(sf::Event& event);
 
-	bool handleEvent(sf::Event& event);
+    void getGameState(const NP_Gamestate&);
 
-	void getGameState(sf::Packet&);
+    void delayCheck();
 
-	void delayCheck();
+    void darkTheme();
+    void lightTheme();
+    void setWidgetTextColor(sf::Color color);
 
-	void darkTheme();
-	void lightTheme();
-	void setWidgetTextColor(sf::Color color);
+    void setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets);
 
-	void setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets);
-
-	void joinRoomResponse(sf::Packet &packet);
+    void joinRoomResponse(const NP_JoinResponse&);
 };
 
 #endif

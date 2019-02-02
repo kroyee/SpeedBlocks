@@ -1,9 +1,9 @@
 #include "OnlineplayUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Resources.h"
 
-static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
 static auto& SetAreYouSure = Signal<void, const std::string&>::get("SetAreYouSure");
 static auto& AddAlert = Signal<void, const std::string&>::get("AddAlert");
 
@@ -75,16 +75,42 @@ OnlineplayUI::OnlineplayUI(sf::Rect<int> _pos, Resources& _res)
 
     connectSignal("SetRoomListTime", &OnlineplayUI::setRoomListTime, this);
 
-    Net::takePacket(16, &OnlineplayUI::makeRoomList, this);
-    Net::takePacket(17, &OnlineplayUI::addRoom, this);
-    Net::takePacket(18, [&](sf::Packet& packet) {
-        uint16_t id;
-        packet >> id;
-        roomList.removeItem(id);
-    });
-    Net::takePacket(22, &OnlineplayUI::makeTournamentList, this);
+    auto add_room = [&](const RoomInfo& room) {
+        std::string roomlabel = std::to_string(room.currentPlayers);
+        if (room.maxPlayers) roomlabel += "/" + std::to_string(room.maxPlayers);
+        roomlabel += " players";
+        roomList.addItem(room.name, roomlabel, room.id);
+    };
 
-    Net::takeSignal(1, &OnlineplayUI::alertMsg, this);
+    PM::handle_packet([&](const NP_RoomList& p) {
+        auto scrollpos = roomList.scroll->getValue();
+        roomList.removeAllItems();
+
+        for (auto& room : p.rooms) add_room(room);
+
+        roomList.scroll->setValue(scrollpos);
+    });
+    PM::handle_packet([&](const NP_RoomAdd& p) { add_room(p.room); });
+    PM::handle_packet([&](const NP_RoomRemove& p) { roomList.removeItem(p.id); });
+    PM::handle_packet([&](const NP_TournamentList& p) {
+        auto scrollpos = tournamentList.scroll->getValue();
+        tournamentList.removeAllItems();
+
+        for (auto& tournament : p.tournaments) {
+            const std::array<std::string, 5> labels = {"Sign Up - ", "Pending - ", "Started - ", "Finished - ", "Aborted - "};
+            auto label = labels[tournament.status] + std::to_string(tournament.players) + " players";
+            tournamentList.addItem(tournament.name, label, tournament.id);
+        }
+
+        tournamentList.scroll->setValue(scrollpos);
+    });
+    PM::handle_packet([&](const NP_Alert& p) { AddAlert(p.text); });
+    PM::handle_packet([&](const NP_TournamentGameReady& p) {
+        std::string msg = "Tournament game ready";
+        for (auto&& tournament : tournamentList.items)
+            if (tournament.id == p.tournament_id) msg += " in " + tournament.name;
+        AddAlert(msg);
+    });
 }
 
 void OnlineplayUI::opTabSelect(const std::string& tab) {
@@ -121,74 +147,11 @@ void OnlineplayUI::hideAllPanels(bool keepTournamentOpen) {
 void OnlineplayUI::createRoom(const std::string& name, const std::string& maxplayers) {
     if (!name.size()) return;
     if (!maxplayers.size()) return;
-    sf::Packet packet;
-    packet << (uint8_t)11 << name << (uint8_t)std::stoi(maxplayers);
-    SendPacket(packet);
+    NP_CreateRoom packet{name, static_cast<uint8_t>(std::stoi(maxplayers))};
+    PM::write(packet);
     hideAllPanels();
     roomList.show();
     roomSidePanel.show();
-}
-
-void OnlineplayUI::makeRoomList(sf::Packet& packet) {
-    uint8_t roomCount;
-
-    packet >> roomCount;
-    auto scrollpos = roomList.scroll->getValue();
-    roomList.removeAllItems();
-
-    for (int i = 0; i < roomCount; i++) addRoom(packet);
-
-    roomList.scroll->setValue(scrollpos);
-
-    uint16_t inqueue, inplay;
-    packet >> inqueue >> inplay;
-    matchQueueing.text("In queue: " + std::to_string(inqueue));
-    matchPlaying.text("Playing: " + std::to_string(inplay));
-}
-
-void OnlineplayUI::addRoom(sf::Packet& packet) {
-    std::string name;
-    uint8_t maxPlayers, currentPlayers;
-    uint16_t id;
-    packet >> id >> name >> currentPlayers >> maxPlayers;
-    std::string roomlabel = std::to_string(currentPlayers);
-    if (maxPlayers) roomlabel += "/" + std::to_string(maxPlayers);
-    roomlabel += " players";
-    roomList.addItem(name, roomlabel, id);
-}
-
-void OnlineplayUI::makeTournamentList(sf::Packet& packet) {
-    uint8_t tournamentCount;
-
-    packet >> tournamentCount;
-    auto scrollpos = tournamentList.scroll->getValue();
-    tournamentList.removeAllItems();
-
-    for (int i = 0; i < tournamentCount; i++) addTournament(packet);
-
-    tournamentList.scroll->setValue(scrollpos);
-}
-
-void OnlineplayUI::addTournament(sf::Packet& packet) {
-    std::string name;
-    uint8_t status;
-    uint16_t id, players;
-    packet >> id >> name >> status >> players;
-    std::string label;
-    if (status == 0)
-        label = "Sign Up - ";
-    else if (status == 1)
-        label = "Pending - ";
-    else if (status == 2)
-        label = "Started - ";
-    else if (status == 3)
-        label = "Finished - ";
-    else if (status == 4)
-        label = "Aborted - ";
-    else
-        label = "? - ";
-    label += std::to_string(players) + " players";
-    tournamentList.addItem(name, label, id);
 }
 
 void OnlineplayUI::createRoomPressed() {
@@ -218,20 +181,13 @@ void OnlineplayUI::back() {
 
 void OnlineplayUI::createTournament() {
     if (!tournamentName->getText().getSize() || !sets->getText().getSize() || !rounds->getText().getSize()) return;
-    uint8_t setcount = stoi(sets->getText().toAnsiString());
-    uint8_t roundcount = stoi(rounds->getText().toAnsiString());
-    sf::Packet packet;
-    packet << (uint8_t)21 << tournamentName->getText() << setcount << roundcount;
-    SendPacket(packet);
+    NP_CreateTournament packet;
+    packet.sets = stoi(sets->getText().toAnsiString());
+    packet.rounds = stoi(rounds->getText().toAnsiString());
+    packet.name = tournamentName->getText();
+    PM::write(packet);
     back();
     updateTournamentListTime -= sf::seconds(5);
-}
-
-void OnlineplayUI::alertMsg(const uint16_t id1) {
-    std::string msg = "Tournament game ready";
-    for (auto&& tournament : tournamentList.items)
-        if (tournament.id == id1) msg += " in " + tournament.name;
-    AddAlert(msg);
 }
 
 void OnlineplayUI::setRoomListTime() { updateTournamentListTime = resources.delayClock.getElapsedTime() + sf::seconds(5); }

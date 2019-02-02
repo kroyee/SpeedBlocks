@@ -4,6 +4,7 @@
 #include <string>
 #include "GameField.h"
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Options.h"
 #include "Resources.h"
 #include "Textures.h"
@@ -72,10 +73,10 @@ GamePlay::GamePlay(Resources& _resources)
     connectSignal("MakeDrawCopy", &GamePlay::makeDrawCopy, this);
     connectSignal("GameDrawSprite", [&]() { resources.window.draw(field.sprite); });
 
-    Net::takeSignal(9, &GamePlay::addGarbage, this);
-    Net::takeSignal(13, [&](uint16_t id1, uint16_t id2) {
-        if (id1 == resources.myId) {
-            field.text.setPosition(id2);
+    PM::handle_packet([&](const NP_LinesSent& p) { addGarbage(p.amount); });
+    PM::handle_packet([&](const NP_PlayerPosition& p) {
+        if (p.id == resources.myId) {
+            field.text.setPosition(p.position);
             drawMe = true;
         }
     });
@@ -499,7 +500,7 @@ void GamePlay::startSetup(int type) {
 
 void GamePlay::gameOver(int winner) {
     if (resources.gamestate == GameStates::GameOver) {
-        if (winner) dataSender.gameover(winner);
+        if (winner) dataSender.gameover();
         return;
     }
     data.roundDuration = gameclock.getElapsedTime().asMilliseconds();
@@ -516,7 +517,7 @@ void GamePlay::gameOver(int winner) {
     } else
         field.text.set<FieldText::GameOver>("Game Over");
 
-    dataSender.gameover(winner);
+    dataSender.gameover();
     SetGameState(GameStates::GameOver);
     if (!resources.playonline) {
         SetRoundlenghtForScore(gameclock.getElapsedTime().asSeconds());

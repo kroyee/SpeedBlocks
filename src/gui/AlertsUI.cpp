@@ -1,6 +1,7 @@
 #include "AlertsUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Options.h"
 #include "Resources.h"
 
@@ -9,11 +10,7 @@ static auto& PlaySound = Signal<void, int>::get("PlaySound");
 AlertsUI::AlertsUI(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
     connectSignal("AddAlert", &AlertsUI::addAlert, this);
 
-    Net::takePacket(10, [&](sf::Packet& packet) {
-        std::string msg;
-        packet >> msg;
-        addAlert(msg);
-    });
+    PM::handle_packet([&](const NP_Alert& p) { addAlert(p.text); });
 }
 
 void AlertsUI::addAlert(const std::string& msg) {

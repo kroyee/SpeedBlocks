@@ -1,9 +1,9 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-#include <memory>
-#include <list>
 #include <SFML/Graphics.hpp>
+#include <list>
+#include <memory>
 
 class AQ;
 class Textures;
@@ -14,41 +14,40 @@ class PacketCompress;
 enum class GameStates : unsigned int { MainMenu, CountDown, Game, GameOver, Replay, Practice, Spectating };
 
 struct clientInfo {
-public:
-	uint16_t id;
-	std::string name;
+    uint16_t id;
+    std::string name;
 };
 
 class Resources {
-public:
-	Resources(sf::RenderWindow& _window);
-	~Resources();
-	Textures* gfx;
-	soundBank* sounds;
-	network* net;
-	PacketCompress* compressor;
+   public:
+    Resources(sf::RenderWindow& _window);
+    ~Resources();
+    Textures* gfx;
+    soundBank* sounds;
+    network* net;
+    PacketCompress* compressor;
 
-	GameStates gamestate;
+    GameStates gamestate;
 
-	AQ* actions;
+    AQ* actions;
 
-	sf::RenderWindow& window;
+    sf::RenderWindow& window;
 
-	bool playonline, away, restart, chatFocused;
+    bool playonline, away, restart, chatFocused;
 
-	sf::Clock delayClock;
+    sf::Clock delayClock;
 
-	uint16_t myId;
+    uint16_t myId;
 
-	std::string name;
-	std::list<clientInfo> clientList;
+    std::string name;
+    std::list<clientInfo> clientList;
 
-	uint8_t version_major;
-	uint8_t version_minor;
-	uint8_t version_patch;
-	uint16_t clientVersion;
+    uint8_t version_major;
+    uint8_t version_minor;
+    uint8_t version_patch;
+    uint16_t clientVersion;
 
-	bool init();
+    bool init();
 };
 
 #endif

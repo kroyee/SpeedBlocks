@@ -1,6 +1,8 @@
 #include "ScoreScreen.h"
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Resources.h"
+
 using std::to_string;
 
 ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
@@ -24,7 +26,16 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 
     rowCount = 0;
 
-    Net::takePacket(8, &ScoreScreen::getScores, this);
+    PM::handle_packet([&](const NP_RoomScore& p) {
+        list.pre_update();
+        for (auto& score : p.scores) setRowLabels(score, "");
+        list.sort([](auto& lhs, auto& rhs) {
+            auto l = static_cast<tgui::Label*>(lhs[1].get());
+            auto r = static_cast<tgui::Label*>(rhs[1].get());
+            return std::stoi(std::string(l->getText())) < std::stoi(std::string(r->getText()));
+        });
+        list.post_update();
+    });
 
     connectSignal("AddLocalScore", &ScoreScreen::addRowLocal, this);
     connectSignal("SetRoundlenghtForScore", [&](int lenght) {
@@ -35,77 +46,47 @@ ScoreScreen::ScoreScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _r
 
 void ScoreScreen::clear() {}
 
-void ScoreScreen::getScores(sf::Packet& packet) {
-    uint8_t count;
-    packet >> roundLenght >> count;
-    list.pre_update();
-    for (int i = 0; i < count; i++) addRow(packet);
-    list.sort([](auto& lhs, auto& rhs) {
-        auto l = static_cast<tgui::Label*>(lhs[1].get());
-        auto r = static_cast<tgui::Label*>(rhs[1].get());
-        return std::stoi(std::string(l->getText())) < std::stoi(std::string(r->getText()));
-    });
-    list.post_update();
-}
-
-void ScoreScreen::addRow(sf::Packet& packet) {
-    ScoreRow score;
-
-    packet >> score.id >> score.combo >> score.sent >> score.received >> score.blocked >> score.bpm;
-    packet >> score.rank >> score.position >> score.score >> score.adj >> score.points;
-
-    score.name = getName(score.id);
-    score.spm = score.sent / (roundLenght / 60.0);
-    score.apm = (score.sent + score.blocked) / (roundLenght / 60.0);
-
-    setRowLabels(score, 1);
-}
-
 void ScoreScreen::addRowLocal(GameplayData& data, uint16_t id, const std::string& name, uint16_t _score) {
-    ScoreRow score;
+    RoundScoreServer score;
 
-    score.name = name;
     score.id = id;
-    score.combo = data.maxCombo;
-    score.sent = data.linesSent;
-    score.received = data.linesRecieved;
-    score.blocked = data.linesBlocked;
-    score.bpm = data.bpm;
-    score.score = _score;
+    score.score.max_combo = data.maxCombo;
+    score.score.lines_sent = data.linesSent;
+    score.score.lines_recieved = data.linesRecieved;
+    score.score.lines_blocked = data.linesBlocked;
+    score.score.bpm = data.bpm;
+    score.game_score = _score;
 
-    score.spm = score.sent / (roundLenght / 60.0);
-    score.apm = (score.sent + score.blocked) / (roundLenght / 60.0);
-
-    setRowLabels(score, 2);
+    setRowLabels(score, name);
 }
 
-void ScoreScreen::setRowLabels(ScoreRow& score, uint8_t type) {
-    score.exp.hide();
-    score.labels[6].hide();
+void ScoreScreen::setRowLabels(const RoundScoreServer& score, std::string name) {
+    auto exp = os::ProgressBar().size(45, 15).min(0).max(2000).set(score.ffa_points).title(to_string(score.ffa_rank)).title_size(14).title_on_top();
 
-    if (type == 1) {
-        score.exp.size(45, 15).min(0).max(2000).set(score.points).title(to_string(score.rank)).title_size(14).title_on_top();
+    std::string rounding = to_string((int)score.lines_adjusted);  // A bit messy-looking way of rounding float to 1 decimal
+    rounding += "." + to_string((int)((score.lines_adjusted - (int)score.lines_adjusted) * 10));
+    auto l6 = os::Label().text(rounding).text_size(14);
 
-        std::string rounding = to_string((int)score.adj);  // A bit messy-looking way of rounding float to 1 decimal
-        rounding += "." + to_string((int)((score.adj - (int)score.adj) * 10));
-
-        score.labels[6].text(rounding).text_size(14);
-
-        score.exp.show();
-        score.labels[6].show();
+    if (name == "") {
+        name = getName(score.id);
+    } else {
+        exp.hide();
+        l6.hide();
     }
 
-    score.labels[0].text(score.name).text_size(14);
-    score.labels[1].text(to_string(score.score)).text_size(14);
-    score.labels[3].text(to_string(score.bpm)).text_size(14);
-    score.labels[4].text(to_string(score.combo)).text_size(14);
-    score.labels[5].text(to_string(score.sent)).text_size(14);
-    score.labels[7].text(to_string(score.spm)).text_size(14);
-    score.labels[8].text(to_string(score.apm)).text_size(14);
-    score.labels[9].text(to_string(score.blocked) + "/" + to_string(score.received)).text_size(14);
+    auto spm = score.score.lines_sent / (roundLenght / 60.0);
+    auto apm = (score.score.lines_sent + score.score.lines_blocked) / (roundLenght / 60.0);
 
-    list.add(score.id, score.labels[0], score.labels[1], score.exp, score.labels[3], score.labels[4], score.labels[5], score.labels[6], score.labels[7], score.labels[8],
-             score.labels[9]);
+    auto l0 = os::Label().text(name).text_size(14);
+    auto l1 = os::Label().text(to_string(score.game_score)).text_size(14);
+    auto l3 = os::Label().text(to_string(score.score.bpm)).text_size(14);
+    auto l4 = os::Label().text(to_string(score.score.max_combo)).text_size(14);
+    auto l5 = os::Label().text(to_string(score.score.lines_sent)).text_size(14);
+    auto l7 = os::Label().text(to_string(spm)).text_size(14);
+    auto l8 = os::Label().text(to_string(apm)).text_size(14);
+    auto l9 = os::Label().text(to_string(score.score.lines_blocked) + "/" + to_string(score.score.lines_recieved)).text_size(14);
+
+    list.add(score.id, l0, l1, exp, l3, l4, l5, l6, l7, l8, l9);
 }
 
 void ScoreScreen::handleEvent(sf::Event& event) {

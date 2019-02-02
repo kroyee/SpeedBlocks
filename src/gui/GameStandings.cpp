@@ -1,7 +1,9 @@
 #include "GameStandings.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Resources.h"
+
 using std::to_string;
 
 static auto& AreThereFields = Signal<int, int>::get("AreThereFields");
@@ -15,17 +17,26 @@ GameStandings::GameStandings(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos
     rounds.pos(10, 75).text("0").text_size(18).add_to(panel);
     rounds.pos(80, 75).text("0").text_size(18).add_to(panel);
 
-    Net::takePacket(24, &GameStandings::setResults, this);
-    Net::takeSignal(3, &GameStandings::setWaitTime, this);
+    PM::handle_packet([&](const NP_GameScore& p) {
+        const auto &p1_scores = p.scores[0], &p2_scores = p.scores[1];
+        p1_id = p1_scores.id;
+        _p1_sets = p1_scores.sets;
+        _p1_rounds = p1_scores.rounds;
+
+        p2_id = p2_scores.id;
+        _p2_sets = p2_scores.sets;
+        _p2_rounds = p2_scores.rounds;
+
+        setResults();
+    });
+    PM::handle_packet([&](const NP_TournamentTimeWo& p) { setWaitTime(p.time); });
 }
 
-void GameStandings::setResults(sf::Packet& packet) {
+void GameStandings::setResults() {
     if (resources.gamestate == GameStates::Spectating)
         panel.pos(365, 195);
     else
         panel.pos(330, 185);
-
-    packet >> p1_id >> p2_id >> _p1_sets >> _p2_sets >> _p1_rounds >> _p2_rounds;
 
     if (resources.gamestate == GameStates::Spectating) {
         bool p2 = true;

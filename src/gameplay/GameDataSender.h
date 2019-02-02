@@ -5,16 +5,17 @@
 class GamePlay;
 
 class GameDataSender {
-	GamePlay & game;
-	sf::Time sendTime;
-	uint8_t count;
-public:
-	GameDataSender(GamePlay&);
+    GamePlay& game;
+    sf::Time sendTime;
+    uint8_t count;
 
-	void sendstate();
-	void state();
-	void gameover(int winner);
-	void reset();
+   public:
+    GameDataSender(GamePlay&);
+
+    void sendstate();
+    void state();
+    void gameover();
+    void reset();
 };
 
 #endif

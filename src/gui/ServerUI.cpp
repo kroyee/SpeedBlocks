@@ -1,6 +1,7 @@
 #include "ServerUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Resources.h"
 
 ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parent) : GuiBase(_pos, _res, parent) {
@@ -24,38 +25,36 @@ ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parent) : Gui
 
     os::Button().pos(130, 480).size(100, 30).text("Player stats").connect("pressed", &ServerUI::linkPressed, this, 5).add_to(panel);
 
-    Net::takePacket(20, &ServerUI::addClient, this);
-    Net::takePacket(21, &ServerUI::removeClient, this);
-}
-#include <iostream>
-void ServerUI::makeClientList(sf::Packet& packet) {
-    LobbyList->removeAllItems();
-    resources.clientList.clear();
-    clientInfo client;
-    uint16_t clientCount;
+    PM::handle_packet([&](const NP_ClientJoinedServer& p) {
+        resources.clientList.push_back({p.player.id, p.player.name});
+        LobbyList.add(p.player.name);
+    });
 
-    packet >> clientCount;
+    PM::handle_packet([&](const NP_ClientLeftServer& p) {
+        for (auto it = resources.clientList.begin(); it != resources.clientList.end(); it++) {
+            if (it->id == p.id) {
+                LobbyList.remove(it->name);
+                resources.clientList.erase(it);
+                return;
+            }
+        }
+    });
 
-    for (int i = 0; i < clientCount; i++) {
-        packet >> client.id >> client.name;
-        resources.clientList.push_back(client);
-    }
+    PM::handle_packet([&](const NP_ClientList& p) {
+        LobbyList->removeAllItems();
+        resources.clientList.clear();
 
-    makeLobbyList();
+        for (auto& client : p.clients) {
+            resources.clientList.push_back({client.id, client.name});
+        }
+
+        makeLobbyList();
+    });
 }
 
 void ServerUI::makeLobbyList() {
     LobbyList.clear();
     for (auto&& client : resources.clientList) LobbyList.add(client.name);
-}
-
-void ServerUI::addClient(sf::Packet& packet) {
-    clientInfo client;
-
-    packet >> client.id >> client.name;
-    resources.clientList.push_back(client);
-
-    LobbyList.add(client.name);
 }
 
 void ServerUI::putClient(uint16_t id, const std::string& name) {
@@ -64,19 +63,6 @@ void ServerUI::putClient(uint16_t id, const std::string& name) {
     client.name = name;
     resources.clientList.push_back(client);
     LobbyList.add(client.name);
-}
-
-void ServerUI::removeClient(sf::Packet& packet) {
-    uint16_t id;
-
-    packet >> id;
-
-    for (auto it = resources.clientList.begin(); it != resources.clientList.end(); it++)
-        if (it->id == id) {
-            LobbyList.remove(it->name);
-            resources.clientList.erase(it);
-            break;
-        }
 }
 
 void ServerUI::linkPressed(uint8_t type) {

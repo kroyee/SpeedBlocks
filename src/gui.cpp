@@ -2,6 +2,7 @@
 #include "GamePlay.h"
 #include "GameSignals.h"
 #include "GuiElements.h"
+#include "NetworkPackets.hpp"
 #include "Options.h"
 #include "TaskQueue.h"
 #include "Textures.h"
@@ -19,7 +20,6 @@ static auto& StartCountDown = Signal<void>::get("StartCountDown");
 static auto& SetGameState = Signal<void, GameStates>::get("SetGameState");
 static auto& GameSetup = Signal<void, int>::get("GameSetup");
 static auto& GameOver = Signal<void, int>::get("GameOver");
-static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
 static auto& AddField = Signal<ObsField&, int, const std::string&>::get("AddField");
 static auto& GameClear = Signal<void>::get("GameClear");
 static auto& SetDrawMe = Signal<void>::get("SetDrawMe");
@@ -42,16 +42,24 @@ UI::UI(sf::RenderWindow& window_, GamePlay& game_)
     connectSignal("DarkTheme", &UI::darkTheme, this);
     connectSignal("JoinRoom", &UI::joinRoom, this);
 
-    Net::takePacket(100, &UI::getGameState, this);
-    Net::takePacket(1, &UI::receiveRecording, this);
-    Net::takePacket(3, &UI::joinRoomResponse, this);
-    Net::takePacket(102, [&](sf::Packet& packet) { guiElements->performanceOutput.setPing(ping.get(delayClock.getElapsedTime(), packet)); });
-    Net::takePacket(103, &UI::setCountdown, this);
+    PM::handle_packet([&](const NP_Gamestate& p) { getGameState(p); });
+    PM::handle_packet([&](const NP_Replay& p) { receiveRecording(p); });
 
-    Net::takeSignal(0, [&]() { QuickMsg("Not enough players to start tournament"); });
-    Net::takeSignal(2, [&]() { QuickMsg("You can't do that as guest, register at https://speedblocks.se"); });
-    Net::takeSignal(4, [&](uint16_t id1, uint16_t id2) {
-        SeedRander(id1, id2);
+    PM::handle_packet([&](const NP_Ping& p) { guiElements->performanceOutput.setPing(ping.get(delayClock.getElapsedTime(), p)); });
+    PM::handle_packet([&](const NP_Countdown& p) {
+        countdown.set(delayClock.getElapsedTime(), p.countdown);
+        if (countdown.ongoing() && !away && gamestate != GameStates::CountDown) {
+            SetGameState(GameStates::CountDown);
+            game.startCountdown();
+        }
+    });
+
+    PM::handle_packet([&](const NP_JoinResponse& p) { joinRoomResponse(p); });
+
+    PM::handle_packet<NP_TournamentNotEnough>([&]() { QuickMsg("Not enough players to start tournament"); });
+    PM::handle_packet<NP_NotAsGuest>([&]() { QuickMsg("You can't do that as guest, register at https://speedblocks.se"); });
+    PM::handle_packet([&](const NP_CountdownStart& p) {
+        SeedRander(p.seed1, p.seed2);
         StartCountDown();
         guiElements->gameFieldDrawer.resetOppFields();
         SetGameState(GameStates::CountDown);
@@ -64,29 +72,29 @@ UI::UI(sf::RenderWindow& window_, GamePlay& game_)
                 GameSetup(2);
         }
     });
-    Net::takeSignal(5, [&](uint16_t id1) {
-        if (!id1 && gamestate == GameStates::Game) GameOver(0);
+    PM::handle_packet([&](const NP_CountdownStop& p) {
+        if (!p.status && gamestate == GameStates::Game) GameOver(0);
         countdown.stop();
     });
-    Net::takeSignal(7, [&]() {
+    PM::handle_packet<NP_RoundEnd>([&]() {
         if (gamestate != GameStates::Practice) GameOver(0);
         countdown.stop();
     });
-    Net::takeSignal(8, [&]() {
+    PM::handle_packet<NP_YouWon>([&]() {
         GameOver(1);
         countdown.stop();
     });
-    Net::takeSignal(10, [&](uint16_t id1, uint16_t id2) {
+    PM::handle_packet([&](const NP_RoundStart& p) {
         guiElements->gameFieldDrawer.resetOppFields();
-        SeedRander(id1, id2);
+        SeedRander(p.seed1, p.seed2);
         if (gamestate != GameStates::Spectating) {
             GameClear();
             SetDrawMe();
         }
         countdown.start(delayClock.getElapsedTime());
     });
-    Net::takeSignal(18, [&]() { QuickMsg("You need to reach rank 0 to join the Hero room"); });
-    Net::takeSignal(22, [&]() { QuickMsg("You are still in the matchmaking queue"); });
+    PM::handle_packet<NP_NotHero>([&]() { QuickMsg("You need to reach rank 0 to join the Hero room"); });
+    PM::handle_packet<NP_ClientStillInMatchmaking>([&]() { QuickMsg("You are still in the matchmaking queue"); });
 
     if (Options::get<uint8_t>("theme") == 1)
         lightTheme();
@@ -119,14 +127,12 @@ void UI::chatFocus(bool i) {
     }
 }
 
-void UI::receiveRecording(sf::Packet& packet) {
-    uint16_t type;
-    packet >> type;
-    game.recorder.receiveRecording(packet);
+void UI::receiveRecording(const NP_Replay& p) {
+    game.recorder.receiveRecording(p);
     SetGameState(GameStates::Replay);
-    if (type >= 20000) {
+    if (p.type >= 20000) {
         guiElements->gameFieldDrawer.hide();
-        guiElements->challengesGameUI.openChallenge(type);
+        guiElements->challengesGameUI.openChallenge(p.type);
         guiElements->replayUI.show();
     }
 }
@@ -139,9 +145,7 @@ void UI::delayCheck() {
         if (!guiElements->udpConfirmed)
             if (currentTime - udpPortTime > sf::milliseconds(500)) {
                 udpPortTime = currentTime;
-                sf::Packet packet;
-                packet << (uint8_t)99 << myId;
-                SendPacketUDP(packet);
+                PM::write_udp(NP_ConfirmUdp{myId});
             }
 
         if (gamestate == GameStates::CountDown)
@@ -265,15 +269,12 @@ void UI::setOnChatFocus(const std::vector<tgui::Widget::Ptr> widgets) {
     }
 }
 
-void UI::getGameState(sf::Packet& packet) {
-    uint16_t clientid;
-    uint8_t datacount;
-    packet >> clientid >> datacount;
+void UI::getGameState(const NP_Gamestate& p) {
     for (auto&& field : guiElements->gameFieldDrawer.fields)
-        if (field.id == clientid) {
-            if (datacount > field.datacount || (datacount < 50 && field.datacount > 200)) {
-                field.datacount = datacount;
-                resources.compressor->loadTmp(packet);
+        if (field.id == p.id) {
+            if (p.count > field.datacount || (p.count < 50 && field.datacount > 200)) {
+                field.datacount = p.count;
+                resources.compressor->loadTmp(p.data);
                 resources.compressor->extract();
                 if (resources.compressor->validate()) {
                     resources.compressor->field = &field;
@@ -285,22 +286,10 @@ void UI::getGameState(sf::Packet& packet) {
         }
 }
 
-void UI::setCountdown(sf::Packet& packet) {
-    countdown.set(delayClock.getElapsedTime(), packet);
-    if (countdown.ongoing() && !away && gamestate != GameStates::CountDown) {
-        SetGameState(GameStates::CountDown);
-        game.startCountdown();
-    }
-}
-
-void UI::joinRoomResponse(sf::Packet& packet) {
-    uint16_t joinok;
-    packet >> joinok;
+void UI::joinRoomResponse(const NP_JoinResponse& p) {
+    auto joinok = p.status;
     if (joinok == 1 || joinok == 1000) {
-        uint8_t playersinroom;
-        uint16_t playerid, seed1, seed2;
-        packet >> seed1 >> seed2 >> playersinroom;
-        SeedRander(seed1, seed2);
+        SeedRander(p.seed1, p.seed2);
 
         if (joinok == 1) {
             SetGameState(GameStates::GameOver);
@@ -316,9 +305,8 @@ void UI::joinRoomResponse(sf::Packet& packet) {
         }
 
         std::string name;
-        for (int c = 0; c < playersinroom; c++) {
-            packet >> playerid >> name;
-            AddField(playerid, name);
+        for (auto& player : p.players) {
+            AddField(player.id, player.name);
         }
         if (gamestate == GameStates::Spectating) guiElements->gameStandings.alignResult();
 

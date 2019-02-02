@@ -1,6 +1,7 @@
 #include "ChatScreen.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "Resources.h"
 
 const unsigned int chatTextSize = 14;
@@ -36,12 +37,17 @@ ChatScreen::ChatScreen(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res
     t4 = sf::Color(50, 50, 50, 200);
     t5 = sf::Color(128, 50, 50, 200);
 
-    Net::takePacket(12, [&](sf::Packet& packet) {
-        std::string name, msg;
-        uint8_t type;
-        packet >> type >> name >> msg;
-        if (type == 3) privto = name;
-        addLine(name + ": " + msg, type);
+    PM::handle_packet([&](const NP_ChatMsg& p) {
+        uint8_t type = 0;
+        if (p.target == "room")
+            type = 1;
+        else if (p.target == "lobby")
+            type = 2;
+        else {
+            type = 3;
+            privto = p.target;
+        }
+        addLine(p.sender + ": " + p.message, type);
     });
 }
 
@@ -108,18 +114,9 @@ void ChatScreen::send() {
         }
 }
 
-static auto& SendPacket = Signal<void, sf::Packet&>::get("SendPacket");
-
 void ChatScreen::sendMsg(const std::string& to, const std::string& msg) {
-    sf::Packet packet;
-    packet << (uint8_t)10;
-    if (to == "Room")
-        packet << (uint8_t)1 << msg;
-    else if (to == "Lobby")
-        packet << (uint8_t)2 << msg;
-    else
-        packet << (uint8_t)3 << to << msg;
-    SendPacket(packet);
+    NP_ChatMsg chat_msg{msg, resources.name, to};
+    PM::write(chat_msg);
 }
 
 void ChatScreen::addLine(const std::string& msg, uint8_t type) {  // 1=room, 2=lobby, 3=priv, 4=self, 5=privself

@@ -22,8 +22,6 @@ class ChallengesUI : public GuiBase {
     uint16_t selectedId;
 
     ChallengesUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel);
-    void makeList(sf::Packet& packet);
-    void makeLeaderboard(sf::Packet& packet);
     void play();
     virtual void show();
 

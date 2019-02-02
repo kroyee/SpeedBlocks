@@ -1,6 +1,7 @@
 #include "TournamentUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 #include "OnlineplayUI.h"
 #include "Resources.h"
 
@@ -271,20 +272,21 @@ TournamentUI::TournamentUI(sf::Rect<int> _pos, Resources& _res, os::Panel& paren
     widget27->connect("pressed", &TournamentUI::goBack, this);
     gameInfo->add(widget27);
 
-    Net::takePacket(23, &TournamentUI::getInfo, this);
-    Net::takePacket(27, &TournamentUI::getUpdate, this);
+    PM::handle_packet([&](const NP_TournamentInfo& p) { getInfo(p); });
 }
 
-void TournamentUI::getInfo(sf::Packet& packet) {
-    double timetostart;
-    packet >> id >> grade >> rounds >> sets >> timetostart;
-    startingTime = timetostart;
-    status = 0;
-    getParticipants(packet);
-    getModerators(packet);
-    getStatus(packet);
-    gRounds->setText(std::to_string(rounds));
-    gSets->setText(std::to_string(sets));
+void TournamentUI::getInfo(const NP_TournamentInfo& p) {
+    startingTime = p.start_time;
+    status = p.status;
+    id = p.id;
+    grade = p.grade;
+    rounds = p.rounds;
+    sets = p.sets;
+    getParticipants(p);
+    getModerators(p);
+    getStatus(p);
+    gRounds->setText(std::to_string(p.rounds));
+    gSets->setText(std::to_string(p.sets));
 
     if (grade == 1)
         tGrade->setText("Grade A");
@@ -316,124 +318,51 @@ void TournamentUI::getInfo(sf::Packet& packet) {
         else
             tStatus->setText("Aborted");
     } else
-        getBracket(packet);
+        getBracket(p);
 }
 
-void TournamentUI::getUpdate(sf::Packet& packet) {
-    uint16_t tournamentId;
-    uint8_t part;
-    packet >> tournamentId >> part;
-    if (tournamentId != id) return;
-    if (part == 0)
-        getParticipants(packet);
-    else if (part == 1)
-        getModerators(packet);
-    else if (part == 2)
-        getStatus(packet);
-    else if (part == 3) {
-        getStatus(packet);
-        getBracket(packet);
-    } else if (part == 4) {
-        uint16_t gameId;
-        packet >> gameId;
-        for (auto&& game : games)
-            if (game.id == gameId) {
-                packet >> game.status;
-                getNewGameNames(game, packet);
-                getResult(game, packet);
-                setButtonColors();
-                if (game.gameName->getText() == gameName->getText()) {
-                    setGameStatus(game);
-                    setGameResults(game);
-                }
-                return;
-            }
-    }
-}
-
-void TournamentUI::getNewGameNames(TGame& game, sf::Packet& packet) {
-    uint16_t newid;
-    packet >> newid;
-    if (newid) {
-        game.player1_id = newid;
-        packet >> game.player1_name;
-        game.player1->setText(game.player1_name);
-    }
-
-    packet >> newid;
-    if (newid) {
-        game.player2_id = newid;
-        packet >> game.player2_name;
-        game.player2->setText(game.player2_name);
-    }
-}
-
-void TournamentUI::getParticipants(sf::Packet& packet) {
-    packet >> players;
+void TournamentUI::getParticipants(const NP_TournamentInfo& p) {
     playerList->removeAllItems();
     participants.clear();
     signUpButton->setText("Sign Up!");
-    for (uint16_t i = 0; i < players; i++) {
-        Participant newplayer;
-        packet >> newplayer.id >> newplayer.name;
-        participants.push_back(newplayer);
-        playerList->addItem(newplayer.name);
-        if (newplayer.id == resources.myId) signUpButton->setText("Withdraw");
+    for (auto& player : p.players) {
+        participants.push_back({player.id, player.name});
+        playerList->addItem(player.name);
+        if (player.id == resources.myId) signUpButton->setText("Withdraw");
     }
 
     setStatusText();
 }
 
-void TournamentUI::getModerators(sf::Packet& packet) {
-    uint8_t mod_count;
-    uint16_t mod_id;
-    packet >> mod_count;
+void TournamentUI::getModerators(const NP_TournamentInfo& p) {
     moderator = false;
-    for (uint8_t i = 0; i < mod_count; i++) {
-        packet >> mod_id;
-        if (mod_id == resources.myId) moderator = true;
+    for (auto& mod : p.moderators) {
+        if (mod == resources.myId) moderator = true;
     }
 }
 
-void TournamentUI::getStatus(sf::Packet& packet) {
-    packet >> status;
+void TournamentUI::getStatus(const NP_TournamentInfo& p) {
+    status = p.status;
     setStatusText();
     setModeratorButtons();
 }
 
-void TournamentUI::getBracket(sf::Packet& packet) {
+void TournamentUI::getBracket(const NP_TournamentInfo& p) {
     TGame newgame;
     games.clear();
-    while (!packet.endOfPacket()) {
-        packet >> newgame.id >> newgame.depth >> newgame.status;
-        packet >> newgame.player1_type;
-        if (newgame.player1_type == 1)
-            packet >> newgame.player1_id >> newgame.player1_name;
-        else if (newgame.player1_type == 2) {
-            packet >> newgame.player1_id;
-            newgame.player1_name = "Game " + std::to_string(newgame.player1_id);
-        } else if (newgame.player1_type == 3) {
-            newgame.player1_id = 0;
-            newgame.player1_name = "--Empty--";
-            newgame.result.finalScore = "Auto-win";
-        }
+    for (auto& game : p.games) {
+        newgame.id = game.id;
+        newgame.depth = game.depth;
+        newgame.status = game.status;
+        newgame.player1_id = game.players[0].id;
+        newgame.player1_name = game.players[0].name;
 
-        packet >> newgame.player2_type;
-        if (newgame.player2_type == 1)
-            packet >> newgame.player2_id >> newgame.player2_name;
-        else if (newgame.player2_type == 2) {
-            packet >> newgame.player2_id;
-            newgame.player2_name = "Game " + std::to_string(newgame.player2_id);
-        } else if (newgame.player2_type == 3) {
-            newgame.player2_id = 0;
-            newgame.player2_name = "--Empty--";
-            newgame.result.finalScore = "Auto-win";
-        }
+        newgame.player2_id = game.players[1].id;
+        newgame.player2_name = game.players[1].name;
 
-        if (newgame.status > 2) getResult(newgame, packet);
-
-        games.push_back(newgame);
+        getResult(newgame, game);
     }
+
     makeBracket();
     if (signUp->isVisible()) {
         signUp->setVisible(false);
@@ -442,23 +371,15 @@ void TournamentUI::getBracket(sf::Packet& packet) {
     }
 }
 
-void TournamentUI::getResult(TGame& game, sf::Packet& packet) {
-    packet >> game.result.p1_sets >> game.result.p2_sets;
+void TournamentUI::getResult(TGame& game, const TournamentGame& p) {
+    game.result.p1_sets = p.scores[0].sets;
+    game.result.p2_sets = p.scores[1].sets;
 
     game.result.p1_rounds.clear();
-    uint8_t setcount, roundcount;
-    packet >> setcount;
-    for (uint8_t i = 0; i < setcount; i++) {
-        packet >> roundcount;
-        game.result.p1_rounds.push_back(roundcount);
-    }
+    for (auto rounds : p.scores[0].rounds) game.result.p1_rounds.push_back(rounds);
 
     game.result.p2_rounds.clear();
-    packet >> setcount;
-    for (uint8_t i = 0; i < setcount; i++) {
-        packet >> roundcount;
-        game.result.p2_rounds.push_back(roundcount);
-    }
+    for (auto rounds : p.scores[1].rounds) game.result.p2_rounds.push_back(rounds);
 }
 
 void TournamentUI::makeBracket() {

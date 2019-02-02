@@ -2,24 +2,21 @@
 #include <SFML/Network.hpp>
 #include <iostream>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 
-static auto& SendPacketUDP = Signal<void, sf::Packet&>::get("SendPacketUDP");
 static auto& SendPing = Signal<void, int, int>::get("SendPing");
 
-int PingHandle::get(const sf::Time& t, sf::Packet& _packet) {
-    uint8_t pingId;
-    uint16_t clientid;
-    _packet >> clientid >> pingId;
-
+int PingHandle::get(const sf::Time& t, const NP_Ping& p) {
     for (auto& packet : packets) {
-        if (packet.id == pingId) {
-            SendPacketUDP(_packet);
+        if (packet.id == p.ping_id) {
+            PM::write_udp(p);
             packet.received = t;
             packet.ping = (packet.received - packet.sent).asMilliseconds();
             packet.returned = true;
             return packet.ping;
-        } else if (packet.returned)
+        } else if (packet.returned) {
             break;
+        }
     }
     return -1;
 }
@@ -33,7 +30,7 @@ int PingHandle::send(const sf::Time& t, uint16_t myId) {
         else
             break;
     }
-    SendPing(myId, pingIdCount);
+    PM::write_udp(NP_Ping{myId, pingIdCount});
     lastSend = t + sf::milliseconds(300);
     PingPacket packet;
     packet.id = pingIdCount++;

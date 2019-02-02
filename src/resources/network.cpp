@@ -3,6 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include "GameSignals.h"
+#include "NetworkPackets.hpp"
 
 network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
     tcpSock.setBlocking(false);
@@ -11,8 +12,6 @@ network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514)
     curl_global_init(CURL_GLOBAL_ALL);
 
     connectSignal("SendSignal", &network::sendSignal, this);
-    connectSignal("SendPacket", &network::sendTCP, this);
-    connectSignal("SendPacketUDP", &network::sendUDP, this);
     connectSignal("SendPing", &network::sendPing, this);
     connectSignal("Disconnect", &network::disconnect, this);
 }
@@ -144,66 +143,25 @@ sf::Socket::Status network::connect() {
     return status;
 }
 
-void getSignal(sf::Packet &packet) {
-    uint8_t signalId;
-    uint16_t id1, id2;
-
-    packet >> signalId;
-    if (!packet.endOfPacket()) {
-        packet >> id1;
-        if (!packet.endOfPacket()) {
-            packet >> id2;
-            if (!Net::passOnSignal(signalId, id1, id2)) {
-#ifdef DEBUG
-                std::cout << "Error passing on signal " << signalId << "(x,y)" << std::endl;
-#endif
-            }
-            return;
-        }
-        if (!Net::passOnSignal(signalId, id1)) {
-#ifdef DEBUG
-            std::cout << "Error passing on signal " << signalId << "(x)" << std::endl;
-#endif
-        }
-        return;
-    }
-    if (!Net::passOnSignal(signalId)) {
-#ifdef DEBUG
-        std::cout << "Error passing on signal " << signalId << "()" << std::endl;
-#endif
-    }
-}
-
 static auto &Disconnect = Signal<void, int>::get("Disconnect");
 
 bool network::receiveData() {
-    sf::Packet packet;
-    sf::Socket::Status status = tcpSock.receive(packet);
-    uint8_t packetid;
+    PM::clear();
+    sf::Socket::Status status = tcpSock.receive(PM::get_packet());
     if (status == sf::Socket::Disconnected) {
         Disconnect(1);
         return true;
     }
     if (status == sf::Socket::Done) {
-        packet >> packetid;
-        if (packetid < 100) {
-#ifdef DEBUG
-            std::cout << "Packet: " << static_cast<int>(packetid) << std::endl;
-#endif
-        }
-        if (packetid == 254) {
-            getSignal(packet);
-            return true;
-        }
-        Net::passOnPacket(packetid, packet);
+        PM::read(PM::get_packet());
         return true;
     }
+    PM::clear();
     sf::IpAddress receiveAdd;
     unsigned short receivePort;
-    status = udpSock.receive(packet, receiveAdd, receivePort);
+    status = udpSock.receive(PM::get_packet(), receiveAdd, receivePort);
     if (status == sf::Socket::Done) {
-        packet >> packetid;
-        Net::passOnPacket(packetid, packet);
+        PM::read(PM::get_packet());
         return true;
     }
     return false;
