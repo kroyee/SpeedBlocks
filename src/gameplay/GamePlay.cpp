@@ -8,7 +8,6 @@
 #include "Options.h"
 #include "Resources.h"
 #include "Textures.h"
-#include "packetcompress.h"
 #include "pieces.h"
 #include "randomizer.h"
 
@@ -36,7 +35,6 @@ GamePlay::GamePlay(Resources& _resources)
       aiManager(gameclock),
       state(std::unique_ptr<GPBaseState>(new GPMainMenu(*this))),
       showPressEnterText(true) {
-    resources.compressor->game = this;
     nextpiece = 0;
 
     lockdown = false;

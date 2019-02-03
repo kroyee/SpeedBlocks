@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "GameSignals.h"
 #include "Options.h"
+#include "PacketCompressReplay.h"
 #include "Resources.h"
 #include "Textures.h"
 
@@ -350,4 +351,25 @@ ObsField::ObsField(Resources& _resources) : GameField(_resources) {
     piece.posX = 0;
     piece.posY = 0;
     npPiece.piece = 7;
+}
+
+ObsField& ObsField::operator=(const PacketCompressReplay& p) {
+    square = p.square;
+    piece.posX = p.posX;
+    piece.posY = p.posY;
+    piece.piece = p.piece;
+    piece.tile = p.color;
+    piece.rotation = p.rotation;
+    updatePiece();
+    nextpiece = p.nextpiece;
+    npcol = p.npcol;
+    nprot = p.nprot;
+    if (!text.get<FieldText::Position>()) text.set<FieldText::BPM>(p.bpmText);
+    text.set<FieldText::Pending>(p.pendingText);
+    text.set<FieldText::Combo>(p.comboText);
+    text.setComboTimer(p.comboTimerCount);
+    if (p.countdown)
+        text.set<FieldText::Countdown>(p.countdown);
+    else
+        text.hide<FieldText::Countdown>();
 }

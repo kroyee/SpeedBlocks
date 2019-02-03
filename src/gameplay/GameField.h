@@ -2,25 +2,24 @@
 #define GAMEFIELD_H
 
 #include <SFML/Graphics.hpp>
-#include "pieces.h"
-#include "GameFieldText.h"
-#include <thread>
-#include <atomic>
 #include <array>
+#include <atomic>
+#include <thread>
+#include "GameFieldText.h"
+#include "pieces.h"
 
 class Resources;
 
 struct PiecePreviewInfo {
-	PiecePreviewInfo(uint8_t p, uint8_t r=0, uint8_t c=1, float s=1.f) :
-		piece(p), rotation(r), color(c), scale(s) {}
-	uint8_t piece, rotation, color;
-	float scale;
+    PiecePreviewInfo(uint8_t p, uint8_t r = 0, uint8_t c = 1, float s = 1.f) : piece(p), rotation(r), color(c), scale(s) {}
+    uint8_t piece, rotation, color;
+    float scale;
 };
 
 class BasicField {
-public:
+   public:
     BasicField(Resources& _resources);
-    //BasicField(const BasicField& field);
+    // BasicField(const BasicField& field);
     Resources& resources;
 
     std::array<std::array<uint8_t, 10>, 22> square;
@@ -44,7 +43,7 @@ public:
 };
 
 class GameField : public BasicField {
-public:
+   public:
     sf::RenderTexture texture;
     sf::Sprite sprite;
     std::array<sf::Sprite, 16>& tile;
@@ -54,7 +53,7 @@ public:
     GameFieldText text;
 
     float offset;
-	uint8_t base_offset;
+    uint8_t base_offset;
 
     bool drawMe;
 
@@ -76,16 +75,20 @@ public:
     void drawEdges();
     void drawSquares();
     void drawPiece();
-	void drawPiecePreview(const PiecePreviewInfo& data, sf::Vector2f pos);
+    void drawPiecePreview(const PiecePreviewInfo& data, sf::Vector2f pos);
     void drawGhostPiece();
 
     void setBackColor(uint8_t val);
-	bool setOffset(uint8_t val);
+    bool setOffset(uint8_t val);
 };
 
+class PacketCompressReplay;
+
 class ObsField : public GameField {
-public:
+   public:
     ObsField(Resources& _resources);
+
+    ObsField& operator=(const PacketCompressReplay&);
 
     uint16_t id;
     uint8_t nextpiece, nprot, npcol;

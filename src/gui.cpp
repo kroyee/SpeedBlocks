@@ -4,6 +4,7 @@
 #include "GuiElements.h"
 #include "NetworkPackets.hpp"
 #include "Options.h"
+#include "PacketCompressReplay.h"
 #include "TaskQueue.h"
 #include "Textures.h"
 #include "UIGameState.h"
@@ -273,12 +274,12 @@ void UI::getGameState(const NP_Gamestate& p) {
     for (auto&& field : guiElements->gameFieldDrawer.fields)
         if (field.id == p.id) {
             if (p.count > field.datacount || (p.count < 50 && field.datacount > 200)) {
+                PacketCompressReplay compressor;
                 field.datacount = p.count;
-                resources.compressor->loadTmp(p.data);
-                resources.compressor->extract();
-                if (resources.compressor->validate()) {
-                    resources.compressor->field = &field;
-                    resources.compressor->copy();
+                compressor.loadTmp(p.data);
+                compressor.extract();
+                if (compressor.validate()) {
+                    field = compressor;
                     field.drawMe = true;
                 }
             }

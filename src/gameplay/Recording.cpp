@@ -3,7 +3,7 @@
 #include <iostream>
 #include "GameSignals.h"
 #include "NetworkPackets.hpp"
-#include "packetcompress.h"
+#include "PacketCompressReplay.h"
 
 #ifdef __APPLE__
 #include "ResourcePath.hpp"
@@ -281,7 +281,7 @@ void Recording::sendRecording(int type) {
     replay.type = type;
     replay.name = name;
     replay.id = id;
-    PacketCompress compressor;
+    PacketCompressReplay compressor;
     compressor.compressReplay(*this, replay.data);
     PM::write(replay);
 }
@@ -290,6 +290,6 @@ void Recording::receiveRecording(const NP_Replay& p) {
     name = p.name;
     id = p.id;
     events.clear();
-    PacketCompress compressor;
+    PacketCompressReplay compressor;
     compressor.extractReplay(*this, p);
 }

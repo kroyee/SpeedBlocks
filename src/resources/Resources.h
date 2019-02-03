@@ -25,7 +25,6 @@ class Resources {
     Textures* gfx;
     soundBank* sounds;
     network* net;
-    PacketCompress* compressor;
 
     GameStates gamestate;
 

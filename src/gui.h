@@ -8,12 +8,10 @@
 #include "GameFieldDrawer.h"
 #include "PingHandle.h"
 #include "Resources.h"
-#include "packetcompress.h"
 
 class soundBank;
 class GamePlay;
 class network;
-class PacketCompress;
 class textures;
 class Resources;
 struct GuiElements;

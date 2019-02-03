@@ -3,7 +3,6 @@
 #include "Options.h"
 #include "Textures.h"
 #include "network.h"
-#include "packetcompress.h"
 #include "sounds.h"
 
 bool loadError(std::string error) {
@@ -31,15 +30,7 @@ bool loadError(std::string error) {
 }
 
 Resources::Resources(sf::RenderWindow& _window)
-    : gfx(new Textures(_window)),
-      sounds(new soundBank),
-      net(new network),
-      compressor(new PacketCompress),
-      window(_window),
-      playonline(false),
-      away(false),
-      restart(false),
-      chatFocused(false) {
+    : gfx(new Textures(_window)), sounds(new soundBank), net(new network), window(_window), playonline(false), away(false), restart(false), chatFocused(false) {
     version_major = 0;
     version_minor = 1;
     version_patch = 14;
@@ -50,7 +41,6 @@ Resources::~Resources() {
     delete gfx;
     delete sounds;
     delete net;
-    delete compressor;
 }
 
 bool Resources::init() {

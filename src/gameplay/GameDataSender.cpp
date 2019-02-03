@@ -2,8 +2,8 @@
 #include "GamePlay.h"
 #include "GameSignals.h"
 #include "NetworkPackets.hpp"
+#include "PacketCompressReplay.h"
 #include "Resources.h"
-#include "packetcompress.h"
 
 static auto& Survivor = Signal<bool>::get("Survivor");
 
@@ -24,15 +24,18 @@ void GameDataSender::sendstate() {
 void GameDataSender::state() {
     if (!game.resources.playonline) return;
 
+    PacketCompressReplay compressor;
+
     if (game.resources.gamestate == GameStates::CountDown) {
         uint8_t tmp = game.field.piece.piece;
         game.field.piece.piece = 7;  // makes the current piece not draw on other players screen (since it's countdown)
-        game.resources.compressor->compress();
+        compressor = game;
+        compressor.compress();
         game.field.piece.piece = tmp;
     } else
-        game.resources.compressor->compress();
+        compressor.compress();
 
-    PM::write_udp(NP_Gamestate{game.resources.myId, count++, game.resources.compressor->tmp});
+    PM::write_udp(NP_Gamestate{game.resources.myId, count++, compressor.m_data});
 }
 
 void GameDataSender::gameover() {
