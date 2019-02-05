@@ -1,7 +1,7 @@
 #include "ServerUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Resources.h"
 
 ServerUI::ServerUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parent) : GuiBase(_pos, _res, parent) {

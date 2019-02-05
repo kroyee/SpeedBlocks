@@ -1,7 +1,7 @@
 #include "LoginBox.h"
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
 #include "Options.h"
+#include "Packets.hpp"
 #include "Resources.h"
 #include "machineid.h"
 #include "network.h"
@@ -191,7 +191,7 @@ void LoginBox::show() {
 
 void LoginBox::sendLogin(const std::string& hashorname, uint8_t guest) {
     NP_LoginRequest packet{resources.clientVersion, guest, hashorname};
-    PM::write(packet);
+    TCP.write(packet);
 }
 
 void LoginBox::regPressed() {

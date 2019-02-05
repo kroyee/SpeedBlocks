@@ -1,7 +1,7 @@
 #include "GameFieldDrawer.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Options.h"
 #include "Resources.h"
 

@@ -2,7 +2,7 @@
 #include <SFML/Network.hpp>
 #include <vector>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Resources.h"
 
 static auto& QuickMsg = Signal<void, const std::string&>::get("QuickMsg");

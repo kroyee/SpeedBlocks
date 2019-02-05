@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "GameField.h"
 #include "GamePlay.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Recording.h"
 
 void PacketCompressReplay::compressReplay(Recording& replay, std::vector<uint8_t>& data) {
@@ -216,4 +216,5 @@ PacketCompressReplay& PacketCompressReplay::operator=(const GamePlay& game) {
     comboTimerCount = game.field.text.comboTimer.getPointCount() - 2;
     countdown = game.field.text.get<FieldText::Countdown>();
     time_val = game.gameclock.getElapsedTime().asMilliseconds();
+    return *this;
 }

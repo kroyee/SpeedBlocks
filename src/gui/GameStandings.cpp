@@ -1,7 +1,7 @@
 #include "GameStandings.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Resources.h"
 
 using std::to_string;

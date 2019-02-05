@@ -1,6 +1,6 @@
 #include "ScoreScreen.h"
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Resources.h"
 
 using std::to_string;

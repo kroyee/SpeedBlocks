@@ -1,7 +1,7 @@
 #include "OnlineplayUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Resources.h"
 
 static auto& SetAreYouSure = Signal<void, const std::string&>::get("SetAreYouSure");
@@ -148,7 +148,7 @@ void OnlineplayUI::createRoom(const std::string& name, const std::string& maxpla
     if (!name.size()) return;
     if (!maxplayers.size()) return;
     NP_CreateRoom packet{name, static_cast<uint8_t>(std::stoi(maxplayers))};
-    PM::write(packet);
+    TCP.write(packet);
     hideAllPanels();
     roomList.show();
     roomSidePanel.show();
@@ -185,7 +185,7 @@ void OnlineplayUI::createTournament() {
     packet.sets = stoi(sets->getText().toAnsiString());
     packet.rounds = stoi(rounds->getText().toAnsiString());
     packet.name = tournamentName->getText();
-    PM::write(packet);
+    TCP.write(packet);
     back();
     updateTournamentListTime -= sf::seconds(5);
 }

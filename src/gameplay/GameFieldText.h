@@ -43,7 +43,7 @@ class TextObject {
 
     int getTextWidth();
 
-    int32_t get();
+    int32_t get() const;
 
    private:
     void update_origin();
@@ -61,7 +61,7 @@ class GameFieldText {
 
     std::vector<TextObject> text;
 
-    std::mutex fieldTextMutex;
+    mutable std::mutex fieldTextMutex;
 
     sf::RenderTexture& texture;
 

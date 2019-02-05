@@ -372,4 +372,5 @@ ObsField& ObsField::operator=(const PacketCompressReplay& p) {
         text.set<FieldText::Countdown>(p.countdown);
     else
         text.hide<FieldText::Countdown>();
+    return *this;
 }

@@ -1,7 +1,7 @@
 #include "ChatScreen.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Resources.h"
 
 const unsigned int chatTextSize = 14;
@@ -116,7 +116,7 @@ void ChatScreen::send() {
 
 void ChatScreen::sendMsg(const std::string& to, const std::string& msg) {
     NP_ChatMsg chat_msg{msg, resources.name, to};
-    PM::write(chat_msg);
+    TCP.write(chat_msg);
 }
 
 void ChatScreen::addLine(const std::string& msg, uint8_t type) {  // 1=room, 2=lobby, 3=priv, 4=self, 5=privself

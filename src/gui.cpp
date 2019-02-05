@@ -2,9 +2,9 @@
 #include "GamePlay.h"
 #include "GameSignals.h"
 #include "GuiElements.h"
-#include "NetworkPackets.hpp"
 #include "Options.h"
 #include "PacketCompressReplay.h"
+#include "Packets.hpp"
 #include "TaskQueue.h"
 #include "Textures.h"
 #include "UIGameState.h"
@@ -146,7 +146,7 @@ void UI::delayCheck() {
         if (!guiElements->udpConfirmed)
             if (currentTime - udpPortTime > sf::milliseconds(500)) {
                 udpPortTime = currentTime;
-                PM::write_udp(NP_ConfirmUdp{myId});
+                UDP.write(NP_ConfirmUdp{myId});
             }
 
         if (gamestate == GameStates::CountDown)

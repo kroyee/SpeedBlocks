@@ -1,7 +1,7 @@
 #include "TournamentUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "OnlineplayUI.h"
 #include "Resources.h"
 

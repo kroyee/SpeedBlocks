@@ -1,8 +1,8 @@
 #include "GameDataSender.h"
 #include "GamePlay.h"
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
 #include "PacketCompressReplay.h"
+#include "Packets.hpp"
 #include "Resources.h"
 
 static auto& Survivor = Signal<bool>::get("Survivor");
@@ -35,13 +35,13 @@ void GameDataSender::state() {
     } else
         compressor.compress();
 
-    PM::write_udp(NP_Gamestate{game.resources.myId, count++, compressor.m_data});
+    UDP.write(NP_Gamestate{game.resources.myId, count++, compressor.m_data});
 }
 
 void GameDataSender::gameover() {
     if (!game.resources.playonline || game.resources.gamestate == GameStates::Practice) return;
 
-    PM::write(NP_GameOver{{static_cast<uint8_t>(game.data.maxCombo), game.data.linesSent, game.data.linesRecieved, game.data.linesBlocked, game.data.bpm},
+    TCP.write(NP_GameOver{{static_cast<uint8_t>(game.data.maxCombo), game.data.linesSent, game.data.linesRecieved, game.data.linesBlocked, game.data.bpm},
                           static_cast<uint32_t>(game.recorder.duration.asMilliseconds()),
                           game.data.pieceCount});
 

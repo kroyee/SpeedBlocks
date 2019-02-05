@@ -19,6 +19,7 @@ class ObsField;
 class UIBaseState;
 struct NP_Gamestate;
 struct NP_JoinResponse;
+struct NP_Replay;
 
 class UI {
    public:

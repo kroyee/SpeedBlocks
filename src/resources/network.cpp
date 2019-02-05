@@ -3,7 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 
 network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514) {
     tcpSock.setBlocking(false);
@@ -146,22 +146,21 @@ sf::Socket::Status network::connect() {
 static auto &Disconnect = Signal<void, int>::get("Disconnect");
 
 bool network::receiveData() {
-    PM::clear();
-    sf::Socket::Status status = tcpSock.receive(PM::get_packet());
+    PM packet;
+    sf::Socket::Status status = tcpSock.receive(packet);
     if (status == sf::Socket::Disconnected) {
         Disconnect(1);
         return true;
-    }
-    if (status == sf::Socket::Done) {
-        PM::read(PM::get_packet());
+    } else if (status == sf::Socket::Done) {
+        packet.read();
         return true;
     }
-    PM::clear();
+    pm.clear();
     sf::IpAddress receiveAdd;
     unsigned short receivePort;
-    status = udpSock.receive(PM::get_packet(), receiveAdd, receivePort);
+    status = udpSock.receive(packet, receiveAdd, receivePort);
     if (status == sf::Socket::Done) {
-        PM::read(PM::get_packet());
+        packet.read();
         return true;
     }
     return false;

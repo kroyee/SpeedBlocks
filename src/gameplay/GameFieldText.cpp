@@ -89,7 +89,7 @@ TextObject& TextObject::show() {
 
 int TextObject::getTextWidth() { return text.getLocalBounds().width; }
 
-int32_t TextObject::get() { return value; }
+int32_t TextObject::get() const { return value; }
 
 void TextObject::draw(sf::RenderTexture& texture) {
     if (visible) {

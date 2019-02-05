@@ -4,7 +4,7 @@
 #include <string>
 #include "GameField.h"
 #include "GameSignals.h"
-#include "NetworkPackets.hpp"
+#include "Packets.hpp"
 #include "Options.h"
 #include "Resources.h"
 #include "Textures.h"
