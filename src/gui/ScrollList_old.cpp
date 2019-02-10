@@ -1,34 +1,34 @@
-#include "ScrollList.h"
+#include "ScrollList_old.h"
+#include <iostream>
 #include "GameSignals.h"
 #include "Resources.h"
 
 static auto& JoinRoom = Signal<void, int>::get("JoinRoom");
 
-ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
+ScrollList_old::ScrollList_old(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
     pos = _pos;
 
     scroll = tgui::Scrollbar::create();
     scroll->setSize(30, pos.height - 10);
     scroll->setPosition(pos.width - 35, 5);
     scroll->setMaximum(0);
-    scroll->connect("ValueChanged", &ScrollList::listScrolled, this);
+    scroll->connect("ValueChanged", &ScrollList_old::listScrolled, this);
     panel->add(scroll);
 }
 
-ScrollList::ScrollList(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel) : GuiBase(_pos, _res, parentPanel) {
+ScrollList_old::ScrollList_old(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel) : GuiBase(_pos, _res, parentPanel) {
     pos = _pos;
 
     scroll = tgui::Scrollbar::create();
     scroll->setSize(30, pos.height - 10);
     scroll->setPosition(pos.width - 35, 5);
     scroll->setMaximum(0);
-    scroll->connect("ValueChanged", &ScrollList::listScrolled, this);
+    scroll->connect("ValueChanged", &ScrollList_old::listScrolled, this);
     panel->add(scroll);
 }
 
-void ScrollList::addItem(const std::string& name, const std::string& labelStr, uint16_t id) {
-    ListItem newItem;
-    items.push_back(newItem);
+void ScrollList_old::addItem(const std::string& name, const std::string& labelStr, uint16_t id) {
+    items.push_back({});
     items.back().name = name;
     items.back().button = tgui::Button::create();
     items.back().button->setText(name);
@@ -46,7 +46,7 @@ void ScrollList::addItem(const std::string& name, const std::string& labelStr, u
     setItemPos();
 }
 
-void ScrollList::removeItem(uint16_t id) {
+void ScrollList_old::removeItem(uint16_t id) {
     for (auto it = items.begin(); it != items.end(); it++) {
         if (it->id == id) {
             panel->remove(it->button);
@@ -58,7 +58,7 @@ void ScrollList::removeItem(uint16_t id) {
     }
 }
 
-void ScrollList::removeAllItems() {
+void ScrollList_old::removeAllItems() {
     for (auto&& item : items) {
         panel->remove(item.button);
         panel->remove(item.label);
@@ -66,7 +66,7 @@ void ScrollList::removeAllItems() {
     items.clear();
 }
 
-void ScrollList::setItemPos() {
+void ScrollList_old::setItemPos() {
     short height = items.size() * 120 + 20;
     if (height > pos.height) {
         height -= pos.height;
@@ -78,7 +78,7 @@ void ScrollList::setItemPos() {
     listScrolled(scroll->getValue());
 }
 
-void ScrollList::listScrolled(unsigned scrollpos) {
+void ScrollList_old::listScrolled(unsigned scrollpos) {
     for (auto it = items.begin(); it != items.end(); it++) {
         int i = std::distance(items.begin(), it);
         it->button->setPosition(50, i * 120 - scrollpos * 30 + 10);
@@ -86,7 +86,7 @@ void ScrollList::listScrolled(unsigned scrollpos) {
     }
 }
 
-void ScrollList::scrolled(sf::Event& event) {
+void ScrollList_old::scrolled(sf::Event& event) {
     if (panel->isVisible())
         if (event.type == sf::Event::MouseWheelScrolled)
             if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)

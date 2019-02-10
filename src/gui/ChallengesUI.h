@@ -2,8 +2,8 @@
 #define CHALLENGESUI_H
 
 #include "GuiBase.h"
-#include "ScrollList.h"
 #include "ScrollList.hpp"
+#include "ScrollList_old.h"
 
 namespace sf {
 class Packet;
@@ -13,7 +13,7 @@ class Resources;
 
 class ChallengesUI : public GuiBase {
    public:
-    ScrollList challengeList;
+    ScrollList_old challengeList;
     os::Panel leaderPanel;
     os::ScrollList scrollPanel;
     os::Label title;

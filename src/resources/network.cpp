@@ -10,6 +10,7 @@ network::network() : serverAdd("speedblocks.se"), tcpPort(21512), udpPort(21514)
     udpSock.setBlocking(false);
     udpSock.bind(sf::Socket::AnyPort);
     curl_global_init(CURL_GLOBAL_ALL);
+    PM::init();
 
     connectSignal("SendSignal", &network::sendSignal, this);
     connectSignal("SendPing", &network::sendPing, this);
@@ -145,23 +146,38 @@ sf::Socket::Status network::connect() {
 
 static auto &Disconnect = Signal<void, int>::get("Disconnect");
 
-bool network::receiveData() {
+void network::receiveData() {
     PM packet;
-    sf::Socket::Status status = tcpSock.receive(packet);
-    if (status == sf::Socket::Disconnected) {
-        Disconnect(1);
-        return true;
-    } else if (status == sf::Socket::Done) {
-        packet.read();
-        return true;
+    while (true) {
+        packet.clear();
+        sf::Socket::Status status = tcpSock.receive(packet);
+        if (status == sf::Socket::Disconnected) {
+            Disconnect(1);
+            break;
+        } else if (status == sf::Socket::Done) {
+            packet.read();
+        } else
+            break;
     }
-    pm.clear();
-    sf::IpAddress receiveAdd;
-    unsigned short receivePort;
-    status = udpSock.receive(packet, receiveAdd, receivePort);
-    if (status == sf::Socket::Done) {
-        packet.read();
-        return true;
+    while (true) {
+        packet.clear();
+        sf::IpAddress receiveAdd;
+        unsigned short receivePort;
+        if (udpSock.receive(packet, receiveAdd, receivePort) == sf::Socket::Done) {
+            packet.read();
+        } else
+            break;
     }
-    return false;
+}
+
+void network::sendData() {
+    if (static_cast<sf::Packet &>(TCP).getDataSize()) {
+        while (tcpSock.send(TCP) == sf::Socket::Partial) {
+        }
+        TCP.clear();
+    }
+    if (static_cast<sf::Packet &>(UDP).getDataSize()) {
+        udpSock.send(UDP, serverAdd, udpPort);
+        UDP.clear();
+    }
 }

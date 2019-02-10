@@ -82,7 +82,7 @@ OnlineplayUI::OnlineplayUI(sf::Rect<int> _pos, Resources& _res)
         roomList.addItem(room.name, roomlabel, room.id);
     };
 
-    PM::handle_packet([&](const NP_RoomList& p) {
+    PM::handle_packet([&, add_room](const NP_RoomList& p) {
         auto scrollpos = roomList.scroll->getValue();
         roomList.removeAllItems();
 
@@ -90,7 +90,7 @@ OnlineplayUI::OnlineplayUI(sf::Rect<int> _pos, Resources& _res)
 
         roomList.scroll->setValue(scrollpos);
     });
-    PM::handle_packet([&](const NP_RoomAdd& p) { add_room(p.room); });
+    PM::handle_packet([add_room](const NP_RoomAdd& p) { add_room(p.room); });
     PM::handle_packet([&](const NP_RoomRemove& p) { roomList.removeItem(p.id); });
     PM::handle_packet([&](const NP_TournamentList& p) {
         auto scrollpos = tournamentList.scroll->getValue();

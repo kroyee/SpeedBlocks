@@ -1,26 +1,25 @@
-#ifndef SCROLLLIST_H
-#define SCROLLLIST_H
+#ifndef SCROLLLISTOLD_H
+#define SCROLLLISTOLD_H
 
 #include "GuiBase.h"
 
 class Resources;
 
-class ListItem {
-   public:
+struct ListItem {
     std::string name;
     uint16_t id;
     tgui::Button::Ptr button;
     tgui::Label::Ptr label;
 };
 
-class ScrollList : public GuiBase {
+class ScrollList_old : public GuiBase {
    public:
-    std::list<ListItem> items;
+    std::vector<ListItem> items;
     tgui::Scrollbar::Ptr scroll;
     sf::Rect<int> pos;
 
-    ScrollList(sf::Rect<int> _pos, Resources& _res);
-    ScrollList(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel);
+    ScrollList_old(sf::Rect<int> _pos, Resources& _res);
+    ScrollList_old(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel);
     void addItem(const std::string& name, const std::string& labelStr, uint16_t id);
     void removeItem(uint16_t id);
     void removeAllItems();

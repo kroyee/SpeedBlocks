@@ -3,8 +3,8 @@
 #include <iostream>
 #include "GameField.h"
 #include "GameSignals.h"
-#include "Packets.hpp"
 #include "Options.h"
+#include "Packets.hpp"
 #include "Resources.h"
 #include "TaskQueue.h"
 #include "Textures.h"
@@ -138,7 +138,7 @@ GuiElements::GuiElements(Resources& _resources)
         onlineplayUI.matchButton->setText("Join 1vs1 matchmaking");
     });
     PM::handle_packet([&](const NP_Kick& p) {
-            QuickMSG("Kicked: " + p.message);
+        QuickMSG("Kicked: " + p.message);
         SetGameState(GameStates::MainMenu);
     });
 }

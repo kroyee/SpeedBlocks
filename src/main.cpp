@@ -122,12 +122,13 @@ int main() {
         while (window.pollEvent(event))
             if (gui.handleEvent(event)) game.state->handleEvent(event);
 
-        if (resources.playonline)
-            while (resources.net->receiveData()) {
-            }
+        if (resources.playonline) resources.net->receiveData();
 
         gui.delayCheck();
         game.state->update();
+
+        if (resources.playonline) resources.net->sendData();
+
         gameDraw.draw();
     }
 

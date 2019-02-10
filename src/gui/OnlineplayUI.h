@@ -3,7 +3,7 @@
 
 #include "ChallengesUI.h"
 #include "GuiBase.h"
-#include "ScrollList.h"
+#include "ScrollList_old.h"
 #include "TournamentUI.h"
 
 class Resources;
@@ -13,8 +13,8 @@ class OnlineplayUI : public GuiBase {
     os::Tabs opTab;
     os::Panel CreateRoom;
 
-    ScrollList roomList;
-    ScrollList tournamentList;
+    ScrollList_old roomList;
+    ScrollList_old tournamentList;
 
     TournamentUI tournamentPanel;
 
