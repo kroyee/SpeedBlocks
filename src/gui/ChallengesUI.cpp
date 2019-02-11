@@ -60,11 +60,11 @@ ChallengesUI::ChallengesUI(sf::Rect<int> _pos, Resources& _res, os::Panel& paren
     });
 }
 
-void ChallengesUI::play() { SendSignal(17, selectedId); }
+void ChallengesUI::play() { TCP.write_as<NP_ChallengePlay>(selectedId); }
 
 void ChallengesUI::show() {
     panel.show();
     leaderPanel.hide();
 }
 
-void ChallengesUI::viewReplay(uint16_t slot) { SendSignal(18, selectedId, slot); }
+void ChallengesUI::viewReplay(uint16_t slot) { TCP.write_as<NP_ChallengeWatchReplay>(selectedId, slot); }

@@ -166,9 +166,9 @@ void OnlineplayUI::createTournamentPressed() {
 
 void OnlineplayUI::matchmakingPressed() {
     if (matchButton->getText() == "Join 1vs1 matchmaking")
-        SendSignal(21);
+        TCP.write<NP_MatchmakingJoin>();
     else
-        SendSignal(22);
+        TCP.write<NP_MatchmakingLeave>();
 }
 
 void OnlineplayUI::back() {

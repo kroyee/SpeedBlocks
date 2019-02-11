@@ -46,7 +46,7 @@ class UI {
 
     uint16_t& myId;
 
-    void joinRoom(int);
+    void joinRoom(uint16_t);
     void leaveRoom();
 
     void chatFocus(bool i);

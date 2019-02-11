@@ -4,8 +4,8 @@
 #include <string>
 #include "GameField.h"
 #include "GameSignals.h"
-#include "Packets.hpp"
 #include "Options.h"
+#include "Packets.hpp"
 #include "Resources.h"
 #include "Textures.h"
 #include "pieces.h"
@@ -295,7 +295,7 @@ void GamePlay::delayCheck() {
         field.text.set<FieldText::Pending>(garbage.count());
         data.linesSent += comboLinesSent;
         if (comboLinesSent) {
-            if (resources.gamestate == GameStates::Game) SendSignal(2, comboLinesSent);
+            if (resources.gamestate == GameStates::Game) TCP.write_as<NP_LinesSent>(static_cast<uint8_t>(comboLinesSent));
             aiManager.distributeLines(0, comboLinesSent);
         }
         drawMe = true;
@@ -337,7 +337,7 @@ void GamePlay::delayCheck() {
 void GamePlay::sendLines(sf::Vector2i lines) {
     data.garbageCleared += lines.y;
     if (lines.y)
-        if (resources.gamestate == GameStates::Game) SendSignal(3, lines.y);
+        if (resources.gamestate == GameStates::Game) TCP.write_as<NP_GarbageCleared>(static_cast<uint8_t>(lines.y));
     data.linesCleared += lines.x;
     if (lines.x == 0) {
         combo.noClear();
@@ -347,7 +347,7 @@ void GamePlay::sendLines(sf::Vector2i lines) {
     uint16_t amount = garbage.block(lines.x - 1, gameclock.getElapsedTime());
     data.linesSent += amount;
     if (amount) {
-        if (resources.gamestate == GameStates::Game) SendSignal(2, amount);
+        if (resources.gamestate == GameStates::Game) TCP.write_as<NP_LinesSent>(static_cast<uint8_t>(amount));
         aiManager.distributeLines(0, amount);
     }
     field.text.set<FieldText::Pending>(garbage.count());
@@ -535,7 +535,7 @@ void GamePlay::away() {
 void GamePlay::setAway(bool away) {
     if (away) {
         resources.away = true;
-        SendSignal(5);
+        TCP.write<NP_Away>();
         gameOver(0);
         field.text.show<FieldText::Away>();
         autoaway = false;
@@ -543,7 +543,7 @@ void GamePlay::setAway(bool away) {
     } else {
         resources.away = false;
         autoaway = false;
-        SendSignal(6);
+        TCP.write<NP_NotAway>();
         field.text.hide<FieldText::Away>();
         drawMe = true;
     }
@@ -552,10 +552,10 @@ void GamePlay::setAway(bool away) {
 void GamePlay::ready() {
     if (resources.gamestate == GameStates::GameOver) {
         if (field.text.get<FieldText::Ready>()) {
-            SendSignal(8);
+            TCP.write<NP_NotReady>();
             field.text.hide<FieldText::Ready>();
         } else {
-            SendSignal(7);
+            TCP.write<NP_Ready>();
             field.text.show<FieldText::Ready>();
         }
         drawMe = true;

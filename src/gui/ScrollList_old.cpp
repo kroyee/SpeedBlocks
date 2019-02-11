@@ -3,7 +3,7 @@
 #include "GameSignals.h"
 #include "Resources.h"
 
-static auto& JoinRoom = Signal<void, int>::get("JoinRoom");
+static auto& JoinRoom = Signal<void, uint16_t>::get("JoinRoom");
 
 ScrollList_old::ScrollList_old(sf::Rect<int> _pos, Resources& _res) : GuiBase(_pos, _res) {
     pos = _pos;
@@ -33,7 +33,7 @@ void ScrollList_old::addItem(const std::string& name, const std::string& labelSt
     items.back().button = tgui::Button::create();
     items.back().button->setText(name);
     items.back().button->setSize(300, 100);
-    items.back().button->connect("Pressed", [=]() { JoinRoom(id); });
+    items.back().button->connect("Pressed", [&, id]() { JoinRoom(id); });
     panel->add(items.back().button);
 
     items.back().label = tgui::Label::create();

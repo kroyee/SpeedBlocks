@@ -72,16 +72,16 @@ GuiElements::GuiElements(Resources& _resources)
 
     player_popup.setBoundery({0, 0, 380, 600});
     player_popup.add("Set Handicap")
-        .add("0%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 0); }); })
-        .add("10%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 10); }); })
-        .add("20%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 20); }); })
-        .add("30%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 30); }); })
-        .add("40%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 40); }); })
-        .add("50%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 50); }); })
-        .add("60%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 60); }); })
-        .add("70%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 70); }); })
-        .add("80%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 80); }); })
-        .add("90%", []() { TaskQueue::add(Task::NotDuringRound, []() { SendSignal(23, 90); }); });
+        .add("0%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(0)); }); })
+        .add("10%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(10)); }); })
+        .add("20%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(20)); }); })
+        .add("30%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(30)); }); })
+        .add("40%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(40)); }); })
+        .add("50%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(50)); }); })
+        .add("60%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(60)); }); })
+        .add("70%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(70)); }); })
+        .add("80%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(80)); }); })
+        .add("90%", []() { TaskQueue::add(Task::NotDuringRound, []() { TCP.write_as<NP_HandicapSet>(static_cast<uint8_t>(90)); }); });
     player_popup.add("Away", []() { Away(); }).add("Ready", []() { Ready(); }).update();
 
     connectSignal("Show", [&](int elem) { elements[elem]->show(); });
@@ -187,12 +187,12 @@ void GuiElements::delayCheck(const sf::Time& currentTime) {
             if (onlineplayUI.roomList.isVisible())
                 if (currentTime - onlineplayUI.updateRoomListTime > sf::seconds(5)) {
                     onlineplayUI.updateRoomListTime = currentTime;
-                    SendSignal(16);
+                    TCP.write<NP_RoomListRefresh>();
                 }
             if (onlineplayUI.tournamentList.isVisible())
                 if (currentTime - onlineplayUI.updateTournamentListTime > sf::seconds(5)) {
                     onlineplayUI.updateTournamentListTime = currentTime;
-                    SendSignal(15);
+                    TCP.write<NP_TournamentListRefresh>();
                 }
         }
     }

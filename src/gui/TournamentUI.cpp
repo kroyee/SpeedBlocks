@@ -1,8 +1,8 @@
 #include "TournamentUI.h"
 #include <SFML/Network.hpp>
 #include "GameSignals.h"
-#include "Packets.hpp"
 #include "OnlineplayUI.h"
+#include "Packets.hpp"
 #include "Resources.h"
 
 TournamentUI::TournamentUI(sf::Rect<int> _pos, Resources& _res, os::Panel& parentPanel, OnlineplayUI& _opui) : GuiBase(_pos, _res, parentPanel), onlineplayUI(_opui) {
@@ -568,14 +568,14 @@ void TournamentUI::setModeratorButtons() {
 
 void TournamentUI::signUpPressed() {
     if (signUpButton->getText() == "Sign Up!")
-        SendSignal(9, id);
+        TCP.write_as<NP_TournamentSignUp>(id);
     else
-        SendSignal(10, id);
+        TCP.write_as<NP_TournamentWithdraw>(id);
 }
 
-void TournamentUI::closeSignPressed() { SendSignal(11, id); }
+void TournamentUI::closeSignPressed() { TCP.write_as<NP_TournamentCloseSignUp>(id); }
 
-void TournamentUI::startTournamentPressed() { SendSignal(12, id); }
+void TournamentUI::startTournamentPressed() { TCP.write_as<NP_TournamentStart>(id); }
 
 void TournamentUI::gamePressed(TGame& game) {
     std::string nameofgame = game.gameName->getText();
@@ -635,7 +635,7 @@ void TournamentUI::setGameResults(TGame& game) {
     }
 }
 
-void TournamentUI::playPressed(TGame& game) { SendSignal(13, id, game.id); }
+void TournamentUI::playPressed(TGame& game) { TCP.write_as<NP_TournamentJoinGame>(id, game.id); }
 
 void TournamentUI::goBack() {
     if (gameInfo->isVisible()) {
@@ -648,9 +648,9 @@ void TournamentUI::goBack() {
     }
 }
 
-void TournamentUI::spectate(TGame& game) { SendSignal(19, id, game.id); }
+void TournamentUI::spectate(TGame& game) { TCP.write_as<NP_SpectatorJoin>(id, game.id); }
 
 void TournamentUI::hide() {
-    SendSignal(14, id);
+    TCP.write_as<NP_TournamentLeftPanel>(id);
     panel->setVisible(false);
 }

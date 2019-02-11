@@ -107,14 +107,14 @@ UI::UI(sf::RenderWindow& window_, GamePlay& game_)
 
 UI::~UI() { delete guiElements; }
 
-void UI::joinRoom(int id) {
-    SendSignal(0, id);
+void UI::joinRoom(uint16_t id) {
+    TCP.write_as<NP_JoinRoom>(id);
     away = false;
     game.autoaway = false;
 }
 
 void UI::leaveRoom() {
-    SendSignal(1);
+    TCP.write<NP_Leave>();
     SetGameState(GameStates::MainMenu);
 }
 

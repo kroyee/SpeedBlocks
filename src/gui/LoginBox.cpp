@@ -189,10 +189,7 @@ void LoginBox::show() {
     username.focus();
 }
 
-void LoginBox::sendLogin(const std::string& hashorname, uint8_t guest) {
-    NP_LoginRequest packet{resources.clientVersion, guest, hashorname};
-    TCP.write(packet);
-}
+void LoginBox::sendLogin(const std::string& hashorname, uint8_t guest) { TCP.write_as<NP_LoginRequest>(resources.clientVersion, guest, hashorname); }
 
 void LoginBox::regPressed() {
 #ifdef _WIN32
