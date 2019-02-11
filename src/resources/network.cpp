@@ -57,7 +57,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
     mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
     if (mem->memory == NULL) {
-        DEBUG([]() { std::cout << "not enough memory (realloc returned NULL)" << std::endl; });
+        DEBUG_ONLY([]() { std::cout << "not enough memory (realloc returned NULL)" << std::endl; });
         return 0;
     }
 
@@ -109,7 +109,7 @@ std::string network::sendCurlPost(const std::string &URL, const std::string &pos
         res = curl_easy_perform(curl);
         /* Check for errors */
         if (res != CURLE_OK) {
-            DEBUG([]() {
+            DEBUG_ONLY([]() {
                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
                 std::cout << std::endl;
             });
@@ -120,7 +120,7 @@ std::string network::sendCurlPost(const std::string &URL, const std::string &pos
         /* always cleanup */
         curl_easy_cleanup(curl);
     } else {
-        DEBUG([]() { std::cout << "Curl failed to load" << std::endl; });
+        DEBUG_ONLY([]() { std::cout << "Curl failed to load" << std::endl; });
     }
 
     delete[] cstr;

@@ -222,7 +222,7 @@ int PatchCheck::download_file(const std::string& file) {
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
-            DEBUG([&]() {
+            DEBUG_ONLY([&]() {
                 fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
                 std::cout << std::endl;
             });

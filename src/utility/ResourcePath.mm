@@ -39,7 +39,7 @@ std::string resourcePath(void)
     NSBundle* bundle = [NSBundle mainBundle];
 
     if (bundle == nil) {
-        DEBUG([](){NSLog(@"bundle is nil... thus no resources path can be found.");});
+        DEBUG_ONLY([](){NSLog(@"bundle is nil... thus no resources path can be found.");});
     } else {
         NSString* path = [bundle resourcePath];
         rpath = [path UTF8String] + std::string("/");

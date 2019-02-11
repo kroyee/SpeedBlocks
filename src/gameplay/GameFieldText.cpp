@@ -113,7 +113,7 @@ struct TextObjectInitializer {
 };
 
 void initTextObjects(std::vector<TextObject>& vec, const std::vector<TextObjectInitializer>& data) {
-    DEBUG([&]() {
+    DEBUG_ONLY([&]() {
         if (vec.size() != data.size()) std::cout << "Size of TextObject vector does not match size of init-data" << std::endl;
     });
 

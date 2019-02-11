@@ -18,7 +18,7 @@ class Signal<void, Args...> {
    public:
     template <typename... Args2>
     void operator()(Args2 &&... args2) {
-        DEBUG([&]() {
+        DEBUG_ONLY([&]() {
             if (function.empty()) std::cout << "WARNING: Using empty signal!!" << std::endl;
         });
 
@@ -53,7 +53,7 @@ class Signal<ReturnType, Args...> {
    public:
     template <typename... Args2>
     ReturnType operator()(Args2 &&... args2) {
-        DEBUG([&]() {
+        DEBUG_ONLY([&]() {
             if (!function) std::cout << "WARNING: Using empty signal!!" << std::endl;
         });
 

@@ -56,7 +56,7 @@ T& get(std::string name) {
     static auto& map = getMap();
     toLower(name);
 
-    DEBUG([&]() {
+    DEBUG_ONLY([&]() {
         if (map.find(name) == map.end()) std::cout << "Option::get with invalid name: " << name << std::endl;
     });
 
@@ -180,7 +180,7 @@ void save() {
 #endif
 
     if (!file.is_open()) {
-        DEBUG([]() { std::cout << "Failed to open options.cfg" << std::endl; });
+        DEBUG_ONLY([]() { std::cout << "Failed to open options.cfg" << std::endl; });
         return;
     }
 
@@ -282,7 +282,7 @@ void load() {
 #endif
 
     if (!file.is_open()) {
-        DEBUG([]() { std::cout << "Failed to open options.cfg" << std::endl; });
+        DEBUG_ONLY([]() { std::cout << "Failed to open options.cfg" << std::endl; });
         initBasePieces();
         return;
     }
@@ -331,7 +331,7 @@ void load() {
                 *reinterpret_cast<std::string*>(item.second) = line;
                 break;
             default:
-                DEBUG([&]() { std::cout << keyword << " = Nuller?" << std::endl; });
+                DEBUG_ONLY([&]() { std::cout << keyword << " = Nuller?" << std::endl; });
                 continue;
                 break;
         }
@@ -340,7 +340,7 @@ void load() {
     }
 
     if (countset != amount) {
-        DEBUG([&]() {
+        DEBUG_ONLY([&]() {
             std::cout << "Incomplete options.cfg, " << countset << " of " << amount << "set\n"
                       << "Missing options set to default" << std::endl;
         });
