@@ -1,6 +1,6 @@
 #include "Recording.h"
 #include <fstream>
-#include <iostream>
+#include "Debug.hpp"
 #include "GameSignals.h"
 #include "PacketCompressReplay.h"
 #include "Packets.hpp"
@@ -65,10 +65,7 @@ void Recording::save(std::string filename) {
     }
     std::ofstream file(filename, std::ios::binary);
     if (!file.is_open()) {
-#ifdef DEBUG
-        std::cout << "Error saving recording" << std::endl;
-#endif
-
+        DEBUG([]() { std::cout << "Error saving recording" << std::endl; });
         return;
     }
 
@@ -180,10 +177,7 @@ void Recording::load(std::string filename) {
     std::ifstream file(filename, std::ios::binary);
 
     if (!file.is_open()) {
-#ifdef DEBUG
-        std::cout << "Error loading recording" << std::endl;
-#endif
-
+        DEBUG([]() { std::cout << "Error loading recording" << std::endl; });
         return;
     }
 

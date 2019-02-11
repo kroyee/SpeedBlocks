@@ -7,10 +7,10 @@
 
 #include <array>
 #include <cstdio>
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include "Debug.hpp"
 
 #include <cstring>
 
@@ -222,10 +222,10 @@ int PatchCheck::download_file(const std::string& file) {
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
-#ifdef DEBUG
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-            std::cout << std::endl;
-#endif
+            DEBUG([&]() {
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+                std::cout << std::endl;
+            });
         }
         fclose(fp);
 

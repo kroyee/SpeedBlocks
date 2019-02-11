@@ -2,6 +2,7 @@
 #include <SFML/Network.hpp>
 #include <cstring>
 #include <iostream>
+#include "Debug.hpp"
 #include "GameSignals.h"
 #include "Packets.hpp"
 
@@ -56,9 +57,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 
     mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
     if (mem->memory == NULL) {
-#ifdef DEBUG
-        std::cout << "not enough memory (realloc returned NULL)" << std::endl;
-#endif
+        DEBUG([]() { std::cout << "not enough memory (realloc returned NULL)" << std::endl; });
         return 0;
     }
 
@@ -110,10 +109,10 @@ std::string network::sendCurlPost(const std::string &URL, const std::string &pos
         res = curl_easy_perform(curl);
         /* Check for errors */
         if (res != CURLE_OK) {
-#ifdef DEBUG
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-            std::cout << std::endl;
-#endif
+            DEBUG([]() {
+                fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+                std::cout << std::endl;
+            });
         }
 
         curl_slist_free_all(headers);
@@ -121,9 +120,7 @@ std::string network::sendCurlPost(const std::string &URL, const std::string &pos
         /* always cleanup */
         curl_easy_cleanup(curl);
     } else {
-#ifdef DEBUG
-        std::cout << "Curl failed to load" << std::endl;
-#endif
+        DEBUG([]() { std::cout << "Curl failed to load" << std::endl; });
     }
 
     delete[] cstr;

@@ -64,12 +64,12 @@ LoginBox::LoginBox(sf::Rect<int> _pos, Resources& _res, os::Panel& parent) : Gui
 
     os::Button().pos(135, 410).size(150, 40).text("Login as Guest").connect("pressed", &LoginBox::launchLogin, this, 1).add_to(panel);
 
-#ifdef DEBUG
-    os::Button().text("localhost").pos(135, 460).add_to(panel).connect("pressed", [&]() {
-        resources.net->serverAdd = "localhost";
-        launchLogin(1);
+    DEBUG([&]() {
+        os::Button().text("localhost").pos(135, 460).add_to(panel).connect("pressed", [&]() {
+            resources.net->serverAdd = "localhost";
+            launchLogin(1);
+        });
     });
-#endif
 
     connectSignal("IsLoginThreadJoinable", [&]() { return t.joinable(); });
     connectSignal("TellPatcherToQuit", [&]() { patcher.quit = true; });

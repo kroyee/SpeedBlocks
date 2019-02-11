@@ -2,10 +2,10 @@
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <type_traits>
 #include <utility>
+#include "Debug.hpp"
 using std::ifstream;
 using std::ofstream;
 using std::stoi;
@@ -56,9 +56,9 @@ T& get(std::string name) {
     static auto& map = getMap();
     toLower(name);
 
-#ifdef DEBUG
-    if (map.find(name) == map.end()) std::cout << "Option::get with invalid name: " << name << std::endl;
-#endif
+    DEBUG([&]() {
+        if (map.find(name) == map.end()) std::cout << "Option::get with invalid name: " << name << std::endl;
+    });
 
     return *reinterpret_cast<T*>(map[name].second);
 }
@@ -180,9 +180,7 @@ void save() {
 #endif
 
     if (!file.is_open()) {
-#ifdef DEBUG
-        std::cout << "Failed to open options.cfg" << std::endl;
-#endif
+        DEBUG([]() { std::cout << "Failed to open options.cfg" << std::endl; });
         return;
     }
 
@@ -284,9 +282,7 @@ void load() {
 #endif
 
     if (!file.is_open()) {
-#ifdef DEBUG
-        std::cout << "Failed to open options.cfg" << std::endl;
-#endif
+        DEBUG([]() { std::cout << "Failed to open options.cfg" << std::endl; });
         initBasePieces();
         return;
     }
@@ -335,9 +331,7 @@ void load() {
                 *reinterpret_cast<std::string*>(item.second) = line;
                 break;
             default:
-#ifdef DEBUG
-                std::cout << keyword << " = Nuller?" << std::endl;
-#endif
+                DEBUG([&]() { std::cout << keyword << " = Nuller?" << std::endl; });
                 continue;
                 break;
         }
@@ -346,10 +340,10 @@ void load() {
     }
 
     if (countset != amount) {
-#ifdef DEBUG
-        std::cout << "Incomplete options.cfg, " << countset << " of " << amount << "set\n"
-                  << "Missing options set to default" << std::endl;
-#endif
+        DEBUG([&]() {
+            std::cout << "Incomplete options.cfg, " << countset << " of " << amount << "set\n"
+                      << "Missing options set to default" << std::endl;
+        });
     }
 
     initBasePieces();

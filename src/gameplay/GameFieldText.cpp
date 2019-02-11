@@ -1,12 +1,9 @@
 #include "GameFieldText.h"
 #include <cmath>
 #include <tuple>
+#include "Debug.hpp"
 #include "Resources.h"
 #include "Textures.h"
-
-#ifdef DEBUG
-#include <iostream>
-#endif
 
 TextObject::TextObject() {
     text.setCharacterSize(48);
@@ -116,9 +113,9 @@ struct TextObjectInitializer {
 };
 
 void initTextObjects(std::vector<TextObject>& vec, const std::vector<TextObjectInitializer>& data) {
-#ifdef DEBUG
-    if (vec.size() != data.size()) std::cout << "Size of TextObject vector does not match size of init-data" << std::endl;
-#endif
+    DEBUG([&]() {
+        if (vec.size() != data.size()) std::cout << "Size of TextObject vector does not match size of init-data" << std::endl;
+    });
 
     for (unsigned i = 0; i < vec.size(); ++i) {
         auto& textObject = vec[static_cast<unsigned>(data[i].ft)];
